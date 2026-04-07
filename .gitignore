@@ -1,0 +1,19 @@
+# dependencies
+node_modules
+.pnpm-store
+pnpm-lock.yaml
+
+# build outputs
+.next
+dist
+
+# env files
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+
+# logs
+*.log
