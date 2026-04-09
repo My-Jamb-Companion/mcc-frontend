@@ -1,8 +1,7 @@
 import {useAuth} from "../hooks/useAuth";
 import FormInputs from "./FormInputs";
 import {Icon} from "@iconify/react";
-import Link from "next/link";
-import {useForm, FieldError, FieldErrors} from "react-hook-form";
+import {useForm, FieldError} from "react-hook-form";
 import {useState} from "react";
 import LoggingIn from "./LoggingIn";
 
@@ -17,8 +16,7 @@ export const LoginForm = ({
   const errors = formState.errors;
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = (data: SignUpFormInputs) => {
-    console.log(data);
+  const onSubmit = (data: LoginFormInputs) => {
     setLoading(true);
 
     setTimeout(() => {
@@ -76,33 +74,33 @@ export const LoginForm = ({
               errors={errors.password as FieldError}
               isPassword
             />
-            <button className="bg-primary text-white border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/90 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300">
+            <button className="bg-primary text-white border-muted/50 border shadow-sm dark:shadow-primary flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/90 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300">
               Log in
             </button>
             <div className="flex items-center justify-between gap-3">
-              <Link
+              <a
                 href="/signup"
                 className="text-sm dark:text-muted text-black flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
               >
                 <Icon icon="ph:arrow-left" width={16} />
                 Back
-              </Link>
-              <Link
+              </a>
+              <a
                 href="/forgot-password"
                 className="text-sm dark:text-muted text-black flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
               >
                 Forgot Password?
-              </Link>
+              </a>
             </div>
           </form>
 
           <p className="text-sm text-center font-medium flex items-center justify-center gap-2 cursor-pointer text-muted mt-4">
             Don't have an account?
-            <Link href="/signup">
+            <a href="/signup">
               <span className="underline dark:text-muted text-black cursor-pointer text-black hover:text-primary transition-all duration-300">
                 Sign Up
               </span>
-            </Link>
+            </a>
           </p>
         </div>
       )}
