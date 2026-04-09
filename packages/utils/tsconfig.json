@@ -1,9 +1,9 @@
 {
   "extends": "../../tooling/tsconfig/base.json",
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
-    "baseUrl": "."
+    "outDir": "dist",
+    "rootDir": ".",
+    "ignoreDeprecations": "6.0"
   },
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["."]
 }

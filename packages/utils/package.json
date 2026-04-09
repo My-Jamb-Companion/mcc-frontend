@@ -1,12 +1,22 @@
 {
   "name": "@mcc/utils",
-  "version": "0.0.1",
-  "private": true,
-  "main": "./index.ts",
-  "exports": {
-    ".": "./index.ts"
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.32.1",
   "dependencies": {
     "react-hook-form": "^7.54.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
   }
 }
