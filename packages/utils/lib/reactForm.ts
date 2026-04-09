@@ -8,6 +8,8 @@ export {
   FormProvider,
 } from "react-hook-form";
 export type {
+  FieldError,
+  UseFormRegisterReturn,
   FieldValues,
   SubmitHandler,
   UseFormReturn,

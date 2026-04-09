@@ -1,5 +1,5 @@
-import {FieldErrors, useForm} from "react-hook-form";
-import FormInputs from "./formInputs";
+import {FieldErrors, useForm} from "@mcc/utils";
+import FormInputs from "./FormInputs";
 import Link from "next/link";
 import {Icon} from "@mcc/ui";
 
@@ -23,7 +23,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
           type="email"
           placeholder="Enter your email address"
           registration={register("email", {required: "Email is required"})}
-          errors={errors.email as FieldError}
+          errors={errors.email}
         />
         <FormInputs
           label="Password"
@@ -36,7 +36,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
               message: "Password must be at least 6 characters",
             },
           })}
-          errors={errors.password as FieldError}
+          errors={errors.password}
           isPassword
         />
         <button className="bg-primary text-white border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/90 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300">

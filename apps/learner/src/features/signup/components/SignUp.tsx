@@ -1,5 +1,6 @@
 import {Icon} from "@mcc/ui";
 import {useState} from "react";
+import SignupForm from "./SignUpForm";
 
 export default function SignUp() {
   // const [showContinueWithAccount, setShowContinueWithAccount] = useState(false);

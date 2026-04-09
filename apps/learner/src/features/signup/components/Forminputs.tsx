@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {FieldError, UseFormRegisterReturn} from "react-hook-form";
+import {FieldError, UseFormRegisterReturn} from "@mcc/utils";
 import {Icon} from "@mcc/ui";
 import {motion} from "framer-motion";
 
