@@ -1,8 +1,8 @@
 {
   "folders": [
     {"name": "Root", "path": "."},
-    {"name": "Admin", "path": "apps/admin"},
-    {"name": "Learner", "path": "apps/learner"},
+    // {"name": "Admin", "path": "apps/admin"},
+    // {"name": "Learner", "path": "apps/learner"},
   ],
   "settings": {
     "js/ts.tsdk.path": "node_modules/typescript/lib",
