@@ -43,7 +43,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
           Create Account
         </button>
         <p
-          className="text-sm text-black flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
+          className="text-sm text-black dark:text-muted flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
           onClick={back.bind(null, false)}
         >
           <Icon icon="ph:arrow-left" width={16} />
@@ -54,7 +54,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
       <p className="text-sm text-center font-medium flex items-center justify-center gap-2 cursor-pointer text-muted mt-4">
         Already have an account?
         <Link href="/login">
-          <span className="underline cursor-pointer text-black hover:text-primary transition-all duration-300">
+          <span className="underline cursor-pointer text-black dark:text-muted hover:text-primary transition-all duration-300">
             Sign in
           </span>
         </Link>
@@ -69,5 +69,4 @@ interface SignUpFormInputs {
   Password: string;
   ConfirmPassword: string;
   error: FieldErrors | undefined;
-  // errors: FieldErrors | undefined
 }
