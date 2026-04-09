@@ -3,7 +3,7 @@ export const slides = [
     id: 1,
     title: "The Classroom Magic",
     description: "The Classroom magic happens here!",
-    img: "",
+    img: "/assets/images/tower.jpg",
     info: "Classroom",
   },
   {
@@ -11,7 +11,7 @@ export const slides = [
     title: "The Brainy AI",
     description:
       "The the AI tool built to give learning freedom with alternates. ",
-    img: "",
+    img: "/assets/images/bookCircle.jpg",
     info: "Brainy AI",
   },
   {
@@ -19,7 +19,7 @@ export const slides = [
     title: "Exam programs",
     description:
       "All materials built to help students prepare for their exams in the most relatable manner possible. ",
-    img: "",
+    img: "/assets/images/bookRow.jpg",
     info: "Exam programs",
   },
   {
@@ -27,7 +27,7 @@ export const slides = [
     title: "High-end skills ",
     description:
       "Experts have been gathers to teach high-end skills required for today’s world.",
-    img: "",
+    img: "/assets/images/pencil.jpg",
     info: "Skills",
   },
   {
@@ -35,7 +35,7 @@ export const slides = [
     title: "Personalized live sessions",
     description:
       "Aside interacting with the system built, we have provided the right teachers  required to drive a better and supported learning experience.",
-    img: "",
+    img: "/assets/images/bookChair.jpg",
     info: "Live sessions",
   },
 ];

@@ -1,6 +1,5 @@
 "use client";
 import Image from "next/image";
-import img from "../../../../public/tower.jpg";
 import {useEffect, useState} from "react";
 import {slides} from "../constants/slides";
 
@@ -35,16 +34,18 @@ export default function SignUpSlider() {
   return (
     <>
       <div className="relative flex-1 overflow-hidden w-full h-full">
-        <Image
-          src={img}
-          alt="Signup Slider"
-          fill
-          className="object-cover object-center"
-        />
+        {slides?.[slide]?.img && (
+          <Image
+            src={slides[slide].img}
+            alt="Signup Slider"
+            fill
+            className="object-cover object-center"
+          />
+        )}
       </div>
 
       <div
-        className="bg-muted/70 h-full w-full absolute top-0 left-0 flex flex-col justify-end px-8 py-10"
+        className="bg-muted/30 h-full w-full absolute top-0 left-0 flex flex-col justify-end px-8 py-10"
         // style={{
         //   color:
         //     slide === 0 || slide === slides.length - 1 ? "#fff" : "#4E4E55",
