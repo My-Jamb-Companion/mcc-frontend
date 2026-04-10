@@ -7,6 +7,7 @@
   --primary: #6b26ff;
   --muted: #6f6f77;
   --danger: #d42422;
+  --hint: rgba(39, 39, 42, 0.3);
 }
 
 @theme inline {
@@ -16,6 +17,7 @@
   --color-primary: var(--primary);
   --color-danger: var(--danger);
   --color-muted: var(--muted);
+  --color-hint: var(--hint);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
   --font-bagel: "Bagel Fat One";

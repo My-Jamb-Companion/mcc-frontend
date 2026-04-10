@@ -111,10 +111,10 @@ export const LoginForm = ({
                   Back
                 </a>
                 <a
-                  href="/forgot-password"
+                  href="/forget-password"
                   className="text-sm hover:text-primary"
                 >
-                  Forgot Password?
+                  Forget Password?
                 </a>
               </div>
             </form>

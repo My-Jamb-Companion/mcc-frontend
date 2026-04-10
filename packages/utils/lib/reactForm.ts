@@ -4,6 +4,7 @@ export {
   useFormContext,
   useController,
   useWatch,
+  watch,
   useFieldArray,
   FormProvider,
 } from "react-hook-form";
