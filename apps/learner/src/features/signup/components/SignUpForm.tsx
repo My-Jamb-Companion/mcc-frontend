@@ -1,7 +1,7 @@
 import {FieldErrors, useForm} from "@mcc/utils";
 import FormInputs from "./FormInputs";
 import Link from "next/link";
-import {Icon, motion} from "@mcc/ui";
+import {motion} from "@mcc/ui";
 
 export default function SignupForm({back}: {back: (value: boolean) => void}) {
   const {register, formState, handleSubmit} = useForm<SignUpFormInputs>();
@@ -19,7 +19,6 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
       exit={{opacity: 0, scale: 0.96}}
       transition={{duration: 0.35, ease: "easeInOut"}}
     >
-      {/* Shared card container */}
       <motion.div layoutId="auth-card">
         <div className="mt-8 mb-6">
           <h4 className="text-xl font-semibold">Create an account</h4>
@@ -50,7 +49,6 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
             isPassword
           />
 
-          {/* 🔥 Shared button (this is what morphs into loader) */}
           <motion.button
             layoutId="auth-button"
             className="bg-primary text-white border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/90 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300"
