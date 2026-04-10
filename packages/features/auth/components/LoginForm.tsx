@@ -4,6 +4,7 @@ import {Icon} from "@iconify/react";
 import {useForm, FieldError} from "react-hook-form";
 import {useState} from "react";
 import LoggingIn from "./LoggingIn";
+import {AnimatePresence, motion} from "@mcc/ui";
 
 export const LoginForm = ({
   onSuccess,
@@ -21,8 +22,8 @@ export const LoginForm = ({
 
     setTimeout(() => {
       setLoading(false);
-      handleLogin("learner");
-    }, 4000);
+      // handleLogin("learner");
+    }, 2150);
   };
 
   const handleLogin = async (role: any) => {
@@ -42,69 +43,92 @@ export const LoginForm = ({
     //     Login as Admin
     //   </button>
     // </div>
-    <>
+    <AnimatePresence mode="wait">
       {loading ? (
-        <LoggingIn />
+        <motion.div
+          key="loading"
+          layout
+          initial={{opacity: 0, scale: 0.96}}
+          animate={{opacity: 1, scale: 1}}
+          exit={{opacity: 0, scale: 0.96}}
+          transition={{duration: 0.35, ease: "easeInOut"}}
+          className="w-full"
+        >
+          <motion.div layoutId="auth-card">
+            <LoggingIn />
+          </motion.div>
+        </motion.div>
       ) : (
-        <div className="">
-          <div className="mt-8 mb-6">
-            <h4 className="text-xl font-semibold">Log in to MC. Companion</h4>
-            <p className="text-muted text-sm">Sign in to continue learning</p>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <FormInputs
-              label="Email"
-              type="email"
-              placeholder="Enter your email address"
-              registration={register("email", {required: "Email is required"})}
-              errors={errors.email as FieldError}
-            />
-            <FormInputs
-              label="Password"
-              type="password"
-              placeholder="Enter your password"
-              registration={register("password", {
-                required: "Password is required",
-                minLength: {
-                  value: 6,
-                  message: "Password must be at least 6 characters",
-                },
-              })}
-              errors={errors.password as FieldError}
-              isPassword
-            />
-            <button className="bg-primary text-white border-muted/50 border shadow-sm dark:shadow-primary flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/90 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300">
-              Log in
-            </button>
-            <div className="flex items-center justify-between gap-3">
-              <a
-                href="/signup"
-                className="text-sm dark:text-muted text-black flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
-              >
-                <Icon icon="ph:arrow-left" width={16} />
-                Back
-              </a>
-              <a
-                href="/forgot-password"
-                className="text-sm dark:text-muted text-black flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
-              >
-                Forgot Password?
-              </a>
+        <motion.div
+          key="form"
+          layout
+          initial={{opacity: 0, scale: 0.96}}
+          animate={{opacity: 1, scale: 1}}
+          exit={{opacity: 0, scale: 0.96}}
+          transition={{duration: 0.35, ease: "easeInOut"}}
+          className="w-full"
+        >
+          <motion.div layoutId="auth-card">
+            <div className="mt-8 mb-6">
+              <h4 className="text-xl font-semibold">Log in to MC. Companion</h4>
+              <p className="text-muted text-sm">Sign in to continue learning</p>
             </div>
-          </form>
 
-          <p className="text-sm text-center font-medium flex items-center justify-center gap-2 cursor-pointer text-muted mt-4">
-            Don't have an account?
-            <a href="/signup">
-              <span className="underline dark:text-muted text-black cursor-pointer text-black hover:text-primary transition-all duration-300">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <FormInputs
+                label="Email"
+                type="email"
+                placeholder="Enter your email address"
+                registration={register("email", {
+                  required: "Email is required",
+                })}
+                errors={errors.email as FieldError}
+              />
+              <FormInputs
+                label="Password"
+                type="password"
+                placeholder="Enter your password"
+                registration={register("password", {
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters",
+                  },
+                })}
+                errors={errors.password as FieldError}
+                isPassword
+              />
+
+              <motion.button
+                layoutId="auth-button"
+                className="bg-primary text-white border-muted/50 border shadow-sm dark:shadow-primary flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/90 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300"
+              >
+                Log in
+              </motion.button>
+
+              <div className="flex items-center justify-between gap-3">
+                <a href="/signup" className="text-sm hover:text-primary">
+                  Back
+                </a>
+                <a
+                  href="/forgot-password"
+                  className="text-sm hover:text-primary"
+                >
+                  Forgot Password?
+                </a>
+              </div>
+            </form>
+
+            <p className="text-sm text-center mt-4">
+              Don't have an account?{" "}
+              <a href="/signup" className="underline hover:text-primary">
                 Sign Up
-              </span>
-            </a>
-          </p>
-        </div>
+              </a>
+            </p>
+          </motion.div>
+        </motion.div>
       )}
-    </>
+    </AnimatePresence>
   );
 };
 
