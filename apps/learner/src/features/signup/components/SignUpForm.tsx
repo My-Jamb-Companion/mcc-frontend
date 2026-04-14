@@ -13,8 +13,6 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
   const onSubmit = (data: SignUpFormInputs) => {
     console.log(data);
     setEmailVerify(true);
-    console.log(formState);
-    // console.log(formState.getvalues());
   };
   const password = watch("password");
   return (
