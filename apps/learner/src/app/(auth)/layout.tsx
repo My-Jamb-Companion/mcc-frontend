@@ -19,7 +19,7 @@ export default function Layout({children}: {children: React.ReactNode}) {
         </p>
       </div>
 
-      <div className="rounded-xl w-full max-w-187.5 relative overflow-hidden text-white">
+      <div className="rounded-xl w-full max-w-187.5 relative overflow-hidden text-white max-lg:hidden">
         <SignUpSlider />
       </div>
     </div>
