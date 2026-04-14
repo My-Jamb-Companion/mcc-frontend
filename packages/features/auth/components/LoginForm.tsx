@@ -107,21 +107,27 @@ export const LoginForm = ({
               </motion.button>
 
               <div className="flex items-center justify-between gap-3">
-                <a href="/signup" className="text-sm hover:text-primary">
+                <a
+                  href="/signup"
+                  className="text-sm text-black dark:text-muted flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
+                >
                   Back
                 </a>
                 <a
                   href="/forget-password"
-                  className="text-sm hover:text-primary"
+                  className="text-sm text-black dark:text-muted flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
                 >
                   Forget Password?
                 </a>
               </div>
             </form>
 
-            <p className="text-sm text-center mt-4">
+            <p className="text-sm text-center mt-4 dark:text-muted">
               Don't have an account?{" "}
-              <a href="/signup" className="underline hover:text-primary">
+              <a
+                href="/signup"
+                className="underline cursor-pointer text-black dark:text-white hover:text-primary transition-all duration-300"
+              >
                 Sign Up
               </a>
             </p>

@@ -94,7 +94,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
             <p className="text-sm text-center font-medium flex items-center justify-center gap-2 cursor-pointer text-muted mt-4">
               Already have an account?
               <Link href="/login">
-                <span className="underline cursor-pointer text-black dark:text-muted hover:text-primary transition-all duration-300">
+                <span className="underline cursor-pointer text-black dark:text-white hover:text-primary transition-all duration-300">
                   Sign in
                 </span>
               </Link>
