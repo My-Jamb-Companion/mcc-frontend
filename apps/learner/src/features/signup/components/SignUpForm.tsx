@@ -1,7 +1,7 @@
 import {FieldErrors, useForm} from "@mcc/utils";
 import FormInputs from "./FormInputs";
 import Link from "next/link";
-import {motion} from "@mcc/ui";
+import {motion, Icon} from "@mcc/ui";
 import EmailVerify from "./EmailVerify";
 import {useState} from "react";
 
@@ -87,7 +87,8 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
                 className="text-sm text-black dark:text-muted flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
                 onClick={back.bind(null, false)}
               >
-                Back
+                <Icon icon="eva:arrow-back-outline" width="24" height="24" />
+                <span>Back</span>
               </p>
             </form>
 

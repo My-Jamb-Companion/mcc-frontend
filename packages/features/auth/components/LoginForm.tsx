@@ -111,7 +111,8 @@ export const LoginForm = ({
                   href="/signup"
                   className="text-sm text-black dark:text-muted flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
                 >
-                  Back
+                  <Icon icon="eva:arrow-back-outline" width="24" height="24" />
+                  <span>Back</span>
                 </a>
                 <a
                   href="/forget-password"
