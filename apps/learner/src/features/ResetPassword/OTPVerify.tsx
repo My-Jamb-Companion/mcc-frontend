@@ -1,7 +1,7 @@
 import React from "react";
 import {useForm} from "@mcc/utils";
 
-export default function Verify({verify}: {verify: (b: boolean) => void}) {
+export default function OTPVerify({verify}: {verify: (b: boolean) => void}) {
   const {register, handleSubmit, watch, setValue} = useForm<OTP>();
 
   const fields: (keyof OTP)[] = ["d1", "d2", "d3", "d4"];

@@ -1,6 +1,6 @@
 import {useForm} from "@mcc/utils";
 import FormInputs from "../signup/components/FormInputs";
-import Verify from "./Verify";
+import OTPVerify from "./OTPVerify";
 import {useState} from "react";
 import NewPassword from "./NewPassword";
 
@@ -21,7 +21,7 @@ export default function ForgetPassword() {
   return (
     <>
       {verify ? (
-        <Verify verify={newPasswordHandler} />
+        <OTPVerify verify={newPasswordHandler} />
       ) : newPassword ? (
         <NewPassword />
       ) : (

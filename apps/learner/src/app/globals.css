@@ -5,6 +5,7 @@
   --foreground: #171717;
   --subtle: #4e4e55;
   --primary: #6b26ff;
+  --btn-primary: #6717de;
   --muted: #6f6f77;
   --danger: #d42422;
   --hint: rgba(39, 39, 42, 0.3);
@@ -15,6 +16,7 @@
   --color-foreground: var(--foreground);
   --color-subtle: var(--subtle);
   --color-primary: var(--primary);
+  --color-btn-primary: var(--btn-primary);
   --color-danger: var(--danger);
   --color-muted: var(--muted);
   --color-hint: var(--hint);
