@@ -14,12 +14,12 @@ export default function SignUpSlider() {
   useEffect(() => {
     const interval = setInterval(() => {
       setWidth((prev) => (prev >= 100 ? 100 : prev + 1));
-    }, 50);
+    }, 150);
 
     const timeout = setTimeout(() => {
       clearInterval(interval);
       setSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-    }, 5000);
+    }, 15000);
 
     return () => {
       clearInterval(interval);
@@ -33,14 +33,9 @@ export default function SignUpSlider() {
       <AnimatePresence mode="wait">
         <motion.div
           key={slide}
-          initial={{opacity: 0, scale: 1.1}}
-          animate={{
-            opacity: 1,
-            scale: 1.05,
-            x: [0, -10, 0],
-            y: [0, -10, 0],
-          }}
-          exit={{opacity: 0, scale: 1}}
+          initial={{opacity: 30, x: "100%"}}
+          animate={{opacity: 1, x: 0}}
+          exit={{opacity: 0, x: "-100%"}}
           transition={{duration: 1, ease: "easeInOut"}}
           className="absolute inset-0"
         >
@@ -54,7 +49,6 @@ export default function SignUpSlider() {
       </AnimatePresence>
 
       <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-transparent" />
-      {/* <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.15),transparent)]" /> */}
 
       <div className="absolute inset-0 flex flex-col justify-end px-8 py-10 text-white backdrop-blur-[2px]">
         <AnimatePresence mode="wait">
@@ -72,12 +66,11 @@ export default function SignUpSlider() {
           >
             <motion.h3
               variants={{
-                hidden: {opacity: 0, y: 30, scale: 0.95},
+                hidden: {opacity: 0, x: 60},
                 show: {
                   opacity: 1,
-                  y: 0,
-                  scale: 1,
-                  transition: {type: "spring", stiffness: 120},
+                  x: 0,
+                  transition: {type: "spring", stiffness: 120, damping: 18},
                 },
               }}
               className="text-5xl font-bold"
@@ -88,8 +81,8 @@ export default function SignUpSlider() {
 
             <motion.p
               variants={{
-                hidden: {opacity: 0, y: 15},
-                show: {opacity: 1, y: 0},
+                hidden: {opacity: 0, x: 40},
+                show: {opacity: 1, x: 0},
               }}
               className="text-sm font-medium mt-2 text-white/90"
             >
