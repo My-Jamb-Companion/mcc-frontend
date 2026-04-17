@@ -1,5 +1,5 @@
 import {useFormContext} from "@mcc/utils";
-import {TileMultiStep} from "../formTypes";
+import {TileMultiStep} from "../types/formTypes";
 import {Icon} from "@mcc/ui";
 
 export function TileMultiRenderer({step}: {step: TileMultiStep}) {

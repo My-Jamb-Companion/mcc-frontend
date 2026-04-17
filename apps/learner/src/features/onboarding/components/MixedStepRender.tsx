@@ -1,9 +1,9 @@
-import {useFormContext} from "@mcc/utils";
-import {MixedStep} from "../constants/formSteps";
+import {Controller, useFormContext} from "@mcc/utils";
+import {MixedStep} from "../types/formTypes";
 import FormInputs from "../../components/Forminputs";
 
 export function MixedStepRenderer({step}: {step: MixedStep}) {
-  const {register} = useFormContext();
+  const {register,control} = useFormContext();
 
   return (
     <div className="space-y-5">
@@ -22,13 +22,24 @@ export function MixedStepRenderer({step}: {step: MixedStep}) {
 
           case "select":
             return (
-              <FormInputs
-                key={field.id}
-                label={field.question}
-                type="select"
-                options={field.options}
-                registration={register(field.id, field.validation)}
+              <Controller
+                name={field.id}
+                control={control}
+                rules={field.validation}
+                render={({field: {onChange, value}}) => (
+                  <FormInputs
+                    key={field.id}
+                    label={field.question}
+                    type="select"
+                    options={field.options}
+                    value={value}
+                    onChange={onChange}
+                  />
+                )}
               />
+            
+                
+              
             );
 
           default:

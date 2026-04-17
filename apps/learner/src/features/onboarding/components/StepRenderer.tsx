@@ -1,4 +1,4 @@
-import {FormStep} from "../formTypes";
+import {FormStep} from "../types/formTypes";
 import {MixedStepRenderer} from "./MixedStepRender";
 import {TileMultiRenderer} from "./TileRenderer";
 

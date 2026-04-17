@@ -2,6 +2,7 @@ import {useState} from "react";
 import {FieldError, UseFormRegisterReturn} from "@mcc/utils";
 import {Icon} from "@mcc/ui";
 import {motion} from "framer-motion";
+import {CustomSelect} from "../onboarding/components/CustomSelectInput";
 
 const FormInputs = ({
   label,
@@ -14,6 +15,8 @@ const FormInputs = ({
   options = [],
   placeholder,
   icon,
+  value,
+  onChange,
   isPassword = false,
 }: Props) => {
   const [show, setShow] = useState(false);
@@ -38,13 +41,20 @@ const FormInputs = ({
 
     if (type === "select") {
       return (
-        <select id={id} className={inputClass} {...registration}>
-          {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        // <select id={id} className={inputClass} {...registration}>
+        //   {options.map((opt) => (
+        //     <option key={opt.value} value={opt.value}>
+        //       {opt.label}
+        //     </option>
+        //   ))}
+        // </select>
+
+        <CustomSelect
+          options={options}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+        />
       );
     }
 
@@ -115,7 +125,7 @@ type Props = {
   className?: string;
   labelClassName?: string;
   inputClassName?: string;
-  registration: UseFormRegisterReturn;
+  registration?: UseFormRegisterReturn;
   type?:
     | "text"
     | "email"
@@ -127,5 +137,7 @@ type Props = {
   options?: {label: string; value: string}[];
   placeholder?: string;
   icon?: React.ReactNode;
+  value?: string;
+  onChange?: (value: string) => void;
   isPassword?: boolean;
 };
