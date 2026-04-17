@@ -55,7 +55,7 @@
       ],
       "@mcc/tooling/*": [
         "../../tooling/*"
-      ],
+      ]
     }
   },
   "include": [
