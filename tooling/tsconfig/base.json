@@ -14,6 +14,8 @@
     "paths": {
       "@mcc/ui": ["../../packages/ui"],
       "@mcc/ui/*": ["../../packages/ui/*"],
+      "@mcc/utils": ["../../packages/utils"],
+      "@mcc/utils/*": ["../../packages/utils/*"],
       "@mcc/features": ["../../packages/features"],
       "@mcc/features/*": ["../../packages/features/*"],
       "@mcc/store": ["../../packages/store"],

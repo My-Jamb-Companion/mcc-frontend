@@ -1,0 +1,24 @@
+{
+  "folders": [
+    {"name": "Root", "path": "."},
+    // {"name": "Admin", "path": "apps/admin"},
+    // {"name": "Learner", "path": "apps/learner"},
+  ],
+  "settings": {
+    "js/ts.tsdk.path": "node_modules/typescript/lib",
+    "js/ts.tsdk.promptToUseWorkspaceVersion": true,
+    "js/ts.tsserver.maxMemory": 4096,
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/.next": true,
+      "**/.turbo": true,
+      "**/dist": true,
+    },
+    "files.watcherExclude": {
+      "**/node_modules/**": true,
+      "**/.next/**": true,
+      "**/.turbo/**": true,
+      "**/dist/**": true,
+    },
+  },
+}
