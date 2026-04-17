@@ -38,7 +38,6 @@ export function StepNavigation({
     next();
   };
 
-  // 🔥 Step-level validation for disabling button
   const values = getValues();
 
   const isStepValid = (() => {
@@ -64,7 +63,7 @@ export function StepNavigation({
         <button
           type="button"
           onClick={back}
-          className="text-black border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-hint/40 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300"
+          className="text-black dark:text-white border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-hint/40 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300"
         >
           Back
         </button>
@@ -74,7 +73,7 @@ export function StepNavigation({
         type={step === totalSteps - 1 ? "submit" : "button"}
         onClick={step === totalSteps - 1 ? undefined : handleNext}
         disabled={!isStepValid}
-        className={`${isStepValid ? "bg-primary text-white hover:bg-primary/90 cursor-pointer" : "bg-hint/30 text-hint cursor-not-allowed"} shadow-sm flex items-center justify-center gap-2 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300`}
+        className={`${isStepValid ? "bg-primary text-white hover:bg-primary/90 cursor-pointer" : "bg-hint/30 text-hint dark:bg-muted/30 dark:text-muted cursor-not-allowed"} shadow-sm flex items-center justify-center gap-2 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300`}
       >
         {step === totalSteps - 1 ? "Submit" : "Continue"}
       </button>

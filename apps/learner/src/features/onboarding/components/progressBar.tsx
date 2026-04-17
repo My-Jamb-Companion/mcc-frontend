@@ -11,7 +11,9 @@ export default function ProgressBar({
     totalSteps > 0 ? Math.min(100, Math.max(0, (step / totalSteps) * 100)) : 0;
 
   return (
-    <div className={`w-full bg-gray-200 rounded-full h-2 ${className || ""}`}>
+    <div
+      className={`w-full bg-gray-200 dark:bg-muted/30 rounded-full h-2 ${className || ""}`}
+    >
       <div
         className="h-2 rounded-full transition-all duration-300"
         style={{
