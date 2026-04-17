@@ -91,7 +91,7 @@ export const formSteps: FormSteps = [
       },
       {
         value: "infuencer",
-        label: "Influencer or Content Creator",
+        label: "Influencer or Creator",
         icon: "hugeicons:internet",
       },
       {
