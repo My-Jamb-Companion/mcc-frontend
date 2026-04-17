@@ -1,7 +1,6 @@
 # dependencies
 node_modules
 .pnpm-store
-pnpm-lock.yaml
 
 # build outputs
 .next

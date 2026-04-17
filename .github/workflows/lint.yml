@@ -14,9 +14,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           version: 9
+          run_install: false
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -24,11 +25,18 @@ jobs:
           node-version: 20
           cache: "pnpm"
 
-      - name: Install deps
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # 🚀 Cache ESLint results (10x faster)
+      - name: Cache ESLint
+        uses: actions/cache@v4
+        with:
+          path: .eslintcache
+          key: eslint-${{ runner.os }}-${{ hashFiles('**/*.{ts,tsx,js,jsx}') }}
+
       - name: Run ESLint
-        run: pnpm lint
+        run: pnpm lint --cache
 
       - name: Type check
         run: pnpm tsc --noEmit
