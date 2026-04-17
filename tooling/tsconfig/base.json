@@ -24,7 +24,7 @@
       "@mcc/config": ["../../packages/config"],
       "@mcc/api": ["../../packages/api"],
       "@mcc/api/*": ["../../packages/api/*"],
-      "@mcc/tooling/*": ["tooling/*"]
+      "@mcc/tooling/*": ["../tooling/*"]
     }
   }
 }

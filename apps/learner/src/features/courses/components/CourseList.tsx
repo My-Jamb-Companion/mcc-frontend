@@ -2,8 +2,7 @@ import { CourseList as BaseCourseList } from "@mcc/features/courses";
 import { EnrollButton } from "./EnrollButton";
 
 export const CourseList = () => {
-  const handleEnroll = (id: string) => {
-    console.log("Enroll", id);
+  const handleEnroll = (_id: string) => {
   };
 
   return (

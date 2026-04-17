@@ -1,5 +1,4 @@
-import {Icon} from "@iconify/react";
-import {motion} from "@mcc/ui";
+import {Icon, motion} from "@mcc/ui";
 export default function LoggingIn() {
   return (
     <motion.div
@@ -19,10 +18,9 @@ export default function LoggingIn() {
         className="mt-4 rounded-full p-4 border w-fit animated-pulse"
       >
         <Icon
-          icon="system-uicons:enter-alt"
-          width="48"
-          height="48"
-          fill="white"
+          name="system-uicons:enter-alt"
+          size={48}
+          className="fill-white"
         />
       </motion.div>
 

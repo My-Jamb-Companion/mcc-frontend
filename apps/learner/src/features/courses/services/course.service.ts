@@ -6,7 +6,7 @@ export const getCourses = async () => {
   });
 };
 
-export const enrollCourse = async (id: string) => {
+export const enrollCourse = async (_id: string) => {
   return new Promise((resolve) => {
     setTimeout(() => resolve({ success: true }), 300);
   });

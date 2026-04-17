@@ -1,8 +1,8 @@
 import {useForm} from "@mcc/utils";
-import FormInputs from "../signup/components/FormInputs";
 import OTPVerify from "./OTPVerify";
 import {useState} from "react";
 import NewPassword from "./NewPassword";
+import FormInputs from "@mcc/features/auth/components/FormInputs";
 
 export default function ForgetPassword() {
   const {register, formState, handleSubmit} = useForm<Reset>();
@@ -11,8 +11,8 @@ export default function ForgetPassword() {
   const [verify, setVerify] = useState(false);
   const [newPassword, setNewPassword] = useState(false);
 
-  const onSubmit = (data: Reset) => {
-    console.log(data);
+  const onSubmit = (_data: Reset) => {
+
   };
   const newPasswordHandler = () => {
     setVerify(false);

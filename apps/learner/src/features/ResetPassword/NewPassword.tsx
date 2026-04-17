@@ -6,9 +6,7 @@ export default function NewPassword() {
   const {register, formState, handleSubmit, watch} = useForm<Newpassword>();
   const errors = formState.errors;
 
-  const onSubmit = (data: Newpassword) => {
-    console.log("Form Data:", data);
-  };
+  const onSubmit = (_data: Newpassword) => {};
 
   const password = watch("password");
   return (

@@ -10,8 +10,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
     useForm<SignUpFormInputs>();
   const [emailVerify, setEmailVerify] = useState(false);
   const errors = formState.errors;
-  const onSubmit = (data: SignUpFormInputs) => {
-    console.log(data);
+  const onSubmit = (_data: SignUpFormInputs) => {
     setEmailVerify(true);
   };
   const password = watch("password");

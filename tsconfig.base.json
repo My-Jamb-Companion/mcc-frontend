@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@mcc/ui/*": ["packages/ui/*"],
+      "@mcc/features/*": ["packages/features/*"],
+      "@mcc/store/*": ["packages/store/*"],
+      "@mcc/api/*": ["packages/api/*"],
+      "@mcc/tooling/*": ["tooling/*"],
+      
+    }
+  }
+}

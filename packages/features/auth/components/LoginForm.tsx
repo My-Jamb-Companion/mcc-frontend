@@ -1,23 +1,22 @@
-import {useAuth} from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 import FormInputs from "./FormInputs";
-import {Icon} from "@iconify/react";
-import {useForm, FieldError} from "react-hook-form";
-import {useState} from "react";
+import { useForm, FieldError } from "react-hook-form";
+import { useState } from "react";
 import LoggingIn from "./LoggingIn";
-import {AnimatePresence, motion} from "@mcc/ui";
+import { AnimatePresence, Icon, motion } from "@mcc/ui";
 
 export const LoginForm = ({
   onSuccess,
 }: {
   onSuccess?: (role: string) => void;
 }) => {
-  const {login} = useAuth();
+  const { login } = useAuth();
 
-  const {register, formState, handleSubmit} = useForm<LoginFormInputs>();
+  const { register, formState, handleSubmit } = useForm<LoginFormInputs>();
   const errors = formState.errors;
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = (data: LoginFormInputs) => {
+  const onSubmit = (_data: LoginFormInputs) => {
     setLoading(true);
 
     setTimeout(() => {
@@ -26,7 +25,7 @@ export const LoginForm = ({
     }, 2150);
   };
 
-  const handleLogin = async (role: any) => {
+  const _handleLogin = async (role) => {
     await login(role);
     onSuccess?.(role);
   };
@@ -48,10 +47,10 @@ export const LoginForm = ({
         <motion.div
           key="loading"
           layout
-          initial={{opacity: 0, scale: 0.96}}
-          animate={{opacity: 1, scale: 1}}
-          exit={{opacity: 0, scale: 0.96}}
-          transition={{duration: 0.35, ease: "easeInOut"}}
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.96 }}
+          transition={{ duration: 0.35, ease: "easeInOut" }}
           className="w-full"
         >
           <motion.div layoutId="auth-card">
@@ -62,10 +61,10 @@ export const LoginForm = ({
         <motion.div
           key="form"
           layout
-          initial={{opacity: 0, scale: 0.96}}
-          animate={{opacity: 1, scale: 1}}
-          exit={{opacity: 0, scale: 0.96}}
-          transition={{duration: 0.35, ease: "easeInOut"}}
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.96 }}
+          transition={{ duration: 0.35, ease: "easeInOut" }}
           className="w-full"
         >
           <motion.div layoutId="auth-card">
@@ -111,7 +110,7 @@ export const LoginForm = ({
                   href="/signup"
                   className="text-sm text-black dark:text-muted flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
                 >
-                  <Icon icon="eva:arrow-back-outline" width="24" height="24" />
+                  <Icon name="eva:arrow-back-outline" size={24} />
                   <span>Back</span>
                 </a>
                 <a

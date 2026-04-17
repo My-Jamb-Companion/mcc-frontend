@@ -1,8 +1,12 @@
 {
-  "extends": "../../tooling/tsconfig/base.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -14,20 +18,44 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
-    "plugins": [{"name": "next"}],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@mcc/ui": ["../../packages/ui"],
-      "@mcc/api": ["../../packages/api"],
-      "@mcc/utils": ["../../packages/utils"],
-      "@mcc/features/*": ["../../packages/features/*"],
-      "@mcc/features": ["../../packages/features"],
-      "@mcc/config": ["../../packages/config"],
-      "@mcc/hooks": ["../../packages/hooks"],
-      "@mcc/types": ["../../packages/types"],
-      "@mcc/tooling/*": ["../../tooling/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@mcc/ui": [
+        "../../packages/ui"
+      ],
+      "@mcc/api": [
+        "../../packages/api"
+      ],
+      "@mcc/utils": [
+        "../../packages/utils"
+      ],
+      "@mcc/features/*": [
+        "../../packages/features/*"
+      ],
+      "@mcc/features": [
+        "../../packages/features"
+      ],
+      "@mcc/config": [
+        "../../packages/config"
+      ],
+      "@mcc/hooks": [
+        "../../packages/hooks"
+      ],
+      "@mcc/types": [
+        "../../packages/types"
+      ],
+      "@mcc/tooling/*": [
+        "../../tooling/*"
+      ],
     }
   },
   "include": [
@@ -37,5 +65,10 @@
     "src/**/*.mts",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules", ".next", "dist", "out"]
+  "exclude": [
+    "node_modules",
+    ".next",
+    "dist",
+    "out"
+  ]
 }
