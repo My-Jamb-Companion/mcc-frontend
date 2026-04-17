@@ -1,5 +1,5 @@
 import {useForm} from "@mcc/utils";
-import FormInputs from "../signup/components/FormInputs";
+import FormInputs from "../signup/components/Forminputs";
 import OTPVerify from "./OTPVerify";
 import {useState} from "react";
 import NewPassword from "./NewPassword";

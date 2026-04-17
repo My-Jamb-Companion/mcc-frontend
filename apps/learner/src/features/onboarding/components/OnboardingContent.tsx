@@ -1,7 +1,6 @@
 import {useFormContext} from "@mcc/utils";
 import {formSteps} from "../constants/formSteps";
 import OnboardingForm from "./OnboardingForm";
-import {FormStep} from "../formTypes";
 
 export function OnboardingContent({step}: {step: number}) {
   const {watch} = useFormContext();

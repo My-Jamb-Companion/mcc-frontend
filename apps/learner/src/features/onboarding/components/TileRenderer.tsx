@@ -30,7 +30,7 @@ export function TileMultiRenderer({step}: {step: TileMultiStep}) {
               key={opt.value}
               onClick={() => toggleOption(opt.value)}
               className={`py-4.5 px-5 border border-hint/40 shadow-md rounded-xl transition flex items-center gap-1 cursor-pointer text-sm hover:bg-gray-100 dark:hover:bg-gray-600 ${
-                isSelected ? "bg-black text-white" : ""
+                isSelected ? "bg-primary-gradient text-white" : ""
               }`}
             >
               <span>
