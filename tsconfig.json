@@ -16,6 +16,22 @@
     "ignoreDeprecations": "6.0",
     "baseUrl": "."
   },
+  "@/*": ["./apps/learner/*", "./apps/admin/*"],
+  "paths": {
+    "@mcc/ui": ["packages/ui"],
+    "@mcc/ui/*": ["packages/ui/*"],
+
+    "@mcc/features": ["packages/features"],
+    "@mcc/features/*": ["packages/features/*"],
+
+    "@mcc/store": ["packages/store"],
+    "@mcc/store/*": ["packages/store/*"],
+
+    "@mcc/api": ["packages/api"],
+    "@mcc/api/*": ["packages/api/*"],
+
+    "@mcc/tooling/*": ["tooling/*"]
+  },
   "include": [
     "apps/**/*.ts",
     "apps/**/*.tsx",

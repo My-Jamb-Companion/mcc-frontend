@@ -1,9 +1,10 @@
 import { useAuth } from "../hooks/useAuth";
-import FormInputs from "./FormInputs";
 import { useForm, FieldError } from "react-hook-form";
 import { useState } from "react";
 import LoggingIn from "./LoggingIn";
 import { AnimatePresence, Icon, motion } from "@mcc/ui";
+import { Role } from "../types";
+import FormInputs from "./FormInputs";
 
 export const LoginForm = ({
   onSuccess,
@@ -25,7 +26,7 @@ export const LoginForm = ({
     }, 2150);
   };
 
-  const _handleLogin = async (role) => {
+  const _handleLogin = async (role: Role) => {
     await login(role);
     onSuccess?.(role);
   };

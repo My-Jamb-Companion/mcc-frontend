@@ -1,7 +1,8 @@
 import { useCourses } from "../hooks/useCourses";
+import { Course } from "../types";
 import { CourseCard } from "./CourseCard";
 
-export const CourseList = ({ renderActions }: { renderActions?: (course) => React.ReactNode }) => {
+export const CourseList = ({ renderActions }: { renderActions?: (course: Course) => React.ReactNode }) => {
   const { data } = useCourses();
 
   return (

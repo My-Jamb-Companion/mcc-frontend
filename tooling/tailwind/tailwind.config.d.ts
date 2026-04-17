@@ -1,0 +1,1 @@
+export const sharedConfig: Record<string, unknown>;

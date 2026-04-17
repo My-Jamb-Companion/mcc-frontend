@@ -46,7 +46,7 @@ export default function ContinueWithAccount({
               }}
               className="border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-muted/5 mx-auto rounded-full py-2.5 w-full font-medium active:scale-97 outline-primary/50 focus:outline"
             >
-              <Icon icon={item.icon} width="18" height="18" />
+              <Icon name={item.icon} size={18} />
               <span className="text-xs">{item.label}</span>
             </motion.button>
           ))}
@@ -70,7 +70,7 @@ export default function ContinueWithAccount({
             onClick={mail.bind(null, true)}
             className="border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-muted/5 mx-auto rounded-full py-2.5 w-full font-medium active:scale-97 outline-primary/50 focus:outline"
           >
-            <Icon icon="ic:baseline-email" width="18" height="18" />
+            <Icon name="ic:baseline-email" size={18} />
             <span className="text-xs">Continue with Email</span>
           </motion.button>
         </motion.div>

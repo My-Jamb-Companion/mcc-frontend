@@ -1,6 +1,5 @@
-import FormInputs from "@mcc/features/auth/components/FormInputs";
 import {motion} from "@mcc/ui";
-import {FieldError, useForm} from "@mcc/utils";
+import {FieldError, FormInputs, useForm} from "@mcc/features/auth";
 
 export default function NewPassword() {
   const {register, formState, handleSubmit, watch} = useForm<Newpassword>();
@@ -41,7 +40,7 @@ export default function NewPassword() {
                 value: 6,
                 message: "Password must be at least 6 characters",
               },
-              validate: (value) =>
+              validate: (value: string) =>
                 value === password || "Passwords do not match",
             })}
             errors={errors.confirmPassword as FieldError}

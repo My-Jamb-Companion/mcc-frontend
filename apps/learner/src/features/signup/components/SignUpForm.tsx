@@ -1,12 +1,16 @@
-import {FieldErrors, useForm} from "@mcc/utils";
-import FormInputs from "./FormInputs";
+import { FormInputs } from "@mcc/features/auth";
+import { FieldErrors, useForm } from "react-hook-form";
 import Link from "next/link";
-import {motion, Icon} from "@mcc/ui";
+import { motion, Icon } from "@mcc/ui";
 import EmailVerify from "./EmailVerify";
-import {useState} from "react";
+import { useState } from "react";
 
-export default function SignupForm({back}: {back: (value: boolean) => void}) {
-  const {register, formState, watch, handleSubmit} =
+export default function SignupForm({
+  back,
+}: {
+  back: (value: boolean) => void;
+}) {
+  const { register, formState, watch, handleSubmit } =
     useForm<SignUpFormInputs>();
   const [emailVerify, setEmailVerify] = useState(false);
   const errors = formState.errors;
@@ -17,15 +21,15 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
   return (
     <>
       {emailVerify ? (
-        <EmailVerify email={formState.values.email || ""} />
+        <EmailVerify email={watch("email") || ""} />
       ) : (
         <motion.div
           key="signup-form"
           layout
-          initial={{opacity: 0, scale: 0.96}}
-          animate={{opacity: 1, scale: 1}}
-          exit={{opacity: 0, scale: 0.96}}
-          transition={{duration: 0.35, ease: "easeInOut"}}
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.96 }}
+          transition={{ duration: 0.35, ease: "easeInOut" }}
         >
           <motion.div layoutId="auth-card">
             <div className="mt-8 mb-6">
@@ -68,7 +72,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
                     value: 6,
                     message: "Password must be at least 6 characters",
                   },
-                  validate: (value) =>
+                  validate: (value: string) =>
                     value === password || "Passwords do not match",
                 })}
                 errors={errors.confirmPassword}
@@ -86,7 +90,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
                 className="text-sm text-black dark:text-muted flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
                 onClick={back.bind(null, false)}
               >
-                <Icon icon="eva:arrow-back-outline" width="24" height="24" />
+                <Icon name="eva:arrow-back-outline" size={24} />
                 <span>Back</span>
               </p>
             </form>

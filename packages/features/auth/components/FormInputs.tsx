@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {FieldError, UseFormRegisterReturn} from "@mcc/utils";
+import { FieldError, UseFormRegisterReturn } from "react-hook-form";
 import {motion} from "@mcc/ui";
 import {Icon} from "@mcc/ui";
 
@@ -77,9 +77,9 @@ const FormInputs = ({
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
           >
             <Icon
-              icon={show ? "ph:eye-slash" : "ph:eye"}
-              width={16}
-              color={
+              name={show ? "ph:eye-slash" : "ph:eye"}
+              size={16}
+              className={
                 errors?.message ? "var(--color-danger)" : "var(--color-muted)"
               }
             />

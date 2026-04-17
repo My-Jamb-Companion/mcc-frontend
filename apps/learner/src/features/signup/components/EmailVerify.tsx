@@ -4,7 +4,7 @@ export default function EmailVerify({email}: {email: string}) {
   return (
     <div className="space-y-4">
       <div className="dark:bg-muted bg-hint/40 p-6 rounded-full w-fit mx-auto mt-5">
-        <Icon icon="hugeicons:mail-open" width="48" height="48" />
+        <Icon name="hugeicons:mail-open" size={48} />
       </div>
       <h2 className="text-xl font-bold mt-4">Verify Your Email</h2>
       <p className="text-muted text-sm">

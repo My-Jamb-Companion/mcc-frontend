@@ -14,7 +14,7 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
-    "plugins": [{"name": "next"}],
+    "plugins": [{ "name": "next" }],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
@@ -26,6 +26,8 @@
       "@mcc/config": ["../../packages/config"],
       "@mcc/hooks": ["../../packages/hooks"],
       "@mcc/types": ["../../packages/types"],
+      "@mcc/store": ["../../packages/store"],
+      "@mcc/store/*": ["../../packages/store/*"],
       "@mcc/tooling/*": ["../../tooling/*"]
     }
   },

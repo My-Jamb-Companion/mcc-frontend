@@ -1,5 +1,6 @@
+import { useForm } from "@mcc/features/auth";
 import React from "react";
-import {useForm} from "@mcc/utils";
+
 
 export default function OTPVerify({verify}: {verify: (b: boolean) => void}) {
   const {register, handleSubmit, watch, setValue} = useForm<OTP>();
