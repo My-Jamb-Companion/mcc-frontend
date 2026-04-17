@@ -37,4 +37,4 @@ jobs:
         run: pnpm lint --cache
 
       - name: Type check
-        run: pnpm tsc --noEmit
+        run: pnpm tsc --noEmit -b
