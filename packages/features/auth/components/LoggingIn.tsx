@@ -1,5 +1,4 @@
-import {Icon} from "@iconify/react";
-import {motion} from "@mcc/ui";
+import {Icon, motion} from "@mcc/ui";
 export default function LoggingIn() {
   return (
     <motion.div
