@@ -23,11 +23,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@mcc/ui": ["../../packages/ui"],
+      "@mcc/ui": ["../../packages/ui/index.ts"],
       "@mcc/api": ["../../packages/api"],
-      "@mcc/utils": ["../../packages/utils"],
       "@mcc/features/*": ["../../packages/features/*"],
-      "@mcc/features": ["../../packages/features"],
+      "@mcc/features": ["../../packages/features/index.ts"],
       "@mcc/config": ["../../packages/config"],
       "@mcc/hooks": ["../../packages/hooks"],
       "@mcc/types": ["../../packages/types"],

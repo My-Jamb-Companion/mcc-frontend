@@ -1,16 +1,19 @@
-import { FormInputs, useForm } from "@mcc/features/auth";
 import OTPVerify from "./OTPVerify";
-import { useState } from "react";
+import {useState} from "react";
 import NewPassword from "./NewPassword";
+import FormInputs from "@mcc/features/auth/components/FormInputs";
+import { useForm } from "@mcc/features/auth";
 
 export default function ForgetPassword() {
-  const { register, formState, handleSubmit } = useForm<Reset>();
+  const {register, formState, handleSubmit} = useForm<Reset>();
   const errors = formState.errors;
 
   const [verify, setVerify] = useState(false);
   const [newPassword, setNewPassword] = useState(false);
 
-  const onSubmit = (_data: Reset) => {};
+  const onSubmit = (_data: Reset) => {
+
+  };
   const newPasswordHandler = () => {
     setVerify(false);
     setNewPassword(true);
@@ -32,9 +35,7 @@ export default function ForgetPassword() {
               label="Email"
               type="email"
               placeholder="Enter your email address"
-              registration={register("email", {
-                required: "Email is required",
-              })}
+              registration={register("email", {required: "Email is required"})}
               errors={errors.email}
             />
             <button

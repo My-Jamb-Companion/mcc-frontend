@@ -1,7 +1,6 @@
+import { Icon } from "@mcc/ui";
 import {useState} from "react";
 import { FieldError, UseFormRegisterReturn } from "react-hook-form";
-import {motion} from "@mcc/ui";
-import {Icon} from "@mcc/ui";
 
 const FormInputs = ({
   label,
@@ -93,14 +92,12 @@ const FormInputs = ({
 
 const Err = ({message}: {message?: string}) => {
   return (
-    <motion.p
+    <p
       key={message}
-      initial={{opacity: 0, scale: 0}}
-      animate={{opacity: 1, scale: 1}}
       className="text-start text-red-400 text-xs"
     >
       {message}
-    </motion.p>
+    </p>
   );
 };
 export default FormInputs;

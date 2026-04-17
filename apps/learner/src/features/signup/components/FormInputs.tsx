@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { Icon } from "@mcc/ui";
-import { motion } from "framer-motion";
+import {useState} from "react";
+import {Icon, motion} from "@mcc/ui";
 import { FieldError, UseFormRegisterReturn } from "@mcc/features/auth";
 
 const FormInputs = ({
@@ -91,12 +90,12 @@ const FormInputs = ({
   );
 };
 
-const Err = ({ message }: { message?: string }) => {
+const Err = ({message}: {message?: string}) => {
   return (
     <motion.p
       key={message}
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ opacity: 1, scale: 1 }}
+      initial={{opacity: 0, scale: 0}}
+      animate={{opacity: 1, scale: 1}}
       className="text-start text-red-400 text-xs"
     >
       {message}
@@ -119,7 +118,7 @@ type Props = {
     | "tel"
     | "textarea"
     | "select";
-  options?: { label: string; value: string }[];
+  options?: {label: string; value: string}[];
   placeholder?: string;
   icon?: React.ReactNode;
   isPassword?: boolean;

@@ -1,16 +1,12 @@
-import { FormInputs } from "@mcc/features/auth";
-import { FieldErrors, useForm } from "react-hook-form";
+import FormInputs from "./FormInputs";
 import Link from "next/link";
-import { motion, Icon } from "@mcc/ui";
+import {motion, Icon} from "@mcc/ui";
 import EmailVerify from "./EmailVerify";
-import { useState } from "react";
+import {useState} from "react";
+import { FieldErrors, useForm } from "@mcc/features/auth";
 
-export default function SignupForm({
-  back,
-}: {
-  back: (value: boolean) => void;
-}) {
-  const { register, formState, watch, handleSubmit } =
+export default function SignupForm({back}: {back: (value: boolean) => void}) {
+  const {register, formState, watch, getValues, handleSubmit} =
     useForm<SignUpFormInputs>();
   const [emailVerify, setEmailVerify] = useState(false);
   const errors = formState.errors;
@@ -21,15 +17,15 @@ export default function SignupForm({
   return (
     <>
       {emailVerify ? (
-        <EmailVerify email={watch("email") || ""} />
+        <EmailVerify email={getValues("email") || ""} />
       ) : (
         <motion.div
           key="signup-form"
           layout
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.96 }}
-          transition={{ duration: 0.35, ease: "easeInOut" }}
+          initial={{opacity: 0, scale: 0.96}}
+          animate={{opacity: 1, scale: 1}}
+          exit={{opacity: 0, scale: 0.96}}
+          transition={{duration: 0.35, ease: "easeInOut"}}
         >
           <motion.div layoutId="auth-card">
             <div className="mt-8 mb-6">
@@ -72,7 +68,7 @@ export default function SignupForm({
                     value: 6,
                     message: "Password must be at least 6 characters",
                   },
-                  validate: (value: string) =>
+                  validate: (value) =>
                     value === password || "Passwords do not match",
                 })}
                 errors={errors.confirmPassword}
@@ -115,5 +111,5 @@ interface SignUpFormInputs {
   Email: string;
   Password: string;
   ConfirmPassword: string;
-  error: FieldErrors | undefined;
+  errors: FieldErrors | undefined;
 }
