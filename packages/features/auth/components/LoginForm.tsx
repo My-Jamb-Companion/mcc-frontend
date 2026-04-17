@@ -1,7 +1,9 @@
 import { useAuth } from "../hooks/useAuth";
-import FormInputs from "./FormInputs";
-import { useForm, FieldError } from "react-hook-form";
-import { useState } from "react";
+import FormInputs from "./Forminputs";
+
+import {useForm, FieldError} from "@mcc/utils";
+import {useState} from "react";
+
 import LoggingIn from "./LoggingIn";
 import { AnimatePresence, Icon, motion } from "@mcc/ui";
 

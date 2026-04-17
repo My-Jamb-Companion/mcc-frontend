@@ -1,5 +1,5 @@
 import {FieldErrors, useForm} from "@mcc/utils";
-import FormInputs from "./FormInputs";
+import FormInputs from "./Forminputs";
 import Link from "next/link";
 import {motion, Icon} from "@mcc/ui";
 import EmailVerify from "./EmailVerify";
