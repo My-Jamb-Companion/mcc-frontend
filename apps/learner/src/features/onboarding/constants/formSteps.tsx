@@ -1,4 +1,4 @@
-import {FormSteps} from "../formTypes";
+import {FormSteps} from "../types/formTypes";
 
 export const formSteps: FormSteps = [
   {
@@ -29,9 +29,9 @@ export const formSteps: FormSteps = [
         inputType: "select",
         question: "What best describes you?",
         options: [
-          {value: "undergrad", label: "Undergraduate Student", icon: "🎓"},
-          {value: "grad", label: "Graduate Student", icon: "🎓"},
-          {value: "other", label: "Other", icon: "❓"},
+          {value: "undergrad", label: "🎓 Undergraduate Student"},
+          {value: "grad", label: "🎓 Graduate Student"},
+          {value: "other", label: "❓ Other"},
         ],
         default: "undergrad",
         validation: {},

@@ -1,4 +1,4 @@
-import {FormStep} from "../formTypes";
+import {FormStep} from "../types/formTypes";
 import {StepRenderer} from "./StepRenderer";
 
 type Props = {

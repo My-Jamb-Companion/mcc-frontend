@@ -7,7 +7,7 @@ import ProgressBar from "./progressBar";
 import {StepNavigation} from "./FormStepsNav";
 import {extractDefaults} from "../constants/extract";
 import {OnboardingContent} from "./OnboardingContent";
-import {FormValues} from "../formTypes";
+import {FormValues} from "../types/formTypes";
 
 export default function Onboarding() {
   const [step, setStep] = useState(0);
