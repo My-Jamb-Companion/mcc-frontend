@@ -3,6 +3,7 @@ export type FormValues = {
   language: string;
   role: string;
   referral: string[];
+  purpose: string[];
 };
 
 // Shared types

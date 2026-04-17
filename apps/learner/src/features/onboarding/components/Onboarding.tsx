@@ -32,7 +32,7 @@ export default function Onboarding() {
   const currentStep = formSteps[step];
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center pt-20">
       <div className="max-w-132.5 w-full flex flex-col gap-10">
         <ProgressBar
           step={step}

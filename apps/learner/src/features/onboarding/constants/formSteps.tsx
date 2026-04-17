@@ -107,4 +107,33 @@ export const formSteps: FormSteps = [
     ],
     validation: {required: "Please select at least one"},
   },
+  {
+    id: "step3",
+    inputType: "tile-multi",
+    fieldId: "purpose",
+    question: "What wold you like to use MCC for? (Select all that apply)",
+    options: [
+      {
+        value: "brainy",
+        label: "Study with brainy",
+        icon: "mingcute:ai-fill",
+      },
+      {
+        value: "skill",
+        label: "Learn a skill",
+        icon: "ri:instance-fill",
+      },
+      {
+        value: "exam",
+        label: "Prepare for an exam",
+        icon: "game-icons:bookshelf",
+      },
+      {
+        value: "other",
+        label: "Others (Tell us more)",
+        icon: "line-md:cloud-filled",
+      },
+    ],
+    validation: {required: "Please select at least one"},
+  },
 ];
