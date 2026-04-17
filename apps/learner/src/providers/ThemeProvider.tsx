@@ -1,7 +1,8 @@
 "use client";
 
 import { ReactNode, useEffect } from "react";
-import { useThemeStore } from "../../../../packages/store/theme";
+import { useThemeStore } from "@mcc/store/theme";
+
 
 type ThemeProviderProps = {
   children: ReactNode;
