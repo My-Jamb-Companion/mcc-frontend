@@ -41,14 +41,6 @@ const FormInputs = ({
 
     if (type === "select") {
       return (
-        // <select id={id} className={inputClass} {...registration}>
-        //   {options.map((opt) => (
-        //     <option key={opt.value} value={opt.value}>
-        //       {opt.label}
-        //     </option>
-        //   ))}
-        // </select>
-
         <CustomSelect
           options={options}
           value={value}

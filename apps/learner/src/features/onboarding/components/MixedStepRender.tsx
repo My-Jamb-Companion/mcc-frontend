@@ -17,6 +17,7 @@ export function MixedStepRenderer({step}: {step: MixedStep}) {
                 type="text"
                 placeholder={field.placeholder}
                 registration={register(field.id, field.validation)}
+                inputClassName="text-black!"
               />
             );
 
