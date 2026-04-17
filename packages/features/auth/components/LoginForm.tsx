@@ -3,7 +3,7 @@ import FormInputs from "./FormInputs";
 import {useForm, FieldError} from "@mcc/utils";
 import {useState} from "react";
 import LoggingIn from "./LoggingIn";
-import {AnimatePresence, motion} from "@mcc/ui";
+import {AnimatePresence, motion, Icon} from "@mcc/ui";
 
 export const LoginForm = ({
   onSuccess,
