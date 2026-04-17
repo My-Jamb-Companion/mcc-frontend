@@ -5,7 +5,7 @@ import {useState} from "react";
 import {formSteps} from "../constants/formSteps";
 import ProgressBar from "./progressBar";
 import {StepNavigation} from "./FormStepsNav";
-import {extractDefaults} from "./extract";
+import {extractDefaults} from "../constants/extract";
 import {OnboardingContent} from "./OnboardingContent";
 import {FormValues} from "../formTypes";
 

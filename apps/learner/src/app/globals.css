@@ -9,6 +9,7 @@
   --muted: #6f6f77;
   --danger: #d42422;
   --hint: rgba(39, 39, 42, 0.3);
+  --primary-gradient: linear-gradient(91deg, #6b26ff -13.46%, #b40d9b 100%);
 }
 
 @theme inline {
@@ -24,12 +25,19 @@
   --font-mono: var(--font-geist-mono);
   --font-bagel: "Bagel Fat One";
   --font-rocoleta: "Recoleta";
+  --color-primary-gradient: var(--primary-gradient);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+  }
+}
+
+@layer utilities {
+  .bg-primary-gradient {
+    background: var(--primary-gradient);
   }
 }
 
