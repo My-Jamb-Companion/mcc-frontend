@@ -12,7 +12,7 @@ import {FormValues} from "../types/formTypes";
 export default function Onboarding() {
   const [step, setStep] = useState(0);
 
-  const methods = useForm({
+  const methods = useForm<FormValues>({
     defaultValues: extractDefaults(formSteps),
     mode: "onChange",
   });

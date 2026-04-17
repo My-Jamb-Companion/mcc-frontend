@@ -3,7 +3,7 @@ import {MixedStep} from "../types/formTypes";
 import FormInputs from "../../components/Forminputs";
 
 export function MixedStepRenderer({step}: {step: MixedStep}) {
-  const {register,control} = useFormContext();
+  const {register, control} = useFormContext();
 
   return (
     <div className="space-y-5">
@@ -17,13 +17,14 @@ export function MixedStepRenderer({step}: {step: MixedStep}) {
                 type="text"
                 placeholder={field.placeholder}
                 registration={register(field.id, field.validation)}
-                inputClassName="text-black!"
+                inputClassName="text-black! dark:text-white!"
               />
             );
 
           case "select":
             return (
               <Controller
+                key={field.id}
                 name={field.id}
                 control={control}
                 rules={field.validation}
@@ -34,13 +35,10 @@ export function MixedStepRenderer({step}: {step: MixedStep}) {
                     type="select"
                     options={field.options}
                     value={value}
-                    onChange={onChange}
+                    onChange={(val) => onChange(val)}
                   />
                 )}
               />
-            
-                
-              
             );
 
           default:

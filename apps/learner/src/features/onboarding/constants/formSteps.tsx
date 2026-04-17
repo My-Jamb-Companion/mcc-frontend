@@ -18,8 +18,8 @@ export const formSteps: FormSteps = [
         inputType: "select",
         question: "Preferred Language",
         options: [
-          {value: "en-gb", label: "English (UK)", icon: "🇬🇧"},
-          {value: "en-us", label: "English (US)", icon: "🇺🇸"},
+          {value: "en-gb", label: " English (UK)"},
+          {value: "en-us", label: "English (US)"},
         ],
         default: "en-gb",
         validation: {},
@@ -30,7 +30,10 @@ export const formSteps: FormSteps = [
         question: "What best describes you?",
         options: [
           {value: "undergrad", label: "🎓 Undergraduate Student"},
-          {value: "grad", label: "🎓 Graduate Student"},
+          {value: "highschool", label: "📚 High school Student"},
+          {value: "grad", label: "🧑‍🎓 Graduate Student"},
+          {value: "working-professional", label: "💼 Working Professional"},
+          {value: "teacher", label: "🧑‍🏫 Teacher/Professor"},
           {value: "other", label: "❓ Other"},
         ],
         default: "undergrad",
