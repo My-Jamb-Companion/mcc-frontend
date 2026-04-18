@@ -8,9 +8,13 @@ import {StepNavigation} from "./FormStepsNav";
 import {extractDefaults} from "../constants/extract";
 import {OnboardingContent} from "./OnboardingContent";
 import {FormValues} from "../types/formTypes";
+import {useRouter} from "next/navigation";
+import LoadingCircle from "../../components/loadingCircle";
 
 export default function Onboarding() {
   const [step, setStep] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const methods = useForm<FormValues>({
     defaultValues: extractDefaults(formSteps),
@@ -27,6 +31,11 @@ export default function Onboarding() {
 
   const onSubmit = (data: FormValues) => {
     console.log("SUBMITTED DATA:", data);
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      router.push("/onboarding/free");
+    }, 3000);
   };
 
   const currentStep = formSteps[step];
@@ -35,7 +44,7 @@ export default function Onboarding() {
     <div className="flex flex-col items-center pt-20">
       <div className="max-w-132.5 w-full flex flex-col gap-10">
         <ProgressBar
-          step={step}
+          step={isLoading ? formSteps.length  : step}
           totalSteps={formSteps.length}
           className="w-full"
         />
@@ -43,14 +52,17 @@ export default function Onboarding() {
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)}>
             <OnboardingContent step={step} />
-
-            <StepNavigation
-              step={step}
-              totalSteps={formSteps.length}
-              currentStep={currentStep}
-              next={nextStep}
-              back={prevStep}
-            />
+            {isLoading ? (
+              <LoadingCircle className="mx-auto mt-8" />
+            ) : (
+              <StepNavigation
+                step={step}
+                totalSteps={formSteps.length}
+                currentStep={currentStep}
+                next={nextStep}
+                back={prevStep}
+              />
+            )}
           </form>
         </FormProvider>
       </div>
