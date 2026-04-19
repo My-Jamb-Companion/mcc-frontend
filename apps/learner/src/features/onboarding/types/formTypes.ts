@@ -41,6 +41,7 @@ export type Field = TextField | SelectField;
 export type MixedStep = {
   id: string;
   title: string;
+  question?: string;
   inputType: "mixed";
   fields: Field[];
 };

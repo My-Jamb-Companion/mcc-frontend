@@ -5,13 +5,20 @@ import OnboardingForm from "./OnboardingForm";
 export function OnboardingContent({step}: {step: number}) {
   const {watch} = useFormContext();
   const name = watch("nickname");
-
+  const currentStep = formSteps[step];
+  console.log(currentStep);
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-10">
       <div className="text-center">
-        <p className="text-xl font-bold">
-          Hey {name ? <span className="capitalize">{name}</span> : "there"},
-          lets personalize your experience.
+        <p className="text-xl font-bold max-sm:*:text-lg">
+          {step === 0 ? (
+            <>
+              Hey {name ? <span className="capitalize">{name}</span> : "there"},
+              lets personalize your experience.
+            </>
+          ) : (
+            currentStep?.question
+          )}
         </p>
         <p className="text-sm text-muted">Help us customize MCC for you</p>
       </div>
