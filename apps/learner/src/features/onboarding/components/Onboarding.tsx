@@ -10,6 +10,7 @@ import {OnboardingContent} from "./OnboardingContent";
 import {FormValues} from "../types/formTypes";
 import {useRouter} from "next/navigation";
 import LoadingCircle from "../../components/loadingCircle";
+import {Icon} from "@mcc/ui";
 
 export default function Onboarding() {
   const [step, setStep] = useState(0);
@@ -41,13 +42,27 @@ export default function Onboarding() {
   const currentStep = formSteps[step];
 
   return (
-    <div className="flex flex-col items-center pt-20">
+    <div className="flex flex-col items-center pt-20 max-sm:pt-5">
       <div className="max-w-132.5 w-full flex flex-col gap-10">
-        <ProgressBar
-          step={isLoading ? formSteps.length  : step}
-          totalSteps={formSteps.length}
-          className="w-full"
-        />
+        <div className="flex items-center relative max-sm:h-9">
+          {step !== 0 && (
+            <button
+              onClick={() => prevStep()}
+              className="absolute top-0 left-0 z-10 rounded-full p-2 border-2 shadow-md border-muted/55 active:scale-95 w-fit sm:hidden"
+            >
+              <Icon
+                icon="material-symbols:arrow-back-rounded"
+                width="16"
+                height="16"
+              />
+            </button>
+          )}
+          <ProgressBar
+            step={isLoading ? formSteps.length : step}
+            totalSteps={formSteps.length}
+            className="w-full max-sm:w-[30%] max-sm:mx-auto"
+          />
+        </div>
 
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)}>

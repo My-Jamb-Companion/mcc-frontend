@@ -4,7 +4,6 @@ import {Icon} from "@mcc/ui";
 
 export function TileMultiRenderer({step}: {step: TileMultiStep}) {
   const {setValue, watch} = useFormContext();
-  // const {useOnboardingStore} = useOnboardingStore();
 
   const selected: string[] = watch(step.fieldId) || [];
 

@@ -63,7 +63,7 @@ export function StepNavigation({
         <button
           type="button"
           onClick={back}
-          className="text-black dark:text-white border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-hint/40 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300"
+          className="max-sm:hidden text-black dark:text-white border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-hint/40 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300"
         >
           Back
         </button>
