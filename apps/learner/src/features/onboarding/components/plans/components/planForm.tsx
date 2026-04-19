@@ -2,8 +2,9 @@
 import FormInputs from "@/src/features/components/Forminputs";
 import {Controller, useForm} from "@mcc/utils";
 import {planFormValues} from "../types/planForm";
+import {useRouter} from "next/navigation";
 
-export default function PlanForm({type}: {type?: "free" | "paid"}) {
+export default function PlanForm({plan}: {plan?: "free" | "paid"}) {
   const {
     control,
     register,
@@ -15,6 +16,8 @@ export default function PlanForm({type}: {type?: "free" | "paid"}) {
   });
 
   const isParent = watch("isParent");
+
+  const router = useRouter();
 
   const submit = (data: planFormValues) => {
     console.log(data);
@@ -52,7 +55,7 @@ export default function PlanForm({type}: {type?: "free" | "paid"}) {
           />
         )}
 
-        {type !== "free" && (
+        {plan !== "free" && (
           <Controller
             key="paymentMethod"
             name="paymentMethod"
@@ -77,6 +80,7 @@ export default function PlanForm({type}: {type?: "free" | "paid"}) {
         <div className="flex gap-4 mt-6">
           <button
             type="button"
+            onClick={router.back}
             className="text-black dark:text-white border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-hint/40 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300"
           >
             Back
@@ -87,7 +91,7 @@ export default function PlanForm({type}: {type?: "free" | "paid"}) {
             disabled={!isValid}
             className={`${isValid ? "bg-primary text-white hover:bg-primary/90 cursor-pointer" : "bg-hint/30 text-hint dark:bg-muted/30 dark:text-muted cursor-not-allowed"} shadow-sm flex items-center justify-center gap-2 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300`}
           >
-            {type === "free" ? "Access course" : "Proceed to payment"}
+            {plan === "free" ? "Access course" : "Proceed to payment"}
           </button>
         </div>
       </form>
