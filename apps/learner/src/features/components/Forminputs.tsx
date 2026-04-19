@@ -55,7 +55,7 @@ const FormInputs = ({
       return (
         <label className="flex items-center gap-3 cursor-pointer group">
           <div
-            onClick={() => onChange?.(!value as unknown as string | boolean)}
+            onClick={() => onChange?.(!value)}
             className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors shrink-0
           ${value ? `bg-${checkColor || "primary"} border-${checkColor || "primary"}` : "border-muted/30 bg-white dark:bg-transparent"}`}
           >
@@ -159,7 +159,7 @@ type Props = {
   placeholder?: string;
   icon?: React.ReactNode;
   checkColor?: string;
-  value?: string;
-  onChange?: (value: string) => void;
+  value?: string|boolean;
+  onChange?: (value: string | boolean) => void;
   isPassword?: boolean;
 };

@@ -11,8 +11,8 @@ export interface SelectOption {
 
 interface CustomSelectProps {
   options: SelectOption[];
-  value?: string;
-  onChange?: (value: string) => void;
+  value?: string | boolean;
+  onChange?: (value: string | boolean) => void;
   placeholder?: string;
 }
 
