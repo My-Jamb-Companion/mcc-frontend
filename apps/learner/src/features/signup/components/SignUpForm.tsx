@@ -107,9 +107,9 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
 }
 
 interface SignUpFormInputs {
-  Name: string;
-  Email: string;
-  Password: string;
-  ConfirmPassword: string;
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
   errors: FieldErrors | undefined;
 }
