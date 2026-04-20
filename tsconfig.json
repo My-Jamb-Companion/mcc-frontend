@@ -1,10 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "lib": [
-    "DOM",
-    "ESNext"
-    ],
+    "lib": ["DOM", "ESNext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -17,37 +14,17 @@
     "jsx": "react-jsx",
     "incremental": true,
     "paths": {
-      "@/*": [
-        "./apps/learner/*",
-        "./apps/admin/*"
-      ],
-      "@mcc/ui": [
-        "./packages/ui"
-      ],
-      "@mcc/ui/*": [
-        "./packages/ui/*"
-      ],
-      "@mcc/features": [
-        "./packages/features"
-      ],
-      "@mcc/features/*": [
-        "./packages/features/*"
-      ],
-      "@mcc/store": [
-        "./packages/store"
-      ],
-      "@mcc/store/*": [
-        "./packages/store/*"
-      ],
-      "@mcc/api": [
-        "./packages/api"
-      ],
-      "@mcc/api/*": [
-        "./packages/api/*"
-      ],
-      "@mcc/tooling/*": [
-        "./tooling/*"
-      ]
+      "@learner/*": ["./apps/learner/*"],
+      "@admin/*": ["./apps/admin/*"],
+      "@mcc/ui": ["./packages/ui"],
+      "@mcc/ui/*": ["./packages/ui/*"],
+      "@mcc/features": ["./packages/features"],
+      "@mcc/features/*": ["./packages/features/*"],
+      "@mcc/store": ["./packages/store"],
+      "@mcc/store/*": ["./packages/store/*"],
+      "@mcc/api": ["./packages/api"],
+      "@mcc/api/*": ["./packages/api/*"],
+      "@mcc/tooling/*": ["./tooling/*"]
     }
   },
   "include": [
@@ -56,10 +33,5 @@
     "packages/**/*.ts",
     "packages/**/*.tsx"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "out",
-    ".next"
-  ]
+  "exclude": ["node_modules", "dist", "out", ".next"]
 }

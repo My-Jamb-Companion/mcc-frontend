@@ -2,7 +2,7 @@ name: Lint & Type Check
 
 on:
   push:
-    branches: [main, develop, dev]
+    branches: [main, staging, dev]
   pull_request:
 
 concurrency:
@@ -66,4 +66,7 @@ jobs:
           restore-keys: turbo-typecheck-${{ runner.os }}-
 
       - name: Type check
-        run: pnpm turbo typecheck
+        run: pnpm turbo typecheck --cache-dir=".turbo"
+        env:
+          NODE_OPTIONS: "--max-old-space-size=6144"
+          TURBO_TELEMETRY_DISABLED: 1
