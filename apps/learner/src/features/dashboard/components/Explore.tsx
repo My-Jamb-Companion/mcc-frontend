@@ -1,3 +1,6 @@
+import {Icon} from "@mcc/ui";
+import BannerCarousel from "./BannerCarousel";
+
 export default function Explore() {
   return (
     <div className="col-start-2 max-sm:col-start-1 pt-6">
@@ -14,10 +17,15 @@ export default function Explore() {
             Good to have you,
             <span className="text-black"> Mac.</span>
           </p>
-          <p className="text-btn-primary text-xs font-medium">
-            Personalize your experience
+          <p className="flex items-center cursor-pointer text-btn-primary text-xs font-medium">
+            <span>Personalize your experience</span>
+            <Icon icon="ci:caret-right-sm" width="24" height="24" />
           </p>
         </div>
+      </div>
+
+      <div className="mt-7">
+        <BannerCarousel />
       </div>
     </div>
   );

@@ -53,7 +53,7 @@ export default function SideNav({
           },
         }}
         className={`pl-3 max-sm:px-4 max-sm:pt-6 flex flex-col pb-5 h-full absolute left-0 top-0 ${open ? "w-55" : "w-fit"}
-      max-sm:bg-white max-sm:w-full`}
+      max-sm:bg-white max-sm:w-full z-10`}
         onMouseEnter={() => !isMobile && setHovering(true)}
         onMouseLeave={() => !isMobile && setHovering(false)}
       >

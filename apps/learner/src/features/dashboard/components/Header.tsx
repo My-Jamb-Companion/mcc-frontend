@@ -10,7 +10,7 @@ export default function Header({
   setOpen: (v: boolean) => void;
 }) {
   return (
-    <div className="w-full flex items-center justify-between py-6.5 px-8 max-sm:px-4 max-sm:py-3 border-b border-b-muted/40 shadow-md dark:shadow-muted/20">
+    <div className="w-full flex items-center justify-between py-6.5 px-8 max-sm:px-4 max-sm:py-3 dark:border-b border-b-muted/40  dark:shadow-muted/20">
       <div className="flex items-center gap-4">
         <button
           onClick={() => setOpen(!open)}
