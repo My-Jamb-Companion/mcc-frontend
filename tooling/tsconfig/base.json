@@ -10,9 +10,6 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "baseUrl": ".",
-
-    "ignoreDeprecations": "5.0",
     "paths": {
       "@mcc/ui": ["../../packages/ui"],
       "@mcc/ui/*": ["../../packages/ui/*"],
