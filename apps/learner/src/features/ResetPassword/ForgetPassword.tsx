@@ -1,15 +1,13 @@
-"use client";
-
 import OTPVerify from "./OTPVerify";
 import {useState} from "react";
 import NewPassword from "./NewPassword";
-import { FormInputs, useForm, usePasswordReset } from "@mcc/features";
-import { extractApiError } from "@mcc/api";
+import {FormInputs, useForm, usePasswordReset} from "@mcc/features";
+import {extractApiError} from "@mcc/api";
 
 export default function ForgetPassword() {
   const {register, formState, handleSubmit, getValues} = useForm<Reset>();
   const errors = formState.errors;
-  const { requestMutation } = usePasswordReset();
+  const {requestMutation} = usePasswordReset();
 
   const [step, setStep] = useState<"email" | "otp" | "newPassword">("email");
   const [verificationToken, setVerificationToken] = useState("");
@@ -51,7 +49,10 @@ export default function ForgetPassword() {
 
             {requestMutation.isError && (
               <p className="text-red-500 text-sm text-center">
-                {extractApiError(requestMutation.error, "Failed to send reset code")}
+                {extractApiError(
+                  requestMutation.error,
+                  "Failed to send reset code",
+                )}
               </p>
             )}
 

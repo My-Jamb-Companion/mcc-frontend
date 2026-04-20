@@ -1,15 +1,15 @@
 "use client";
 
-import { useAuth } from "@mcc/features";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import {useAuth} from "@mcc/features";
+import {useRouter} from "next/navigation";
+import {useEffect} from "react";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, hydrated, user } = useAuth();
+  const {isAuthenticated, hydrated, user} = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -21,7 +21,8 @@ export default function DashboardLayout({
     }
   }, [hydrated, isAuthenticated, user, router]);
 
-  if (!hydrated || !isAuthenticated || (user && !user.is_onboarded)) return null;
+  if (!hydrated || !isAuthenticated || (user && !user.is_onboarded))
+    return null;
 
   return <>{children}</>;
 }
