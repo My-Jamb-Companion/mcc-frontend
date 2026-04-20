@@ -29,8 +29,10 @@ export default function DashboardLayout({
 
   return (
     <div className="flex flex-col h-screen">
-      <Header />
-      <div className={`grid-cols-[200px_1fr] grid h-full relative`}>
+      <Header open={sideNav} setOpen={setSideNav} />
+      <div
+        className={`grid-cols-[120px_1fr] grid max-sm:grid-cols-1 h-full relative`}
+      >
         <SideNav open={sideNav} setOpen={setSideNav} />
         {children}
       </div>
