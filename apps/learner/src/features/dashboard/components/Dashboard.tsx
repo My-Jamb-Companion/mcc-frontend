@@ -9,7 +9,7 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col h-screen">
       <Header />
-      <div className={`grid-cols-[auto_1fr] grid h-full`}>
+      <div className={`grid-cols-[auto_1fr] grid h-full relative`}>
         <SideNav open={sideNav} setOpen={setSideNav} />
       </div>
     </div>

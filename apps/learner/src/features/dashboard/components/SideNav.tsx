@@ -33,9 +33,14 @@ export default function SideNav({
     <motion.div
       layout
       transition={{
-        layout: {duration: 0.25, ease: "easeInOut"},
+        layout: {
+          duration: 0.25,
+          ease: "easeInOut",
+          damping: 20,
+          stiffness: 400,
+        },
       }}
-      className={`pl-3 flex flex-col pb-5 ${open ? "w-55" : "w-full"}`}
+      className={`pl-3 flex flex-col pb-5 border h-full absolute left-0 top-0 ${open ? "w-55" : "w-fit"}`}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
     >
