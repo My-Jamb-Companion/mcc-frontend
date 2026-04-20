@@ -15,7 +15,7 @@ export default function Explore() {
         <div>
           <p className="text-muted font-medium">
             Good to have you,
-            <span className="text-black"> Mac.</span>
+            <span className="text-black dark:text-white"> Mac.</span>
           </p>
           <p className="flex items-center cursor-pointer text-btn-primary text-xs font-medium">
             <span>Personalize your experience</span>

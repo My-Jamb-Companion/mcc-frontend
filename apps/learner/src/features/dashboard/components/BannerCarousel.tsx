@@ -38,6 +38,40 @@ const Asterisk = ({color}: {color: string}) => (
   </svg>
 );
 
+const BannerCard = ({banner}: {banner: (typeof banners)[0]}) => (
+  <div
+    className={`${banner.bg} w-full p-6 flex items-center relative h-full max-sm:p-4 max-sm:overflow-hidden rounded-xl`}
+  >
+    <div className="flex flex-col gap-4 z-10 max-w-[55%] max-sm:max-w-full max-sm:flex-row max-sm:items-center">
+      <p
+        className={`text-sm font-semibold leading-snug max-sm:text-[11px] ${banner.textColor}`}
+      >
+        {banner.title}
+      </p>
+      <button className="flex items-center gap-2 w-fit pl-4 pr-1 py-1.5 rounded-full bg-white text-xs font-semibold text-[#1a2332] shadow-sm text-nowrap">
+        {banner.cta}
+        <span className="w-5 h-5 rounded-full bg-[#1a2332] text-white flex items-center justify-center">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path
+              d="M2 5h6M5.5 2.5L8 5l-2.5 2.5"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+      </button>
+    </div>
+    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-40 h-40 translate-x-8 opacity-60">
+      <Asterisk color={banner.accentColor} />
+    </div>
+  </div>
+);
+
+const PEEK = 80; // px of next card visible
+const GAP = 20; // px gap between cards
+
 export default function BannerCarousel() {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -47,89 +81,35 @@ export default function BannerCarousel() {
     setCurrent(index);
   };
 
-  const variants = {
-    enter: (dir: number) => ({x: dir > 0 ? "100%" : "-100%", opacity: 0}),
-    center: {x: 0, opacity: 1},
-    exit: (dir: number) => ({x: dir > 0 ? "-100%" : "100%", opacity: 0}),
-  };
-
   const next = banners[(current + 1) % banners.length];
+
+  const activeWidth = `calc(100% - ${PEEK}px - ${GAP}px)`;
+  const nextLeft = `calc(100% - ${PEEK}px)`;
 
   return (
     <div className="w-full flex flex-col gap-3">
-      <div className="flex gap-3 w-full overflow-hidden">
-        {/* Main card */}
-        <div className="relative flex-1 rounded-2xl overflow-hidden h-36">
-          <AnimatePresence custom={direction} mode="popLayout">
-            <motion.div
-              key={current}
-              custom={direction}
-              variants={variants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{duration: 0.4, ease: [0.32, 0.72, 0, 1]}}
-              className={`absolute inset-0 ${banners[current].bg} p-6 flex items-center justify-between`}
-            >
-              <div className="flex flex-col gap-4 z-10 max-w-[55%]">
-                <p
-                  className={`text-sm font-semibold leading-snug ${banners[current].textColor}`}
-                >
-                  {banners[current].title}
-                </p>
-                <button
-                  className={`flex items-center gap-2 w-fit px-4 py-1.5 rounded-full bg-white text-xs font-semibold text-[#1a2332] shadow-sm`}
-                >
-                  {banners[current].cta}
-                  <span className="w-5 h-5 rounded-full bg-[#1a2332] text-white flex items-center justify-center">
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <path
-                        d="M2 5h6M5.5 2.5L8 5l-2.5 2.5"
-                        stroke="currentColor"
-                        strokeWidth="1.4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </span>
-                </button>
-              </div>
+      <div className="relative overflow-hidden w-full h-29">
+        <AnimatePresence custom={direction} mode="popLayout">
+          <motion.div
+            key={current}
+            custom={direction}
+            initial={{x: direction > 0 ? "100%" : "-100%"}}
+            animate={{x: 0}}
+            exit={{x: direction > 0 ? "-100%" : "100%"}}
+            transition={{duration: 0.4, ease: [0.32, 0.72, 0, 1]}}
+            className="absolute top-0 left-0 h-full overflow-hidden"
+            style={{width: activeWidth}}
+          >
+            <BannerCard banner={banners[current]} />
+          </motion.div>
+        </AnimatePresence>
 
-              {/* Asterisk decoration */}
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-40 h-40 translate-x-8 opacity-60">
-                <Asterisk color={banners[current].accentColor} />
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Peek of next card */}
         <div
-          className={`w-48 shrink-0 rounded-2xl overflow-hidden h-36 cursor-pointer ${next.bg} p-5 flex flex-col justify-center gap-3 relative`}
+          className="absolute top-0 h-full rounded-2xl overflow-hidden cursor-pointer"
+          style={{left: nextLeft, width: `calc(100% - ${PEEK}px - ${GAP}px)`}}
           onClick={() => go((current + 1) % banners.length)}
         >
-          <p
-            className={`text-xs font-semibold leading-snug ${next.textColor} line-clamp-3`}
-          >
-            {next.title}
-          </p>
-          <button className="flex items-center gap-2 w-fit px-3 py-1 rounded-full bg-white text-xs font-semibold text-[#1a2332]">
-            {next.cta}
-            <span className="w-4 h-4 rounded-full bg-[#1a2332] text-white flex items-center justify-center">
-              <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
-                <path
-                  d="M2 5h6M5.5 2.5L8 5l-2.5 2.5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-          </button>
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-24 h-24 translate-x-4 opacity-40">
-            <Asterisk color={next.accentColor} />
-          </div>
+          <BannerCard banner={next} />
         </div>
       </div>
 

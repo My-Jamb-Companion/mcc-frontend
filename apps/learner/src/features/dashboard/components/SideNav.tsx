@@ -53,12 +53,12 @@ export default function SideNav({
           },
         }}
         className={`pl-3 max-sm:px-4 max-sm:pt-6 flex flex-col pb-5 h-full absolute left-0 top-0 ${open ? "w-55" : "w-fit"}
-      max-sm:bg-white max-sm:w-full z-10`}
+      max-sm:bg-white max-sm:w-full z-20`}
         onMouseEnter={() => !isMobile && setHovering(true)}
         onMouseLeave={() => !isMobile && setHovering(false)}
       >
         <div className="flex-1 flex flex-col items-center justify-center max-sm:justify-start">
-          <div className="rounded-2xl bg-black w-full dark:border dark:border-muted/40 dark:shadow-md max-sm:rounded-none max-sm:bg-white">
+          <div className="rounded-2xl bg-black w-full max-sm:rounded-none max-sm:bg-white">
             <div
               className={`pt-8 pb-12 flex flex-col gap-3 rounded-2xl bg-[#222225] max-sm:bg-white max-sm:rounded-none ${
                 open && !isMobile && "pl-3"
