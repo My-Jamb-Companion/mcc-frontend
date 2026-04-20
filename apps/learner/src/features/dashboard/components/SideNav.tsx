@@ -1,7 +1,7 @@
 "use client";
 
 import {Icon} from "@mcc/ui";
-import {sideBarLinks} from "./constants/NavLinks";
+import {sideBarLinks} from "../constants/NavLinks";
 import Link from "next/link";
 import {useEffect, useState} from "react";
 import {motion, AnimatePresence} from "framer-motion";
@@ -40,7 +40,7 @@ export default function SideNav({
           stiffness: 400,
         },
       }}
-      className={`pl-3 flex flex-col pb-5 border h-full absolute left-0 top-0 ${open ? "w-55" : "w-fit"}`}
+      className={`pl-3 flex flex-col pb-5 h-full absolute left-0 top-0 ${open ? "w-55" : "w-fit"}`}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
     >
