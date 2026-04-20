@@ -8,7 +8,7 @@
     "dev:learner": "pnpm --filter learner dev",
     "dev:admin": "pnpm --filter admin dev",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "turbo typecheck",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

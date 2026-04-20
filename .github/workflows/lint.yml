@@ -58,12 +58,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Restore TypeScript build cache
+      - name: Restore Turbo cache
         uses: actions/cache@v4
         with:
-          path: "*.tsbuildinfo"
-          key: tsc-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', '**/*.{ts,tsx}', '**/tsconfig*.json') }}
-          restore-keys: tsc-${{ runner.os }}-
+          path: .turbo
+          key: turbo-typecheck-${{ runner.os }}-${{ github.sha }}
+          restore-keys: turbo-typecheck-${{ runner.os }}-
 
       - name: Type check
-        run: pnpm typecheck
+        run: pnpm turbo typecheck
