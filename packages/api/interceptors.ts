@@ -1,5 +1,4 @@
 import { apiClient } from "./api-client";
-import { showError } from "@mcc/ui";
 
 /**
  * Request Interceptor
@@ -30,13 +29,6 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error?.response?.status;
-
-        const message =
-      error?.response?.data?.message || "Something went wrong";
-
-          if (typeof window !== "undefined") {
-      showError(message);
-    }
 
     if (status === 401) {
       //  Auto logout

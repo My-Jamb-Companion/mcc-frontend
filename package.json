@@ -8,6 +8,7 @@
     "dev:learner": "pnpm --filter learner dev",
     "dev:admin": "pnpm --filter admin dev",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,6 +17,7 @@
   "packageManager": "pnpm@10.32.1",
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",
+    "@types/node": "^25.6.0",
     "@typescript-eslint/eslint-plugin": "^8.58.2",
     "@typescript-eslint/parser": "^8.58.2",
     "autoprefixer": "^10.4.27",

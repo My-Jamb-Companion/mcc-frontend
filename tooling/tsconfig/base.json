@@ -3,7 +3,7 @@
     "target": "ES2020",
     "lib": ["DOM", "ESNext"],
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "strict": true,
     "esModuleInterop": true,
@@ -11,6 +11,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "baseUrl": ".",
+
+    "ignoreDeprecations": "5.0",
     "paths": {
       "@mcc/ui": ["../../packages/ui"],
       "@mcc/ui/*": ["../../packages/ui/*"],
