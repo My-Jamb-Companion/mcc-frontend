@@ -1,7 +1,10 @@
+"use client";
+
 import {Icon} from "@mcc/ui";
 import {sideBarLinks} from "./constants/NavLinks";
 import Link from "next/link";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {motion, AnimatePresence} from "framer-motion";
 
 export default function SideNav({
   open,
@@ -11,56 +14,109 @@ export default function SideNav({
   setOpen: (v: boolean) => void;
 }) {
   const [url, setUrl] = useState("explore");
+  const [hovering, setHovering] = useState(false);
+
+  // ✅ hover intent (no flicker)
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+
+    if (!hovering) {
+      timeout = setTimeout(() => setOpen(false), 120);
+    } else {
+      setOpen(true);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [hovering, setOpen]);
 
   return (
-    <div
-      className={`pl-3 flex flex-col pb-5 border ${open ? "w-55" : "w-full"} `}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+    <motion.div
+      layout
+      transition={{
+        layout: {duration: 0.25, ease: "easeInOut"},
+      }}
+      className={`pl-3 flex flex-col pb-5 ${open ? "w-55" : "w-full"}`}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
     >
       <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="rounded-2xl bg-black w-full">
+        <div className="rounded-2xl bg-black w-full dark:border dark:border-muted/40 dark:shadow-md">
           <div
-            className={`pt-8 pb-12 flex flex-col gap-3 rounded-2xl bg-[#222225] ${open && "pl-3"}`}
+            className={`pt-8 pb-12 flex flex-col gap-3 rounded-2xl bg-[#222225] ${
+              open && "pl-3"
+            }`}
           >
             {sideBarLinks.map((link) => (
               <Link
-                // href={link.link}
-                href={"#"}
+                href="#"
                 key={link.label}
                 className={`flex relative ${open ? "w-full" : "items-center"}`}
               >
                 <button
                   onClick={() => setUrl(link.label)}
-                  className={`${url == link.label ? "bg-white text-black" : "text-white hover:bg-muted/40 "} ${open ? "w-full mr-4" : "w-fit mx-auto"} p-2 rounded-xl flex items-center gap-2 cursor-pointer`}
+                  className={`${
+                    url == link.label
+                      ? "bg-white text-black"
+                      : "text-white hover:bg-muted/40 "
+                  } ${
+                    open ? "w-full mr-4" : "w-fit mx-auto"
+                  } p-2 rounded-xl flex items-center gap-2 cursor-pointer`}
                 >
                   <Icon icon={String(link.icon)} width="20" height="20" />
-                  {open && (
-                    <p className="text-sm font-medium capitalize text-nowrap max-sm:hidden">
-                      {link.label}
-                    </p>
-                  )}
+
+                  <AnimatePresence>
+                    {open && (
+                      <motion.p
+                        animate={
+                          open
+                            ? {opacity: 1, x: 0, width: "auto", marginLeft: 0}
+                            : {opacity: 0, x: -8, width: 0, marginLeft: 0}
+                        }
+                        transition={{duration: 0.22, ease: "easeInOut"}}
+                        className="text-sm font-medium capitalize whitespace-nowrap max-sm:hidden overflow-hidden"
+                      >
+                        {link.label}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
                 </button>
+
                 {url === link.label && <Pin />}
               </Link>
             ))}
           </div>
 
           <div
-            className={`${open ? "p-2" : "py-3"} flex items-center justify-center gap-3`}
+            className={`${
+              open ? "p-2" : "py-3"
+            } flex items-center justify-center gap-3`}
           >
             <div className="flex items-center gap-3 pl-3">
               <Icon icon="circle-flags:uk" width="16" height="16" />
-              <p className={!open ? "hidden" : "text-white text-xs"}>
-                English (US)
-              </p>
+
+              <AnimatePresence>
+                {open && (
+                  <motion.p
+                    animate={
+                      open
+                        ? {opacity: 1, x: 0, width: "auto"}
+                        : {opacity: 0, x: -8, width: 0}
+                    }
+                    transition={{duration: 0.22, ease: "easeInOut"}}
+                    className="text-white text-xs whitespace-nowrap overflow-hidden"
+                  >
+                    English (US)
+                  </motion.p>
+                )}
+              </AnimatePresence>
             </div>
+
             <Icon icon="ci:caret-down-sm" width="24" height="24" color="grey" />
           </div>
         </div>
       </div>
 
-      <div className="px-2 py-2.5 rounded-2xl bg-[#222225] flex items-center gap-2 w-full">
+      <div className="px-2 py-2.5 rounded-2xl bg-[#222225] flex items-center gap-2 w-full dark:border dark:border-muted/40 dark:shadow-md">
         <div className="w-full max-w-10 max-sm:w-15! h-10 rounded-full border-2 border-white overflow-hidden">
           <img
             src="/assets/images/profile.png"
@@ -70,16 +126,31 @@ export default function SideNav({
         </div>
 
         <div
-          className={`flex items-center justify-between ${open ? "w-full" : "w-fit"}`}
+          className={`flex items-center justify-between ${
+            open ? "w-full" : "w-fit"
+          }`}
         >
-          <div className={!open ? "hidden" : ""}>
-            <p className="text-xs font-semibold text-white">Bright Mba</p>
-            <p className="text-muted text-xs">@mac</p>
-          </div>
+          <AnimatePresence>
+            {open && (
+              <motion.div
+                animate={
+                  open
+                    ? {opacity: 1, x: 0, width: "auto"}
+                    : {opacity: 0, x: -8, width: 0}
+                }
+                transition={{duration: 0.22, ease: "easeInOut"}}
+                className="overflow-hidden whitespace-nowrap"
+              >
+                <p className="text-xs font-semibold text-white">Bright Mba</p>
+                <p className="text-muted text-xs">@mac</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <Icon icon="ci:caret-down-sm" width="24" height="24" color="white" />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
