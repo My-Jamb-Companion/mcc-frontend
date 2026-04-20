@@ -6,7 +6,7 @@ export function OnboardingContent({step}: {step: number}) {
   const {watch} = useFormContext();
   const name = watch("nickname");
   const currentStep = formSteps[step];
-  console.log(currentStep);
+
   return (
     <div className="flex flex-col gap-10">
       <div className="text-center">
