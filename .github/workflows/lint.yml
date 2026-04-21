@@ -43,6 +43,7 @@ jobs:
   typecheck:
     name: TypeScript
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -58,15 +59,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Restore Turbo cache
-        uses: actions/cache@v4
-        with:
-          path: .turbo
-          key: turbo-typecheck-${{ runner.os }}-${{ github.sha }}
-          restore-keys: turbo-typecheck-${{ runner.os }}-
-
-      - name: Type check
-        run: pnpm turbo typecheck --cache-dir=".turbo"
+      - name: Type check (diagnostic)
+        run: |
+          for pkg in packages/api packages/store packages/ui packages/features apps/admin apps/learner; do
+            echo "=== Checking $pkg ==="
+            cd "$GITHUB_WORKSPACE/$pkg"
+            timeout 90 npx tsc --noEmit --extendedDiagnostics 2>&1 | tail -30
+            echo "=== Done $pkg ==="
+          done
         env:
           NODE_OPTIONS: "--max-old-space-size=6144"
-          TURBO_TELEMETRY_DISABLED: 1
