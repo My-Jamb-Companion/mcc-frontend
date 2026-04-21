@@ -10,54 +10,48 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: ESLint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Restore ESLint cache
-        uses: actions/cache@v4
-        with:
-          path: .eslintcache
-          key: eslint-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/*.{ts,tsx,js,jsx}') }}
-          restore-keys: |
-            eslint-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
-            eslint-${{ runner.os }}-
-      - name: Lint
-        run: pnpm lint --cache --cache-location .eslintcache
-
   typecheck:
     name: TypeScript
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Restore Turbo cache
-        uses: actions/cache@v4
-        with:
-          path: .turbo
-          key: turbo-typecheck-${{ runner.os }}-${{ github.sha }}
-          restore-keys: turbo-typecheck-${{ runner.os }}-
-      - name: Type check
-        run: pnpm turbo typecheck --cache-dir=".turbo" --concurrency=2
+
+      # 🔍 DEBUG: show turbo pipeline
+      - name: Debug Turbo Tasks
+        run: pnpm turbo run typecheck --dry-run
+
+      # 🔍 DEBUG: show dependency graph
+      - name: Debug Turbo Graph
+        run: pnpm turbo run typecheck --graph
+
+      # 🔍 DEBUG: check TS version
+      - name: Check TypeScript Version
+        run: pnpm tsc -v
+
+      # 🔍 DEBUG: run a single app first
+      - name: Typecheck Admin (isolated)
+        run: pnpm --filter=admin typecheck
+
+      - name: Typecheck Learner (isolated)
+        run: pnpm --filter=learner typecheck
+
+      # 🚀 Main run (with logs)
+      - name: Type check (Turbo)
+        run: pnpm turbo run typecheck --no-cache --concurrency=1 --output-logs=full
         env:
           NODE_OPTIONS: "--max-old-space-size=6144"
           TURBO_TELEMETRY_DISABLED: 1

@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect } from "react";
-import { useThemeStore } from "@mcc/store/theme";
+import { useThemeStore } from "@mcc/store";
 
 
 type ThemeProviderProps = {
@@ -20,7 +20,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     } else {
       setTheme("light");
     }
-  }, []);
+  }, [setTheme]);
 
   return children;
 };

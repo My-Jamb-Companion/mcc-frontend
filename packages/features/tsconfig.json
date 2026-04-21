@@ -1,9 +1,16 @@
 {
   "extends": "../../tooling/tsconfig/base.json",
   "compilerOptions": {
-    "rootDir": "../../",
+    "composite": true,
     "outDir": "dist",
-    
+    "rootDir": "src",
+    "declaration": true
   },
-  "include": ["."]
+  "include": ["src"],
+  "references": [
+    { "path": "../ui" },
+    { "path": "../store" },
+    { "path": "../types" }
+  ],
+  "exclude": ["node_modules"]
 }

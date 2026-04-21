@@ -1,5 +1,7 @@
 import { CreateCourseButton } from "./CreateCourseButton";
-import { CourseList as BaseCourseList } from "@mcc/features/courses";
+import { CourseList as BaseCourseList } from "@mcc/features";
+import { Course } from "../types";
+
 
 export const CourseList = () => {
 
@@ -16,7 +18,7 @@ const handleEdit = (_id: string) => {
       <CreateCourseButton onClick={handleCreate} />
 
       <BaseCourseList
-        renderActions={(course) => (
+        renderActions={(course: Course) => (
           <button onClick={() => handleEdit(course.id)}>
             Edit
           </button>

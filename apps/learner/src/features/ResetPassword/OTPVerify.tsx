@@ -1,4 +1,4 @@
-import { useForm } from "@mcc/features/auth";
+import { useForm } from "@mcc/features";
 import React from "react";
 
 

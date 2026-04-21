@@ -1,5 +1,5 @@
 export interface Course {
   id: string;
   title: string;
-  published: boolean;
+  published?: boolean;
 }

@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {Icon, motion} from "@mcc/ui";
-import { FieldError, UseFormRegisterReturn } from "@mcc/features/auth";
+import { FieldError, UseFormRegisterReturn } from "@mcc/features";
 
 const FormInputs = ({
   label,

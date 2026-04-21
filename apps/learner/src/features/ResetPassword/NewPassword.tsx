@@ -1,5 +1,4 @@
-import { FieldError, useForm } from "@mcc/features/auth";
-import FormInputs from "@mcc/features/auth/components/FormInputs";
+import { FieldError, FormInputs, useForm } from "@mcc/features";
 import {motion} from "@mcc/ui";
 
 export default function NewPassword() {

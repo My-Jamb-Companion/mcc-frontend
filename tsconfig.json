@@ -1,37 +1,12 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "lib": ["DOM", "ESNext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    "incremental": true,
-    "paths": {
-      "@learner/*": ["./apps/learner/*"],
-      "@admin/*": ["./apps/admin/*"],
-      "@mcc/ui": ["./packages/ui"],
-      "@mcc/ui/*": ["./packages/ui/*"],
-      "@mcc/features": ["./packages/features"],
-      "@mcc/features/*": ["./packages/features/*"],
-      "@mcc/store": ["./packages/store"],
-      "@mcc/store/*": ["./packages/store/*"],
-      "@mcc/api": ["./packages/api"],
-      "@mcc/api/*": ["./packages/api/*"],
-      "@mcc/tooling/*": ["./tooling/*"]
-    }
-  },
-  "include": [
-    "apps/**/*.ts",
-    "apps/**/*.tsx",
-    "packages/**/*.ts",
-    "packages/**/*.tsx"
-  ],
-  "exclude": ["node_modules", "dist", "out", ".next"]
+  "files": [],
+  "references": [
+    { "path": "./apps/admin" },
+    { "path": "./apps/learner" },
+    { "path": "./packages/ui" },
+    { "path": "./packages/api" },
+    { "path": "./packages/features" },
+    { "path": "./packages/store" },
+    { "path": "./packages/types" }
+  ]
 }
