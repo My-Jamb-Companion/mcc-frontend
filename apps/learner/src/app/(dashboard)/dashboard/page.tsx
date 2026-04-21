@@ -1,4 +1,4 @@
-import {RoleLayout} from "@/src/components/RoleLayout";
+import { RoleLayout } from "@/src/components/RoleLayout";
 
 export default function DashboardPage() {
   return (

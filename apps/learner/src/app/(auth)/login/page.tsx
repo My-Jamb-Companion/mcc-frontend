@@ -1,7 +1,7 @@
 "use client";
 
 import {useRouter} from "next/navigation";
-import {LoginForm} from "@mcc/features/auth";
+import {LoginForm} from "@mcc/features";
 
 export default function LoginPage() {
   const router = useRouter();

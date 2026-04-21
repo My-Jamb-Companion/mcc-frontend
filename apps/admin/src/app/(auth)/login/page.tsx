@@ -1,7 +1,7 @@
 "use client"
 
+import { LoginForm } from "@mcc/features";
 import { useRouter } from "next/navigation";
-import { LoginForm } from "@mcc/features/auth";
 
 export default function LoginPage() {
 

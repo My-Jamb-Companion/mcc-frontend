@@ -1,14 +1,14 @@
+import { useForm } from "@mcc/features";
 import React from "react";
-import {useForm} from "@mcc/utils";
+
 
 export default function OTPVerify({verify}: {verify: (b: boolean) => void}) {
   const {register, handleSubmit, watch, setValue} = useForm<OTP>();
 
   const fields: (keyof OTP)[] = ["d1", "d2", "d3", "d4"];
 
-  const onSubmit = (data: OTP) => {
-    const code = `${data.d1}${data.d2}${data.d3}${data.d4}`;
-    console.log("OTP Code:", code);
+  const onSubmit = (_data: OTP) => {
+    // const _code = `${data.d1}${data.d2}${data.d3}${data.d4}`;
     verify(true);
   };
 

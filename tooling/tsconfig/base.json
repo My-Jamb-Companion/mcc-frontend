@@ -3,28 +3,12 @@
     "target": "ES2020",
     "lib": ["DOM", "ESNext"],
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "baseUrl": ".",
-    "paths": {
-      "@mcc/ui": ["../../packages/ui"],
-      "@mcc/ui/*": ["../../packages/ui/*"],
-      "@mcc/utils": ["../../packages/utils"],
-      "@mcc/utils/*": ["../../packages/utils/*"],
-      "@mcc/features": ["../../packages/features"],
-      "@mcc/features/*": ["../../packages/features/*"],
-      "@mcc/store": ["../../packages/store"],
-      "@mcc/store/*": ["../../packages/store/*"],
-      "@mcc/types": ["../../packages/types"],
-      "@mcc/config": ["../../packages/config"],
-      "@mcc/api": ["../../packages/api"],
-      "@mcc/api/*": ["../../packages/api/*"],
-      "@mcc/tooling/*": ["tooling/*"]
-    }
+    "isolatedModules": true
   }
 }

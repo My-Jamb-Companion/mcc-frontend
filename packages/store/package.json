@@ -1,9 +1,12 @@
 {
-  "name": "store",
+  "name": "@mcc/store",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,6 +14,7 @@
   "license": "ISC",
   "packageManager": "pnpm@10.32.1",
   "dependencies": {
-    "zustand": "^5.0.12"
+    "zustand": "^5.0.12",
+    "@mcc/types": "workspace:*"
   }
 }

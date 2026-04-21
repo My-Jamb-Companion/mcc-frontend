@@ -1,14 +1,11 @@
-import FormInputs from "@mcc/features/auth/components/FormInputs";
+import { FieldError, FormInputs, useForm } from "@mcc/features";
 import {motion} from "@mcc/ui";
-import {FieldError, useForm} from "@mcc/utils";
 
 export default function NewPassword() {
   const {register, formState, handleSubmit, watch} = useForm<Newpassword>();
   const errors = formState.errors;
 
-  const onSubmit = (data: Newpassword) => {
-    console.log("Form Data:", data);
-  };
+  const onSubmit = (_data: Newpassword) => {};
 
   const password = watch("password");
   return (

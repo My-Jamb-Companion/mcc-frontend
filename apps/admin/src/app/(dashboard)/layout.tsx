@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@mcc/features/auth";
+import { useAuth } from "@mcc/features";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 // import { LoadingState } from "@mcc/ui";
@@ -10,14 +10,14 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace("/login");
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, router]);
   
  if (!isAuthenticated) return null;
 

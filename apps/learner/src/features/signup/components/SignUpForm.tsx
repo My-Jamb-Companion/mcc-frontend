@@ -1,24 +1,23 @@
-import {FieldErrors, useForm} from "@mcc/utils";
-import FormInputs from "./Forminputs";
+import FormInputs from "./FormInputs";
 import Link from "next/link";
 import {motion, Icon} from "@mcc/ui";
 import EmailVerify from "./EmailVerify";
 import {useState} from "react";
+import { FieldErrors, useForm } from "@mcc/features";
 
 export default function SignupForm({back}: {back: (value: boolean) => void}) {
-  const {register, formState, watch, handleSubmit} =
+  const {register, formState, watch, getValues, handleSubmit} =
     useForm<SignUpFormInputs>();
   const [emailVerify, setEmailVerify] = useState(false);
   const errors = formState.errors;
-  const onSubmit = (data: SignUpFormInputs) => {
-    console.log(data);
+  const onSubmit = (_data: SignUpFormInputs) => {
     setEmailVerify(true);
   };
   const password = watch("password");
   return (
     <>
       {emailVerify ? (
-        <EmailVerify email={formState.values.email || ""} />
+        <EmailVerify email={getValues("email") || ""} />
       ) : (
         <motion.div
           key="signup-form"
@@ -87,7 +86,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
                 className="text-sm text-black dark:text-muted flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
                 onClick={back.bind(null, false)}
               >
-                <Icon icon="eva:arrow-back-outline" width="24" height="24" />
+                <Icon name="eva:arrow-back-outline" size={24} />
                 <span>Back</span>
               </p>
             </form>
@@ -108,9 +107,9 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
 }
 
 interface SignUpFormInputs {
-  Name: string;
-  Email: string;
-  Password: string;
-  ConfirmPassword: string;
-  error: FieldErrors | undefined;
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  errors: FieldErrors | undefined;
 }

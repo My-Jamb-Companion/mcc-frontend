@@ -1,15 +1,25 @@
 import { CreateCourseButton } from "./CreateCourseButton";
-import { CourseList as BaseCourseList } from "@mcc/features/courses";
+import { CourseList as BaseCourseList } from "@mcc/features";
+import { Course } from "../types";
+
 
 export const CourseList = () => {
 
+  const handleCreate = () => {
+  // TODO: implement create course
+};
+
+const handleEdit = (_id: string) => {
+  // TODO: implement edit
+};
+
   return (
     <div>
-      <CreateCourseButton onClick={() => console.log("create")} />
+      <CreateCourseButton onClick={handleCreate} />
 
       <BaseCourseList
-        renderActions={(course) => (
-          <button onClick={() => console.log("edit", course.id)}>
+        renderActions={(course: Course) => (
+          <button onClick={() => handleEdit(course.id)}>
             Edit
           </button>
         )}

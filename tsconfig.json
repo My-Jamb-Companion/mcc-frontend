@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./apps/admin" },
+    { "path": "./apps/learner" },
+    { "path": "./packages/ui" },
+    { "path": "./packages/api" },
+    { "path": "./packages/features" },
+    { "path": "./packages/store" },
+    { "path": "./packages/types" }
+  ]
+}
