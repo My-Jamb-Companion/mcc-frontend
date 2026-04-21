@@ -5,6 +5,7 @@ import LiveClassCard from "./LiveClassCard";
 import IntroCard from "./IntroCard";
 import {introCard} from "../constants/introcards";
 import CourseCard from "./CourseCard";
+import AskAICard from "./AskAICard";
 
 export default function Explore() {
   return (
@@ -51,7 +52,7 @@ export default function Explore() {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mt-8">
+      <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-4 mt-8">
         <div className="flex flex-col gap-10">
           <div>
             <div className="flex items-center justify-between pb-5">
@@ -167,7 +168,11 @@ export default function Explore() {
         </div>
 
         {/* Ai */}
-        <div></div>
+        <div>
+          <div>
+            <AskAICard />
+          </div>
+        </div>
       </div>
     </div>
   );
