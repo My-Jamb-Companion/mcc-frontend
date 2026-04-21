@@ -1,4 +1,4 @@
-name: Lint & Type Check
+name: Lint & Build
 
 on:
   push:
@@ -10,8 +10,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  typecheck:
-    name: TypeScript
+  build:
+    name: Build & Lint
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -30,13 +30,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Debug Turbo Tasks
-        run: pnpm turbo run typecheck --dry-run
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
 
-      - name: Build packages first
-        run: pnpm turbo run build
-
-      - name: Type check (Turbo)
-        run: pnpm turbo run typecheck
+      - name: Build (includes typecheck)
+        run: pnpm turbo run build --concurrency=2
         env:
           TURBO_TELEMETRY_DISABLED: 1
+
+      - name: Lint
+        run: pnpm lint

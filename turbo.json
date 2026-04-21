@@ -8,9 +8,7 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**"]
     },
-    "typecheck": {
-      "dependsOn": ["^typecheck"],
-      "inputs": ["**/*.ts", "**/*.tsx", "tsconfig*.json"],
+    "lint": {
       "outputs": []
     }
   }
