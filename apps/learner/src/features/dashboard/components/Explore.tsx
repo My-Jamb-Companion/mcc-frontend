@@ -6,6 +6,8 @@ import IntroCard from "./IntroCard";
 import {introCard} from "../constants/introcards";
 import CourseCard from "./CourseCard";
 import AskAICard from "./AskAICard";
+import CourseScrollRow from "./CourseScrollRow";
+import ExamsRowScroll from "./ExamsRowScroll";
 
 export default function Explore() {
   return (
@@ -54,124 +56,61 @@ export default function Explore() {
 
       <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-4 mt-8">
         <div className="flex flex-col gap-10">
-          <div>
-            <div className="flex items-center justify-between pb-5">
-              <div className="flex items-center gap-6">
-                <p className="font-semibold text-xl">Continue learning</p>
-                <button className="rounded-full p-1 border border-muted/50 cursor-pointer">
-                  <Icon icon="basil:arrow-right-solid" width="20" height="20" />
-                </button>
+          <CourseScrollRow title="Continue learning">
+            {[1, 2, 3, 4, 5].map((card) => (
+              <div key={card} className="shrink-0 w-72">
+                <CourseCard
+                  image="/assets/images/tower.jpg"
+                  instructor="Brooke Graser"
+                  rating={4.7}
+                  reviewCount="5.2k"
+                  title="Intro to Procreate: Illustration on the iPad (UPDATED)"
+                  tags={[
+                    "Procreate",
+                    "Drawing Tablet",
+                    "Beginner",
+                    "Digital Art",
+                    "iPad",
+                  ]}
+                  onClick={() => console.log("open course")}
+                />
               </div>
+            ))}
+          </CourseScrollRow>
 
-              <div className="flex items-center gap-2">
-                <button className="rounded-full p-1 border border-muted/50 cursor-pointer bg-hint/50 text-muted">
-                  <Icon icon="basil:caret-left-solid" width="20" height="20" />
-                </button>
-                <button className="rounded-full p-1 border border-muted/50 cursor-pointer">
-                  <Icon icon="basil:caret-right-solid" width="20" height="20" />
-                </button>
+          <CourseScrollRow title="What to learn next?">
+            {[6, 7, 8, 9].map((card) => (
+              <div key={card} className="shrink-0 w-72">
+                <CourseCard
+                  image="/assets/images/tower.jpg"
+                  instructor="Brooke Graser"
+                  rating={4.7}
+                  reviewCount="5.2k"
+                  title="Intro to Procreate: Illustration on the iPad (UPDATED)"
+                  tags={[
+                    "Procreate",
+                    "Drawing Tablet",
+                    "Beginner",
+                    "Digital Art",
+                    "iPad",
+                  ]}
+                  price={22345}
+                  originalPrice={3500}
+                  pricePerModule={75}
+                  onClick={() => console.log("open course")}
+                />
               </div>
-            </div>
-
-            <div className="flex items-center gap-6">
-              <CourseCard
-                image="/assets/images/tower.jpg"
-                instructor="Brooke Graser"
-                rating={4.7}
-                reviewCount="5.2k"
-                title="Intro to Procreate: Illustration on the iPad (UPDATED)"
-                tags={[
-                  "Procreate",
-                  "Drawing Tablet",
-                  "Beginner",
-                  "Digital Art",
-                  "iPad",
-                ]}
-                onClick={() => console.log("open course")}
-              />
-              <CourseCard
-                image="/assets/images/tower.jpg"
-                instructor="Brooke Graser"
-                rating={4.7}
-                reviewCount="5.2k"
-                title="Intro to Procreate: Illustration on the iPad (UPDATED)"
-                tags={[
-                  "Procreate",
-                  "Drawing Tablet",
-                  "Beginner",
-                  "Digital Art",
-                  "iPad",
-                ]}
-                onClick={() => console.log("open course")}
-              />
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between pb-5">
-              <div className="flex items-center gap-6">
-                <p className="font-semibold text-xl">What to learn next</p>
-                <button className="rounded-full p-1 border border-muted/50 cursor-pointer">
-                  <Icon icon="basil:arrow-right-solid" width="20" height="20" />
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button className="rounded-full p-1 border border-muted/50 cursor-pointer bg-hint/50 text-muted">
-                  <Icon icon="basil:caret-left-solid" width="20" height="20" />
-                </button>
-                <button className="rounded-full p-1 border border-muted/50 cursor-pointer">
-                  <Icon icon="basil:caret-right-solid" width="20" height="20" />
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-6">
-              <CourseCard
-                image="/assets/images/tower.jpg"
-                instructor="Brooke Graser"
-                rating={4.7}
-                reviewCount="5.2k"
-                title="Intro to Procreate: Illustration on the iPad (UPDATED)"
-                tags={[
-                  "Procreate",
-                  "Drawing Tablet",
-                  "Beginner",
-                  "Digital Art",
-                  "iPad",
-                ]}
-                price={22345}
-                originalPrice={3500}
-                pricePerModule={75}
-                onClick={() => console.log("open course")}
-              />
-              <CourseCard
-                image="/assets/images/tower.jpg"
-                instructor="Brooke Graser"
-                rating={4.7}
-                reviewCount="5.2k"
-                title="Intro to Procreate: Illustration on the iPad (UPDATED)"
-                tags={[
-                  "Procreate",
-                  "Drawing Tablet",
-                  "Beginner",
-                  "Digital Art",
-                  "iPad",
-                ]}
-                price={22345}
-                originalPrice={3500}
-                pricePerModule={75}
-                onClick={() => console.log("open course")}
-              />
-            </div>
-          </div>
+            ))}
+          </CourseScrollRow>
         </div>
 
         {/* Ai */}
-        <div>
-          <div>
-            <AskAICard />
-          </div>
+        <div className="flex flex-col gap-7">
+          <AskAICard />
+          <ExamsRowScroll
+            title="Prepare for an exams"
+            subTitle="Best practice resources and environment for your exams"
+          />
         </div>
       </div>
     </div>
