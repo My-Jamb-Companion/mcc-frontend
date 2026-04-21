@@ -30,28 +30,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # 🔍 DEBUG: show turbo pipeline
       - name: Debug Turbo Tasks
         run: pnpm turbo run typecheck --dry-run
 
-      # 🔍 DEBUG: show dependency graph
-      - name: Debug Turbo Graph
-        run: pnpm turbo run typecheck --graph
+      - name: Build packages first
+        run: pnpm turbo run build
 
-      # 🔍 DEBUG: check TS version
-      - name: Check TypeScript Version
-        run: pnpm tsc -v
-
-      # 🔍 DEBUG: run a single app first
-      - name: Typecheck Admin (isolated)
-        run: pnpm --filter=admin typecheck
-
-      - name: Typecheck Learner (isolated)
-        run: pnpm --filter=learner typecheck
-
-      # 🚀 Main run (with logs)
       - name: Type check (Turbo)
-        run: pnpm turbo run typecheck --no-cache --concurrency=1 --output-logs=full
+        run: pnpm turbo run typecheck
         env:
-          NODE_OPTIONS: "--max-old-space-size=6144"
           TURBO_TELEMETRY_DISABLED: 1

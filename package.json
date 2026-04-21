@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit --pretty false --diagnostics --extendedDiagnostics",
     "build": "turbo run build",
+    "ci:check": "pnpm install --frozen-lockfile && pnpm turbo run build && pnpm turbo run typecheck && pnpm lint",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
