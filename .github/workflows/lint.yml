@@ -15,19 +15,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
       - name: Restore ESLint cache
         uses: actions/cache@v4
         with:
@@ -36,7 +32,6 @@ jobs:
           restore-keys: |
             eslint-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
             eslint-${{ runner.os }}-
-
       - name: Lint
         run: pnpm lint --cache --cache-location .eslintcache
 
@@ -46,26 +41,23 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Type check (diagnostic)
-        run: |
-          for pkg in packages/api packages/store packages/ui packages/features apps/admin apps/learner; do
-            echo "=== Checking $pkg ==="
-            cd "$GITHUB_WORKSPACE/$pkg"
-            timeout 90 npx tsc --noEmit --extendedDiagnostics 2>&1 | tail -30
-            echo "=== Done $pkg ==="
-          done
+      - name: Restore Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-typecheck-${{ runner.os }}-${{ github.sha }}
+          restore-keys: turbo-typecheck-${{ runner.os }}-
+      - name: Type check
+        run: pnpm turbo typecheck --cache-dir=".turbo" --concurrency=2
         env:
           NODE_OPTIONS: "--max-old-space-size=6144"
+          TURBO_TELEMETRY_DISABLED: 1
