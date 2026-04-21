@@ -10,7 +10,7 @@ export default function IntroCard({title, icon, onClick}: IntroCardProps) {
   return (
     <button
       onClick={onClick}
-      className="relative w-full rounded-2xl bg-[#2a2a2e] overflow-hidden px-5 py-6 flex items-center justify-between cursor-pointer hover:brightness-110 transition-all hover:scale-105"
+      className="relative w-full rounded-2xl bg-[#2a2a2e] overflow-hidden px-5 py-6 flex items-center justify-between cursor-pointer hover:brightness-110 transition-all hover:scale-95"
     >
       {/* Wavy topographic SVG background */}
       <svg
