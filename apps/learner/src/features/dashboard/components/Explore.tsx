@@ -8,6 +8,7 @@ import CourseCard from "./CourseCard";
 import AskAICard from "./AskAICard";
 import CourseScrollRow from "./CourseScrollRow";
 import ExamsRowScroll from "./ExamsRowScroll";
+import CourseHeroCard from "./CourseHeroCard";
 
 export default function Explore() {
   return (
@@ -48,13 +49,13 @@ export default function Explore() {
         />
       </div>
 
-      <div className="flex items-center gap-4 mt-8 max-sm:flex-col">
+      <div className="flex items-center gap-4 mt-8 max-md:flex-col">
         {introCard.map((card) => (
           <IntroCard key={card.title} title={card.title} icon={card.icon} />
         ))}
       </div>
 
-      <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-4 mt-8">
+      <div className="grid grid-cols-2 max-lg:grid-cols-1 gap-4 mt-8">
         <div className="flex flex-col gap-10">
           <CourseScrollRow title="Continue learning">
             {[1, 2, 3, 4, 5].map((card) => (
@@ -112,6 +113,21 @@ export default function Explore() {
             subTitle="Best practice resources and environment for your exams"
           />
         </div>
+      </div>
+
+      <div className="pt-8">
+        <p className="text-2xl font-semibold pb-6">Our top pick for you</p>
+        <CourseHeroCard
+          image="/assets/images/pencil.jpg"
+          title="Complete web development course"
+          description="Only web development course that you will need. Covers HTML, CSS, Tailwind, Node, React, MongoDB, Prisma, Deployment etc"
+          isPremium
+          rating={4.6}
+          ratingCount="16,454"
+          learners="43,876"
+          price={10345}
+          originalPrice={3500}
+        />
       </div>
     </div>
   );
