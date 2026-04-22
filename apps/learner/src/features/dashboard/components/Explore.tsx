@@ -129,6 +129,18 @@ export default function Explore() {
           originalPrice={3500}
         />
       </div>
+
+      <div className="flex items-center justify-between px-16 py-8 text-sm font-medium max-sm:flex-col w-full max-sm:px-3">
+        <p className="text-muted">© 2026 MC companion</p>
+        <div className="flex items-center gap-5 max-sm:justify-between">
+          <p className="underline text-muted hover:text-primary cursor-pointer">
+            Terms and Conditions
+          </p>
+          <p className="underline text-muted hover:text-primary cursor-pointer">
+            Privacy Policy
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
