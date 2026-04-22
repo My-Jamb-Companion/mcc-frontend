@@ -1,6 +1,6 @@
-import { Icon } from "@mcc/ui";
+import {Icon} from "@mcc/ui";
 import {useState} from "react";
-import { FieldError, UseFormRegisterReturn } from "react-hook-form";
+import {FieldError, UseFormRegisterReturn} from "react-hook-form";
 
 const FormInputs = ({
   label,
@@ -76,7 +76,7 @@ const FormInputs = ({
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
           >
             <Icon
-              name={show ? "ph:eye-slash" : "ph:eye"}
+              icon={show ? "ph:eye-slash" : "ph:eye"}
               size={16}
               className={
                 errors?.message ? "var(--color-danger)" : "var(--color-muted)"
@@ -92,10 +92,7 @@ const FormInputs = ({
 
 const Err = ({message}: {message?: string}) => {
   return (
-    <p
-      key={message}
-      className="text-start text-red-400 text-xs"
-    >
+    <p key={message} className="text-start text-red-400 text-xs">
       {message}
     </p>
   );

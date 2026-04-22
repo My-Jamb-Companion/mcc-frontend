@@ -1,4 +1,4 @@
-import {useFormContext} from "@mcc/utils";
+import {useFormContext} from "@mcc/features";
 import {FormStep} from "../types/formTypes";
 
 export function StepNavigation({

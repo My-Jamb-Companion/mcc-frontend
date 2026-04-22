@@ -1,4 +1,4 @@
-import {useFormContext} from "@mcc/utils";
+import {useFormContext} from "@mcc/features";
 import {TileMultiStep} from "../types/formTypes";
 import {Icon} from "@mcc/ui";
 
@@ -35,9 +35,7 @@ export function TileMultiRenderer({step}: {step: TileMultiStep}) {
               }`}
             >
               <span>
-                {opt.icon && (
-                  <Icon icon={String(opt.icon)} width="24" height="24" />
-                )}
+                {opt.icon && <Icon icon={String(opt.icon)} size={24} />}
               </span>
               <span>{opt.label}</span>
             </button>
