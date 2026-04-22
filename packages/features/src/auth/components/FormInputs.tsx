@@ -1,6 +1,6 @@
-import {Icon} from "@mcc/ui";
 import {useState} from "react";
-import {FieldError, UseFormRegisterReturn} from "react-hook-form";
+import {Icon, motion} from "@mcc/ui";
+import {FieldError, UseFormRegisterReturn} from "@mcc/features";
 
 const FormInputs = ({
   label,
@@ -15,7 +15,7 @@ const FormInputs = ({
   isPassword = false,
 }: Props) => {
   const [show, setShow] = useState(false);
-  const id = registration.name;
+  const id = registration?.name;
 
   const inputClass = `w-full border border-muted/20 rounded-md p-2 text-sm text-muted outline-none  ${
     icon ? "pl-9" : "px-3"
@@ -92,9 +92,14 @@ const FormInputs = ({
 
 const Err = ({message}: {message?: string}) => {
   return (
-    <p key={message} className="text-start text-red-400 text-xs">
+    <motion.p
+      key={message}
+      initial={{opacity: 0, scale: 0}}
+      animate={{opacity: 1, scale: 1}}
+      className="text-start text-red-400 text-xs"
+    >
       {message}
-    </p>
+    </motion.p>
   );
 };
 export default FormInputs;

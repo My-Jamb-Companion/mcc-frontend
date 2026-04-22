@@ -1,6 +1,5 @@
-import {Controller, useFormContext} from "@mcc/features";
+import {Controller, FormInputs, useFormContext} from "@mcc/features";
 import {MixedStep} from "../types/formTypes";
-import FormInputs from "../../components/Forminputs";
 
 export function MixedStepRenderer({step}: {step: MixedStep}) {
   const {register, control} = useFormContext();

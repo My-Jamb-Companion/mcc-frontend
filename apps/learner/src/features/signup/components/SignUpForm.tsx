@@ -1,9 +1,8 @@
-import FormInputs from "./FormInputs";
 import Link from "next/link";
 import {motion, Icon} from "@mcc/ui";
 import EmailVerify from "./EmailVerify";
 import {useState} from "react";
-import { FieldErrors, useForm } from "@mcc/features";
+import {FieldErrors, useForm} from "@mcc/features";
 
 export default function SignupForm({back}: {back: (value: boolean) => void}) {
   const {register, formState, watch, getValues, handleSubmit} =
