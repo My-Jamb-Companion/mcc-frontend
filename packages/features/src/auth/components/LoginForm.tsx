@@ -22,7 +22,7 @@ export const LoginForm = ({
     setTimeout(() => {
       setLoading(false);
       // handleLogin("learner");
-    }, 2150);
+    }, 3150);
   };
 
   const handleLogin = async (role: any) => {
@@ -60,7 +60,7 @@ export const LoginForm = ({
       ) : (
         <motion.div
           key="form"
-          layout
+          // layout
           initial={{opacity: 0, scale: 0.96}}
           animate={{opacity: 1, scale: 1}}
           exit={{opacity: 0, scale: 0.96}}
