@@ -1,6 +1,5 @@
 "use client";
 
-import {FormProvider, useForm} from "@mcc/utils";
 import {useState} from "react";
 import {formSteps} from "../constants/formSteps";
 import ProgressBar from "./progressBar";
@@ -11,6 +10,7 @@ import {FormValues} from "../types/formTypes";
 import {useRouter} from "next/navigation";
 import LoadingCircle from "../../components/loadingCircle";
 import {Icon} from "@mcc/ui";
+import {FormProvider, useForm} from "@mcc/features";
 
 export default function Onboarding() {
   const [step, setStep] = useState(0);
@@ -50,11 +50,7 @@ export default function Onboarding() {
               onClick={() => prevStep()}
               className="absolute top-0 left-0 z-10 rounded-full p-2 border-2 shadow-md border-muted/55 active:scale-95 w-fit sm:hidden"
             >
-              <Icon
-                icon="material-symbols:arrow-back-rounded"
-                width="16"
-                height="16"
-              />
+              <Icon icon="material-symbols:arrow-back-rounded" size={16} />
             </button>
           )}
           <ProgressBar

@@ -1,8 +1,7 @@
 import {useState} from "react";
-import {FieldError, UseFormRegisterReturn} from "@mcc/utils";
-import {Icon} from "@mcc/ui";
-import {motion} from "framer-motion";
 import {CustomSelect} from "../onboarding/components/CustomSelectInput";
+import {Icon, motion} from "@mcc/ui";
+import {FieldError, UseFormRegisterReturn} from "@mcc/features";
 
 const FormInputs = ({
   label,
@@ -112,7 +111,7 @@ const FormInputs = ({
           >
             <Icon
               icon={show ? "ph:eye-slash" : "ph:eye"}
-              width={16}
+              size={16}
               color={
                 errors?.message ? "var(--color-danger)" : "var(--color-muted)"
               }
@@ -159,7 +158,7 @@ type Props = {
   placeholder?: string;
   icon?: React.ReactNode;
   checkColor?: string;
-  value?: string|boolean;
+  value?: string | boolean;
   onChange?: (value: string | boolean) => void;
   isPassword?: boolean;
 };

@@ -1,8 +1,8 @@
 "use client";
 import FormInputs from "@/src/features/components/Forminputs";
-import {Controller, useForm} from "@mcc/utils";
 import {planFormValues} from "../types/planForm";
 import {useRouter} from "next/navigation";
+import {useForm, Controller} from "@mcc/features";
 
 export default function PlanForm({plan}: {plan?: "free" | "paid"}) {
   const {

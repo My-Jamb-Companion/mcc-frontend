@@ -54,8 +54,7 @@ export function CustomSelect({
           )}
           <Icon
             icon="line-md:chevron-up"
-            width="15"
-            height="15"
+            size={15}
             className={`text-zinc-400 transition-transform duration-200 ${open ? "" : "rotate-180"}`}
           />
         </button>

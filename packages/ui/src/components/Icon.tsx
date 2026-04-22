@@ -1,20 +1,20 @@
-"use client";
-
-import { Icon as IconifyIcon } from "@iconify/react";
+import {Icon as IconifyIcon} from "@iconify/react";
 
 type Props = {
-  name: string;
+  icon: string;
   size?: number;
   className?: string;
+  color?: string;
 };
 
-export const Icon = ({ name, size = 24, className }: Props) => {
+export const Icon = ({icon, size = 24, className, color}: Props) => {
   return (
     <IconifyIcon
-      icon={name}
+      icon={icon}
       width={size}
       height={size}
       className={className}
+      color={color}
     />
   );
 };
