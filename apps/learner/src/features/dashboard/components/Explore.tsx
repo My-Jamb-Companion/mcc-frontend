@@ -9,6 +9,7 @@ import AskAICard from "./AskAICard";
 import CourseScrollRow from "./CourseScrollRow";
 import ExamsRowScroll from "./ExamsRowScroll";
 import CourseHeroCard from "./CourseHeroCard";
+import TopicsRow from "./TopicsRow";
 
 export default function Explore() {
   return (
@@ -130,6 +131,9 @@ export default function Explore() {
         />
       </div>
 
+<div className="pt-8">
+  <TopicsRow/>
+</div>
       <div className="flex items-center justify-between px-16 py-8 text-sm font-medium max-sm:flex-col w-full max-sm:px-3">
         <p className="text-muted">© 2026 MC companion</p>
         <div className="flex items-center gap-5 max-sm:justify-between">
