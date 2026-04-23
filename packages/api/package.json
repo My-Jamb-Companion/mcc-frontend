@@ -2,8 +2,8 @@
   "name": "@mcc/api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
-  "types": "index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b",

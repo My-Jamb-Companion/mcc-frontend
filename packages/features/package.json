@@ -26,7 +26,8 @@
     "react-hook-form": "^7.72.1",
     "@mcc/ui": "workspace:*",
     "@mcc/store": "workspace:*",
-    "@mcc/types": "workspace:*"
+    "@mcc/types": "workspace:*",
+    "@mcc/api": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.2.14",

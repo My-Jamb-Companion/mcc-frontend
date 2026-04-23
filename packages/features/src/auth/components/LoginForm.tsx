@@ -1,34 +1,21 @@
-import { useAuth } from "../hooks/useAuth";
 import { useForm, FieldError } from "react-hook-form";
 import { useState } from "react";
 import LoggingIn from "./LoggingIn";
 import { AnimatePresence, Icon, motion } from "@mcc/ui";
-import { Role } from "../types";
 import FormInputs from "./FormInputs";
 
 export const LoginForm = ({
-  onSuccess,
+  onSuccess: _onSuccess,
 }: {
-  onSuccess?: (role: string) => void;
+  onSuccess?: () => void;
 }) => {
-  const { login } = useAuth();
-
   const { register, formState, handleSubmit } = useForm<LoginFormInputs>();
   const errors = formState.errors;
   const [loading, setLoading] = useState(false);
 
   const onSubmit = (_data: LoginFormInputs) => {
     setLoading(true);
-
-    setTimeout(() => {
-      setLoading(false);
-      // handleLogin("learner");
-    }, 2150);
-  };
-
-  const _handleLogin = async (role: Role) => {
-    await login(role);
-    onSuccess?.(role);
+    setTimeout(() => setLoading(false), 2150);
   };
 
   return (
