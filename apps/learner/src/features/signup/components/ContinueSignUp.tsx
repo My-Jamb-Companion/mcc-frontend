@@ -1,10 +1,36 @@
+"use client";
+
 import {Icon, motion} from "@mcc/ui";
+import { useGoogleAuth } from "@mcc/features";
 
 export default function ContinueWithAccount({
   mail,
 }: {
   mail: (value: boolean) => void;
 }) {
+  const googleMutation = useGoogleAuth();
+
+  const socialButtons = [
+    {
+      icon: "material-icon-theme:google",
+      label: googleMutation.isPending ? "Redirecting..." : "Continue with Google",
+      onClick: () => googleMutation.mutate(),
+      disabled: googleMutation.isPending,
+    },
+    {
+      icon: "logos:facebook",
+      label: "Continue with Facebook",
+      onClick: undefined,
+      disabled: true,
+    },
+    {
+      icon: "logos:whatsapp-icon",
+      label: "Continue with WhatsApp",
+      onClick: undefined,
+      disabled: true,
+    },
+  ];
+
   return (
     <motion.div
       key="continue"
@@ -26,25 +52,19 @@ export default function ContinueWithAccount({
           animate="show"
           variants={{
             hidden: {},
-            show: {
-              transition: {
-                staggerChildren: 0.06,
-              },
-            },
+            show: { transition: { staggerChildren: 0.06 } },
           }}
         >
-          {[
-            {icon: "material-icon-theme:google", label: "Continue with Google"},
-            {icon: "logos:facebook", label: "Continue with Facebook"},
-            {icon: "logos:whatsapp-icon", label: "Continue with WhatsApp"},
-          ].map((item, i) => (
+          {socialButtons.map((item, i) => (
             <motion.button
               key={i}
               variants={{
                 hidden: {opacity: 0, y: 8},
                 show: {opacity: 1, y: 0},
               }}
-              className="border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-muted/5 mx-auto rounded-full py-2.5 w-full font-medium active:scale-97 outline-primary/50 focus:outline"
+              onClick={item.onClick}
+              disabled={item.disabled}
+              className="border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-muted/5 mx-auto rounded-full py-2.5 w-full font-medium active:scale-97 outline-primary/50 focus:outline disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Icon name={item.icon} size={18} />
               <span className="text-xs">{item.label}</span>
@@ -53,10 +73,7 @@ export default function ContinueWithAccount({
 
           <motion.h3
             className="my-4 text-center"
-            variants={{
-              hidden: {opacity: 0},
-              show: {opacity: 1},
-            }}
+            variants={{ hidden: {opacity: 0}, show: {opacity: 1} }}
           >
             OR
           </motion.h3>
