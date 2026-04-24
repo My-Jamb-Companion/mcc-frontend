@@ -1,15 +1,26 @@
-import { useForm } from "@mcc/features";
+"use client";
+
+import { useForm, usePasswordReset } from "@mcc/features";
 import React from "react";
+import { extractApiError } from "@mcc/api";
 
+interface Props {
+  email: string;
+  onVerified: (verificationToken: string) => void;
+}
 
-export default function OTPVerify({verify}: {verify: (b: boolean) => void}) {
+export default function OTPVerify({email, onVerified}: Props) {
   const {register, handleSubmit, watch, setValue} = useForm<OTP>();
+  const { verifyMutation } = usePasswordReset();
 
   const fields: (keyof OTP)[] = ["d1", "d2", "d3", "d4"];
 
-  const onSubmit = (_data: OTP) => {
-    // const _code = `${data.d1}${data.d2}${data.d3}${data.d4}`;
-    verify(true);
+  const onSubmit = (data: OTP) => {
+    const code = `${data.d1}${data.d2}${data.d3}${data.d4}`;
+    verifyMutation.mutate(
+      { email, code },
+      { onSuccess: (token) => onVerified(token) }
+    );
   };
 
   const handleChange = (
@@ -17,21 +28,15 @@ export default function OTPVerify({verify}: {verify: (b: boolean) => void}) {
     field: keyof OTP,
   ) => {
     const value = e.target.value;
-
-    // ✅ allow only digits
     if (!/^\d*$/.test(value)) return;
-
     const digit = value.slice(-1);
     setValue(field, digit);
-
-    // ✅ move to next input
     if (digit && e.target.nextSibling) {
       (e.target.nextSibling as HTMLInputElement).focus();
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // ✅ go back on backspace
     if (
       e.key === "Backspace" &&
       !(e.target as HTMLInputElement).value &&
@@ -45,9 +50,7 @@ export default function OTPVerify({verify}: {verify: (b: boolean) => void}) {
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     const paste = e.clipboardData.getData("text");
-
     if (!/^\d{4}$/.test(paste)) return;
-
     paste.split("").forEach((digit, index) => {
       setValue(fields[index], digit);
     });
@@ -62,7 +65,7 @@ export default function OTPVerify({verify}: {verify: (b: boolean) => void}) {
         <h4 className="text-xl font-semibold">
           Enter the 4 digit code we sent to
         </h4>
-        <p className="text-muted text-xl">bright@gmail.com</p>
+        <p className="text-muted text-xl">{email}</p>
       </div>
 
       <div className="flex items-center gap-5 pb-4">
@@ -83,16 +86,22 @@ export default function OTPVerify({verify}: {verify: (b: boolean) => void}) {
         ))}
       </div>
 
+      {verifyMutation.isError && (
+        <p className="text-red-500 text-sm text-center mb-3">
+          {extractApiError(verifyMutation.error, "Invalid or expired code")}
+        </p>
+      )}
+
       <button
         type="submit"
-        disabled={!isComplete}
+        disabled={!isComplete || verifyMutation.isPending}
         className={`${
-          isComplete
+          isComplete && !verifyMutation.isPending
             ? "bg-primary text-white cursor-pointer"
             : "bg-muted/10 text-hint cursor-not-allowed"
         } shadow-sm flex items-center justify-center gap-2 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300`}
       >
-        Continue
+        {verifyMutation.isPending ? "Verifying..." : "Continue"}
       </button>
     </form>
   );
