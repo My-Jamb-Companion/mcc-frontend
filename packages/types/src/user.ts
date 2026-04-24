@@ -1,8 +1,14 @@
-export type Role = "learner" | "instructor" | "admin";
+export type Role = "student" | "instructor" | "admin";
 
 export interface User {
-  id: string;
-  name: string;
+  user_id: string;
+  email: string;
   role: Role;
-  token: string;
+}
+
+export interface AuthTokens {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: number;
 }

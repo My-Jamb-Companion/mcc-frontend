@@ -10,7 +10,8 @@
   "references": [
     { "path": "../ui" },
     { "path": "../store" },
-    { "path": "../types" }
+    { "path": "../types" },
+    { "path": "../api" }
   ],
   "exclude": ["node_modules"]
 }
