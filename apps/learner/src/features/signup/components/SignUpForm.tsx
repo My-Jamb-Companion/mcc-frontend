@@ -1,18 +1,27 @@
+"use client";
+
 import FormInputs from "./FormInputs";
 import Link from "next/link";
 import {motion, Icon} from "@mcc/ui";
 import EmailVerify from "./EmailVerify";
 import {useState} from "react";
-import { FieldErrors, useForm } from "@mcc/features";
+import { FieldErrors, useForm, useSignup } from "@mcc/features";
+import { extractApiError } from "@mcc/api";
 
 export default function SignupForm({back}: {back: (value: boolean) => void}) {
   const {register, formState, watch, getValues, handleSubmit} =
     useForm<SignUpFormInputs>();
   const [emailVerify, setEmailVerify] = useState(false);
   const errors = formState.errors;
-  const onSubmit = (_data: SignUpFormInputs) => {
-    setEmailVerify(true);
+  const { signupMutation } = useSignup();
+
+  const onSubmit = (data: SignUpFormInputs) => {
+    signupMutation.mutate(
+      { email: data.email, password: data.password },
+      { onSuccess: () => setEmailVerify(true) }
+    );
   };
+
   const password = watch("password");
   return (
     <>
@@ -43,7 +52,6 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
                 })}
                 errors={errors.email}
               />
-
               <FormInputs
                 label="Password"
                 type="password"
@@ -63,7 +71,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
                 type="password"
                 placeholder="Confirm Password"
                 registration={register("confirmPassword", {
-                  required: "Password is required",
+                  required: "Please confirm your password",
                   minLength: {
                     value: 6,
                     message: "Password must be at least 6 characters",
@@ -75,11 +83,19 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
                 isPassword
               />
 
+              {signupMutation.isError && (
+                <p className="text-red-500 text-sm text-center">
+                  {extractApiError(signupMutation.error, "Failed to create account")}
+                </p>
+              )}
+
               <motion.button
+                type="submit"
+                disabled={signupMutation.isPending}
                 layoutId="auth-button"
-                className="bg-primary text-white border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/90 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300"
+                className="bg-primary text-white border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/90 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Create Account
+                {signupMutation.isPending ? "Creating account..." : "Create Account"}
               </motion.button>
 
               <p
@@ -107,9 +123,8 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
 }
 
 interface SignUpFormInputs {
-  name: string;
   email: string;
   password: string;
   confirmPassword: string;
-  errors: FieldErrors | undefined;
+  errors?: FieldErrors;
 }
