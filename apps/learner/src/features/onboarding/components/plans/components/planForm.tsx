@@ -20,7 +20,7 @@ export default function PlanForm({plan}: {plan?: "free" | "paid"}) {
   const router = useRouter();
 
   const submit = (data: planFormValues) => {
-    console.log(data);
+  if(data) router.push('dashboard')
   };
   return (
     <>
