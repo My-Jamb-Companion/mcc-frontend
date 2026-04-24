@@ -31,7 +31,6 @@ export function StepNavigation({
     if (!valid) return;
 
     if (step === totalSteps - 1) {
-      console.log("FINAL DATA:", getValues());
       return;
     }
 
