@@ -1,3 +1,5 @@
+"use client";
+
 import {useState} from "react";
 import SignupForm from "./SignUpForm";
 import ContinueWithAccount from "./ContinueSignUp";

@@ -1,26 +1,24 @@
-import {useState} from "react";
-import LoggingIn from "./LoggingIn";
-import {AnimatePresence, motion, Icon} from "@mcc/ui";
+import { useAuth } from "../hooks/useAuth";
 import {FieldError, useForm, FormInputs} from "@mcc/features";
+import LoggingIn from "./LoggingIn";
+import { AnimatePresence, Icon, motion } from "@mcc/ui";
+import { extractApiError } from "@mcc/api";
 
-export const LoginForm = ({
-  onSuccess: _onSuccess,
-}: {
-  onSuccess?: () => void;
-}) => {
+export const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
+  const { loginMutation } = useAuth();
   const { register, formState, handleSubmit } = useForm<LoginFormInputs>();
   const errors = formState.errors;
-  const [loading, setLoading] = useState(false);
 
   const onSubmit = (data: LoginFormInputs) => {
-    setLoading(true);
-    setTimeout(() => setLoading(false), 2150);
+    loginMutation.mutate(
+      { email: data.email, password: data.password },
+      { onSuccess: () => onSuccess?.() }
+    );
   };
 
   return (
-
     <AnimatePresence mode="wait">
-      {loading ? (
+      {loginMutation.isPending ? (
         <motion.div
           key="loading"
           layout
@@ -75,7 +73,14 @@ export const LoginForm = ({
                 isPassword
               />
 
+              {loginMutation.isError && (
+                <p className="text-red-500 text-sm text-center">
+                  {extractApiError(loginMutation.error, "Invalid email or password")}
+                </p>
+              )}
+
               <motion.button
+                type="submit"
                 layoutId="auth-button"
                 className="bg-primary text-white border-muted/50 border shadow-sm dark:shadow-primary flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/90 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300"
               >
@@ -85,14 +90,14 @@ export const LoginForm = ({
               <div className="flex items-center justify-between gap-3">
                 <a
                   href="/signup"
-                  className="text-sm text-black dark:text-muted flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
+                  className="flex-1 text-sm text-black dark:text-muted flex items-center justify-start gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
                 >
                   <Icon icon="eva:arrow-back-outline" size={24} />
                   <span>Back</span>
                 </a>
                 <a
                   href="/forget-password"
-                  className="text-sm text-black dark:text-muted flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
+                  className="flex-1 text-sm text-black dark:text-muted flex items-center justify-end gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
                 >
                   Forget Password?
                 </a>
@@ -100,7 +105,7 @@ export const LoginForm = ({
             </form>
 
             <p className="text-sm text-center mt-4 dark:text-muted">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <a
                 href="/signup"
                 className="underline cursor-pointer text-black dark:text-white hover:text-primary transition-all duration-300"
