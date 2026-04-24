@@ -1,5 +1,6 @@
 export * from "./components/Button";
 export * from "./components/Icon";
+export * from "./components/LoadingCircle";
 export * from "./components/feedback/ToastProvider";
 export * from "./lib/toast";
 export * from "./components/feedback/ErrorBoundary";

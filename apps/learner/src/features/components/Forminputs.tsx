@@ -1,4 +1,5 @@
 import {useState} from "react";
+import {CustomSelect} from "../onboarding/components/CustomSelectInput";
 import {Icon, motion} from "@mcc/ui";
 import {FieldError, UseFormRegisterReturn} from "@mcc/features";
 
@@ -6,12 +7,16 @@ const FormInputs = ({
   label,
   errors,
   className,
+  labelClassName,
   inputClassName,
   registration,
   type = "text",
   options = [],
   placeholder,
   icon,
+  checkColor,
+  value,
+  onChange,
   isPassword = false,
 }: Props) => {
   const [show, setShow] = useState(false);
@@ -36,13 +41,37 @@ const FormInputs = ({
 
     if (type === "select") {
       return (
-        <select id={id} className={inputClass} {...registration}>
-          {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        <CustomSelect
+          options={options}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+        />
+      );
+    }
+
+    if (type === "checkbox") {
+      return (
+        <label className="flex items-center gap-3 cursor-pointer group">
+          <div
+            onClick={() => onChange?.(!value)}
+            className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors shrink-0
+          ${value ? `bg-${checkColor || "primary"} border-${checkColor || "primary"}` : "border-muted/30 bg-white dark:bg-transparent"}`}
+          >
+            {value && (
+              <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+                <path
+                  d="M1 4L4 7.5L10 1"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            )}
+          </div>
+          <span className={`text-sm text-foreground font-medium`}>{label}</span>
+        </label>
       );
     }
 
@@ -59,9 +88,14 @@ const FormInputs = ({
 
   return (
     <div className={`flex flex-col gap-2 w-full ${className}`}>
-      <label htmlFor={id} className="text-start text-sm">
-        {label}
-      </label>
+      {type !== "checkbox" && (
+        <label
+          htmlFor={id}
+          className={`text-start text-sm font-medium ${labelClassName}`}
+        >
+          {label}
+        </label>
+      )}
       <div className="relative">
         {icon && (
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -78,7 +112,7 @@ const FormInputs = ({
             <Icon
               icon={show ? "ph:eye-slash" : "ph:eye"}
               size={16}
-              className={
+              color={
                 errors?.message ? "var(--color-danger)" : "var(--color-muted)"
               }
             />
@@ -108,8 +142,9 @@ type Props = {
   label: string;
   errors?: FieldError;
   className?: string;
+  labelClassName?: string;
   inputClassName?: string;
-  registration: UseFormRegisterReturn;
+  registration?: UseFormRegisterReturn;
   type?:
     | "text"
     | "email"
@@ -117,9 +152,13 @@ type Props = {
     | "number"
     | "tel"
     | "textarea"
-    | "select";
+    | "select"
+    | "checkbox";
   options?: {label: string; value: string}[];
   placeholder?: string;
   icon?: React.ReactNode;
+  checkColor?: string;
+  value?: string | boolean;
+  onChange?: (value: string | boolean) => void;
   isPassword?: boolean;
 };

@@ -17,11 +17,7 @@ export default function LoggingIn() {
         transition={{duration: 0.3, ease: "easeOut"}}
         className="mt-4 rounded-full p-4 border w-fit animated-pulse"
       >
-        <Icon
-          name="system-uicons:enter-alt"
-          size={48}
-          className="fill-white"
-        />
+        <Icon icon="system-uicons:enter-alt" size={48} className="fill-white" />
       </motion.div>
 
       {/* Text */}

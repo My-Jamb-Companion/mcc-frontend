@@ -1,8 +1,7 @@
 import { useAuth } from "../hooks/useAuth";
-import { useForm, FieldError } from "react-hook-form";
+import {FieldError, useForm, FormInputs} from "@mcc/features";
 import LoggingIn from "./LoggingIn";
 import { AnimatePresence, Icon, motion } from "@mcc/ui";
-import FormInputs from "./FormInputs";
 import { extractApiError } from "@mcc/api";
 
 export const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
@@ -23,10 +22,10 @@ export const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
         <motion.div
           key="loading"
           layout
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.96 }}
-          transition={{ duration: 0.35, ease: "easeInOut" }}
+          initial={{opacity: 0, scale: 0.96}}
+          animate={{opacity: 1, scale: 1}}
+          exit={{opacity: 0, scale: 0.96}}
+          transition={{duration: 0.35, ease: "easeInOut"}}
           className="w-full"
         >
           <motion.div layoutId="auth-card">
@@ -36,11 +35,11 @@ export const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       ) : (
         <motion.div
           key="form"
-          layout
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.96 }}
-          transition={{ duration: 0.35, ease: "easeInOut" }}
+          // layout
+          initial={{opacity: 0, scale: 0.96}}
+          animate={{opacity: 1, scale: 1}}
+          exit={{opacity: 0, scale: 0.96}}
+          transition={{duration: 0.35, ease: "easeInOut"}}
           className="w-full"
         >
           <motion.div layoutId="auth-card">
@@ -93,7 +92,7 @@ export const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
                   href="/signup"
                   className="flex-1 text-sm text-black dark:text-muted flex items-center justify-start gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
                 >
-                  <Icon name="eva:arrow-back-outline" size={24} />
+                  <Icon icon="eva:arrow-back-outline" size={24} />
                   <span>Back</span>
                 </a>
                 <a
