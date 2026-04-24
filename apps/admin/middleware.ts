@@ -1,9 +1,9 @@
 import { NextResponse, NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const user = req.cookies.get("user");
+  const auth = req.cookies.get("mcc_auth");
 
-  if (!user) {
+  if (!auth) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 

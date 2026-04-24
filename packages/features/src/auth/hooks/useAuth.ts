@@ -1,44 +1,57 @@
 "use client";
 
-import { useEffect } from "react";
-import { login, getCurrentUser } from "../services/auth.service";
-import { Role } from "../types";
+import { useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "@mcc/store";
 import { User } from "@mcc/types";
+import { loginApi, logoutApi } from "../services/auth.service";
+import {
+  saveSession,
+  clearSession,
+  getStoredUser,
+  getStoredAccessToken,
+} from "../services/session";
 
-type UseAuthReturn = {
-  user: User | null;
-  login: (role: Role) => Promise<void>;
-  logout: () => void;
-  isAuthenticated: boolean;
-};
-
-export const useAuth = (): UseAuthReturn => {
-  const { user, setUser, logout } = useAuthStore();
+export const useAuth = () => {
+  const { user, setUser, setAccessToken, logout } = useAuthStore();
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     if (!user) {
-      getCurrentUser().then((res) => {
-        if (res) setUser(res);
-      });
+      const storedUser = getStoredUser();
+      const storedToken = getStoredAccessToken();
+      if (storedUser && storedToken) {
+        setUser(storedUser);
+        setAccessToken(storedToken);
+      }
     }
-  }, [user, setUser]);
+    setHydrated(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleLogin = async (role: Role) => {
-    const user = await login(role);
-    localStorage.setItem("user", JSON.stringify(user));
-    setUser(user);
-  };
+  const loginMutation = useMutation({
+    mutationFn: ({ email, password }: { email: string; password: string }) =>
+      loginApi(email, password),
+    onSuccess: (data) => {
+      saveSession(data.user, data.access_token, data.refresh_token);
+      setUser(data.user);
+      setAccessToken(data.access_token);
+    },
+  });
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    logout();
-  };
+  const logoutMutation = useMutation({
+    mutationFn: logoutApi,
+    onSettled: () => {
+      clearSession();
+      logout();
+    },
+  });
 
   return {
-    user,
-    login: handleLogin,
-    logout: handleLogout,
+    user: user as User | null,
     isAuthenticated: !!user,
+    hydrated,
+    loginMutation,
+    logoutMutation,
   };
 };

@@ -1,47 +1,24 @@
-import {useAuth} from "../hooks/useAuth";
-import FormInputs from "./FormInputs";
 import {useState} from "react";
 import LoggingIn from "./LoggingIn";
 import {AnimatePresence, motion, Icon} from "@mcc/ui";
-import {FieldError, useForm} from "..";
+import {FieldError, useForm, FormInputs} from "@mcc/features";
 
 export const LoginForm = ({
-  onSuccess,
+  onSuccess: _onSuccess,
 }: {
-  onSuccess?: (role: string) => void;
+  onSuccess?: () => void;
 }) => {
-  const {login} = useAuth();
-
-  const {register, formState, handleSubmit} = useForm<LoginFormInputs>();
+  const { register, formState, handleSubmit } = useForm<LoginFormInputs>();
   const errors = formState.errors;
   const [loading, setLoading] = useState(false);
 
   const onSubmit = (data: LoginFormInputs) => {
     setLoading(true);
-
-    setTimeout(() => {
-      setLoading(false);
-      // handleLogin("learner");
-    }, 3150);
-  };
-
-  const handleLogin = async (role: any) => {
-    await login(role);
-    onSuccess?.(role);
+    setTimeout(() => setLoading(false), 2150);
   };
 
   return (
-    // <div className="space-y-3">
-    //   <button onClick={() => handleLogin("learner")}>
-    //     Login as Learner
-    //   </button>
-    //   <button onClick={() => handleLogin("instructor")}>
-    //     Login as Instructor
-    //   </button>
-    //   <button onClick={() => handleLogin("admin")}>
-    //     Login as Admin
-    //   </button>
-    // </div>
+
     <AnimatePresence mode="wait">
       {loading ? (
         <motion.div
