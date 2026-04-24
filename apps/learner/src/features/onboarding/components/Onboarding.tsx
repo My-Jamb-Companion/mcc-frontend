@@ -30,11 +30,13 @@ export default function Onboarding() {
   };
 
   const onSubmit = (data: FormValues) => {
+    if(data){
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
       router.push("/onboarding/free");
     }, 3000);
+    }
   };
 
   const currentStep = formSteps[step];
