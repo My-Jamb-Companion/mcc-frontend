@@ -8,8 +8,7 @@ import {extractDefaults} from "../constants/extract";
 import {OnboardingContent} from "./OnboardingContent";
 import {FormValues} from "../types/formTypes";
 import {useRouter} from "next/navigation";
-import LoadingCircle from "../../components/loadingCircle";
-import {Icon} from "@mcc/ui";
+import {Icon, LoadingCircle} from "@mcc/ui";
 import {FormProvider, useForm} from "@mcc/features";
 
 export default function Onboarding() {
@@ -31,7 +30,6 @@ export default function Onboarding() {
   };
 
   const onSubmit = (data: FormValues) => {
-    console.log("SUBMITTED DATA:", data);
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
