@@ -1,4 +1,4 @@
-import axios, { AxiosHeaders } from "axios";
+import { AxiosHeaders } from "axios";
 import { apiClient } from "./api-client";
 import "./interceptors"; // registers the interceptors as a side effect
 import { beforeEach, describe, expect, it, vi } from "vitest";
