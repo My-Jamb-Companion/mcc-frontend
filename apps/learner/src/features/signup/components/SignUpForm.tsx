@@ -5,20 +5,20 @@ import Link from "next/link";
 import {motion, Icon} from "@mcc/ui";
 import EmailVerify from "./EmailVerify";
 import {useState} from "react";
-import { FieldErrors, useForm, useSignup } from "@mcc/features";
-import { extractApiError } from "@mcc/api";
+import {FieldErrors, useForm, useSignup} from "@mcc/features";
+import {extractApiError} from "@mcc/api";
 
 export default function SignupForm({back}: {back: (value: boolean) => void}) {
   const {register, formState, watch, getValues, handleSubmit} =
     useForm<SignUpFormInputs>();
   const [emailVerify, setEmailVerify] = useState(false);
   const errors = formState.errors;
-  const { signupMutation } = useSignup();
+  const {signupMutation} = useSignup();
 
   const onSubmit = (data: SignUpFormInputs) => {
     signupMutation.mutate(
-      { email: data.email, password: data.password },
-      { onSuccess: () => setEmailVerify(true) }
+      {email: data.email, password: data.password},
+      {onSuccess: () => setEmailVerify(true)},
     );
   };
 
@@ -85,7 +85,10 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
 
               {signupMutation.isError && (
                 <p className="text-red-500 text-sm text-center">
-                  {extractApiError(signupMutation.error, "Failed to create account")}
+                  {extractApiError(
+                    signupMutation.error,
+                    "Failed to create account",
+                  )}
                 </p>
               )}
 
@@ -95,7 +98,9 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
                 layoutId="auth-button"
                 className="bg-primary text-white border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/90 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {signupMutation.isPending ? "Creating account..." : "Create Account"}
+                {signupMutation.isPending
+                  ? "Creating account..."
+                  : "Create Account"}
               </motion.button>
 
               <p
@@ -126,5 +131,5 @@ interface SignUpFormInputs {
   email: string;
   password: string;
   confirmPassword: string;
-  errors?: FieldErrors;
+  error: FieldErrors | undefined;
 }
