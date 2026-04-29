@@ -1,11 +1,10 @@
 "use client";
 
-import FormInputs from "./FormInputs";
 import Link from "next/link";
 import {motion, Icon} from "@mcc/ui";
 import EmailVerify from "./EmailVerify";
 import {useState} from "react";
-import {FieldErrors, useForm, useSignup} from "@mcc/features";
+import {FieldErrors, useForm, useSignup, FormInputs} from "@mcc/features";
 import {extractApiError} from "@mcc/api";
 
 export default function SignupForm({back}: {back: (value: boolean) => void}) {
