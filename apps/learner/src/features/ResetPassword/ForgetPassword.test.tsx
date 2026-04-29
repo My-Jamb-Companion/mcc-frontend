@@ -248,7 +248,7 @@ describe("step 3 — new password", () => {
     // step 2
     const inputs = screen.getAllByRole("textbox");
     await user.type(inputs[0], "1");
-    await user.type(inputs[1], "2");``
+    await user.type(inputs[1], "2");
     await user.type(inputs[2], "3");
     await user.type(inputs[3], "4");
     await user.click(screen.getByRole("button", { name: /continue/i }));
