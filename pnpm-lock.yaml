@@ -155,9 +155,6 @@ importers:
         specifier: ^1.7.9
         version: 1.15.1
     devDependencies:
-      '@testing-library/jest-dom':
-        specifier: ^6.9.1
-        version: 6.9.1
       '@types/node':
         specifier: ^20.19.39
         version: 20.19.39
