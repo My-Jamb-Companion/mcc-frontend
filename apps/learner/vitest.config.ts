@@ -4,7 +4,7 @@ import path from "path";
 export default defineConfig({
   test: {
     globals: true,
-    environment: "edge-runtime",
+    environment: "jsdom",
     setupFiles: [path.resolve(__dirname, "../../vitest.setup.ts")],
     exclude: ["dist/**", "node_modules/**", ".next/**"],
   },

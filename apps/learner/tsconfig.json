@@ -10,7 +10,7 @@
     "paths": {
       "@/*": ["./*"]
     },
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
   "include": ["next-env.d.ts", "src", "middleware.ts"],
   "exclude": ["node_modules", ".next", "dist", "out"],
