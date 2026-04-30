@@ -18,7 +18,10 @@ export interface ApiSuccessBody<T> {
   data: T;
 }
 
-export const extractApiError = (error: unknown, fallback = "Something went wrong"): string => {
+export const extractApiError = (
+  error: unknown,
+  fallback = "Something went wrong",
+): string => {
   if (
     error !== null &&
     typeof error === "object" &&
