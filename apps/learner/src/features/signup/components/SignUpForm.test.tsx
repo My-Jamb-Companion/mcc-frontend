@@ -1,5 +1,5 @@
 import {render, screen, fireEvent} from "@testing-library/react";
-import {describe, it, expect, vi} from "vitest";
+import {describe, it, expect, vi, beforeEach} from "vitest";
 import SignupForm from "./SignUpForm";
 import React from "react";
 
@@ -44,7 +44,22 @@ type MockUseFormReturn = {
   watch: (name: string) => string;
   handleSubmit: (
     callback: (data: MockSubmitFormData) => void,
-  ) => (e: React.FormEvent) => void;
+  ) => (e: React.FormEvent) => Promise<void>;
+  getValues: (name: string) => string;
+};
+
+type MockSignupMutation = {
+  mutate: (
+    data: {email: string; password: string},
+    options?: {onSuccess?: () => void},
+  ) => void;
+  isPending: boolean;
+  isError: boolean;
+  error: Error | null;
+};
+
+type MockUseSignupReturn = {
+  signupMutation: MockSignupMutation;
 };
 
 // Define the props for the mocked FormInputs component
@@ -76,27 +91,33 @@ vi.mock("@mcc/ui", () => ({
 vi.mock("next/link", () => ({
   default: ({children}: {children: React.ReactNode}) => children,
 }));
+
+const mockSignupMutation: MockSignupMutation = {
+  mutate: vi.fn((data, options) => {
+    options?.onSuccess?.();
+  }),
+  isPending: false,
+  isError: false,
+  error: null,
+};
+
 vi.mock("@mcc/features", () => ({
+  useSignup: (): MockUseSignupReturn => ({
+    signupMutation: mockSignupMutation,
+  }),
   useForm: (): MockUseFormReturn => ({
     register: vi.fn((name: string) => ({name})),
-    formState: {
-      errors: {},
-      values: {email: "test@example.com"},
-    },
-    watch: vi.fn((name: string) => {
-      if (name === "password") return "password123";
-      return "";
+    formState: {errors: {}},
+    watch: vi.fn(() => "password123"),
+    getValues: vi.fn(() => "test@example.com"),
+    handleSubmit: vi.fn((callback) => async (e: React.FormEvent) => {
+      e.preventDefault();
+      await callback({
+        email: "test@example.com",
+        password: "password123",
+        confirmPassword: "password123",
+      });
     }),
-    handleSubmit:
-      (callback: (data: MockSubmitFormData) => void) =>
-      (e: React.FormEvent) => {
-        e.preventDefault();
-        callback({
-          email: "test@example.com",
-          password: "password123",
-          confirmPassword: "password123",
-        });
-      },
   }),
   FormInputs: ({
     label,
@@ -114,14 +135,25 @@ vi.mock("@mcc/features", () => ({
   ),
 }));
 
+vi.mock("@mcc/api", () => ({
+  extractApiError: vi.fn((err, fallback) => fallback),
+}));
+
 describe("SignupForm", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockSignupMutation.isPending = false;
+    mockSignupMutation.isError = false;
+    mockSignupMutation.error = null;
+  });
+
   it("renders the signup form correctly", () => {
     render(<SignupForm back={vi.fn()} />);
 
-    expect(screen.getByText("Create an account")).toBeTruthy();
-    expect(screen.getByText("Email")).toBeTruthy();
-    expect(screen.getByText("Password")).toBeTruthy();
-    expect(screen.getByRole("button", {name: /create account/i})).toBeTruthy();
+    expect(screen.getByText("Create an account")).toBeDefined();
+    expect(screen.getByText("Email")).toBeDefined();
+    expect(screen.getByText("Password")).toBeDefined();
+    expect(screen.getByRole("button", {name: /create account/i})).toBeDefined();
   });
 
   it("calls the back function when the back link is clicked", () => {
@@ -129,15 +161,34 @@ describe("SignupForm", () => {
     render(<SignupForm back={backMock} />);
 
     fireEvent.click(screen.getByText("Back"));
-    expect(backMock).toHaveBeenCalledWith(false);
+    expect(backMock).toHaveBeenCalled();
   });
 
-  it("transitions to email verification view on form submission", async () => {
+  it("calls signup mutation and transitions to verification view on success", async () => {
     render(<SignupForm back={vi.fn()} />);
 
     fireEvent.click(screen.getByRole("button", {name: /create account/i}));
 
-    expect(screen.getByText(/verify your email/i)).toBeTruthy();
-    expect(screen.getByText(/test@example.com/i)).toBeTruthy();
+    expect(mockSignupMutation.mutate).toHaveBeenCalled();
+    expect(screen.getByText(/verify your email/i)).toBeDefined();
+    expect(screen.getByText(/test@example.com/i)).toBeDefined();
+  });
+
+  it("displays loading state when mutation is pending", () => {
+    mockSignupMutation.isPending = true;
+    render(<SignupForm back={vi.fn()} />);
+
+    expect(screen.getByText(/creating account\.\.\./i)).toBeDefined();
+    expect(
+      screen.getByRole("button", {name: /creating account/i}),
+    ).toBeDisabled();
+  });
+
+  it("displays error message when mutation fails", () => {
+    mockSignupMutation.isError = true;
+    mockSignupMutation.error = new Error("Sign up failed");
+    render(<SignupForm back={vi.fn()} />);
+
+    expect(screen.getByText(/failed to create account/i)).toBeDefined();
   });
 });

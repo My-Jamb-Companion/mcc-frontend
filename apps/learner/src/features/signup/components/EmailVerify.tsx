@@ -1,11 +1,11 @@
 "use client";
 
 import {Icon} from "@mcc/ui";
-import { useSignup } from "@mcc/features";
-import { extractApiError } from "@mcc/api";
+import {useSignup} from "@mcc/features";
+import {extractApiError} from "@mcc/api";
 
 export default function EmailVerify({email}: {email: string}) {
-  const { resendMutation } = useSignup();
+  const {resendMutation} = useSignup();
 
   return (
     <div className="space-y-4">
@@ -19,12 +19,15 @@ export default function EmailVerify({email}: {email: string}) {
         Please tap the link inside that email to continue.
       </p>
 
-      {resendMutation.isError && (
+      {resendMutation?.isError && (
         <p className="text-sm text-center text-red-500">
-          {extractApiError(resendMutation.error, "Could not resend verification email")}
+          {extractApiError(
+            resendMutation.error,
+            "Could not resend verification email",
+          )}
         </p>
       )}
-      {resendMutation.isSuccess && (
+      {resendMutation?.isSuccess && (
         <p className="text-sm text-center text-primary">
           Verification link resent successfully.
         </p>
@@ -36,7 +39,9 @@ export default function EmailVerify({email}: {email: string}) {
           onClick={() => resendMutation.mutate(email)}
           className="text-black font-medium dark:text-white cursor-pointer hover:text-primary transition-all duration-300"
         >
-          {resendMutation.isPending ? "Resending..." : "Resend verification email."}
+          {resendMutation?.isPending
+            ? "Resending..."
+            : "Resend verification email."}
         </span>
       </p>
 

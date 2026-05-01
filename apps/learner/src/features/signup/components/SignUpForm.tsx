@@ -104,7 +104,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
 
               <p
                 className="text-sm text-black dark:text-muted flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
-                onClick={back.bind(null, false)}
+                onClick={back}
               >
                 <Icon name="eva:arrow-back-outline" size={24} />
                 <span>Back</span>

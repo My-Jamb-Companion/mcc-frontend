@@ -1,7 +1,7 @@
 "use client";
 
 import {Icon, motion} from "@mcc/ui";
-import { useGoogleAuth, useFacebookAuth } from "@mcc/features";
+import {useGoogleAuth, useFacebookAuth} from "@mcc/features";
 
 export default function ContinueWithAccount({
   mail,
@@ -16,13 +16,17 @@ export default function ContinueWithAccount({
   const socialButtons = [
     {
       icon: "material-icon-theme:google",
-      label: googleMutation.isPending ? "Redirecting..." : "Continue with Google",
+      label: googleMutation.isPending
+        ? "Redirecting..."
+        : "Continue with Google",
       onClick: () => googleMutation.mutate(),
       disabled: isRedirecting,
     },
     {
       icon: "logos:facebook",
-      label: facebookMutation.isPending ? "Redirecting..." : "Continue with Facebook",
+      label: facebookMutation.isPending
+        ? "Redirecting..."
+        : "Continue with Facebook",
       onClick: () => facebookMutation.mutate(),
       disabled: isRedirecting,
     },
@@ -55,7 +59,7 @@ export default function ContinueWithAccount({
           animate="show"
           variants={{
             hidden: {},
-            show: { transition: { staggerChildren: 0.06 } },
+            show: {transition: {staggerChildren: 0.06}},
           }}
         >
           {socialButtons.map((item, i) => (
@@ -76,7 +80,7 @@ export default function ContinueWithAccount({
 
           <motion.h3
             className="my-4 text-center"
-            variants={{ hidden: {opacity: 0}, show: {opacity: 1} }}
+            variants={{hidden: {opacity: 0}, show: {opacity: 1}}}
           >
             OR
           </motion.h3>

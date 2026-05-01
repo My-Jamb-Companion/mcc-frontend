@@ -9,9 +9,9 @@ export default function SignUp() {
   return (
     <>
       {showSignupForm ? (
-        <SignupForm back={setShowSignupForm} />
+        <SignupForm back={() => setShowSignupForm(!showSignupForm)} />
       ) : (
-        <ContinueWithAccount mail={setShowSignupForm} />
+        <ContinueWithAccount mail={() => setShowSignupForm(!showSignupForm)} />
       )}
     </>
   );
