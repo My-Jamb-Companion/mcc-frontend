@@ -13,6 +13,8 @@ const FormInputs = ({
   placeholder,
   icon,
   isPassword = false,
+  value,
+  onChange,
 }: Props) => {
   const [show, setShow] = useState(false);
   const id = registration?.name;
@@ -36,7 +38,13 @@ const FormInputs = ({
 
     if (type === "select") {
       return (
-        <select id={id} className={inputClass} {...registration}>
+        <select
+          id={id}
+          className={inputClass}
+          value={value}
+          onChange={onChange ? (e) => onChange(e.target.value) : undefined}
+          {...registration}
+        >
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
@@ -109,7 +117,7 @@ type Props = {
   errors?: FieldError;
   className?: string;
   inputClassName?: string;
-  registration: UseFormRegisterReturn;
+  registration?: UseFormRegisterReturn;
   type?:
     | "text"
     | "email"
@@ -122,4 +130,6 @@ type Props = {
   placeholder?: string;
   icon?: React.ReactNode;
   isPassword?: boolean;
+  value?: string;
+  onChange?: (value: string) => void;
 };

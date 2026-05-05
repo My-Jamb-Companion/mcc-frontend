@@ -3,8 +3,9 @@ import {FieldError, useForm, FormInputs} from "@mcc/features";
 import LoggingIn from "./LoggingIn";
 import { AnimatePresence, Icon, motion } from "@mcc/ui";
 import { extractApiError } from "@mcc/api";
+import { User } from "@mcc/types";
 
-export const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
+export const LoginForm = ({ onSuccess }: { onSuccess?: (user: User) => void }) => {
   const { loginMutation } = useAuth();
   const { register, formState, handleSubmit } = useForm<LoginFormInputs>();
   const errors = formState.errors;
@@ -12,7 +13,7 @@ export const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   const onSubmit = (data: LoginFormInputs) => {
     loginMutation.mutate(
       { email: data.email, password: data.password },
-      { onSuccess: () => onSuccess?.() }
+      { onSuccess: (responseData) => onSuccess?.(responseData.user) }
     );
   };
 

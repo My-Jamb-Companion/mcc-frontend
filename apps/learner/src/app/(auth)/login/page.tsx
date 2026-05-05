@@ -8,7 +8,7 @@ export default function LoginPage() {
 
   return (
     <LoginForm
-      onSuccess={() => router.push("/dashboard")}
+      onSuccess={(user) => router.push(user.is_onboarded ? "/dashboard" : "/onboarding")}
     />
   );
 }
