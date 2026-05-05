@@ -1,4 +1,24 @@
+"use client";
+
+import { useAuth } from "@mcc/features";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
 export default function Layout({children}: {children: React.ReactNode}) {
+  const { isAuthenticated, hydrated, user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!hydrated) return;
+    if (!isAuthenticated) {
+      router.replace("/login");
+    } else if (user?.is_onboarded) {
+      router.replace("/dashboard");
+    }
+  }, [hydrated, isAuthenticated, user, router]);
+
+  if (!hydrated || !isAuthenticated) return null;
+
   return (
     <section className="flex flex-col h-screen">
       <div className="py-6 px-8 max-sm:hidden">

@@ -25,7 +25,7 @@
   --font-mono: var(--font-geist-mono);
   --font-bagel: "Bagel Fat One";
   --font-rocoleta: "Recoleta";
-  --color-primary-gradient: var(--primary-gradient);
+  /* --color-primary-gradient: var(--primary-gradient); */
 }
 
 @media (prefers-color-scheme: dark) {
