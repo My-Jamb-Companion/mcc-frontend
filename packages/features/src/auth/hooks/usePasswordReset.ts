@@ -27,5 +27,9 @@ export const usePasswordReset = () => {
     }) => confirmNewPasswordApi(verificationToken, newPassword),
   });
 
-  return { requestMutation, verifyMutation, confirmMutation };
+  const resendMutation = useMutation({
+    mutationFn: (email: string) => requestPasswordResetApi(email),
+  });
+
+  return { requestMutation, verifyMutation, confirmMutation, resendMutation };
 };

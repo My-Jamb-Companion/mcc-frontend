@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm, usePasswordReset } from "@mcc/features";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { extractApiError } from "@mcc/api";
 
 interface Props {
@@ -11,7 +11,20 @@ interface Props {
 
 export default function OTPVerify({email, onVerified}: Props) {
   const {register, handleSubmit, watch, setValue} = useForm<OTP>();
-  const { verifyMutation } = usePasswordReset();
+  const { verifyMutation, resendMutation } = usePasswordReset();
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
+
+  const handleResend = () => {
+    resendMutation.mutate(email, {
+      onSuccess: () => setCooldown(60),
+    });
+  };
 
   const fields: (keyof OTP)[] = ["d1", "d2", "d3", "d4"];
 
@@ -92,6 +105,18 @@ export default function OTPVerify({email, onVerified}: Props) {
         </p>
       )}
 
+      {resendMutation.isError && (
+        <p className="text-red-500 text-sm text-center mb-3">
+          {extractApiError(resendMutation.error, "Failed to resend code")}
+        </p>
+      )}
+
+      {resendMutation.isSuccess && (
+        <p className="text-green-500 text-sm text-center mb-3">
+          Code resent successfully
+        </p>
+      )}
+
       <button
         type="submit"
         disabled={!isComplete || verifyMutation.isPending}
@@ -103,6 +128,26 @@ export default function OTPVerify({email, onVerified}: Props) {
       >
         {verifyMutation.isPending ? "Verifying..." : "Continue"}
       </button>
+
+      <div className="text-center mt-4 text-sm">
+        <span className="text-muted">Didn&apos;t receive a code? </span>
+        <button
+          type="button"
+          onClick={handleResend}
+          disabled={cooldown > 0 || resendMutation.isPending}
+          className={`font-medium ${
+            cooldown > 0 || resendMutation.isPending
+              ? "text-hint cursor-not-allowed"
+              : "text-primary cursor-pointer hover:underline"
+          }`}
+        >
+          {resendMutation.isPending
+            ? "Sending..."
+            : cooldown > 0
+              ? `Resend in ${cooldown}s`
+              : "Resend code"}
+        </button>
+      </div>
     </form>
   );
 }
