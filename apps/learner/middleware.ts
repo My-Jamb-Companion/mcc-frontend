@@ -17,9 +17,12 @@ export function middleware(req: NextRequest) {
   if (!auth && !isAuthPage) {
     const googlePending = req.cookies.get("google_oauth_pending");
     if (googlePending) {
-      const response = NextResponse.redirect(
-        new URL("/auth/google/success", req.url)
-      );
+      const successUrl = new URL("/auth/google/success", req.url);
+      // Forward any query params the backend passed on its OAuth redirect
+      req.nextUrl.searchParams.forEach((value, key) => {
+        successUrl.searchParams.set(key, value);
+      });
+      const response = NextResponse.redirect(successUrl);
       response.cookies.delete("google_oauth_pending");
       return response;
     }
