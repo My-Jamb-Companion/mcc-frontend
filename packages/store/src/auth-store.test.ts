@@ -7,7 +7,6 @@ const mockUser: User = {
   user_id: "user-1",
   email: "user@example.com",
   role: "student",
-  is_onboarded: false,
 };
 
 // ─── reset store to initial state before every test ──────────────────────────

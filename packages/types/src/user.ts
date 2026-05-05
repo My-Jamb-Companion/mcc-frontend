@@ -4,7 +4,7 @@ export interface User {
   user_id: string;
   email: string;
   role: Role;
-  is_onboarded: boolean;
+  is_onboarded?: boolean;
 }
 
 export interface AuthTokens {
