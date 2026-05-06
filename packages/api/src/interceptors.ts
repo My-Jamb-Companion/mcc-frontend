@@ -3,6 +3,9 @@ import { apiClient } from "./api-client";
 const getItem = (key: string): string | null =>
   typeof window !== "undefined" ? localStorage.getItem(key) : null;
 
+const hasCookieSession = (): boolean =>
+  typeof document !== "undefined" && document.cookie.includes("mcc_auth=1");
+
 apiClient.interceptors.request.use(
   (config) => {
     const token = getItem("mcc_access_token");
@@ -38,13 +41,6 @@ apiClient.interceptors.response.use(
     const isRefreshEndpoint = original?.url?.includes("/auth/token/refresh");
 
     if (status === 401 && !original._retry && !isRefreshEndpoint) {
-      const refreshToken = getItem("mcc_refresh_token");
-
-      if (!refreshToken) {
-        clearAuthAndRedirect();
-        return Promise.reject(error);
-      }
-
       if (isRefreshing) {
         return new Promise((resolve) => {
           refreshQueue.push((token) => {
@@ -57,13 +53,19 @@ apiClient.interceptors.response.use(
       original._retry = true;
       isRefreshing = true;
 
+      const refreshToken = getItem("mcc_refresh_token");
+
       try {
-        const res = await apiClient.post("/auth/token/refresh", {
-          refresh_token: refreshToken,
-        });
+        // Use localStorage refresh token if present, otherwise rely on the
+        // httpOnly refresh-token cookie (set after Google OAuth) being sent
+        // automatically via withCredentials.
+        const body = refreshToken ? { refresh_token: refreshToken } : {};
+        const res = await apiClient.post("/auth/token/refresh", body);
         const { access_token, refresh_token: newRefresh } = res.data.data;
+
         localStorage.setItem("mcc_access_token", access_token);
-        localStorage.setItem("mcc_refresh_token", newRefresh);
+        if (newRefresh) localStorage.setItem("mcc_refresh_token", newRefresh);
+
         drainQueue(access_token);
         isRefreshing = false;
         original.headers.Authorization = `Bearer ${access_token}`;
@@ -71,7 +73,14 @@ apiClient.interceptors.response.use(
       } catch {
         isRefreshing = false;
         drainQueue("");
-        clearAuthAndRedirect();
+
+        // Only wipe the session if there is no active cookie-based session.
+        // A cookie session (from Google OAuth) may still be valid even when
+        // localStorage tokens are absent.
+        if (!hasCookieSession()) {
+          clearAuthAndRedirect();
+        }
+
         return Promise.reject(error);
       }
     }

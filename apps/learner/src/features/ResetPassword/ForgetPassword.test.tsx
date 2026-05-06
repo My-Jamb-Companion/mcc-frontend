@@ -65,10 +65,12 @@ vi.mock("@mcc/api", () => ({
 const mockRequestMutate = vi.fn();
 const mockVerifyMutate = vi.fn();
 const mockConfirmMutate = vi.fn();
+const mockResendMutate = vi.fn();
 
 const requestMutationState = { isPending: false, isError: false, error: null };
 const verifyMutationState = { isPending: false, isError: false, error: null };
 const confirmMutationState = { isPending: false, isError: false, error: null };
+const resendMutationState = { isPending: false, isError: false, isSuccess: false, error: null };
 
 vi.mock("@mcc/features", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@mcc/features")>();
@@ -86,6 +88,10 @@ vi.mock("@mcc/features", async (importOriginal) => {
       confirmMutation: {
         ...confirmMutationState,
         mutate: mockConfirmMutate,
+      },
+      resendMutation: {
+        ...resendMutationState,
+        mutate: mockResendMutate,
       },
     }),
   };
@@ -111,6 +117,10 @@ beforeEach(() => {
   confirmMutationState.isPending = false;
   confirmMutationState.isError = false;
   confirmMutationState.error = null;
+  resendMutationState.isPending = false;
+  resendMutationState.isError = false;
+  resendMutationState.isSuccess = false;
+  resendMutationState.error = null;
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
