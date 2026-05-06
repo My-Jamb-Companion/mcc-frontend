@@ -6,6 +6,25 @@ import { useAuthStore } from "@mcc/store";
 import { User } from "@mcc/types";
 import { saveSession } from "@mcc/features";
 
+function parseUser(raw: string): User | null {
+  // URLSearchParams.get() already URL-decodes — try direct parse first
+  try {
+    return JSON.parse(raw) as User;
+  } catch { /* fall through */ }
+
+  // Some backends double-encode; try decoding once more
+  try {
+    return JSON.parse(decodeURIComponent(raw)) as User;
+  } catch { /* fall through */ }
+
+  // Base64-encoded JSON
+  try {
+    return JSON.parse(atob(raw)) as User;
+  } catch { /* fall through */ }
+
+  return null;
+}
+
 export default function GoogleSuccessPage() {
   const router = useRouter();
   const { setUser, setAccessToken } = useAuthStore();
@@ -21,15 +40,16 @@ export default function GoogleSuccessPage() {
       return;
     }
 
-    try {
-      const user = JSON.parse(decodeURIComponent(userParam)) as User;
-      saveSession(user, accessToken, refreshToken);
-      setUser(user);
-      setAccessToken(accessToken);
-      router.replace(user.is_onboarded ? "/dashboard" : "/onboarding");
-    } catch {
+    const user = parseUser(userParam);
+    if (!user) {
       router.replace("/login?error=google_auth_failed");
+      return;
     }
+
+    saveSession(user, accessToken, refreshToken);
+    setUser(user);
+    setAccessToken(accessToken);
+    router.replace(user.is_onboarded ? "/dashboard" : "/onboarding");
   }, [router, setUser, setAccessToken]);
 
   return null;
