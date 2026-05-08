@@ -29,7 +29,7 @@ export default function Explore() {
           </p>
           <p className="flex items-center cursor-pointer text-btn-primary text-xs font-medium">
             <span>Personalize your experience</span>
-            <Icon icon="ci:caret-right-sm" width="24" height="24" />
+            <Icon icon="ci:caret-right-sm" size={24} />
           </p>
         </div>
       </div>
