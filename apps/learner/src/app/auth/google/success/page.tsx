@@ -17,12 +17,9 @@ export default function GoogleSuccessPage() {
     const code = new URLSearchParams(window.location.search).get("code");
 
     if (!code) {
-      console.error("[GoogleSuccess] No code param in URL:", window.location.href);
       router.replace("/login?error=no_code");
       return;
     }
-
-    console.log("[GoogleSuccess] Exchanging code:", code.slice(0, 10) + "...");
 
     googleExchangeApi(code)
       .then(({ user, access_token, redirect_url }) => {
@@ -34,7 +31,6 @@ export default function GoogleSuccessPage() {
       .catch((err) => {
         const status = err?.response?.status;
         const detail = err?.response?.data?.message ?? err?.message ?? "unknown";
-        console.error("[GoogleSuccess] Exchange failed:", status, detail);
         router.replace(`/login?error=exchange_failed&status=${status}&detail=${encodeURIComponent(detail)}`);
       });
   }, [router, setUser, setAccessToken]);

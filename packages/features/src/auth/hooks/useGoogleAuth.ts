@@ -7,7 +7,6 @@ export const useGoogleAuth = () => {
   return useMutation({
     mutationFn: getGoogleAuthUrlApi,
     onSuccess: ({ authorization_url }) => {
-      console.log("[GoogleAuth] authorization_url:", authorization_url);
       window.location.href = authorization_url;
     },
   });
