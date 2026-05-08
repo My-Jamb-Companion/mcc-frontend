@@ -4,6 +4,17 @@ import { tokenManager } from "./token-manager";
 const hasCookieSession = (): boolean =>
   typeof document !== "undefined" && document.cookie.includes("mcc_auth=1");
 
+const getRefreshTokenCookie = (): string | null => {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/(?:^|;\s*)mcc_refresh_token=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : null;
+};
+
+const setRefreshTokenCookie = (token: string): void => {
+  if (typeof document === "undefined") return;
+  document.cookie = `mcc_refresh_token=${encodeURIComponent(token)}; path=/; SameSite=Strict; max-age=${30 * 24 * 60 * 60}`;
+};
+
 apiClient.interceptors.request.use(
   (config) => {
     const token = tokenManager.get();
@@ -26,6 +37,7 @@ const clearAuthAndRedirect = () => {
   tokenManager.clear();
   localStorage.removeItem("mcc_user");
   document.cookie = "mcc_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.cookie = "mcc_refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   window.location.href = "/login";
 };
 
@@ -50,12 +62,23 @@ apiClient.interceptors.response.use(
       original._retry = true;
       isRefreshing = true;
 
+      const refreshToken = getRefreshTokenCookie();
+
+      if (!refreshToken) {
+        isRefreshing = false;
+        drainQueue("");
+        clearAuthAndRedirect();
+        return Promise.reject(error);
+      }
+
       try {
-        // Rely on the httpOnly refresh-token cookie sent automatically via withCredentials.
-        const res = await apiClient.post("/auth/token/refresh", {});
-        const { access_token } = res.data.data;
+        const res = await apiClient.post("/auth/token/refresh", {
+          refresh_token: refreshToken,
+        });
+        const { access_token, refresh_token: newRefresh } = res.data.data;
 
         tokenManager.set(access_token);
+        if (newRefresh) setRefreshTokenCookie(newRefresh);
         drainQueue(access_token);
         isRefreshing = false;
         original.headers.Authorization = `Bearer ${access_token}`;

@@ -93,3 +93,32 @@ export const googleExchangeApi = async (
   }>("/auth/google/exchange", { code });
   return res.data.data;
 };
+
+export const getFacebookAuthUrlApi = async (): Promise<{
+  authorization_url: string;
+  state: string;
+}> => {
+  const redirectUri = `${window.location.origin}/auth/facebook/success`;
+  const res = await apiClient.get<{
+    success: boolean;
+    data: { authorization_url: string; state: string };
+  }>("/auth/authorize/facebook", { params: { redirect_uri: redirectUri } });
+  return res.data.data;
+};
+
+export interface FacebookExchangeResponseData {
+  user: User;
+  access_token: string;
+  refresh_token: string;
+  redirect_url: string;
+}
+
+export const facebookExchangeApi = async (
+  code: string
+): Promise<FacebookExchangeResponseData> => {
+  const res = await apiClient.post<{
+    success: boolean;
+    data: FacebookExchangeResponseData;
+  }>("/auth/facebook/exchange", { code });
+  return res.data.data;
+};

@@ -6,7 +6,12 @@ import { useAuthStore } from "@mcc/store";
 import { tokenManager } from "@mcc/api";
 import { User } from "@mcc/types";
 import { loginApi, logoutApi, refreshTokenApi } from "../services/auth.service";
-import { saveSession, clearSession, getStoredUser } from "../services/session";
+import {
+  saveSession,
+  clearSession,
+  getStoredUser,
+  getStoredRefreshToken,
+} from "../services/session";
 
 export const useAuth = () => {
   const { user, setUser, setAccessToken, logout } = useAuthStore();
@@ -20,15 +25,16 @@ export const useAuth = () => {
 
     const hasCookie = document.cookie.includes("mcc_auth=1");
     const storedUser = getStoredUser();
+    const refreshToken = getStoredRefreshToken();
 
-    if (hasCookie && storedUser) {
+    if (hasCookie && storedUser && refreshToken) {
       // Restore user immediately so the UI doesn't flash as logged-out.
       setUser(storedUser);
 
-      // Proactively refresh the access token. On failure, don't wipe the
-      // session — the response interceptor will handle 401s on real API
-      // calls and redirect to /login if the refresh token is truly invalid.
-      refreshTokenApi()
+      // Proactively refresh the access token using the stored refresh token.
+      // On failure, swallow — the response interceptor will handle 401s on
+      // real API calls and redirect to /login if the session is truly invalid.
+      refreshTokenApi(refreshToken)
         .then(({ access_token }) => {
           tokenManager.set(access_token);
           setAccessToken(access_token);
@@ -47,7 +53,7 @@ export const useAuth = () => {
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       loginApi(email, password),
     onSuccess: (data) => {
-      saveSession(data.user, data.access_token);
+      saveSession(data.user, data.access_token, data.refresh_token);
       setUser(data.user);
       setAccessToken(data.access_token);
     },
