@@ -22,6 +22,8 @@ export * from "./hooks/usePasswordReset";
 export * from "./services/session";
 export * from "./hooks/useSignup";
 export * from "./hooks/useGoogleAuth";
+export { googleExchangeApi } from "./services/auth.service";
+export type { GoogleExchangeResponseData } from "./services/auth.service";
 export * from "./types";
 export {default as FormInputs} from "./components/FormInputs";
 export * from "./components/LoginForm";

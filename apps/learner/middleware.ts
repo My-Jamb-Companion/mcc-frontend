@@ -15,17 +15,6 @@ export function middleware(req: NextRequest) {
 
   // Unauthenticated user trying to reach a protected page → send to login
   if (!auth && !isAuthPage) {
-    const googlePending = req.cookies.get("google_oauth_pending");
-    if (googlePending) {
-      const successUrl = new URL("/auth/google/success", req.url);
-      // Forward any query params the backend passed on its OAuth redirect
-      req.nextUrl.searchParams.forEach((value, key) => {
-        successUrl.searchParams.set(key, value);
-      });
-      const response = NextResponse.redirect(successUrl);
-      response.cookies.delete("google_oauth_pending");
-      return response;
-    }
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
@@ -37,6 +26,7 @@ export const config = {
     "/",
     "/login",
     "/signup",
+    "/onboarding",
     "/forget-password",
     "/auth/google/:path*",
     "/dashboard/:path*",

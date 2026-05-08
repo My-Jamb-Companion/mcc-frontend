@@ -7,10 +7,7 @@ export const useGoogleAuth = () => {
   return useMutation({
     mutationFn: getGoogleAuthUrlApi,
     onSuccess: ({ authorization_url }) => {
-      // Signal to middleware that we're mid-OAuth so it can intercept the
-      // backend's redirect (which lands on "/") and route to the success page.
-      document.cookie =
-        "google_oauth_pending=1; path=/; SameSite=Lax; max-age=300";
+      console.log("[GoogleAuth] authorization_url:", authorization_url);
       window.location.href = authorization_url;
     },
   });

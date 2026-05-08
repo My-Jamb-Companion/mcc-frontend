@@ -3,8 +3,8 @@ import {
   saveSession,
   clearSession,
   getStoredUser,
-  getStoredAccessToken,
 } from "./session";
+import { tokenManager } from "@mcc/api";
 import type { User } from "@mcc/types";
 
 // ─── mock user matching the real User interface ───────────────────────────────
@@ -17,6 +17,7 @@ const mockUser: User = {
 // ─── reset storage before every test ─────────────────────────────────────────
 beforeEach(() => {
   localStorage.clear();
+  tokenManager.clear();
   document.cookie = "mcc_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 });
 
@@ -25,22 +26,23 @@ beforeEach(() => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe("saveSession", () => {
   // TC-4.1
-  it("writes the access token to localStorage", () => {
-    saveSession(mockUser, "access-tok", "refresh-tok");
+  it("sets the access token in tokenManager (memory)", () => {
+    saveSession(mockUser, "access-tok");
 
-    expect(localStorage.getItem("mcc_access_token")).toBe("access-tok");
+    expect(tokenManager.get()).toBe("access-tok");
   });
 
   // TC-4.2
-  it("writes the refresh token to localStorage", () => {
-    saveSession(mockUser, "access-tok", "refresh-tok");
+  it("does NOT write tokens to localStorage", () => {
+    saveSession(mockUser, "access-tok");
 
-    expect(localStorage.getItem("mcc_refresh_token")).toBe("refresh-tok");
+    expect(localStorage.getItem("mcc_access_token")).toBeNull();
+    expect(localStorage.getItem("mcc_refresh_token")).toBeNull();
   });
 
   // TC-4.3
   it("writes the user as a JSON string to localStorage", () => {
-    saveSession(mockUser, "access-tok", "refresh-tok");
+    saveSession(mockUser, "access-tok");
 
     const stored = JSON.parse(localStorage.getItem("mcc_user")!);
     expect(stored.user_id).toBe(mockUser.user_id);
@@ -49,7 +51,7 @@ describe("saveSession", () => {
 
   // TC-4.4
   it("sets the mcc_auth cookie", () => {
-    saveSession(mockUser, "access-tok", "refresh-tok");
+    saveSession(mockUser, "access-tok");
 
     expect(document.cookie).toContain("mcc_auth=1");
   });
@@ -60,19 +62,18 @@ describe("saveSession", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe("clearSession", () => {
   // TC-4.5
-  it("removes all three localStorage keys", () => {
-    saveSession(mockUser, "access-tok", "refresh-tok");
+  it("removes user from localStorage and clears tokenManager", () => {
+    saveSession(mockUser, "access-tok");
 
     clearSession();
 
-    expect(localStorage.getItem("mcc_access_token")).toBeNull();
-    expect(localStorage.getItem("mcc_refresh_token")).toBeNull();
     expect(localStorage.getItem("mcc_user")).toBeNull();
+    expect(tokenManager.get()).toBeNull();
   });
 
   // TC-4.6
   it("expires the mcc_auth cookie", () => {
-    saveSession(mockUser, "access-tok", "refresh-tok");
+    saveSession(mockUser, "access-tok");
 
     clearSession();
 
@@ -104,20 +105,6 @@ describe("getStoredUser", () => {
     vi.stubGlobal("window", undefined);
 
     expect(getStoredUser()).toBeNull();
-
-    vi.unstubAllGlobals();
-  });
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-// getStoredAccessToken
-// ─────────────────────────────────────────────────────────────────────────────
-describe("getStoredAccessToken", () => {
-  // TC-4.10
-  it("returns null in server-side environments (window undefined)", () => {
-    vi.stubGlobal("window", undefined);
-
-    expect(getStoredAccessToken()).toBeNull();
 
     vi.unstubAllGlobals();
   });

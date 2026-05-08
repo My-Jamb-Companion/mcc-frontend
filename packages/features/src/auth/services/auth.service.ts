@@ -28,10 +28,10 @@ export const logoutApi = async (): Promise<void> => {
   await apiClient.post("/auth/logout");
 };
 
-export const refreshTokenApi = async (token: string): Promise<AuthTokens> => {
+export const refreshTokenApi = async (token?: string): Promise<AuthTokens> => {
   const res = await apiClient.post<{ success: boolean; data: AuthTokens }>(
     "/auth/token/refresh",
-    { refresh_token: token }
+    token ? { refresh_token: token } : {}
   );
   return res.data.data;
 };
@@ -69,9 +69,27 @@ export const getGoogleAuthUrlApi = async (): Promise<{
   authorization_url: string;
   state: string;
 }> => {
+  const redirectUri = `${window.location.origin}/auth/google/success`;
   const res = await apiClient.get<{
     success: boolean;
     data: { authorization_url: string; state: string };
-  }>("/auth/authorize/google");
+  }>("/auth/authorize/google", { params: { redirect_uri: redirectUri } });
+  return res.data.data;
+};
+
+export interface GoogleExchangeResponseData {
+  user: User;
+  access_token: string;
+  refresh_token: string;
+  redirect_url: string;
+}
+
+export const googleExchangeApi = async (
+  code: string
+): Promise<GoogleExchangeResponseData> => {
+  const res = await apiClient.post<{
+    success: boolean;
+    data: GoogleExchangeResponseData;
+  }>("/auth/google/exchange", { code });
   return res.data.data;
 };
