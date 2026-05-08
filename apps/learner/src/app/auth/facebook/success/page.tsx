@@ -3,9 +3,9 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@mcc/store";
-import { googleExchangeApi, saveSession } from "@mcc/features";
+import { facebookExchangeApi, saveSession } from "@mcc/features";
 
-export default function GoogleSuccessPage() {
+export default function FacebookSuccessPage() {
   const router = useRouter();
   const { setUser, setAccessToken } = useAuthStore();
   const exchanged = useRef(false);
@@ -21,7 +21,7 @@ export default function GoogleSuccessPage() {
       return;
     }
 
-    googleExchangeApi(code)
+    facebookExchangeApi(code)
       .then(({ user, access_token, refresh_token, redirect_url }) => {
         saveSession(user, access_token, refresh_token);
         setUser(user);

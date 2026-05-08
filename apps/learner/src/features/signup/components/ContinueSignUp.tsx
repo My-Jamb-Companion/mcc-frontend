@@ -1,7 +1,7 @@
 "use client";
 
 import {Icon, motion} from "@mcc/ui";
-import { useGoogleAuth } from "@mcc/features";
+import { useGoogleAuth, useFacebookAuth } from "@mcc/features";
 
 export default function ContinueWithAccount({
   mail,
@@ -9,19 +9,22 @@ export default function ContinueWithAccount({
   mail: (value: boolean) => void;
 }) {
   const googleMutation = useGoogleAuth();
+  const facebookMutation = useFacebookAuth();
+
+  const isRedirecting = googleMutation.isPending || facebookMutation.isPending;
 
   const socialButtons = [
     {
       icon: "material-icon-theme:google",
       label: googleMutation.isPending ? "Redirecting..." : "Continue with Google",
       onClick: () => googleMutation.mutate(),
-      disabled: googleMutation.isPending,
+      disabled: isRedirecting,
     },
     {
       icon: "logos:facebook",
-      label: "Continue with Facebook",
-      onClick: undefined,
-      disabled: true,
+      label: facebookMutation.isPending ? "Redirecting..." : "Continue with Facebook",
+      onClick: () => facebookMutation.mutate(),
+      disabled: isRedirecting,
     },
     {
       icon: "logos:whatsapp-icon",

@@ -19,6 +19,7 @@ vi.mock("../services/session", () => ({
   saveSession: vi.fn(),
   clearSession: vi.fn(),
   getStoredUser: vi.fn(),
+  getStoredRefreshToken: vi.fn(),
 }));
 
 // ─── typed mock references ────────────────────────────────────────────────────
@@ -26,6 +27,7 @@ const mockLoginApi = vi.mocked(authService.loginApi);
 const mockLogoutApi = vi.mocked(authService.logoutApi);
 const mockRefreshTokenApi = vi.mocked(authService.refreshTokenApi);
 const mockGetStoredUser = vi.mocked(sessionService.getStoredUser);
+const mockGetStoredRefreshToken = vi.mocked(sessionService.getStoredRefreshToken);
 const mockSaveSession = vi.mocked(sessionService.saveSession);
 const mockClearSession = vi.mocked(sessionService.clearSession);
 
@@ -63,6 +65,7 @@ beforeEach(() => {
   document.cookie = "mcc_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   // default: nothing stored
   mockGetStoredUser.mockReturnValue(null);
+  mockGetStoredRefreshToken.mockReturnValue(null);
   mockRefreshTokenApi.mockResolvedValue({
     access_token: "refreshed-tok",
     refresh_token: "new-refresh-tok",
@@ -83,17 +86,16 @@ describe("hydration", () => {
   });
 
   // TC-6.2
-  it("restores user via silent refresh when mcc_auth cookie and stored user exist", async () => {
+  it("restores user and calls silent refresh when cookie, stored user, and refresh token exist", async () => {
     document.cookie = "mcc_auth=1; path=/";
     mockGetStoredUser.mockReturnValue(mockUser);
+    mockGetStoredRefreshToken.mockReturnValue("stored-refresh-tok");
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    await waitFor(() => {
-      expect(result.current.user?.user_id).toBe("user-1");
-    });
+    await waitFor(() => expect(result.current.user?.user_id).toBe("user-1"));
 
-    expect(mockRefreshTokenApi).toHaveBeenCalledOnce();
+    expect(mockRefreshTokenApi).toHaveBeenCalledWith("stored-refresh-tok");
   });
 
   // TC-6.3
@@ -109,17 +111,32 @@ describe("hydration", () => {
   });
 
   // TC-6.4
-  it("clears session when silent refresh fails", async () => {
+  it("does not call silent refresh when refresh token cookie is missing", async () => {
     document.cookie = "mcc_auth=1; path=/";
     mockGetStoredUser.mockReturnValue(mockUser);
+    mockGetStoredRefreshToken.mockReturnValue(null); // no refresh token
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await waitFor(() => expect(result.current.hydrated).toBe(true));
+
+    expect(mockRefreshTokenApi).not.toHaveBeenCalled();
+  });
+
+  // TC-6.5
+  it("swallows silent refresh failure and keeps user in store", async () => {
+    document.cookie = "mcc_auth=1; path=/";
+    mockGetStoredUser.mockReturnValue(mockUser);
+    mockGetStoredRefreshToken.mockReturnValue("stored-refresh-tok");
     mockRefreshTokenApi.mockRejectedValue(new Error("Refresh failed"));
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     await waitFor(() => expect(result.current.hydrated).toBe(true));
 
-    expect(mockClearSession).toHaveBeenCalled();
-    expect(result.current.user).toBeNull();
+    // user is restored from storage; session is NOT cleared
+    expect(result.current.user?.user_id).toBe("user-1");
+    expect(mockClearSession).not.toHaveBeenCalled();
   });
 });
 
@@ -127,7 +144,7 @@ describe("hydration", () => {
 // loginMutation
 // ─────────────────────────────────────────────────────────────────────────────
 describe("loginMutation", () => {
-  // TC-6.5
+  // TC-6.6
   it("isPending is true while login is in progress", async () => {
     let resolveFn!: (value: typeof mockLoginResponse) => void;
 
@@ -140,10 +157,7 @@ describe("loginMutation", () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     act(() => {
-      result.current.loginMutation.mutate({
-        email: "a@b.com",
-        password: "pw",
-      });
+      result.current.loginMutation.mutate({ email: "a@b.com", password: "pw" });
     });
 
     await waitFor(() =>
@@ -153,8 +167,8 @@ describe("loginMutation", () => {
     act(() => resolveFn(mockLoginResponse));
   });
 
-  // TC-6.6
-  it("saves session on successful login", async () => {
+  // TC-6.7
+  it("saves session with user, access token, and refresh token on successful login", async () => {
     mockLoginApi.mockResolvedValue(mockLoginResponse);
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -170,10 +184,10 @@ describe("loginMutation", () => {
       expect(result.current.loginMutation.isSuccess).toBe(true),
     );
 
-    expect(mockSaveSession).toHaveBeenCalledWith(mockUser, "access-tok");
+    expect(mockSaveSession).toHaveBeenCalledWith(mockUser, "access-tok", "refresh-tok");
   });
 
-  // TC-6.7
+  // TC-6.8
   it("updates the auth store on successful login", async () => {
     mockLoginApi.mockResolvedValue(mockLoginResponse);
 
@@ -191,17 +205,14 @@ describe("loginMutation", () => {
     expect(useAuthStore.getState().accessToken).toBe("access-tok");
   });
 
-  // TC-6.8
+  // TC-6.9
   it("isError is true when login fails", async () => {
     mockLoginApi.mockRejectedValue(new Error("Invalid credentials"));
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     act(() => {
-      result.current.loginMutation.mutate({
-        email: "a@b.com",
-        password: "wrong",
-      });
+      result.current.loginMutation.mutate({ email: "a@b.com", password: "wrong" });
     });
 
     await waitFor(() =>
@@ -214,16 +225,14 @@ describe("loginMutation", () => {
 // logoutMutation
 // ─────────────────────────────────────────────────────────────────────────────
 describe("logoutMutation", () => {
-  // TC-6.9
+  // TC-6.10
   it("calls logoutApi on the server", async () => {
     mockLogoutApi.mockResolvedValue(undefined);
     useAuthStore.setState({ user: mockUser, accessToken: "tok" });
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    act(() => {
-      result.current.logoutMutation.mutate();
-    });
+    act(() => { result.current.logoutMutation.mutate(); });
 
     await waitFor(() =>
       expect(result.current.logoutMutation.isSuccess).toBe(true),
@@ -232,16 +241,14 @@ describe("logoutMutation", () => {
     expect(mockLogoutApi).toHaveBeenCalledOnce();
   });
 
-  // TC-6.10
+  // TC-6.11
   it("clears session and store even when server logout fails", async () => {
     mockLogoutApi.mockRejectedValue(new Error("Server error"));
     useAuthStore.setState({ user: mockUser, accessToken: "tok" });
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    act(() => {
-      result.current.logoutMutation.mutate();
-    });
+    act(() => { result.current.logoutMutation.mutate(); });
 
     await waitFor(() =>
       expect(
@@ -259,14 +266,14 @@ describe("logoutMutation", () => {
 // isAuthenticated
 // ─────────────────────────────────────────────────────────────────────────────
 describe("isAuthenticated", () => {
-  // TC-6.11
+  // TC-6.12
   it("is false when no user is in the store", () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     expect(result.current.isAuthenticated).toBe(false);
   });
 
-  // TC-6.12
+  // TC-6.13
   it("is true after successful login", async () => {
     mockLoginApi.mockResolvedValue(mockLoginResponse);
 
