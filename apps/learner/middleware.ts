@@ -1,6 +1,12 @@
 import { NextResponse, NextRequest } from "next/server";
 
-const AUTH_PAGES = ["/login", "/signup", "/forget-password", "/auth/google", "/auth/facebook"];
+const AUTH_PAGES = [
+  "/login",
+  "/signup",
+  "/forget-password",
+  "/auth/google",
+  "/auth/facebook",
+];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
