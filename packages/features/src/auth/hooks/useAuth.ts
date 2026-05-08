@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { useAuthStore } from "@mcc/store";
-import { tokenManager } from "@mcc/api";
-import { User } from "@mcc/types";
-import { loginApi, logoutApi, refreshTokenApi } from "../services/auth.service";
+import {useEffect, useState} from "react";
+import {useMutation} from "@tanstack/react-query";
+import {useAuthStore} from "@mcc/store";
+import {tokenManager} from "@mcc/api";
+import {User} from "@mcc/types";
+import {loginApi, logoutApi, refreshTokenApi} from "../services/auth.service";
 import {
   saveSession,
   clearSession,
@@ -14,7 +14,7 @@ import {
 } from "../services/session";
 
 export const useAuth = () => {
-  const { user, setUser, setAccessToken, logout } = useAuthStore();
+  const {user, setUser, setAccessToken, logout} = useAuthStore();
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const useAuth = () => {
       // On failure, swallow — the response interceptor will handle 401s on
       // real API calls and redirect to /login if the session is truly invalid.
       refreshTokenApi(refreshToken)
-        .then(({ access_token }) => {
+        .then(({access_token}) => {
           tokenManager.set(access_token);
           setAccessToken(access_token);
         })
@@ -46,11 +46,11 @@ export const useAuth = () => {
     } else {
       setHydrated(true);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loginMutation = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
+    mutationFn: ({email, password}: {email: string; password: string}) =>
       loginApi(email, password),
     onSuccess: (data) => {
       saveSession(data.user, data.access_token, data.refresh_token);
@@ -71,6 +71,7 @@ export const useAuth = () => {
     user: user as User | null,
     isAuthenticated: !!user,
     hydrated,
+    isLoading: !hydrated,
     loginMutation,
     logoutMutation,
   };
