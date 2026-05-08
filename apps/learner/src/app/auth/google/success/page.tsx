@@ -1,89 +1,43 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@mcc/store";
-import { User, Role } from "@mcc/types";
-import { saveSession } from "@mcc/features";
-
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith(`${name}=`));
-  return match ? decodeURIComponent(match.split("=").slice(1).join("=")) : null;
-}
-
-function decodeJwtPayload(token: string): Record<string, unknown> | null {
-  try {
-    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-    return JSON.parse(atob(base64));
-  } catch {
-    return null;
-  }
-}
-
-function parseUserParam(raw: string): User | null {
-  try { return JSON.parse(raw) as User; } catch { /* fall through */ }
-  try { return JSON.parse(decodeURIComponent(raw)) as User; } catch { /* fall through */ }
-  try { return JSON.parse(atob(raw)) as User; } catch { /* fall through */ }
-  return null;
-}
+import { googleExchangeApi, saveSession } from "@mcc/features";
 
 export default function GoogleSuccessPage() {
   const router = useRouter();
   const { setUser, setAccessToken } = useAuthStore();
+  const exchanged = useRef(false);
 
   useEffect(() => {
-    // ── Source 1: tokens as URL query params (forwarded by middleware) ──────────
-    const params = new URLSearchParams(window.location.search);
-    let accessToken = params.get("access_token");
-    let refreshToken = params.get("refresh_token");
-    const userParam = params.get("user");
+    if (exchanged.current) return;
+    exchanged.current = true;
 
-    // ── Source 2: tokens set as cookies by the backend after OAuth ────────────
-    if (!accessToken) accessToken = getCookie("access_token");
-    if (!refreshToken) refreshToken = getCookie("refresh_token");
+    const code = new URLSearchParams(window.location.search).get("code");
 
-    if (!accessToken || !refreshToken) {
-      router.replace("/login?error=google_auth_failed");
+    if (!code) {
+      router.replace("/login?error=no_code");
       return;
     }
 
-    // ── Resolve user: from URL param → individual params → JWT decode ─────────
-    let user: User | null = null;
-
-    if (userParam) {
-      user = parseUserParam(userParam);
-    }
-
-    if (!user) {
-      const payload = decodeJwtPayload(accessToken);
-      if (payload) {
-        user = {
-          user_id: (payload.sub as string) ?? "",
-          email: (payload.email as string) ?? "",
-          role: (payload.role as Role) ?? "student",
-          is_onboarded: (payload.is_onboarded as boolean) ?? false,
-        };
-      }
-    }
-
-    if (!user) {
-      router.replace("/login?error=google_auth_failed");
-      return;
-    }
-
-    // Clear the OAuth cookies the backend left so they don't interfere later
-    document.cookie = "access_token=; path=/; max-age=0";
-    document.cookie = "refresh_token=; path=/; max-age=0";
-    document.cookie = "oauth_origin=; path=/; max-age=0";
-
-    saveSession(user, accessToken, refreshToken);
-    setUser(user);
-    setAccessToken(accessToken);
-    router.replace(user.is_onboarded ? "/dashboard" : "/onboarding");
+    googleExchangeApi(code)
+      .then(({ user, access_token, redirect_url }) => {
+        saveSession(user, access_token);
+        setUser(user);
+        setAccessToken(access_token);
+        router.replace(redirect_url ?? (user.is_onboarded ? "/dashboard" : "/onboarding"));
+      })
+      .catch((err) => {
+        const status = err?.response?.status;
+        const detail = err?.response?.data?.message ?? err?.message ?? "unknown";
+        router.replace(`/login?error=exchange_failed&status=${status}&detail=${encodeURIComponent(detail)}`);
+      });
   }, [router, setUser, setAccessToken]);
 
-  return null;
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+    </div>
+  );
 }

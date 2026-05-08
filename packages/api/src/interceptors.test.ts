@@ -1,6 +1,7 @@
 import { AxiosHeaders } from "axios";
 import { apiClient } from "./api-client";
 import "./interceptors"; // registers the interceptors as a side effect
+import { tokenManager } from "./token-manager";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── mock the axios adapter so no real network calls happen ──────────────────
@@ -21,22 +22,9 @@ function makeResponse(status: number, data: unknown) {
   };
 }
 
-// ─── helper: build a fake 401 error ──────────────────────────────────────────
-// function make401(url: string) {
-//   const error = {
-//     response: { status: 401, data: {} },
-//     config: {
-//       url,
-//       headers: new AxiosHeaders(),
-//       _retry: false,
-//     },
-//     isAxiosError: true,
-//   };
-//   return error;
-// }
-
 beforeEach(() => {
   vi.clearAllMocks();
+  tokenManager.clear();
   localStorage.clear();
 });
 
@@ -45,21 +33,20 @@ beforeEach(() => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe("request interceptor", () => {
   // TC-2.1
-  it("attaches Bearer token when one exists in localStorage", async () => {
-    localStorage.setItem("mcc_access_token", "my-token-abc");
+  it("attaches Bearer token when one exists in tokenManager", async () => {
+    tokenManager.set("my-token-abc");
 
     mockAdapter.mockResolvedValueOnce(makeResponse(200, { success: true }));
 
     await apiClient.get("/test");
 
-    // the adapter receives the final config — check the Authorization header
     const calledConfig = mockAdapter.mock.calls[0][0];
     expect(calledConfig.headers.Authorization).toBe("Bearer my-token-abc");
   });
 
   // TC-2.2
   it("does NOT add Authorization header when no token exists", async () => {
-    localStorage.clear();
+    tokenManager.clear();
 
     mockAdapter.mockResolvedValueOnce(makeResponse(200, { success: true }));
 
@@ -70,7 +57,7 @@ describe("request interceptor", () => {
   });
 
   // TC-2.3
-  it("skips localStorage safely when window is undefined (SSR)", async () => {
+  it("skips token safely when window is undefined (SSR)", async () => {
     vi.stubGlobal("window", undefined);
 
     mockAdapter.mockResolvedValueOnce(makeResponse(200, { success: true }));
@@ -104,9 +91,7 @@ describe("response interceptor — success", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe("response interceptor — 401 handling", () => {
   // TC-2.5
-  it("calls the refresh endpoint when a 401 occurs and refresh token exists", async () => {
-    localStorage.setItem("mcc_refresh_token", "refresh-tok");
-
+  it("calls the refresh endpoint when a 401 occurs", async () => {
     mockAdapter
       // first call → 401 on /courses
       .mockRejectedValueOnce({
@@ -125,25 +110,18 @@ describe("response interceptor — 401 handling", () => {
 
     await apiClient.get("/courses").catch(() => {});
 
-    // find the refresh call
     const calls = mockAdapter.mock.calls.map((c) => c[0].url);
     expect(calls).toContain("/auth/token/refresh");
   });
 
   // TC-2.6
   it("only calls refresh ONCE even when multiple 401s arrive simultaneously", async () => {
-    localStorage.setItem("mcc_refresh_token", "refresh-tok");
-
     let refreshCount = 0;
-    // Track which configs have been marked as retries
-    // const retryConfigs = new Set<string>();
 
     mockAdapter.mockImplementation(
       (config: { url: string; headers: AxiosHeaders; _retry?: boolean }) => {
-        // This is the refresh call
         if (config.url === "/auth/token/refresh") {
           refreshCount++;
-          // Simulate async refresh taking some time
           return new Promise((resolve) =>
             setTimeout(
               () =>
@@ -160,16 +138,13 @@ describe("response interceptor — 401 handling", () => {
           );
         }
 
-        // This is a retry (interceptor sets Authorization header with new token)
         if (config.headers?.Authorization?.includes("new-tok")) {
           return Promise.resolve(makeResponse(200, { data: [] }));
         }
 
-        // This is the original request — reject with 401
-        // Return the SAME config object so _retry mutation is visible
         return Promise.reject({
           response: { status: 401, data: {} },
-          config, // ← pass the same reference, not a copy
+          config,
           isAxiosError: true,
         });
       },
@@ -185,9 +160,7 @@ describe("response interceptor — 401 handling", () => {
   });
 
   // TC-2.7
-  it("retries queued requests with the NEW token after refresh", async () => {
-    localStorage.setItem("mcc_refresh_token", "old-refresh");
-
+  it("stores the new access token in tokenManager after refresh", async () => {
     mockAdapter.mockImplementation(
       (config: { url: string; headers: AxiosHeaders; _retry?: boolean }) => {
         if (config.url === "/auth/token/refresh") {
@@ -213,13 +186,12 @@ describe("response interceptor — 401 handling", () => {
 
     await apiClient.get("/courses").catch(() => {});
 
-    expect(localStorage.getItem("mcc_access_token")).toBe("brand-new-token");
+    expect(tokenManager.get()).toBe("brand-new-token");
   });
 
   // TC-2.8
-  it("clears session and redirects to /login when no refresh token exists", async () => {
-    localStorage.clear();
-    localStorage.setItem("mcc_access_token", "expired-tok");
+  it("clears tokenManager and redirects to /login when refresh fails", async () => {
+    tokenManager.set("expired-tok");
 
     const hrefSetter = vi.fn();
     Object.defineProperty(window, "location", {
@@ -240,14 +212,12 @@ describe("response interceptor — 401 handling", () => {
 
     await apiClient.get("/courses").catch(() => {});
 
-    expect(localStorage.getItem("mcc_access_token")).toBeNull();
+    expect(tokenManager.get()).toBeNull();
     expect(hrefSetter).toHaveBeenCalledWith("/login");
   });
 
   // TC-2.9
   it("does NOT retry when the refresh endpoint itself returns 401", async () => {
-    localStorage.setItem("mcc_refresh_token", "refresh-tok");
-
     mockAdapter.mockRejectedValueOnce({
       response: { status: 401, data: {} },
       config: {
@@ -260,14 +230,11 @@ describe("response interceptor — 401 handling", () => {
 
     await apiClient.get("/auth/token/refresh").catch(() => {});
 
-    // only one adapter call — no retry
     expect(mockAdapter).toHaveBeenCalledTimes(1);
   });
 
   // TC-2.10
   it("clears session and redirects when the refresh call itself fails", async () => {
-    localStorage.setItem("mcc_refresh_token", "refresh-tok");
-
     const hrefSetter = vi.fn();
     Object.defineProperty(window, "location", {
       value: {
