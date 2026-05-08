@@ -1,5 +1,6 @@
 "use client";
 
+import {RoleLayout} from "@/src/components/RoleLayout";
 import Header from "@/src/features/dashboard/components/Header";
 import SideNav from "@/src/features/dashboard/components/SideNav";
 import {useAuth} from "@mcc/features";
@@ -28,17 +29,19 @@ export default function DashboardLayout({
     return null;
 
   return (
-    <div className="flex flex-col h-screen">
-      <Header open={sideNav} setOpen={setSideNav} />
-      <div
-        className="grid max-sm:grid-cols-1 h-full relative pr-12 max-sm:px-4 overflow-hidden"
-        style={{gridTemplateColumns: "auto 1fr"}}
-      >
-        <SideNav open={sideNav} setOpen={setSideNav} />
-        <div className="overflow-y-auto col-start-2 pl-30 max-sm:pl-0 scrollbar-hide">
-          {children}
+    <RoleLayout allowedRoles={["student"]}>
+      <div className="flex flex-col h-screen">
+        <Header open={sideNav} setOpen={setSideNav} />
+        <div
+          className="grid max-sm:grid-cols-1 h-full relative pr-12 max-sm:px-4 overflow-hidden"
+          style={{gridTemplateColumns: "auto 1fr"}}
+        >
+          <SideNav open={sideNav} setOpen={setSideNav} />
+          <div className="overflow-y-auto col-start-2 pl-30 max-sm:pl-0 scrollbar-hide">
+            {children}
+          </div>
         </div>
       </div>
-    </div>
+    </RoleLayout>
   );
 }
