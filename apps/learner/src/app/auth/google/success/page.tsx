@@ -26,7 +26,10 @@ export default function GoogleSuccessPage() {
         saveSession(user, access_token, refresh_token);
         setUser(user);
         setAccessToken(access_token);
-        router.replace(redirect_url ?? (user.is_onboarded ? "/dashboard" : "/onboarding"));
+        const destination = redirect_url
+          ? new URL(redirect_url).pathname
+          : (user.is_onboarded ? "/dashboard" : "/onboarding");
+        router.replace(destination);
       })
       .catch((err) => {
         const status = err?.response?.status;
