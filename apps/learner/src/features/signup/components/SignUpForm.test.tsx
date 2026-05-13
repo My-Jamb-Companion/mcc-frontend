@@ -118,12 +118,7 @@ vi.mock("@mcc/features", () => ({
       });
     }),
   }),
-  FormInputs: ({
-    label,
-    registration,
-    errors,
-    ...props
-  }: MockFormInputsProps) => (
+  FormInputs: ({label, registration, errors}: MockFormInputsProps) => (
     <div>
       <label>{label}</label>
       <input {...registration} />
