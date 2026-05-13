@@ -6,7 +6,6 @@ import React from "react";
 // Define types for the mocked components and hooks
 type MockMotionDivProps = {
   children: React.ReactNode;
-  layoutId?: string;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 type MockMotionButtonProps = {
@@ -75,10 +74,10 @@ type MockFormInputsProps = {
 // Mocking @mcc/ui to bypass animation overhead and icon loading issues in JSDOM
 vi.mock("@mcc/ui", () => ({
   motion: {
-    div: ({children, layoutId, ...props}: MockMotionDivProps) => (
+    div: ({children, ...props}: MockMotionDivProps) => (
       <div {...props}>{children}</div>
     ),
-    button: ({children, layoutId, ...props}: MockMotionButtonProps) => (
+    button: ({children, ...props}: MockMotionButtonProps) => (
       <button {...props}>{children}</button>
     ),
   },

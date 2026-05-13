@@ -19,7 +19,7 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
   useEffect(() => {
     if (isLoading || isPublicRoute || user) return;
     router.push(`/login?${new URLSearchParams({callbackUrl: pathname})}`);
-  }, [user, isLoading, isPublicRoute, pathname]);
+  }, [user, isLoading, isPublicRoute, pathname, router]);
 
   if (!isPublicRoute && (isLoading || !user)) return null;
 

@@ -46,7 +46,7 @@ export default function Explore() {
           instructorName="Salima Spiff"
           scheduledAt={new Date("2026-04-21T19:00:00")}
           datetime="7 PM WAT, Wed. 07 2025."
-          onJoin={() => console.log("joining...")}
+          // onJoin={() => console.log("joining...")}
         />
       </div>
 
@@ -74,7 +74,7 @@ export default function Explore() {
                     "Digital Art",
                     "iPad",
                   ]}
-                  onClick={() => console.log("open course")}
+                  // onClick={() => console.log("open course")}
                 />
               </div>
             ))}
@@ -99,7 +99,7 @@ export default function Explore() {
                   price={22345}
                   originalPrice={3500}
                   pricePerModule={75}
-                  onClick={() => console.log("open course")}
+                  // onClick={() => console.log("open course")}
                 />
               </div>
             ))}
@@ -131,9 +131,9 @@ export default function Explore() {
         />
       </div>
 
-<div className="pt-8">
-  <TopicsRow/>
-</div>
+      <div className="pt-8">
+        <TopicsRow />
+      </div>
       <div className="flex items-center justify-between px-16 py-8 text-sm font-medium max-sm:flex-col w-full max-sm:px-3">
         <p className="text-muted">© 2026 MC companion</p>
         <div className="flex items-center gap-5 max-sm:justify-between">
