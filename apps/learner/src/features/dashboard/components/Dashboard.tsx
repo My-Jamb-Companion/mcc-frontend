@@ -1,6 +1,8 @@
 "use client";
 import {Icon} from "@mcc/ui";
 import BannerCarousel from "./BannerCarousel";
+import QuickLinkCard from "./QuickLinkCard";
+import {quickLinkCard} from "../constants/QuickLinks";
 
 export default function Dashboard() {
   return (
@@ -29,7 +31,11 @@ export default function Dashboard() {
         <BannerCarousel />
       </div>
 
- 
+      <div className="flex items-center gap-4 mt-8 max-md:flex-col">
+        {quickLinkCard.map((card) => (
+          <QuickLinkCard key={card.title} title={card.title} icon={card.icon} />
+        ))}
+      </div>
     </div>
   );
 }
