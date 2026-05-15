@@ -1,9 +1,10 @@
 "use client";
 
 import {RoleLayout} from "@/src/components/RoleLayout";
+import Header from "@/src/features/dashboard/components/Header";
 import {useAuth} from "@mcc/features";
 import {useRouter} from "next/navigation";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 
 export default function DashboardLayout({
   children,
@@ -11,7 +12,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const {isAuthenticated, hydrated, user} = useAuth();
-
+  const [sideNav, setSideNav] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export default function DashboardLayout({
   return (
     <RoleLayout allowedRoles={["student"]}>
       <div className="flex flex-col h-screen">
+        <Header open={sideNav} setOpen={setSideNav} />
         <div
           className="grid max-sm:grid-cols-1 h-full relative pr-12 max-sm:px-4 overflow-hidden"
           style={{gridTemplateColumns: "auto 1fr"}}
