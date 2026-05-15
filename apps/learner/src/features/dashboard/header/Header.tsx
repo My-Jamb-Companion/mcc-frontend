@@ -1,5 +1,5 @@
 import {Icon} from "@mcc/ui";
-import Notifications from "./Notifications";
+import Notifications from "./Notification";
 import ThemeButton from "./ThemeButton";
 
 export default function Header({
