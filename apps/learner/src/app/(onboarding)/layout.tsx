@@ -12,10 +12,8 @@ export default function Layout({children}: {children: React.ReactNode}) {
     if (!hydrated) return;
     if (!isAuthenticated) {
       router.replace("/login");
-    } else if (user?.is_onboarded) {
-      router.replace("/dashboard");
     }
-  }, [hydrated, isAuthenticated, user, router]);
+  }, [hydrated, isAuthenticated, router]);
 
   if (!hydrated || !isAuthenticated) return null;
 
