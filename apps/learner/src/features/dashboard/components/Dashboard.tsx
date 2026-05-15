@@ -3,6 +3,7 @@ import {Icon} from "@mcc/ui";
 import BannerCarousel from "./BannerCarousel";
 import QuickLinkCard from "./QuickLinkCard";
 import {quickLinkCard} from "../constants/QuickLinks";
+import LiveClassCard from "./LiveClassCard";
 
 export default function Dashboard() {
   return (
@@ -29,6 +30,18 @@ export default function Dashboard() {
 
       <div className="mt-7">
         <BannerCarousel />
+      </div>
+
+      <div className="mt-10 mx-auto w-[70%] max-sm:w-full">
+        <LiveClassCard
+          title="Mastering the Art of Articulation in Speaking: English Language."
+          thumbnail="/assets/images/profile.png"
+          instructorImage="/assets/images/pencil.jpg"
+          instructorName="Salima Spiff"
+          scheduledAt={new Date("2026-06-21T19:00:00")}
+          datetime="7 PM WAT, Wed. 07 2026."
+          // onJoin={() => console.log("joining...")}
+        />
       </div>
 
       <div className="flex items-center gap-4 mt-8 max-md:flex-col">
