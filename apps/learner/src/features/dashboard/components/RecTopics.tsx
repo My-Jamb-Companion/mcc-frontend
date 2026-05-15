@@ -2,6 +2,7 @@
 
 import {useRef} from "react";
 import {Icon} from "@mcc/ui";
+import Link from "next/link";
 
 interface TopicsRowProps {
   title?: string;
@@ -43,14 +44,15 @@ export default function RecTopics({
   const row1 = topics.slice(0, Math.ceil(topics.length / 2));
   const row2 = topics.slice(Math.ceil(topics.length / 2));
 
-  const TopicButton = ({topic}: {topic: string}) => (
-    <button
+ const TopicButton = ({topic}: {topic: string}) => (
+    <Link
+      href={`/programs/topic/${topic.replace(/ /g, "-").toLowerCase()}`}
       onClick={() => onSelect?.(topic)}
       className="flex items-center gap-2 border border-muted/40 shadow-sm rounded-xl px-4 py-3 text-sm font-medium  hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap w-full"
     >
       <Icon icon="ri:instance-fill" size={16} />
       {topic}
-    </button>
+    </Link>
   );
 
   return (
