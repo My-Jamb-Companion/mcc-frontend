@@ -11,6 +11,8 @@ import {useState} from "react";
 import AskAICard from "./AskAI";
 import {exams} from "../constants/ExamCards";
 import ExamCard from "./ExamCard";
+import TopPickCard from "./TopPickCard";
+import RecTopics from "./RecTopics";
 
 export default function Dashboard() {
   const [isContinueLoading, setIsContinueLoading] = useState(true);
@@ -138,6 +140,36 @@ export default function Dashboard() {
               <ExamCard key={i} exam={exam} />
             ))}
           </ScrollRow>
+        </div>
+      </div>
+
+      <div className="pt-8">
+        <p className="text-2xl font-semibold pb-6">Our top pick for you</p>
+        <TopPickCard
+          image="/assets/images/pencil.jpg"
+          title="Complete web development course"
+          description="Only web development course that you will need. Covers HTML, CSS, Tailwind, Node, React, MongoDB, Prisma, Deployment etc"
+          isPremium
+          rating={4.6}
+          ratingCount="16,454"
+          learners="43,876"
+          price={10345}
+          originalPrice={3500}
+        />
+      </div>
+
+      <div className="pt-8">
+        <RecTopics />
+      </div>
+      <div className="flex items-center justify-between px-16 py-8 text-sm font-medium max-sm:flex-col w-full max-sm:px-3">
+        <p className="text-muted">© 2026 MC companion</p>
+        <div className="flex items-center gap-5 max-sm:justify-between">
+          <p className="underline text-muted hover:text-primary cursor-pointer">
+            Terms and Conditions
+          </p>
+          <p className="underline text-muted hover:text-primary cursor-pointer">
+            Privacy Policy
+          </p>
         </div>
       </div>
     </div>
