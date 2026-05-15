@@ -8,6 +8,9 @@ import ScrollRow from "./RowScroll";
 import CourseCard from "./CourseCard";
 import CourseCardSkeleton from "./CourseCardSkeleton";
 import {useState} from "react";
+import AskAICard from "./AskAI";
+import {exams} from "../constants/ExamCards";
+import ExamCard from "./ExamCard";
 
 export default function Dashboard() {
   const [isContinueLoading, setIsContinueLoading] = useState(true);
@@ -120,6 +123,19 @@ export default function Dashboard() {
                   // onClick={() => console.log("open course")}
                 />
               </div>
+            ))}
+          </ScrollRow>
+        </div>
+
+        <div className="flex flex-col gap-7">
+          <AskAICard />
+          <ScrollRow
+            variant="card"
+            title="Practice Exams"
+            subTitle="Pick up where you left off"
+          >
+            {exams.map((exam, i) => (
+              <ExamCard key={i} exam={exam} />
             ))}
           </ScrollRow>
         </div>
