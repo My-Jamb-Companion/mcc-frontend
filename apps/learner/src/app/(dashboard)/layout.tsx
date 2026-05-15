@@ -1,7 +1,7 @@
 "use client";
 
 import {RoleLayout} from "@/src/components/RoleLayout";
-import Header from "@/src/features/dashboard/header/Header";
+import Header from "@/src/features/dashboard/components/header/Header";
 import {useAuth} from "@mcc/features";
 import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
