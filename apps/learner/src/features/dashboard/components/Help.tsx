@@ -8,7 +8,7 @@ export default function Help() {
       {open && <CompleteProfileCard />}
 
       <div
-        className="self-end rounded-full mt-4 p-2 w-fit border border-muted/40 cursor-pointer bg-white hover:bg-muted/30 dark:text-subtle dark:bg-black dark:border-2"
+        className="self-end rounded-full mt-4 p-2 w-fit border border-muted/40 cursor-pointer bg-white hover:bg-muted/30 dark:text-white dark:bg-subtle dark:border dark:border-white"
         onClick={() => setOpen(!open)}
       >
         <Icon icon="line-md:question" size={24} />
@@ -93,7 +93,7 @@ export function CompleteProfileCard() {
                 </div>
               )}
 
-              <p className="pt-2 text-sm font-medium text-neutral-900">
+              <p className="pt-2 text-sm font-medium text-neutral-900 ">
                 {step.title}
               </p>
             </div>
