@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   ReactNode,
@@ -8,31 +8,37 @@ import {
   useCallback,
   useEffect,
   useRef,
-} from "react"
-import { createPortal } from "react-dom"
+} from "react";
+import {createPortal} from "react-dom";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface ModalRef {
-  openDialog: () => void
-  closeDialog: () => void
+  openDialog: () => void;
+  closeDialog: () => void;
 }
 
 export interface ModalProps {
   /** Element that opens the modal on click */
-  trigger?: ReactNode
+  trigger?: ReactNode;
   /** Modal heading */
-  title?: string | ReactNode
+  title?: string | ReactNode;
   /** Small subtitle beneath the title */
-  description?: string | ReactNode
+  description?: string | ReactNode;
   /** All body + footer content goes here */
-  children?: ReactNode
+  children?: ReactNode;
   /** Called when the modal closes (Escape, backdrop, × button) */
-  onClose?: () => void
+  onClose?: () => void;
   /** Called when the modal opens */
-  onOpen?: () => void
+  onOpen?: () => void;
   /** Max width Tailwind class — defaults to max-w-md */
-  maxWidth?: string
+  maxWidth?: string;
+  /**
+   * Controlled mode — pass a boolean to own the open state externally.
+   * When provided, the modal ignores its internal state and defers to this value.
+   * Pair with onClose to handle close requests from inside the modal.
+   */
+  open?: boolean;
 }
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
@@ -47,52 +53,58 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
       onClose,
       onOpen,
       maxWidth = "max-w-md",
+      open: controlledOpen,
     },
-    ref
+    ref,
   ) => {
-    const [open, setOpen] = useState(false)
-    const panelRef = useRef<HTMLDivElement>(null)
+    const isControlled = controlledOpen !== undefined;
+    const [internalOpen, setInternalOpen] = useState(false);
+    const panelRef = useRef<HTMLDivElement>(null);
+
+    // In controlled mode, the parent's boolean drives visibility.
+    // In uncontrolled mode, internal state does.
+    const open = isControlled ? controlledOpen : internalOpen;
 
     // ── Imperative API ──────────────────────────────────────────────────────
 
     const openDialog = useCallback(() => {
-      setOpen(true)
-      onOpen?.()
-    }, [onOpen])
+      if (!isControlled) setInternalOpen(true);
+      onOpen?.();
+    }, [isControlled, onOpen]);
 
     const closeDialog = useCallback(() => {
-      setOpen(false)
-      onClose?.()
-    }, [onClose])
+      if (!isControlled) setInternalOpen(false);
+      onClose?.();
+    }, [isControlled, onClose]);
 
-    useImperativeHandle(ref, () => ({ openDialog, closeDialog }))
+    useImperativeHandle(ref, () => ({openDialog, closeDialog}));
 
     // ── Keyboard: Escape ────────────────────────────────────────────────────
 
     useEffect(() => {
-      if (!open) return
-      const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeDialog()
-      document.addEventListener("keydown", onKey)
-      return () => document.removeEventListener("keydown", onKey)
-    }, [open, closeDialog])
+      if (!open) return;
+      const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeDialog();
+      document.addEventListener("keydown", onKey);
+      return () => document.removeEventListener("keydown", onKey);
+    }, [open, closeDialog]);
 
     // ── Focus management ────────────────────────────────────────────────────
 
     useEffect(() => {
-      if (!open) return
-      const prev = document.activeElement as HTMLElement | null
-      panelRef.current?.focus()
-      return () => prev?.focus()
-    }, [open])
+      if (!open) return;
+      const prev = document.activeElement as HTMLElement | null;
+      panelRef.current?.focus();
+      return () => prev?.focus();
+    }, [open]);
 
     // ── Scroll lock ─────────────────────────────────────────────────────────
 
     useEffect(() => {
-      document.body.style.overflow = open ? "hidden" : ""
+      document.body.style.overflow = open ? "hidden" : "";
       return () => {
-        document.body.style.overflow = ""
-      }
-    }, [open])
+        document.body.style.overflow = "";
+      };
+    }, [open]);
 
     // ── Dialog markup ───────────────────────────────────────────────────────
 
@@ -156,7 +168,10 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
                     </h2>
                   )}
                   {description && (
-                    <p id="modal-desc" className="text-sm text-muted-foreground">
+                    <p
+                      id="modal-desc"
+                      className="text-sm text-muted-foreground"
+                    >
                       {description}
                     </p>
                   )}
@@ -167,21 +182,21 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
               {children}
             </div>
           </>,
-          document.body
+          document.body,
         )
-      : null
+      : null;
 
     return (
       <>
         {trigger && (
-          <span onClick={openDialog} style={{ display: "contents" }}>
+          <span onClick={openDialog} style={{display: "contents"}}>
             {trigger}
           </span>
         )}
         {dialog}
       </>
-    )
-  }
-)
+    );
+  },
+);
 
-Modal.displayName = "Modal"
+Modal.displayName = "Modal";
