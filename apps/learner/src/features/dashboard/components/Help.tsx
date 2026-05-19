@@ -1,46 +1,68 @@
-import {Icon} from "@mcc/ui";
-import {useRef, useState} from "react";
-import {Modal, ModalRef} from "../../components/Modal";
-import {ConfirmModal} from "../../components/ConfirmModal";
+import {AnimatePresence, Icon, motion} from "@mcc/ui";
+import {useState} from "react";
 
 export default function Help() {
   const [open, setOpen] = useState(false);
-  const modalRef = useRef<ModalRef>(null);
-  return (
-    <div className="absolute right-10 top-1/2 -translate-y-1/2 flex flex-col z-9999">
-      {open && <CompleteProfileCard />}
-      <ConfirmModal
-        variant="danger"
-        title="Delete Course"
-        message="This action cannot be undone."
-        confirmText="Yes, delete"
-        onConfirm={() => alert("Deleted!")}
-        trigger={<button>Delete</button>}
-      />
-      <Modal
-        ref={modalRef}
-        trigger={<button>Edit Course</button>}
-        title="Edit Course"
-        description="Changes are saved immediately."
-      >
-        <input
-          placeholder="Course title"
-          className="w-full rounded border px-3 py-2 text-sm"
-        />
 
-        <div className="mt-6 flex justify-end gap-2">
-          <button onClick={() => modalRef.current?.closeDialog()}>
-            Cancel
-          </button>
-          <button onClick={() => modalRef.current?.closeDialog()}>Save</button>
-        </div>
-      </Modal>
-      <div
+  return (
+    <div className="absolute right-10 top-1/2 -translate-y-1/2 flex flex-col z-99">
+      <AnimatePresence mode="wait">
+        {open && (
+          <motion.div
+            key="profile-card"
+            initial={{
+              opacity: 0,
+              scale: 0.9,
+              x: 40,
+              y: 20,
+              filter: "blur(8px)",
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              x: 0,
+              y: 0,
+              filter: "blur(0px)",
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.9,
+              x: 40,
+              y: 20,
+              filter: "blur(8px)",
+            }}
+            transition={{
+              duration: 0.35,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className="origin-bottom-right"
+          >
+            <CompleteProfileCard />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.div
+        whileHover={{
+          scale: 1.06,
+        }}
+        whileTap={{
+          scale: 0.92,
+        }}
         className="self-end rounded-full mt-4 p-2 w-fit border border-muted/40 cursor-pointer bg-white hover:bg-muted/30 dark:text-white dark:bg-subtle dark:border dark:border-white"
         onClick={() => setOpen(!open)}
       >
-        <Icon icon="line-md:question" size={24} />
-      </div>
+        <motion.div
+          animate={{
+            rotate: open ? 360 : 0,
+          }}
+          transition={{
+            duration: 0.3,
+          }}
+        >
+          <Icon icon="line-md:question" size={24} />
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
@@ -48,7 +70,7 @@ export default function Help() {
 const steps = [
   {
     title: "Personal details",
-    status: "completed",
+    status: "complete",
   },
   {
     title: "Your location",
@@ -58,17 +80,36 @@ const steps = [
     title: "Profile photo",
     status: "pending",
   },
-];
+] as const;
 
 export function CompleteProfileCard() {
+  const [open, setOpen] = useState(true);
+
   return (
-    <div className="w-115 rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm">
-      {/* top */}
+    <motion.div
+      layout
+      transition={{
+        layout: {
+          duration: 0.35,
+          ease: [0.22, 1, 0.36, 1],
+        },
+      }}
+      className="w-115 rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm h-fit"
+    >
+      {/* header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="text-violet-600">
+          <motion.div
+            animate={{
+              rotate: open ? 0 : -8,
+            }}
+            transition={{
+              duration: 0.25,
+            }}
+            className="text-violet-600"
+          >
             <Icon icon="lucide:user" size={22} />
-          </div>
+          </motion.div>
 
           <p className="text-xl font-semibold text-neutral-900">
             Complete profile
@@ -77,82 +118,279 @@ export function CompleteProfileCard() {
 
         <div className="flex items-center gap-5">
           <div className="flex items-center gap-2 text-neutral-600">
-            <Icon
-              icon="ri:progress-2-line"
-              size={20}
-              className="text-violet-600"
-            />
+            <motion.div
+              animate={{
+                rotate: open ? 360 : 0,
+              }}
+              transition={{
+                duration: 0.5,
+              }}
+            >
+              <Icon
+                icon="ri:progress-2-line"
+                size={20}
+                className="text-violet-600"
+              />
+            </motion.div>
+
             <span className="text-xs font-semibold">1/3</span>
           </div>
 
-          <Icon
-            icon="lucide:chevron-down"
-            size={22}
+          <motion.button
+            whileTap={{scale: 0.9}}
+            animate={{
+              rotate: open ? 0 : 180,
+            }}
+            transition={{
+              duration: 0.3,
+              ease: "easeOut",
+            }}
             className="cursor-pointer text-neutral-500"
-          />
+            onClick={() => setOpen(!open)}
+          >
+            <Icon icon="lucide:chevron-down" size={22} />
+          </motion.button>
         </div>
       </div>
 
-      {/* body */}
-      <div className="mt-6 rounded-[28px] bg-[#f3f3f3] p-6">
-        <div className="flex flex-1 flex-col justify-between py-1">
-          {steps.map((step) => (
-            <div
-              key={step.title}
-              className="flex min-h-[64px] items-start gap-3"
+      {/* expandable content */}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="content"
+            initial={{
+              height: 0,
+              opacity: 0,
+            }}
+            animate={{
+              height: "auto",
+              opacity: 1,
+            }}
+            exit={{
+              height: 0,
+              opacity: 0,
+            }}
+            transition={{
+              height: {
+                duration: 0.4,
+                ease: [0.22, 1, 0.36, 1],
+              },
+              opacity: {
+                duration: 0.2,
+              },
+            }}
+            className="overflow-hidden"
+          >
+            <motion.div
+              initial="hidden"
+              animate="show"
+              variants={{
+                hidden: {},
+                show: {
+                  transition: {
+                    staggerChildren: 0.08,
+                    delayChildren: 0.05,
+                  },
+                },
+              }}
             >
-              {step.status === "pending" ? (
-                <div className="h-10 w-10 rounded-full border border-neutral-200 bg-white shadow-sm">
-                  <div className="flex h-full w-full items-center justify-center">
-                    <div className="h-5 w-5 rounded-full border border-neutral-300 animate-pulse" />
-                  </div>
+              {/* steps */}
+              <div className="mt-6 rounded-[28px] bg-[#f3f3f3] p-6">
+                <div className="flex flex-1 flex-col justify-between py-1">
+                  {steps.map((step, i) => (
+                    <motion.div
+                      key={step.title}
+                      variants={{
+                        hidden: {
+                          opacity: 0,
+                          y: 10,
+                        },
+                        show: {
+                          opacity: 1,
+                          y: 0,
+                        },
+                      }}
+                      transition={{
+                        duration: 0.3,
+                        ease: "easeOut",
+                      }}
+                      className="flex min-h-[64px] items-start gap-3"
+                    >
+                      {/* status icon */}
+                      {step.status === "pending" ? (
+                        <motion.div
+                          animate={{
+                            scale: [1, 1.05, 1],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                          }}
+                          className="h-10 w-10 rounded-full border border-neutral-200 bg-white shadow-sm"
+                        >
+                          <div className="flex h-full w-full items-center justify-center">
+                            <div className="h-5 w-5 rounded-full border border-neutral-300" />
+                          </div>
+                        </motion.div>
+                      ) : step.status === "loading" ? (
+                        <motion.div
+                          animate={{
+                            rotate: 360,
+                          }}
+                          transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            ease: "linear",
+                          }}
+                          className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-sm"
+                        >
+                          <Icon
+                            icon="tabler:loader"
+                            size={16}
+                            className="text-neutral-500"
+                          />
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          initial={{
+                            scale: 0,
+                          }}
+                          animate={{
+                            scale: 1,
+                          }}
+                          transition={{
+                            delay: i * 0.1,
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 15,
+                          }}
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-600 text-white shadow-sm"
+                        >
+                          <Icon
+                            icon="material-symbols:check-rounded"
+                            size={16}
+                          />
+                        </motion.div>
+                      )}
+
+                      {/* text */}
+                      <motion.p
+                        initial={{
+                          opacity: 0,
+                          x: -10,
+                        }}
+                        animate={{
+                          opacity: 1,
+                          x: 0,
+                        }}
+                        transition={{
+                          delay: i * 0.05,
+                        }}
+                        className="pt-2 text-sm font-medium text-neutral-900"
+                      >
+                        {step.title}
+                      </motion.p>
+                    </motion.div>
+                  ))}
                 </div>
-              ) : step.status === "loading" ? (
-                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-sm">
-                  <Icon
-                    icon="tabler:loader"
-                    size={16}
-                    className="animate-spin text-neutral-500"
-                  />
+              </div>
+
+              {/* progress */}
+              <motion.div
+                initial={{
+                  opacity: 0,
+                  y: 15,
+                }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                transition={{
+                  delay: 0.25,
+                  duration: 0.35,
+                }}
+                className="mt-8 flex items-center gap-4"
+              >
+                <div className="relative h-14 flex-1 overflow-hidden rounded-full bg-white shadow-inner">
+                  <motion.div
+                    initial={{
+                      width: 0,
+                    }}
+                    animate={{
+                      width: "33%",
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className="relative flex h-full items-center justify-between rounded-full bg-primary px-2"
+                  >
+                    <motion.div
+                      initial={{
+                        scale: 0,
+                        x: -20,
+                      }}
+                      animate={{
+                        scale: 1,
+                        x: 0,
+                      }}
+                      transition={{
+                        delay: 0.35,
+                        type: "spring",
+                      }}
+                      className="absolute h-10 w-10 overflow-hidden rounded-full border-2 border-white bg-pink-600"
+                    >
+                      <img
+                        src="/assets/images/profile.png"
+                        alt="profile"
+                        className="h-full w-full object-cover"
+                      />
+                    </motion.div>
+
+                    <motion.span
+                      initial={{
+                        opacity: 0,
+                      }}
+                      animate={{
+                        opacity: 1,
+                      }}
+                      transition={{
+                        delay: 0.55,
+                      }}
+                      className="ml-auto text-sm font-bold text-white"
+                    >
+                      33%
+                    </motion.span>
+                  </motion.div>
                 </div>
-              ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-600 text-white shadow-sm">
-                  <Icon icon="material-symbols:check-rounded" size={16} />
-                </div>
-              )}
 
-              <p className="pt-2 text-sm font-medium text-neutral-900 ">
-                {step.title}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* progress bar */}
-      <div className="mt-8 flex items-center gap-4">
-        <div className="relative h-14 flex-1 overflow-hidden rounded-full bg-white shadow-inner">
-          <div className="absolute left-0 top-0 flex h-full w-[33%] items-center justify-between rounded-full bg-primary px-2">
-            <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-white bg-pink-600">
-              <img
-                src="/assets/images/profile.png"
-                alt="profile"
-                className="h-full w-full object-cover"
-              />
-            </div>
-
-            <span className="pr-1 text-sm font-bold text-white">33%</span>
-          </div>
-        </div>
-
-        <button className="flex h-14 w-14 items-center justify-center rounded-full border border-neutral-200 bg-[#f8f8f8] transition hover:bg-neutral-100">
-          <Icon
-            icon="lucide:move-up-right"
-            size={22}
-            className="text-neutral-700"
-          />
-        </button>
-      </div>
-    </div>
+                <motion.button
+                  whileHover={{
+                    scale: 1.05,
+                  }}
+                  whileTap={{
+                    scale: 0.92,
+                  }}
+                  className="flex h-14 w-14 items-center justify-center rounded-full border border-neutral-200 bg-[#f8f8f8] transition"
+                >
+                  <motion.div
+                    whileHover={{
+                      x: 2,
+                      y: -2,
+                    }}
+                  >
+                    <Icon
+                      icon="lucide:move-up-right"
+                      size={22}
+                      className="text-neutral-700"
+                    />
+                  </motion.div>
+                </motion.button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
