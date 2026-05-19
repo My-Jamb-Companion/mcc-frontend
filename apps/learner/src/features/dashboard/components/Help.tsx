@@ -1,12 +1,40 @@
 import {Icon} from "@mcc/ui";
-import {useState} from "react";
+import {useRef, useState} from "react";
+import {Modal, ModalRef} from "../../components/Modal";
+import {ConfirmModal} from "../../components/ConfirmModal";
 
 export default function Help() {
   const [open, setOpen] = useState(false);
+  const modalRef = useRef<ModalRef>(null);
   return (
     <div className="absolute right-10 top-1/2 -translate-y-1/2 flex flex-col z-9999">
       {open && <CompleteProfileCard />}
+      <ConfirmModal
+        variant="danger"
+        title="Delete Course"
+        message="This action cannot be undone."
+        confirmText="Yes, delete"
+        onConfirm={() => alert("Deleted!")}
+        trigger={<button>Delete</button>}
+      />
+      <Modal
+        ref={modalRef}
+        trigger={<button>Edit Course</button>}
+        title="Edit Course"
+        description="Changes are saved immediately."
+      >
+        <input
+          placeholder="Course title"
+          className="w-full rounded border px-3 py-2 text-sm"
+        />
 
+        <div className="mt-6 flex justify-end gap-2">
+          <button onClick={() => modalRef.current?.closeDialog()}>
+            Cancel
+          </button>
+          <button onClick={() => modalRef.current?.closeDialog()}>Save</button>
+        </div>
+      </Modal>
       <div
         className="self-end rounded-full mt-4 p-2 w-fit border border-muted/40 cursor-pointer bg-white hover:bg-muted/30 dark:text-white dark:bg-subtle dark:border dark:border-white"
         onClick={() => setOpen(!open)}
