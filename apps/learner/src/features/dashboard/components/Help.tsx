@@ -3,62 +3,20 @@
 import {AnimatePresence, motion} from "framer-motion";
 import {useState} from "react";
 import {Icon} from "@mcc/ui";
+import {Modal} from "../../components/Modal";
+import CompleteProfileForm from "./CompleteProfileForm";
 
 export default function Help() {
   const [open, setOpen] = useState(false);
+  const [resume, setResume] = useState(false);
 
   return (
-    <motion.div
-      layout
-      transition={{
-        layout: {
-          duration: 0.45,
-          ease: [0.22, 1, 0.36, 1],
-        },
-      }}
-      className="fixed right-10 top-1/2 -translate-y-1/2 flex flex-col items-end z-[9999]"
-    >
-      <AnimatePresence mode="popLayout">
-        {open && (
-          <motion.div
-            layout="position"
-            key="profile-card"
-            initial={{
-              opacity: 0,
-              scale: 0.92,
-              y: 20,
-              filter: "blur(8px)",
-            }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-              y: 0,
-              filter: "blur(0px)",
-            }}
-            exit={{
-              opacity: 0,
-              scale: 0.92,
-              y: 20,
-              filter: "blur(8px)",
-            }}
-            transition={{
-              duration: 0.35,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-            className="origin-bottom-right"
-          >
-            <CompleteProfileCard />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.button
-        layout="position"
-        whileHover={{
-          scale: 1.06,
-        }}
-        whileTap={{
-          scale: 0.92,
+    <>
+      <motion.div
+        layout
+        initial={{opacity: 0}}
+        animate={{
+          opacity: 1,
         }}
         transition={{
           layout: {
@@ -66,21 +24,72 @@ export default function Help() {
             ease: [0.22, 1, 0.36, 1],
           },
         }}
-        className="self-end rounded-full mt-4 p-2 w-fit border border-muted/40 cursor-pointer bg-white hover:bg-muted/30 dark:text-white dark:bg-subtle dark:border dark:border-white"
-        onClick={() => setOpen(!open)}
+        className="fixed right-10 top-1/2 -translate-y-1/2 flex flex-col items-end z-50"
       >
-        <motion.div
-          animate={{
-            rotate: open ? 360 : 0,
+        <AnimatePresence mode="popLayout">
+          {open && (
+            <motion.div
+              layout="position"
+              key="profile-card"
+              initial={{
+                opacity: 0,
+                scale: 0.92,
+                y: 20,
+                filter: "blur(8px)",
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                filter: "blur(0px)",
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.92,
+                y: 20,
+                filter: "blur(8px)",
+              }}
+              transition={{
+                duration: 0.35,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className="origin-bottom-right"
+            >
+              <CompleteProfileCard onResume={() => setResume(!resume)} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <motion.button
+          layout="position"
+          whileHover={{
+            scale: 1.06,
+          }}
+          whileTap={{
+            scale: 0.92,
           }}
           transition={{
-            duration: 0.3,
+            layout: {
+              duration: 0.45,
+              ease: [0.22, 1, 0.36, 1],
+            },
           }}
+          className="self-end rounded-full mt-4 p-2 w-fit border border-muted/40 cursor-pointer bg-white hover:bg-muted/30 dark:text-white dark:bg-subtle dark:border dark:border-white"
+          onClick={() => setOpen(!open)}
         >
-          <Icon icon="line-md:question" size={24} />
-        </motion.div>
-      </motion.button>
-    </motion.div>
+          <motion.div
+            animate={{
+              rotate: open ? 360 : 0,
+            }}
+            transition={{
+              duration: 0.3,
+            }}
+          >
+            <Icon icon="line-md:question" size={24} />
+          </motion.div>
+        </motion.button>
+      </motion.div>
+    </>
   );
 }
 
@@ -99,7 +108,7 @@ const steps = [
   },
 ] as const;
 
-export function CompleteProfileCard() {
+export function CompleteProfileCard({onResume}: {onResume: () => void}) {
   const [open, setOpen] = useState(true);
 
   return (
@@ -125,7 +134,7 @@ export function CompleteProfileCard() {
             }}
             className="text-violet-600"
           >
-            <Icon icon="lucide:user" size={22} />
+            <Icon icon="ri:user-4-line" size={22} />
           </motion.div>
 
           <p className="text-xl font-semibold text-neutral-900">
@@ -381,28 +390,35 @@ export function CompleteProfileCard() {
                   </motion.div>
                 </div>
 
-                <motion.button
-                  whileHover={{
-                    scale: 1.05,
-                  }}
-                  whileTap={{
-                    scale: 0.92,
-                  }}
-                  className="flex h-14 w-14 items-center justify-center rounded-full border border-neutral-200 bg-[#f8f8f8] transition"
+                <Modal
+                  trigger={
+                    <motion.button
+                      whileHover={{
+                        scale: 1.05,
+                      }}
+                      whileTap={{
+                        scale: 0.92,
+                      }}
+                      className="flex h-14 w-14 items-center justify-center rounded-full border border-neutral-200 bg-[#f8f8f8] transition cursor-pointer"
+                      onClick={onResume}
+                    >
+                      <motion.div
+                        whileHover={{
+                          x: 2,
+                          y: -2,
+                        }}
+                      >
+                        <Icon
+                          icon="lucide:move-up-right"
+                          size={22}
+                          className="text-neutral-700"
+                        />
+                      </motion.div>
+                    </motion.button>
+                  }
                 >
-                  <motion.div
-                    whileHover={{
-                      x: 2,
-                      y: -2,
-                    }}
-                  >
-                    <Icon
-                      icon="lucide:move-up-right"
-                      size={22}
-                      className="text-neutral-700"
-                    />
-                  </motion.div>
-                </motion.button>
+                  <CompleteProfileForm />
+                </Modal>
               </motion.div>
             </motion.div>
           </motion.div>
