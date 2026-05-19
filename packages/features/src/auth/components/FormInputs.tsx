@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {Icon, motion} from "@mcc/ui";
 import {FieldError, UseFormRegisterReturn} from "@mcc/features";
+import {CustomSelect} from "./CustomSelectInput";
 
 const FormInputs = ({
   label,
@@ -35,22 +36,15 @@ const FormInputs = ({
         />
       );
     }
-
     if (type === "select") {
       return (
-        <select
-          id={id}
-          className={inputClass}
+        <CustomSelect
+          options={options}
           value={value}
-          onChange={onChange ? (e) => onChange(e.target.value) : undefined}
-          {...registration}
-        >
-          {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          placeholder={placeholder}
+          onChange={onChange}
+          error={errors?.message}
+        />
       );
     }
 
