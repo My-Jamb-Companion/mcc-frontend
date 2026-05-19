@@ -12,8 +12,6 @@ import {
 } from "react";
 import {createPortal} from "react-dom";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ModalRef {
   openDialog: () => void;
   closeDialog: () => void;
@@ -29,8 +27,6 @@ export interface ModalProps {
   maxWidth?: string;
   open?: boolean;
 }
-
-// ─── Modal ────────────────────────────────────────────────────────────────────
 
 export const Modal = forwardRef<ModalRef, ModalProps>(
   (
@@ -50,18 +46,12 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
     const [internalOpen, setInternalOpen] = useState(false);
     const panelRef = useRef<HTMLDivElement>(null);
 
-    // Always-fresh callback refs — never go in dependency arrays
     const onCloseRef = useRef(onClose);
     const onOpenRef = useRef(onOpen);
     onCloseRef.current = onClose;
     onOpenRef.current = onOpen;
 
     const open = isControlled ? controlledOpen : internalOpen;
-
-    // ── Imperative API ──────────────────────────────────────────────────────
-    // closeDialog / openDialog ONLY change state.
-    // Callbacks (onOpen/onClose) are fired by the effect below — never inline.
-    // This prevents any synchronous call chain that could loop.
 
     const openDialog = useCallback(() => {
       if (!isControlled) setInternalOpen(true);
@@ -73,18 +63,14 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
 
     useImperativeHandle(ref, () => ({openDialog, closeDialog}));
 
-    // ── Fire onOpen / onClose via effect (async, never sync) ───────────────
-
     const prevOpenRef = useRef(open);
     useEffect(() => {
       const wasOpen = prevOpenRef.current;
       prevOpenRef.current = open;
 
-      if (!wasOpen && open) onOpenRef.current?.(); // false → true
-      if (wasOpen && !open) onCloseRef.current?.(); // true  → false
+      if (!wasOpen && open) onOpenRef.current?.();
+      if (wasOpen && !open) onCloseRef.current?.();
     }, [open]);
-
-    // ── Keyboard: Escape ────────────────────────────────────────────────────
 
     useEffect(() => {
       if (!open) return;
@@ -95,16 +81,12 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
       return () => document.removeEventListener("keydown", onKey);
     }, [open, closeDialog]);
 
-    // ── Focus management ────────────────────────────────────────────────────
-
     useEffect(() => {
       if (!open) return;
       const prev = document.activeElement as HTMLElement | null;
       panelRef.current?.focus();
       return () => prev?.focus();
     }, [open]);
-
-    // ── Scroll lock ─────────────────────────────────────────────────────────
 
     useEffect(() => {
       document.body.style.overflow = open ? "hidden" : "";
@@ -113,19 +95,15 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
       };
     }, [open]);
 
-    // ── Dialog markup ───────────────────────────────────────────────────────
-
     const dialog = open
       ? createPortal(
           <>
-            {/* Backdrop */}
             <div
               aria-hidden
               onClick={closeDialog}
               className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
             />
 
-            {/* Panel */}
             <div
               role="dialog"
               aria-modal="true"
@@ -133,7 +111,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
               aria-describedby={description ? "modal-desc" : undefined}
               ref={panelRef}
               tabIndex={-1}
-              onClick={(e) => e.stopPropagation()} // don't let clicks bubble to backdrop
+              onClick={(e) => e.stopPropagation()}
               className={[
                 "fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2",
                 maxWidth,
@@ -141,7 +119,6 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
                 "animate-in fade-in zoom-in-95 duration-200",
               ].join(" ")}
             >
-              {/* × close */}
               <button
                 type="button"
                 aria-label="Close"
@@ -151,7 +128,6 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
                 <Icon icon="lucide:x" size={18} />
               </button>
 
-              {/* Header */}
               {(title || description) && (
                 <div className="mb-4 space-y-1 pr-6">
                   {title && (
@@ -173,7 +149,6 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
                 </div>
               )}
 
-              {/* Body */}
               {children}
             </div>
           </>,
@@ -186,7 +161,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
         {trigger && (
           <span
             onClick={(e) => {
-              e.stopPropagation(); // prevent click from reaching the backdrop
+              e.stopPropagation();
               openDialog();
             }}
             style={{display: "contents"}}

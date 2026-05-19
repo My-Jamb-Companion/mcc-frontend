@@ -4,30 +4,24 @@ import {ReactNode, useRef} from "react";
 import {Modal, ModalRef, ModalProps} from "./Modal";
 import {Icon} from "@mcc/ui";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type ConfirmVariant = "default" | "danger" | "warning";
 
 export interface ConfirmModalProps extends Omit<
   ModalProps,
   "children" | "onClose"
 > {
-  /** Main body message */
   message?: string | ReactNode;
-  /** Text for the confirm button — defaults to "Confirm" */
+
   confirmText?: string;
-  /** Text for the cancel button — defaults to "Cancel" */
+
   cancelText?: string;
-  /** Visual intent of the confirm action */
+
   variant?: ConfirmVariant;
-  /** Called when the user confirms */
+
   onConfirm: () => void;
-  /** Called when the user cancels (or closes).
-   *  In controlled mode, use this to set your open state to false. */
+
   onCancel?: () => void;
 }
-
-// ─── Variant styles ───────────────────────────────────────────────────────────
 
 const variantStyles: Record<ConfirmVariant, string> = {
   default: "bg-primary text-primary-foreground hover:bg-primary/90",
@@ -41,8 +35,6 @@ const variantIcons: Record<ConfirmVariant, ReactNode> = {
   warning: "fluent:warning-20-regular",
 };
 
-// ─── ConfirmModal ─────────────────────────────────────────────────────────────
-
 export function ConfirmModal({
   title = "Confirm Action",
   description,
@@ -54,7 +46,7 @@ export function ConfirmModal({
   onCancel,
   trigger,
   onOpen,
-  open, // ← controlled boolean, forwarded straight to Modal
+  open,
   maxWidth,
 }: ConfirmModalProps) {
   const isControlled = open !== undefined;
@@ -62,8 +54,6 @@ export function ConfirmModal({
 
   const handleConfirm = () => {
     onConfirm();
-    // In uncontrolled mode, close internally.
-    // In controlled mode, the parent closes by toggling their boolean.
     if (!isControlled) modalRef.current?.closeDialog();
   };
 
@@ -100,16 +90,14 @@ export function ConfirmModal({
         )
       }
       description={description}
-      onClose={handleCancel} // Escape / backdrop / × also fire onCancel
+      onClose={handleCancel}
       onOpen={onOpen}
       maxWidth={maxWidth}
     >
-      {/* Message */}
       {message && (
         <div className="text-sm text-muted-foreground">{message}</div>
       )}
 
-      {/* Footer */}
       <div className="mt-6 flex justify-end gap-2">
         {cancelText && (
           <button
