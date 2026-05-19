@@ -1,33 +1,43 @@
-import {AnimatePresence, Icon, motion} from "@mcc/ui";
+"use client";
+
+import {AnimatePresence, motion} from "framer-motion";
 import {useState} from "react";
+import {Icon} from "@mcc/ui";
 
 export default function Help() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="absolute right-10 top-1/2 -translate-y-1/2 flex flex-col z-99">
-      <AnimatePresence mode="wait">
+    <motion.div
+      layout
+      transition={{
+        layout: {
+          duration: 0.45,
+          ease: [0.22, 1, 0.36, 1],
+        },
+      }}
+      className="fixed right-10 top-1/2 -translate-y-1/2 flex flex-col items-end z-[9999]"
+    >
+      <AnimatePresence mode="popLayout">
         {open && (
           <motion.div
+            layout="position"
             key="profile-card"
             initial={{
               opacity: 0,
-              scale: 0.9,
-              x: 40,
+              scale: 0.92,
               y: 20,
               filter: "blur(8px)",
             }}
             animate={{
               opacity: 1,
               scale: 1,
-              x: 0,
               y: 0,
               filter: "blur(0px)",
             }}
             exit={{
               opacity: 0,
-              scale: 0.9,
-              x: 40,
+              scale: 0.92,
               y: 20,
               filter: "blur(8px)",
             }}
@@ -42,12 +52,19 @@ export default function Help() {
         )}
       </AnimatePresence>
 
-      <motion.div
+      <motion.button
+        layout="position"
         whileHover={{
           scale: 1.06,
         }}
         whileTap={{
           scale: 0.92,
+        }}
+        transition={{
+          layout: {
+            duration: 0.45,
+            ease: [0.22, 1, 0.36, 1],
+          },
         }}
         className="self-end rounded-full mt-4 p-2 w-fit border border-muted/40 cursor-pointer bg-white hover:bg-muted/30 dark:text-white dark:bg-subtle dark:border dark:border-white"
         onClick={() => setOpen(!open)}
@@ -62,8 +79,8 @@ export default function Help() {
         >
           <Icon icon="line-md:question" size={24} />
         </motion.div>
-      </motion.div>
-    </div>
+      </motion.button>
+    </motion.div>
   );
 }
 
