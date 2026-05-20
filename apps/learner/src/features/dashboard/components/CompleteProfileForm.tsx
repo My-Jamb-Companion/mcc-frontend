@@ -27,20 +27,26 @@ export default function CompleteProfileForm() {
           Complete all 3 sections of your profile
         </p>
         <div className="w-full rounded-full bg-muted/50 h-1">
-          <div className="rounded-full bg-btn-primary w-[33%] h-1" />
+          <div
+            className="rounded-full bg-btn-primary h-1"
+            style={{width: `${(step / 3) * 100}%`}}
+          />
         </div>
       </div>
 
       <div className="pt-4 flex flex-col gap-5">
         <div className="p-3 rounded-xl border border-muted/40 w-fit">
-          <Icon icon="ri:user-line" />
+          <Icon icon={step === 1 ? "ri:user-line " : "ri:user-location-line"} />
         </div>
 
         <div className="flex flex-col gap-4">
-          <p className="font-semibold text-2xl">Complete your profile</p>
+          <p className="font-semibold text-2xl">
+            {step === 1 ? "Complete your profile" : "Where are you located?"}
+          </p>
           <p className="text-subtle">
-            We would like to learn more about you to help personalize your
-            account.
+            {step === 1
+              ? "We would like to learn more about you to help personalize your account."
+              : "We need this to help you track your performance within your neighborhood."}
           </p>
         </div>
       </div>
@@ -49,88 +55,123 @@ export default function CompleteProfileForm() {
         onSubmit={handleSubmit(onSubmit)}
         className="pt-5 flex flex-col gap-5"
       >
-        <FormInputs
-          label="What is your full name?"
-          placeholder="Your full name"
-          errors={errors.fullName}
-          registration={register("fullName")}
-        />
-        <FormInputs
-          label="Your Email Address"
-          placeholder="Your email address"
-          errors={errors.email}
-          registration={register("email")}
-        />
-
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium">Your Phone Number</label>
-          <Controller
-            name="phone"
-            control={control}
-            rules={{
-              required: "Phone number is required",
-              validate: (value) =>
-                value.number.length >= 8 || "Invalid phone number",
-            }}
-            render={({field}) => {
-              return (
-                <div className="flex items-center gap-2 w-full border border-muted/20 rounded-md text-sm text-muted outline-none ">
-                  <select
-                    value={field.value.code}
-                    onChange={(e) =>
-                      field.onChange({...field.value, code: e.target.value})
-                    }
-                    className="px-2 py-2 text-sm outline-0"
-                  >
-                    {[
-                      {value: "+234", label: "NG"},
-                      {value: "+1", label: "US"},
-                      {value: "+44", label: "GB"},
-                    ].map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    value={field.value.number}
-                    onChange={(e) =>
-                      field.onChange({...field.value, number: e.target.value})
-                    }
-                    placeholder="81 234 4556 45"
-                    className="w-full px-3 py-2 text-sm outline-0"
-                  />
-                </div>
-              );
-            }}
-          />
-          {errors.phone && (
-            <p className="text-danger text-xs mt-1">
-              {errors.phone.number?.message ?? errors.phone.message}
-            </p>
-          )}
-        </div>
-
-        <Controller
-          name={"gender"}
-          control={control}
-          rules={{required: "Gender is required"}}
-          render={({field: {onChange, value}}) => (
+        {step == 1 && (
+          <>
             <FormInputs
-              type="select"
-              label="Your Gender"
-              placeholder="Select gender"
-              errors={errors.gender}
-              options={[
-                {value: "male", label: "Male"},
-                {value: "female", label: "Female"},
-                {value: "prefer not to say", label: "Prefer not to say"},
-              ]}
-              value={value}
-              onChange={onChange}
+              label="What is your full name?"
+              placeholder="Your full name"
+              errors={errors.fullName}
+              registration={register("fullName")}
             />
-          )}
-        />
+            <FormInputs
+              label="Your Email Address"
+              placeholder="Your email address"
+              errors={errors.email}
+              registration={register("email")}
+            />
+
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium">Your Phone Number</label>
+              <Controller
+                name="phone"
+                control={control}
+                rules={{
+                  required: "Phone number is required",
+                  validate: (value) =>
+                    value.number.length >= 8 || "Invalid phone number",
+                }}
+                render={({field}) => {
+                  return (
+                    <div className="flex items-center gap-2 w-full border border-muted/20 rounded-md text-sm text-muted outline-none ">
+                      <select
+                        value={field.value.code}
+                        onChange={(e) =>
+                          field.onChange({...field.value, code: e.target.value})
+                        }
+                        className="px-2 py-2 text-sm outline-0"
+                      >
+                        {[
+                          {value: "+234", label: "NG"},
+                          {value: "+1", label: "US"},
+                          {value: "+44", label: "GB"},
+                        ].map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        value={field.value.number}
+                        onChange={(e) =>
+                          field.onChange({
+                            ...field.value,
+                            number: e.target.value,
+                          })
+                        }
+                        placeholder="81 234 4556 45"
+                        className="w-full px-3 py-2 text-sm outline-0"
+                      />
+                    </div>
+                  );
+                }}
+              />
+              {errors.phone && (
+                <p className="text-danger text-xs mt-1">
+                  {errors.phone.number?.message ?? errors.phone.message}
+                </p>
+              )}
+            </div>
+
+            <Controller
+              name={"gender"}
+              control={control}
+              rules={{required: "Gender is required"}}
+              render={({field: {onChange, value}}) => (
+                <FormInputs
+                  type="select"
+                  label="Your Gender"
+                  placeholder="Select gender"
+                  errors={errors.gender}
+                  options={[
+                    {value: "male", label: "Male"},
+                    {value: "female", label: "Female"},
+                    {value: "prefer not to say", label: "Prefer not to say"},
+                  ]}
+                  value={value}
+                  onChange={onChange}
+                />
+              )}
+            />
+          </>
+        )}
+        {step == 2 && (
+          <>
+            <FormInputs
+              label="Your Contry"
+              placeholder="country"
+              registration={register("country")}
+              errors={errors.country}
+            />
+            <FormInputs
+              label="Your State"
+              placeholder="state"
+              registration={register("state")}
+              errors={errors.state}
+            />
+            <FormInputs
+              label="Your City"
+              placeholder="city"
+              registration={register("city")}
+              errors={errors.city}
+            />
+            <FormInputs
+              label="Your Street"
+              placeholder="street"
+              registration={register("street")}
+              errors={errors.street}
+            />
+          </>
+        )}
 
         <div className="flex items-center gap-4 pt-5">
           <button
@@ -140,21 +181,27 @@ export default function CompleteProfileForm() {
             Cancel
           </button>
           <button
-            type="submit"
+            type={step < 3 ? "button" : "submit"}
+            onClick={step < 3 ? () => setStep(step + 1) : undefined}
             className="px-3.5 py-2.5 rounded-full text-sm font-medium cursor-pointer bg-btn-primary text-white w-full"
           >
-            Confirm
+            {step < 3 ? "Confirm" : "Submit"}
           </button>
         </div>
       </form>
     </section>
   );
 }
+
 type FormValues = {
   fullName: string;
   email: string;
   phone: PhoneValue;
   gender: string;
+  country: string;
+  state: string;
+  city: string;
+  street: string;
 };
 
 type PhoneValue = {
