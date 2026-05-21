@@ -1,3 +1,5 @@
+// components/Button.tsx
+
 "use client";
 
 import {ButtonHTMLAttributes, ReactNode} from "react";
@@ -21,8 +23,6 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
   loading?: boolean;
 
-  loader?: ReactNode;
-
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
 
@@ -39,12 +39,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
 }
 
-export function Button({
+export default function Button({
   children,
 
   loading = false,
-
-  loader,
 
   disabled,
 
@@ -73,17 +71,18 @@ export function Button({
   // VARIANTS
   // ─────────────────────────────────────────────
   const variants: Record<Variant, string> = {
-    primary: " bg-btn-primary text-white hover:opacity-90",
+    primary: "bg-btn-primary text-white hover:opacity-90",
 
-    secondary: " bg-muted/30 text-foreground hover:bg-muted/10",
+    secondary: "bg-muted/10 text-foreground hover:bg-muted/20",
 
-    outline: " border border-muted/30  text-foreground hover:bg-muted/10",
+    outline:
+      "border border-muted/30 bg-transparent text-foreground hover:bg-muted/10",
 
-    ghost: " bg-transparent text-foreground hover:bg-muted/10",
+    ghost: "bg-transparent text-foreground hover:bg-muted/10",
 
-    danger: " bg-danger text-white hover:bg-red-600",
+    danger: "bg-danger text-white hover:bg-red-600",
 
-    success: " bg-green-500 text-white hover:bg-green-600",
+    success: "bg-green-500 text-white hover:bg-green-600",
   };
 
   // ─────────────────────────────────────────────
@@ -129,18 +128,29 @@ export function Button({
       disabled={isDisabled}
       onClick={onClick}
       className={`
-        inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 active:scale-[0.98] ${variants[variant]} ${sizes[size]} ${widths[width]} ${radiuses[radius]}
+        inline-flex items-center justify-center gap-2
+        font-medium
+        transition-all duration-200
+        active:scale-[0.98]
 
-        ${isDisabled ? "cursor-not-allowed" : "cursor-pointer"}
+        ${variants[variant]}
+        ${sizes[size]}
+        ${widths[width]}
+        ${radiuses[radius]}
+
+        ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
 
         ${className}
       `}
       {...props}
     >
+      {/* LEFT ICON */}
       {!loading && leftIcon}
 
-      {loading ? loader || "Loading..." : children}
+      {/* CONTENT */}
+      {loading ? "Loading..." : children}
 
+      {/* RIGHT ICON */}
       {!loading && rightIcon}
     </button>
   );

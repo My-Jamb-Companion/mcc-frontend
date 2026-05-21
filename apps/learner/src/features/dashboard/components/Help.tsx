@@ -1,14 +1,12 @@
 "use client";
 
-import {AnimatePresence, motion} from "framer-motion";
-import {useState} from "react";
-import {Icon} from "@mcc/ui";
-import {Modal} from "../../components/Modal";
+import {useRef, useState} from "react";
+import {AnimatePresence, motion, Icon, Modal, ModalRef} from "@mcc/ui";
 import CompleteProfileForm from "./CompleteProfileForm";
 
 export default function Help() {
   const [open, setOpen] = useState(false);
-  const [resume, setResume] = useState(false);
+  const modalRef = useRef<ModalRef>(null);
 
   return (
     <>
@@ -55,7 +53,9 @@ export default function Help() {
               }}
               className="origin-bottom-right"
             >
-              <CompleteProfileCard onResume={() => setResume(!resume)} />
+              <CompleteProfileCard
+                onResume={() => modalRef.current?.openDialog()}
+              />
             </motion.div>
           )}
         </AnimatePresence>
@@ -89,6 +89,10 @@ export default function Help() {
           </motion.div>
         </motion.button>
       </motion.div>
+
+      <Modal ref={modalRef}>
+        <CompleteProfileForm close={() => modalRef.current?.closeDialog()} />
+      </Modal>
     </>
   );
 }
@@ -390,35 +394,29 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
                   </motion.div>
                 </div>
 
-                <Modal
-                  trigger={
-                    <motion.button
-                      whileHover={{
-                        scale: 1.05,
-                      }}
-                      whileTap={{
-                        scale: 0.92,
-                      }}
-                      className="flex h-14 w-14 items-center justify-center rounded-full border border-neutral-200 bg-[#f8f8f8] transition cursor-pointer"
-                      onClick={onResume}
-                    >
-                      <motion.div
-                        whileHover={{
-                          x: 2,
-                          y: -2,
-                        }}
-                      >
-                        <Icon
-                          icon="lucide:move-up-right"
-                          size={22}
-                          className="text-neutral-700"
-                        />
-                      </motion.div>
-                    </motion.button>
-                  }
+                <motion.button
+                  whileHover={{
+                    scale: 1.05,
+                  }}
+                  whileTap={{
+                    scale: 0.92,
+                  }}
+                  className="flex h-14 w-14 items-center justify-center rounded-full border border-neutral-200 bg-[#f8f8f8] transition cursor-pointer"
+                  onClick={onResume}
                 >
-                  <CompleteProfileForm />
-                </Modal>
+                  <motion.div
+                    whileHover={{
+                      x: 2,
+                      y: -2,
+                    }}
+                  >
+                    <Icon
+                      icon="lucide:move-up-right"
+                      size={22}
+                      className="text-neutral-700"
+                    />
+                  </motion.div>
+                </motion.button>
               </motion.div>
             </motion.div>
           </motion.div>

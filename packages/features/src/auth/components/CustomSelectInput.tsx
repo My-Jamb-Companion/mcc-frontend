@@ -1,6 +1,6 @@
 "use client";
 
-import {AnimatePresence, Icon, motion} from "@mcc/ui";
+import {AnimatePresence, Icon, motion} from "../../../../ui/src/index";
 import {useState, useRef, useEffect} from "react";
 
 export interface SelectOption {
@@ -40,14 +40,17 @@ export function CustomSelect({
   }, []);
 
   return (
-    <div ref={ref} className="relative w-full flex flex-col gap-4">
+    <div
+      ref={ref}
+      className={`relative w-full flex flex-col gap-4 ${error ? " border border-danger!" : ""}`}
+    >
       <div>
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
           className={`w-full flex items-center justify-between px-3.5 py-2.5 text-sm border rounded-lg bg-white dark:bg-hint dark:border-0 dark:text-white outline-none
           ${open ? " border-zinc-300 shadow-md" : " border-zinc-200"}
-          ${selected ? "text-zinc-900" : "text-zinc-400"} ${error ? "!border-danger" : ""}`}
+          ${selected ? "text-zinc-900" : "text-zinc-400"}`}
         >
           {selected ? (
             <span className="flex items-center gap-2.5">{selected.label}</span>
