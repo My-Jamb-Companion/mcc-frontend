@@ -3,6 +3,7 @@
 import {useRef, useState} from "react";
 import {AnimatePresence, motion, Icon, Modal, ModalRef} from "@mcc/ui";
 import CompleteProfileForm from "./CompleteProfileForm";
+import Image from "next/image";
 
 export default function Help() {
   const [open, setOpen] = useState(false);
@@ -244,7 +245,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
                         duration: 0.3,
                         ease: "easeOut",
                       }}
-                      className="flex min-h-[64px] items-start gap-3"
+                      className="flex min-h-16 items-start gap-3"
                     >
                       {/* status icon */}
                       {step.status === "pending" ? (
@@ -370,11 +371,15 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
                       }}
                       className="absolute h-10 w-10 overflow-hidden rounded-full border-2 border-white bg-pink-600"
                     >
-                      <img
-                        src="/assets/images/profile.png"
-                        alt="profile"
-                        className="h-full w-full object-cover"
-                      />
+                      <div>
+                        <Image
+                          src="/assets/images/profile.png"
+                          alt="profile"
+                          width={100}
+                          height={100}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
                     </motion.div>
 
                     <motion.span
