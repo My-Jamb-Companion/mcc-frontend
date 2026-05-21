@@ -1,7 +1,7 @@
 "use client";
 
 import {FormProvider, useForm} from "@mcc/features";
-import {Button, Icon} from "@mcc/ui";
+import {Button, Icon, LoadingCircle} from "@mcc/ui";
 import {useState} from "react";
 import StepOne from "./completeProfileSteps/StepOne";
 import StepTwo from "./completeProfileSteps/StepTwo";
@@ -28,7 +28,8 @@ export type FormValues = {
 };
 
 export default function CompleteProfileForm({close}: {close?: () => void}) {
-  const [step, setStep] = useState(3);
+  const [step, setStep] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
 
   const methods = useForm<FormValues>({
     shouldUnregister: false,
@@ -111,7 +112,12 @@ export default function CompleteProfileForm({close}: {close?: () => void}) {
   };
 
   const onSubmit = async (data: FormValues) => {
-    console.log("FINAL SUBMIT", data);
+    setSubmitting(true);
+    setTimeout(() => {
+      setSubmitting(false);
+      console.log("FINAL SUBMIT", data);
+      setStep(4);
+    }, 5000);
 
     // await api.completeProfile(data);
   };
@@ -138,76 +144,84 @@ export default function CompleteProfileForm({close}: {close?: () => void}) {
 
   return (
     <>
-      <FormProvider {...methods}>
-        <section>
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium">
-              Complete all 3 sections of your profile
-            </p>
-
-            <div className="w-full rounded-full bg-muted/50 h-1">
-              <div
-                className="rounded-full bg-btn-primary h-1 transition-all duration-300"
-                style={{
-                  width: `${(step / 3) * 100}%`,
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="pt-4 flex flex-col gap-5">
-            <div className="p-3 rounded-xl border border-muted/40 w-fit">
-              <Icon icon={stepMeta[step as 1 | 2 | 3].icon} />
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <p className="font-semibold text-2xl">
-                {stepMeta[step as 1 | 2 | 3].title}
+      {step !== 4 && (
+        <FormProvider {...methods}>
+          <section>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium">
+                Complete all 3 sections of your profile
               </p>
 
-              <p className="text-subtle">{stepMeta[step as 1 | 2 | 3].desc}</p>
+              <div className="w-full rounded-full bg-muted/50 h-1">
+                <div
+                  className="rounded-full bg-btn-primary h-1 transition-all duration-300"
+                  style={{
+                    width: `${(step / 3) * 100}%`,
+                  }}
+                />
+              </div>
             </div>
-          </div>
 
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="pt-5 flex flex-col gap-5"
-          >
-            {step === 1 && <StepOne />}
+            <div className="pt-4 flex flex-col gap-5">
+              <div className="p-3 rounded-xl border border-muted/40 w-fit">
+                <Icon icon={stepMeta[step as 1 | 2 | 3].icon} />
+              </div>
 
-            {step === 2 && <StepTwo />}
+              <div className="flex flex-col gap-4">
+                <p className="font-semibold text-2xl">
+                  {stepMeta[step as 1 | 2 | 3].title}
+                </p>
 
-            {step === 3 && <StepThree userName={watched.fullName} />}
-
-            <div className="flex items-center gap-4 pt-5">
-              <Button variant="outline" onClick={close} className="w-[30%]!">
-                Cancel
-              </Button>
-              {step < 3 ? (
-                <Button
-                  variant={isCurrentStepValid ? "primary" : "secondary"}
-                  disabled={!isCurrentStepValid}
-                  onClick={handleNext}
-                >
-                  Continue
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  variant={isCurrentStepValid ? "primary" : "secondary"}
-                  disabled={!isCurrentStepValid}
-                >
-                  Complete Profile
-                </Button>
-              )}
+                <p className="text-subtle">
+                  {stepMeta[step as 1 | 2 | 3].desc}
+                </p>
+              </div>
             </div>
-          </form>
-        </section>
-      </FormProvider>
 
-      <ProfileComplete
-        avatar={watched.avatar?.value || "/assets/images/profile.png"}
-      />
+            <div className="pt-5 flex flex-col gap-5">
+              {step === 1 && <StepOne />}
+
+              {step === 2 && <StepTwo />}
+
+              {step === 3 && <StepThree userName={watched.fullName} />}
+
+              <div className="flex items-center gap-4 pt-5">
+                <Button variant="outline" onClick={close} className="w-[30%]!">
+                  Cancel
+                </Button>
+                {step < 3 ? (
+                  <Button
+                    type="button"
+                    variant={isCurrentStepValid ? "primary" : "secondary"}
+                    disabled={!isCurrentStepValid}
+                    onClick={handleNext}
+                  >
+                    Continue
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    loading={submitting}
+                    loader={<LoadingCircle />}
+                    onClick={handleSubmit(onSubmit)}
+                    variant={isCurrentStepValid ? "primary" : "secondary"}
+                    disabled={!isCurrentStepValid}
+                  >
+                    Complete Profile
+                  </Button>
+                )}
+              </div>
+            </div>
+          </section>
+        </FormProvider>
+      )}
+
+      {step === 4 && (
+        <ProfileComplete
+          avatar={watched.avatar?.value || "/assets/images/profile.png"}
+          click={close}
+        />
+      )}
     </>
   );
 }

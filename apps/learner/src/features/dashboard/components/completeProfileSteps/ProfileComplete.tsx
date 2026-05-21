@@ -1,9 +1,15 @@
 "use client ";
 
-import {Button, LoadingCircle} from "@mcc/ui";
+import {Button} from "@mcc/ui";
 import Image from "next/image";
 
-export default function ProfileComplete({avatar}: {avatar: string}) {
+export default function ProfileComplete({
+  avatar,
+  click,
+}: {
+  avatar: string;
+  click?: () => void;
+}) {
   return (
     <section className="flex flex-col gap-5">
       <div className="flex flex-col relative">
@@ -33,14 +39,7 @@ export default function ProfileComplete({avatar}: {avatar: string}) {
           You profile is complete, you can now enjoy a personalized version of
           MCC.
         </p>
-        <Button
-          loading
-          loader={<LoadingCircle size={10} />}
-          variant="secondary"
-          onClick={() => console.log("shit")}
-        >
-          Awesome!
-        </Button>
+        <Button onClick={click}>Awesome!</Button>
       </div>
     </section>
   );

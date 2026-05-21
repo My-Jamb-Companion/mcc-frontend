@@ -1,6 +1,6 @@
 "use client";
 
-import {AnimatePresence, Icon, motion} from "../../../../ui/src/index";
+import {AnimatePresence, Icon, motion} from "@mcc/ui";
 import {useState, useRef, useEffect} from "react";
 
 export interface SelectOption {
