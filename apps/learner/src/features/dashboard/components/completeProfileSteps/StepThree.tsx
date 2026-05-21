@@ -191,19 +191,26 @@ export default function StepThree({
                           value: avatar,
                         })
                       }
-                      className={`size-16! p-0! rounded-full overflow-hidden transition-all shrink-0 ${
+                      className={`size-16! p-0! rounded-full  transition-all shrink-0 ${
                         active
-                          ? "border-btn-primary scale-105"
+                          ? "border-btn-primary scale-105 outline outline-primary"
                           : "border-transparent hover:border-muted/40"
                       }`}
                     >
-                      <Image
-                        src={avatar}
-                        alt="avatar option"
-                        width={100}
-                        height={100}
-                        className="size-full object-cover bg-[#B190B6]"
-                      />
+                      <div className="overflow-hidden rounded-full h-full w-full">
+                        <Image
+                          src={avatar}
+                          alt="avatar option"
+                          width={100}
+                          height={100}
+                          className="size-full object-cover bg-[#B190B6] "
+                        />
+                      </div>
+                      {active && (
+                        <div className="absolute top-0 right-0 bg-btn-primary rounded-full size-4 border-[.5px] border-white flex items-center justify-center text-white">
+                          <Icon icon="basil:check-solid" size={12} />
+                        </div>
+                      )}
                     </Button>
                   );
                 })}
