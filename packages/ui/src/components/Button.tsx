@@ -129,7 +129,7 @@ export function Button({
       disabled={isDisabled}
       onClick={onClick}
       className={`
-        inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 active:scale-[0.98] ${variants[variant]} ${sizes[size]} ${widths[width]} ${radiuses[radius]}
+        inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 active:scale-[0.98]  outine-0 focus:outline focus:outline-primary  ${variants[variant]} ${sizes[size]} ${widths[width]} ${radiuses[radius]}
 
         ${isDisabled ? "cursor-not-allowed" : "cursor-pointer"}
 

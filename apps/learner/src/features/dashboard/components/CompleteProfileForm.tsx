@@ -28,7 +28,7 @@ export type FormValues = {
 };
 
 export default function CompleteProfileForm({close}: {close?: () => void}) {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(3);
   const [submitting, setSubmitting] = useState(false);
 
   const methods = useForm<FormValues>({
@@ -70,7 +70,7 @@ export default function CompleteProfileForm({close}: {close?: () => void}) {
   const isStepTwoValid =
     watched.country && watched.state && watched.city && watched.street;
 
-  const isStepThreeValid = watched.avatar;
+  const isStepThreeValid = watched.avatar?.value;
 
   const isCurrentStepValid =
     step === 1

@@ -1,21 +1,26 @@
 "use client";
 
 import {useRef, useState} from "react";
-
 import {Controller, useFormContext} from "@mcc/features";
-
 import type {FormValues} from "../CompleteProfileForm";
-import {Icon} from "@mcc/ui";
+import {Icon, Button} from "@mcc/ui";
+import Image from "next/image";
 
 const avatars = [
-  "https://api.dicebear.com/8.x/adventurer/svg?seed=Felix",
-  "https://api.dicebear.com/8.x/adventurer/svg?seed=Aneka",
-  "https://api.dicebear.com/8.x/adventurer/svg?seed=Mimi",
-  "https://api.dicebear.com/8.x/adventurer/svg?seed=Zoe",
-  "https://api.dicebear.com/8.x/adventurer/svg?seed=Leo",
-  "https://api.dicebear.com/8.x/adventurer/svg?seed=Max",
-  "https://api.dicebear.com/8.x/adventurer/svg?seed=Luna",
-  "https://api.dicebear.com/8.x/adventurer/svg?seed=Cleo",
+  "/assets/images/avatars/1.png",
+  "/assets/images/avatars/2.png",
+  "/assets/images/avatars/3.png",
+  "/assets/images/avatars/4.png",
+  "/assets/images/avatars/5.png",
+  "/assets/images/avatars/6.png",
+  "/assets/images/avatars/7.png",
+  "/assets/images/avatars/8.png",
+  "/assets/images/avatars/9.png",
+  "/assets/images/avatars/10.png",
+  "/assets/images/avatars/11.png",
+  "/assets/images/avatars/12.png",
+  "/assets/images/avatars/13.png",
+  "/assets/images/avatars/14.png",
 ];
 
 const VISIBLE_COUNT = 5;
@@ -100,23 +105,26 @@ export default function StepThree({
         return (
           <div className="flex flex-col gap-8">
             <div className="flex items-center gap-4">
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => fileInputRef.current?.click()}
-                className="size-28 rounded-full border border-muted/30 flex items-center justify-center overflow-hidden shrink-0 hover:opacity-80 transition-all"
+                className="size-28! p-0!"
               >
                 {avatarValue ? (
-                  <img
+                  <Image
                     src={avatarValue}
                     alt="avatar"
-                    className="size-full rounded-full object-cover"
+                    width={100}
+                    height={100}
+                    className="size-full rounded-full object-cover bg-[#B190B6]"
                   />
                 ) : (
                   <div className="size-14 rounded-full border border-dashed border-muted/40 flex items-center justify-center text-muted text-3xl">
                     +
                   </div>
                 )}
-              </button>
+              </Button>
 
               <input
                 ref={fileInputRef}
@@ -144,25 +152,27 @@ export default function StepThree({
                 </p>
 
                 <div className="flex items-center gap-2">
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
                     onClick={() => setAvatarOffset((o) => o - 1)}
                     disabled={!canGoLeft}
                     aria-label="Previous avatars"
-                    className="p-1 rounded-full border border-muted/40 disabled:opacity-30 transition-opacity cursor-pointer"
+                    className="p-1! disabled:opacity-30 transition-opacity"
                   >
                     <Icon icon="basil:caret-left-solid" size={14} />
-                  </button>
+                  </Button>
 
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
                     onClick={() => setAvatarOffset((o) => o + 1)}
                     disabled={!canGoRight}
                     aria-label="Next avatars"
-                    className="p-1 rounded-full border border-muted/40 disabled:opacity-30 transition-opacity cursor-pointer"
+                    className="p-1! disabled:opacity-30 transition-opacity"
                   >
                     <Icon icon="basil:caret-right-solid" size={14} />
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -171,27 +181,30 @@ export default function StepThree({
                   const active = avatarValue === avatar;
 
                   return (
-                    <button
+                    <Button
                       key={avatar}
                       type="button"
+                      variant="outline"
                       onClick={() =>
                         field.onChange({
                           type: "preset",
                           value: avatar,
                         })
                       }
-                      className={`size-16 rounded-full overflow-hidden border-2 transition-all shrink-0 ${
+                      className={`size-16! p-0! rounded-full overflow-hidden transition-all shrink-0 ${
                         active
                           ? "border-btn-primary scale-105"
                           : "border-transparent hover:border-muted/40"
                       }`}
                     >
-                      <img
+                      <Image
                         src={avatar}
                         alt="avatar option"
-                        className="size-full object-cover"
+                        width={100}
+                        height={100}
+                        className="size-full object-cover bg-[#B190B6]"
                       />
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
