@@ -2,9 +2,10 @@
 
 import {useRef, useState} from "react";
 import {Controller, useFormContext} from "@mcc/features";
-import type {FormValues} from "../CompleteProfileForm";
+// import type {ProfileModalFormValues} from "../CompleteProfileForm";
 import {Icon, Button} from "@mcc/ui";
 import Image from "next/image";
+import {AvatarValue, ProfileModalFormValues} from "@mcc/store";
 
 const avatars = [
   "/assets/images/avatars/1.png",
@@ -30,16 +31,11 @@ interface StepThreeProps {
   userHandle?: string;
 }
 
-export type AvatarValue = {
-  type: "upload" | "preset";
-  value: string;
-};
-
 export default function StepThree({
   userName = "Bright mac",
   userHandle = "mac",
 }: StepThreeProps) {
-  const {control} = useFormContext<FormValues>();
+  const {control} = useFormContext<ProfileModalFormValues>();
 
   const [avatarOffset, setAvatarOffset] = useState(0);
 

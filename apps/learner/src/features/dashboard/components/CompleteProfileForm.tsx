@@ -5,54 +5,42 @@ import {Button, Icon, LoadingCircle} from "@mcc/ui";
 import {useState} from "react";
 import StepOne from "./completeProfileSteps/StepOne";
 import StepTwo from "./completeProfileSteps/StepTwo";
-import StepThree, {AvatarValue} from "./completeProfileSteps/StepThree";
+import StepThree from "./completeProfileSteps/StepThree";
 import ProfileComplete from "./completeProfileSteps/ProfileComplete";
+import {ProfileModalFormValues, useProfileProgressStore} from "@mcc/store";
 
 export type PhoneValue = {
   code: string;
   number: string;
 };
 
-export type FormValues = {
-  fullName: string;
-  email: string;
-  phone: PhoneValue;
-  gender: string;
-
-  country: string;
-  state: string;
-  city: string;
-  street: string;
-
-  avatar?: AvatarValue;
-};
-
 export default function CompleteProfileForm({close}: {close?: () => void}) {
-  const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const {step, setStep, saveForm, completeStep, form} =
+    useProfileProgressStore();
 
-  const methods = useForm<FormValues>({
+  const methods = useForm<ProfileModalFormValues>({
     shouldUnregister: false,
 
     defaultValues: {
-      fullName: "",
-      email: "",
+      fullName: form.fullName || "",
+      email: form.email || "",
 
-      gender: "",
+      gender: form.gender || "",
 
       phone: {
-        code: "+234",
-        number: "",
+        code: form.phone?.code || "+234",
+        number: form.phone?.number || "",
       },
 
-      country: "",
-      state: "",
-      city: "",
-      street: "",
+      country: form.country || "",
+      state: form.state || "",
+      city: form.city || "",
+      street: form.street || "",
 
       avatar: {
-        type: "preset",
-        value: "",
+        type: form.avatar?.type || "preset",
+        value: form.avatar?.value || "",
       },
     },
   });
@@ -91,6 +79,9 @@ export default function CompleteProfileForm({close}: {close?: () => void}) {
 
       console.log("SAVE STEP 1", data);
 
+      saveForm(data);
+
+      completeStep(1);
       // await api.saveStepOne(data);
 
       setStep(2);
@@ -105,14 +96,18 @@ export default function CompleteProfileForm({close}: {close?: () => void}) {
 
       console.log("SAVE STEP 2", data);
 
+      saveForm(data);
+
+      completeStep(2);
       // await api.saveStepTwo(data);
 
       setStep(3);
     }
   };
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (data: ProfileModalFormValues) => {
     setSubmitting(true);
+    completeStep(3);
     setTimeout(() => {
       setSubmitting(false);
       console.log("FINAL SUBMIT", data);

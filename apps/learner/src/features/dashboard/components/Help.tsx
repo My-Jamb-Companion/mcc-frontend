@@ -4,6 +4,7 @@ import {useRef, useState} from "react";
 import {AnimatePresence, motion, Icon, Modal, ModalRef} from "@mcc/ui";
 import CompleteProfileForm from "./CompleteProfileForm";
 import Image from "next/image";
+import {useProfileProgressStore} from "@mcc/store";
 
 export default function Help() {
   const [open, setOpen] = useState(false);
@@ -75,17 +76,10 @@ export default function Help() {
               ease: [0.22, 1, 0.36, 1],
             },
           }}
-          className="self-end rounded-full mt-4 p-2 w-fit border border-muted/40 cursor-pointer bg-white hover:bg-muted/30 dark:text-white dark:bg-subtle dark:border dark:border-white"
+          className="self-end rounded-full mt-4 p-2 w-fit border border-muted/40 cursor-pointer bg-white hover:opacity-80 dark:text-white dark:bg-subtle dark:border dark:border-white"
           onClick={() => setOpen(!open)}
         >
-          <motion.div
-            animate={{
-              rotate: open ? 360 : 0,
-            }}
-            transition={{
-              duration: 0.3,
-            }}
-          >
+          <motion.div>
             <Icon icon="line-md:question" size={24} />
           </motion.div>
         </motion.button>
@@ -98,23 +92,48 @@ export default function Help() {
   );
 }
 
-const steps = [
-  {
-    title: "Personal details",
-    status: "complete",
-  },
-  {
-    title: "Your location",
-    status: "loading",
-  },
-  {
-    title: "Profile photo",
-    status: "pending",
-  },
-] as const;
-
 export function CompleteProfileCard({onResume}: {onResume: () => void}) {
   const [open, setOpen] = useState(true);
+  const {step, completedSteps} = useProfileProgressStore();
+  console.log(completedSteps);
+
+  const steps = [
+    {
+      title: "Personal details",
+      status: completedSteps.includes(1)
+        ? "complete"
+        : step === 1
+          ? "loading"
+          : "pending",
+    },
+
+    {
+      title: "Your location",
+      status: completedSteps.includes(2)
+        ? "complete"
+        : step === 2
+          ? "loading"
+          : "pending",
+    },
+
+    {
+      title: "Profile photo",
+      status: completedSteps.includes(3)
+        ? "complete"
+        : step === 3
+          ? "loading"
+          : "pending",
+    },
+  ];
+
+  const progressIconMap = {
+    0: "hugeicons:progress-01",
+    1: "ri:progress-3-line",
+    2: "ri:progress-5-line",
+    3: "ri:progress-8-line",
+  };
+
+  const progress = completedSteps.length;
 
   return (
     <motion.div
@@ -158,13 +177,15 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
               }}
             >
               <Icon
-                icon="ri:progress-2-line"
+                icon={progressIconMap[progress as 0 | 1 | 2 | 3]}
                 size={20}
                 className="text-violet-600"
               />
             </motion.div>
 
-            <span className="text-xs font-semibold">1/3</span>
+            <span className="text-xs font-semibold">
+              {completedSteps.length}/3
+            </span>
           </div>
 
           <motion.button
@@ -348,13 +369,13 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
                       width: 0,
                     }}
                     animate={{
-                      width: "33%",
+                      width: `${(completedSteps.length / 3) * 100}%`,
                     }}
                     transition={{
                       duration: 0.8,
                       ease: [0.22, 1, 0.36, 1],
                     }}
-                    className="relative flex h-full items-center justify-between rounded-full bg-primary px-2"
+                    className={`"relative flex h-full items-center justify-between rounded-full px-2 ${completedSteps.length !== 0 ? "bg-primary" : ""}`}
                   >
                     <motion.div
                       initial={{
@@ -392,9 +413,9 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
                       transition={{
                         delay: 0.55,
                       }}
-                      className="ml-auto text-sm font-bold text-white"
+                      className={`text-sm font-bold  ${completedSteps.length !== 0 ? "text-white ml-auto " : "text-muted ml-12"}`}
                     >
-                      33%
+                      {Math.round((completedSteps.length / 3) * 100)}%
                     </motion.span>
                   </motion.div>
                 </div>

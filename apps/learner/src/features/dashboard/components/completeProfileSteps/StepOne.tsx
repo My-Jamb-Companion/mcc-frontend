@@ -1,15 +1,14 @@
 "use client";
 
 import {Controller, FormInputs, useFormContext} from "@mcc/features";
-
-import type {FormValues} from "../CompleteProfileForm";
+import {ProfileModalFormValues} from "@mcc/store";
 
 export default function StepOne() {
   const {
     register,
     control,
     formState: {errors},
-  } = useFormContext<FormValues>();
+  } = useFormContext<ProfileModalFormValues>();
 
   return (
     <>
