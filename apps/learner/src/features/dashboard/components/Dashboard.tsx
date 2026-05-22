@@ -7,20 +7,38 @@ import LiveClassCard from "./LiveClassCard";
 import ScrollRow from "./RowScroll";
 import CourseCard from "./CourseCard";
 import CourseCardSkeleton from "./CourseCardSkeleton";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import AskAICard from "./AskAI";
 import {exams} from "../constants/ExamCards";
 import ExamCard from "./ExamCard";
+import TopPickCard from "./TopPickCard";
+import RecTopics from "./RecTopics";
+import ExamCardSkeleton from "./ExamCardSkeleton";
 
 export default function Dashboard() {
   const [isContinueLoading, setIsContinueLoading] = useState(true);
   const [isNextLoading, setIsNextLoading] = useState(true);
-  setTimeout(() => {
-    setIsNextLoading(false);
-  }, 5000);
-  setTimeout(() => {
-    setIsContinueLoading(false);
-  }, 8000);
+  const [isExamLoading, setIsExamLoading] = useState(true);
+
+  useEffect(() => {
+    const nextTimer = setTimeout(() => {
+      setIsNextLoading(false);
+    }, 2000);
+
+    const continueTimer = setTimeout(() => {
+      setIsContinueLoading(false);
+    }, 3000);
+
+    const examTimer = setTimeout(() => {
+      setIsExamLoading(false);
+    }, 5000);
+
+    return () => {
+      clearTimeout(nextTimer);
+      clearTimeout(continueTimer);
+      clearTimeout(examTimer);
+    };
+  }, []);
 
   return (
     <div className="col-start-2 max-sm:col-start-1 pt-6">
@@ -76,7 +94,7 @@ export default function Dashboard() {
             skeletonCount={4}
           >
             {[1, 2, 3, 4, 5].map((card) => (
-              <div key={card} className="shrink-0 w-72">
+              <div key={card} className=" w-72">
                 <CourseCard
                   image="/assets/images/tower.jpg"
                   instructor="Brooke Graser"
@@ -103,7 +121,7 @@ export default function Dashboard() {
             skeletonCount={4}
           >
             {[6, 7, 8, 9].map((card) => (
-              <div key={card} className="shrink-0 w-72">
+              <div key={card} className="w-72">
                 <CourseCard
                   image="/assets/images/tower.jpg"
                   instructor="Brooke Graser"
@@ -133,11 +151,45 @@ export default function Dashboard() {
             variant="card"
             title="Practice Exams"
             subTitle="Pick up where you left off"
+            isLoading={isExamLoading}
+            skeleton={<ExamCardSkeleton />}
+            skeletonCount={5}
           >
             {exams.map((exam, i) => (
               <ExamCard key={i} exam={exam} />
             ))}
           </ScrollRow>
+        </div>
+      </div>
+
+      <div className="pt-8">
+        <p className="text-2xl font-semibold pb-6">Our top pick for you</p>
+        <TopPickCard
+          image="/assets/images/pencil.jpg"
+          title="Complete web development course"
+          description="Only web development course that you will need. Covers HTML, CSS, Tailwind, Node, React, MongoDB, Prisma, Deployment etc"
+          isPremium
+          rating={4.6}
+          ratingCount="16,454"
+          learners="43,876"
+          price={10345}
+          originalPrice={3500}
+        />
+      </div>
+
+      <div className="pt-8">
+        <RecTopics />
+      </div>
+
+      <div className="flex items-center justify-between px-16 py-8 text-sm font-medium max-sm:flex-col w-full max-sm:px-3">
+        <p className="text-muted">© 2026 MC companion</p>
+        <div className="flex items-center gap-5 max-sm:justify-between">
+          <p className="underline text-muted hover:text-primary cursor-pointer">
+            Terms and Conditions
+          </p>
+          <p className="underline text-muted hover:text-primary cursor-pointer">
+            Privacy Policy
+          </p>
         </div>
       </div>
     </div>
