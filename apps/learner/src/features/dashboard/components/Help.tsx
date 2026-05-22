@@ -76,7 +76,7 @@ export default function Help() {
               ease: [0.22, 1, 0.36, 1],
             },
           }}
-          className="self-end rounded-full mt-4 p-2 w-fit border border-muted/40 cursor-pointer bg-white hover:opacity-80 dark:text-white dark:bg-subtle dark:border dark:border-white"
+          className="self-end rounded-full mt-4 p-2 w-fit border border-muted/40 cursor-pointer bg-white hover:opacity-80 dark:text-white dark:bg-subtle/50 dark:border dark:border-white/40 outline-0 focus:outline focus:outline-primary"
           onClick={() => setOpen(!open)}
         >
           <motion.div>
@@ -144,7 +144,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
           ease: [0.22, 1, 0.36, 1],
         },
       }}
-      className="w-115 rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm h-fit"
+      className="w-115 rounded-3xl border border-neutral-200 dark:border-white/20 bg-background p-4 shadow-sm h-fit"
     >
       {/* header */}
       <div className="flex items-center justify-between">
@@ -161,7 +161,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
             <Icon icon="ri:user-4-line" size={22} />
           </motion.div>
 
-          <p className="text-xl font-semibold text-neutral-900">
+          <p className="text-xl font-semibold text-neutral-900 dark:text-white">
             Complete profile
           </p>
         </div>
@@ -183,7 +183,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
               />
             </motion.div>
 
-            <span className="text-xs font-semibold">
+            <span className="text-xs font-semibold dark:text-muted">
               {completedSteps.length}/3
             </span>
           </div>
@@ -247,7 +247,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
               }}
             >
               {/* steps */}
-              <div className="mt-6 rounded-[28px] bg-[#f3f3f3] p-6">
+              <div className="mt-6 rounded-[28px] bg-[#f3f3f3] dark:bg-subtle/30 p-6">
                 <div className="flex flex-1 flex-col justify-between py-1">
                   {steps.map((step, i) => (
                     <motion.div
@@ -338,7 +338,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
                         transition={{
                           delay: i * 0.05,
                         }}
-                        className="pt-2 text-sm font-medium text-neutral-900"
+                        className="pt-2 text-sm font-medium text-neutral-900 dark:text-white"
                       >
                         {step.title}
                       </motion.p>
@@ -363,7 +363,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
                 }}
                 className="mt-8 flex items-center gap-4"
               >
-                <div className="relative h-14 flex-1 overflow-hidden rounded-full bg-white shadow-inner">
+                <div className="relative h-14 flex-1 overflow-hidden rounded-full bg-white dark:bg-subtle/30 shadow-inner">
                   <motion.div
                     initial={{
                       width: 0,
@@ -427,7 +427,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
                   whileTap={{
                     scale: 0.92,
                   }}
-                  className="flex h-14 w-14 items-center justify-center rounded-full border border-neutral-200 bg-[#f8f8f8] transition cursor-pointer"
+                  className="flex h-14 w-14 items-center justify-center rounded-full  bg-[#f8f8f8] dark:bg-subtle/30 transition cursor-pointer"
                   onClick={onResume}
                 >
                   <motion.div
@@ -439,7 +439,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
                     <Icon
                       icon="lucide:move-up-right"
                       size={22}
-                      className="text-neutral-700"
+                      className="text-neutral-700 dark:text-white"
                     />
                   </motion.div>
                 </motion.button>
