@@ -4,6 +4,7 @@ import {AnimatePresence, Icon, motion} from "@mcc/ui";
 import Link from "next/link";
 import {useEffect, useState} from "react";
 import {sideBarLinks} from "../constants/NavLinks";
+import {usePathname} from "next/navigation";
 
 export default function SideNav({
   open,
@@ -12,7 +13,7 @@ export default function SideNav({
   open: boolean;
   setOpen: (v: boolean) => void;
 }) {
-  const [url, setUrl] = useState("explore");
+  const pathname = usePathname();
   const [hovering, setHovering] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -65,7 +66,7 @@ export default function SideNav({
             >
               {sideBarLinks.map((link) => (
                 <Link
-                  href="#"
+                  href={link.link}
                   key={link.label}
                   className={`flex relative ${isMobile ? "w-full" : open ? "w-full" : "items-center"}`}
                 >
@@ -73,13 +74,12 @@ export default function SideNav({
                     onClick={
                       isMobile
                         ? () => {
-                            setUrl(link.label);
                             setOpen(false);
                           }
-                        : () => setUrl(link.label)
+                        : undefined
                     }
                     className={`${
-                      url == link.label
+                      pathname.startsWith(link.link)
                         ? "bg-white text-black max-sm:bg-[#222225] max-sm:text-white rounded-xl "
                         : "text-white hover:bg-muted/40 max-sm:text-black"
                     } ${
@@ -124,7 +124,7 @@ export default function SideNav({
                     </AnimatePresence>
                   </button>
 
-                  {url === link.label && <Pin />}
+                  {pathname.startsWith(link.link) && <Pin />}
                 </Link>
               ))}
             </div>
@@ -154,11 +154,7 @@ export default function SideNav({
                 </AnimatePresence>
               </div>
 
-              <Icon
-                icon="ci:caret-down-sm"
-                size={24}
-                color="grey"
-              />
+              <Icon icon="ci:caret-down-sm" size={24} color="grey" />
             </div>
           </div>
         </div>
@@ -194,11 +190,7 @@ export default function SideNav({
               )}
             </AnimatePresence>
 
-            <Icon
-              icon="ci:caret-down-sm"
-             size={24}
-              color="white"
-            />
+            <Icon icon="ci:caret-down-sm" size={24} color="white" />
           </div>
         </div>
       </motion.div>
