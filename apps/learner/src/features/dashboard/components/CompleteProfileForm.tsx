@@ -28,7 +28,7 @@ export type FormValues = {
 };
 
 export default function CompleteProfileForm({close}: {close?: () => void}) {
-  const [step, setStep] = useState(3);
+  const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
 
   const methods = useForm<FormValues>({
