@@ -75,7 +75,7 @@ export function Button({
   const variants: Record<Variant, string> = {
     primary: " bg-btn-primary text-white hover:opacity-90",
 
-    secondary: " bg-muted/30 text-foreground hover:bg-muted/10",
+    secondary: " bg-muted/30 text-foreground/60 hover:bg-muted/10",
 
     outline: " border border-muted/30  text-foreground hover:bg-muted/10",
 
