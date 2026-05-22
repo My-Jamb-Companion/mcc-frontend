@@ -30,7 +30,7 @@ export default function DashboardLayout({
 
   return (
     <RoleLayout allowedRoles={["student"]}>
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col h-screen scrollbar-hide">
         <Header open={sideNav} setOpen={setSideNav} />
         <div
           className="grid max-sm:grid-cols-1 h-full relative pr-12 max-sm:px-4 overflow-hidden"
