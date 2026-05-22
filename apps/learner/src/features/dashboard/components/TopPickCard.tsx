@@ -1,4 +1,5 @@
 import {Icon} from "@mcc/ui";
+import Image from "next/image";
 
 interface TopPickCardProps {
   image: string;
@@ -33,9 +34,11 @@ export default function TopPickCard({
       className="flex gap-6 cursor-pointer group w-full max-md:flex-col"
     >
       <div className="w-full max-h-70 max-w-95 max-md:max-w-full max-md:max-h-40 rounded-2xl overflow-hidden shrink-0">
-        <img
+        <Image
           src={image}
           alt={title}
+          width={100}
+          height={100}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
       </div>
