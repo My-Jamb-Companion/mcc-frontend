@@ -105,7 +105,7 @@ export default function CompleteProfileForm({close}: {close?: () => void}) {
     }
   };
 
-  const onSubmit = async (data: ProfileModalFormValues) => {
+  const onSubmit = async () => {
     setSubmitting(true);
     completeStep(3);
     setTimeout(() => {
