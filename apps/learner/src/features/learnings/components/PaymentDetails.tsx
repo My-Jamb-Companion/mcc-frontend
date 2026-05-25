@@ -1,8 +1,7 @@
 "use client";
 
-import {FormInputs} from "@mcc/features";
-import {Button, Icon, motion, AnimatePresence, Variants} from "@mcc/ui";
-import {useForm} from "react-hook-form";
+import {FormInputs, useForm} from "@mcc/features";
+import {Button, Icon, motion, Variants} from "@mcc/ui";
 
 type PaymentFormValues = {
   cardName: string;
@@ -303,31 +302,6 @@ export default function PaymentDetails({price}: {price: number}) {
           </div>
         </Button>
       </motion.div>
-
-      <AnimatePresence>
-        {(errors.cardName ||
-          errors.cardNumber ||
-          errors.expiryDate ||
-          errors.cvv) && (
-          <motion.div
-            initial={{
-              opacity: 0,
-              y: 10,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            exit={{
-              opacity: 0,
-              y: 10,
-            }}
-            className="text-danger text-sm text-center"
-          >
-            Please complete all payment fields
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.form>
   );
 }
