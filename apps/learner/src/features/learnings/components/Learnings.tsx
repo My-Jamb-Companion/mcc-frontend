@@ -7,7 +7,7 @@ import CourseCardSkeleton from "@/src/features/components/CourseCardSkeleton";
 import ExamCard from "@/src/features/components/ExamCard";
 import ExamCardSkeleton from "@/src/features/components/ExamCardSkeleton";
 import ScrollRow from "@/src/features/components/RowScroll";
-import {demoCourses} from "../constants/demoCourses";
+import {demoCourses} from "@/src/features/constants/demoCourses";
 import CourseHeroCard from "./CourseHeroCard";
 
 export default function Learnings() {

@@ -2,7 +2,7 @@
 
 import ScrollRow from "@/src/features/components/RowScroll";
 import {demoStats} from "../constants/demoHeaderStats";
-import {demoCourses} from "../constants/demoCourses";
+import {demoCourses} from "../../constants/demoCourses";
 import LearningsHeader from "./LearningsHeader";
 import CourseCard from "@/src/features/components/CourseCard";
 import ExamCardSkeleton from "@/src/features/components/ExamCardSkeleton";
