@@ -1,19 +1,19 @@
 "use client";
 import {Icon} from "@mcc/ui";
-import BannerCarousel from "./BannerCarousel";
+import BannerCarousel from "@/src/features/components/BannerCarousel";
 import QuickLinkCard from "./QuickLinkCard";
 import {quickLinkCard} from "../constants/QuickLinks";
 import LiveClassCard from "./LiveClassCard";
-import ScrollRow from "./RowScroll";
-import CourseCard from "./CourseCard";
-import CourseCardSkeleton from "./CourseCardSkeleton";
+import ScrollRow from "@/src/features/components/RowScroll";
+import CourseCard from "@/src/features/components/CourseCard";
+import CourseCardSkeleton from "@/src/features/components/CourseCardSkeleton";
 import {useEffect, useState} from "react";
 import AskAICard from "./AskAI";
-import {exams} from "../../constants/ExamCards";
-import ExamCard from "./ExamCard";
+import {exams} from "@/src/features/constants/ExamCards";
+import ExamCard from "@/src/features/components/ExamCard";
 import TopPickCard from "./TopPickCard";
 import RecTopics from "./RecTopics";
-import ExamCardSkeleton from "./ExamCardSkeleton";
+import ExamCardSkeleton from "@/src/features/components/ExamCardSkeleton";
 
 export default function Dashboard() {
   const [isContinueLoading, setIsContinueLoading] = useState(true);

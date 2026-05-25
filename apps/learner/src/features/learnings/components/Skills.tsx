@@ -1,7 +1,7 @@
 "use client";
 
-import CourseCard from "../../dashboard/components/CourseCard";
-import ScrollRow from "../../dashboard/components/RowScroll";
+import CourseCard from "@/src/features/components/CourseCard";
+import ScrollRow from "@/src/features/components/RowScroll";
 import {demoCourses} from "../constants/demoCourses";
 import {demoStats} from "../constants/demoHeaderStats";
 import LearningsHeader from "./LearningsHeader";

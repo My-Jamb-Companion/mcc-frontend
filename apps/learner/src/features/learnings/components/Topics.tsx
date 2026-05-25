@@ -1,9 +1,9 @@
 "use client";
 import {useParams} from "next/navigation";
 import LearningsHeader from "./LearningsHeader";
-import ScrollRow from "../../dashboard/components/RowScroll";
+import ScrollRow from "@/src/features/components/RowScroll";
 import {demoCourses} from "../constants/demoCourses";
-import CourseCard from "../../dashboard/components/CourseCard";
+import CourseCard from "@/src/features/components/CourseCard";
 import {demoStats} from "../constants/demoHeaderStats";
 
 export default function Topics() {

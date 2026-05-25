@@ -1,13 +1,13 @@
 "use client";
 
-import ScrollRow from "../../dashboard/components/RowScroll";
+import ScrollRow from "@/src/features/components/RowScroll";
 import {demoStats} from "../constants/demoHeaderStats";
 import {demoCourses} from "../constants/demoCourses";
 import LearningsHeader from "./LearningsHeader";
-import CourseCard from "../../dashboard/components/CourseCard";
-import ExamCardSkeleton from "../../dashboard/components/ExamCardSkeleton";
-import ExamCard from "../../dashboard/components/ExamCard";
-import {exams} from "../../constants/ExamCards";
+import CourseCard from "@/src/features/components/CourseCard";
+import ExamCardSkeleton from "@/src/features/components/ExamCardSkeleton";
+import ExamCard from "@/src/features/components/ExamCard";
+import {exams} from "@/src/features/constants/ExamCards";
 
 export default function Exams() {
   return (

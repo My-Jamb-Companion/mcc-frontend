@@ -1,12 +1,12 @@
 "use client";
 
-import {exams} from "../../constants/ExamCards";
-import BannerCarousel from "../../dashboard/components/BannerCarousel";
-import CourseCard from "../../dashboard/components/CourseCard";
-import CourseCardSkeleton from "../../dashboard/components/CourseCardSkeleton";
-import ExamCard from "../../dashboard/components/ExamCard";
-import ExamCardSkeleton from "../../dashboard/components/ExamCardSkeleton";
-import ScrollRow from "../../dashboard/components/RowScroll";
+import {exams} from "@/src/features/constants/ExamCards";
+import BannerCarousel from "@/src/features/components/BannerCarousel";
+import CourseCard from "@/src/features/components/CourseCard";
+import CourseCardSkeleton from "@/src/features/components/CourseCardSkeleton";
+import ExamCard from "@/src/features/components/ExamCard";
+import ExamCardSkeleton from "@/src/features/components/ExamCardSkeleton";
+import ScrollRow from "@/src/features/components/RowScroll";
 import {demoCourses} from "../constants/demoCourses";
 import CourseHeroCard from "./CourseHeroCard";
 
