@@ -11,7 +11,7 @@ import {useEffect, useState} from "react";
 import AskAICard from "./AskAI";
 import {exams} from "@/src/features/constants/ExamCards";
 import ExamCard from "@/src/features/components/ExamCard";
-import TopPickCard from "./TopPickCard";
+import TopPickCard from "@/src/features/components/TopPickCard";
 import RecTopics from "./RecTopics";
 import ExamCardSkeleton from "@/src/features/components/ExamCardSkeleton";
 import {courseDetails} from "@/src/features/constants/demoCourses";
