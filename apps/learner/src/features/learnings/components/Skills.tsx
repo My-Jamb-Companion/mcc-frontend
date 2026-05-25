@@ -4,7 +4,7 @@ import CourseCard from "../../dashboard/components/CourseCard";
 import ScrollRow from "../../dashboard/components/RowScroll";
 import {demoCourses} from "../constants/demoCourses";
 import {demoStats} from "../constants/demoHeaderStats";
-import LearningsHeader from "../LearningsHeader";
+import LearningsHeader from "./LearningsHeader";
 
 export default function Skills() {
   return (
