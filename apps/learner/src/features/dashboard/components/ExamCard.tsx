@@ -1,5 +1,5 @@
 import {Icon} from "@mcc/ui";
-import {ExamsProps} from "../constants/ExamCards";
+import {ExamsProps} from "../../constants/ExamCards";
 
 export default function ExamCard({exam, onEnroll}: ExamsProps) {
   return (

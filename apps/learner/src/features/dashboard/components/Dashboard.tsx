@@ -9,7 +9,7 @@ import CourseCard from "./CourseCard";
 import CourseCardSkeleton from "./CourseCardSkeleton";
 import {useEffect, useState} from "react";
 import AskAICard from "./AskAI";
-import {exams} from "../constants/ExamCards";
+import {exams} from "../../constants/ExamCards";
 import ExamCard from "./ExamCard";
 import TopPickCard from "./TopPickCard";
 import RecTopics from "./RecTopics";
