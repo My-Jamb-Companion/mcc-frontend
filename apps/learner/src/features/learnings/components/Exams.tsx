@@ -32,7 +32,7 @@ export default function Exams() {
                 course={card.course}
                 title={card.topic}
                 completePercent={card.completed}
-                onClick={() => console.log("open course")}
+                // onClick={() => console.log("open course")}
               />
             </div>
           ))}

@@ -80,7 +80,12 @@ export default function Dashboard() {
 
       <div className="flex items-center gap-4 mt-8 max-md:flex-col">
         {quickLinkCard.map((card) => (
-          <QuickLinkCard key={card.title} title={card.title} icon={card.icon} />
+          <QuickLinkCard
+            key={card.title}
+            title={card.title}
+            icon={card.icon}
+            link={card.link}
+          />
         ))}
       </div>
 

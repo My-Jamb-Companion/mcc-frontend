@@ -77,7 +77,7 @@ export default function CompleteProfileForm({close}: {close?: () => void}) {
 
       const data = getValues();
 
-      console.log("SAVE STEP 1", data);
+      // console.log("SAVE STEP 1", data);
 
       saveForm(data);
 
@@ -94,7 +94,7 @@ export default function CompleteProfileForm({close}: {close?: () => void}) {
 
       const data = getValues();
 
-      console.log("SAVE STEP 2", data);
+      // console.log("SAVE STEP 2", data);
 
       saveForm(data);
 
@@ -110,7 +110,7 @@ export default function CompleteProfileForm({close}: {close?: () => void}) {
     completeStep(3);
     setTimeout(() => {
       setSubmitting(false);
-      console.log("FINAL SUBMIT", data);
+      // console.log("FINAL SUBMIT", data);
       setStep(4);
     }, 5000);
 

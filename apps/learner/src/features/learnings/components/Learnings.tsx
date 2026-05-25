@@ -58,7 +58,7 @@ export default function Learnings() {
                 price={22345}
                 originalPrice={3500}
                 pricePerModule={75}
-                onClick={() => console.log("open course")}
+                // onClick={() => console.log("open course")}
               />
             </div>
           ))}
