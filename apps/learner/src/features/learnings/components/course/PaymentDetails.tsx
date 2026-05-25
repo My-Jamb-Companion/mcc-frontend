@@ -64,8 +64,8 @@ export default function PaymentDetails({price}: {price: number}) {
   const isFormComplete =
     cardNameValid && cardNumberValid && expiryValid && cvvValid;
 
-  const onSubmit = (data: PaymentFormValues) => {
-    console.log(data);
+  const onSubmit = () => {
+    // console.log(data);
   };
 
   return (
