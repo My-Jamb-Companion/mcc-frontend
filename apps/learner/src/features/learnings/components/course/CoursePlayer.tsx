@@ -1,7 +1,40 @@
+import {courseDetails} from "@/src/features/constants/demoCourses";
 import CoursePlayModules, {CourseModuleLevel} from "./CourseModules";
+import Link from "next/dist/client/link";
+import CourseHero from "./CourseHero";
 
-export default function CoursePlayer() {
-  return <CoursePlayModules levels={courseData} />;
+export default function CoursePlayer({
+  course,
+}: {
+  course: (typeof courseDetails)[0];
+}) {
+  return (
+    <section>
+      <nav className="flex items-center gap-1 text-sm py-8">
+        <Link href="/learnings" className="text-subtle hover:underline">
+          Course
+        </Link>
+
+        <span className="text-subtle">/</span>
+
+        <span className="text-muted/50 cursor-default">{course.title}</span>
+      </nav>
+      <div className="flex gap-6">
+        <div className="pb-8">
+          <div className="pb-14">
+            <CourseHero
+              mainImage={course.imgBig}
+              instructorImage={course.imgSmall}
+              rating={course.rating}
+              totalRatings={course.totalRatings}
+              // onPlay={() => setVideoOpen(true)}
+            />
+          </div>
+        </div>
+        <CoursePlayModules levels={courseData} />
+      </div>
+    </section>
+  );
 }
 const courseData: CourseModuleLevel[] = [
   {

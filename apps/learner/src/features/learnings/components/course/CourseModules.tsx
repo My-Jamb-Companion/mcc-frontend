@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {Icon} from "@mcc/ui";
+import {Icon, Button} from "@mcc/ui";
 
 type LessonType = "video" | "quiz" | "doc";
 
@@ -131,27 +131,27 @@ export default function CoursePlayModules({
   const [activeLesson, setActiveLesson] = useState<string | null>(null);
 
   return (
-    <div className="w-full max-w-[340px] flex flex-col border border-muted/20 rounded-xl overflow-hidden bg-background">
+    <div className="w-full pt-6 px-1 flex flex-col rounded-xl overflow-hidden bg-background">
       {/* Tabs */}
-      <div className="flex border-b border-muted/20">
-        {(["course", "ai"] as const).map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            onClick={() => setActiveTab(tab)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-[13px] font-medium border-b-2 -mb-px transition-colors ${
-              activeTab === tab
-                ? "border-b-primary text-primary"
-                : "border-b-transparent text-subtle hover:text-primary"
-            }`}
-          >
-            <Icon
-              icon={tab === "course" ? "ph:list" : "ph:sparkle"}
-              size={14}
-            />
-            {tab === "course" ? "Course content" : "AI assistant"}
-          </button>
-        ))}
+      <div className="flex gap-2 justify-between py-2">
+        <div className="flex gap-2">
+          {(["course", "ai"] as const).map((tab) => (
+            <Button
+              key={tab}
+              variant={activeTab === tab ? "outline" : "ghost"}
+              onClick={() => setActiveTab(tab)}
+              width="fit"
+              className={`text-nowrap py-1!  ${activeTab == tab ? "" : "opacity-60"}`}
+            >
+              <p className="flex items-center gap-2">
+                {tab === "ai" && <Icon icon={"mingcute:ai-fill"} size={14} />}
+                <span>
+                  {tab === "course" ? "Course content" : "AI assistant"}
+                </span>
+              </p>
+            </Button>
+          ))}
+        </div>
 
         <div className="flex items-center gap-1 px-2.5">
           <button
@@ -174,7 +174,7 @@ export default function CoursePlayModules({
 
       {/* Course content tab */}
       {activeTab === "course" && (
-        <div className="overflow-y-auto max-h-[520px]">
+        <div className="overflow-y-auto">
           {levels.map((level) => (
             <div key={level.title}>
               {/* Level header */}

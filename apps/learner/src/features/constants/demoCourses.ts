@@ -36,7 +36,7 @@ export const demoCourses = [
   },
 ];
 
-export const courseDetails = [
+export const courseDetails: CourseDetail[] = [
   {
     slug: "pilates-teacher-training",
     instructor: "Benedict Laura",
@@ -53,7 +53,7 @@ export const courseDetails = [
     originalPrice: 3500,
     pricePerModule: 75.95,
     currency: "₦",
-    isPaid: true,
+    isEnrolled: true,
 
     // Rating
     rating: 4.7,
@@ -120,7 +120,7 @@ export const courseDetails = [
     originalPrice: 2800,
     pricePerModule: 61.67,
     currency: "₦",
-    isPaid: true,
+    isEnrolled: true,
 
     rating: 4.5,
     reviewCount: "3.8k",
@@ -201,7 +201,7 @@ export const courseDetails = [
     originalPrice: 4500,
     pricePerModule: 86.11,
     currency: "₦",
-    isPaid: false,
+    isEnrolled: false,
 
     rating: 4.9,
     reviewCount: "7.1k",
@@ -288,7 +288,7 @@ export const courseDetails = [
     originalPrice: 4000,
     pricePerModule: 90.0,
     currency: "₦",
-    isPaid: false,
+    isEnrolled: false,
 
     rating: 4.8,
     reviewCount: "9.4k",
@@ -365,7 +365,7 @@ export const courseDetails = [
     originalPrice: 1900,
     pricePerModule: 48.0,
     currency: "₦",
-    isPaid: true,
+    isEnrolled: true,
 
     rating: 4.6,
     reviewCount: "2.3k",
@@ -445,7 +445,7 @@ export const courseDetails = [
     originalPrice: 5500,
     pricePerModule: 105.56,
     currency: "₦",
-    isPaid: false,
+    isEnrolled: false,
 
     rating: 4.9,
     reviewCount: "4.6k",
@@ -519,3 +519,60 @@ export const courseDetails = [
     ],
   },
 ];
+
+export type Difficulty = "Beginner" | "Moderate" | "Advanced";
+
+export type CurriculumSection = {
+  id: string;
+  title: string;
+  isOpen: boolean;
+  description?: string;
+  lessons: string[];
+};
+
+export type CourseDetail = {
+  slug: string;
+  instructor: string;
+  title: string;
+  description: string;
+
+  imgBig: string;
+  imgSmall: string;
+
+  price: number;
+  originalPrice: number;
+  pricePerModule: number;
+  currency: string;
+  isEnrolled: boolean;
+
+  rating: number;
+  reviewCount: string;
+
+  tags: string[];
+  extraTagsCount: number;
+
+  previewVideo: string;
+  totalRatings: number;
+
+  meta: {
+    lessons: number;
+    difficulty: Difficulty;
+  };
+
+  stats: {
+    students: number;
+    hoursOfVideo: number;
+    practiceTests: number;
+    additionalResources: number;
+    downloadableResources: number;
+  };
+
+  features: {
+    assignments: boolean;
+    mobileAndTVAccess: boolean;
+    fullLifetimeAccess: boolean;
+    certificateOnCompletion: boolean;
+  };
+
+  curriculum: CurriculumSection[];
+};

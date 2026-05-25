@@ -1,20 +1,17 @@
 "use client";
 import Link from "next/link";
-import {useParams, useRouter} from "next/navigation";
+import {useRouter} from "next/navigation";
 import CourseHero from "./CourseHero";
 import CourseDetailsSidebar from "./CourseDetailsSideBar";
 import CourseInfo from "./CourseInfo";
 import {courseDetails} from "@/src/features/constants/demoCourses";
 
-export default function BuyCourse() {
+export default function BuyCourse({
+  course,
+}: {
+  course: (typeof courseDetails)[0];
+}) {
   const router = useRouter();
-  const {id} = useParams();
-
-  if (!id) return null;
-
-  const course = courseDetails.find((c) => c.slug === id);
-  if (!course) return null;
-
   return (
     <section>
       <nav className="flex items-center gap-1 text-sm py-8">
