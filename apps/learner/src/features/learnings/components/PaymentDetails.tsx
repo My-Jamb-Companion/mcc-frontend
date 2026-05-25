@@ -149,6 +149,7 @@ export default function PaymentDetails({price}: {price: number}) {
           registration={register("cardName", {
             required: "Card owner name is required",
           })}
+          inputClassName="capitalize"
           errors={errors.cardName}
         />
       </motion.div>

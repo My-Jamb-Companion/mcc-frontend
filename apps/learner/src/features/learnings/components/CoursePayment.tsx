@@ -1,5 +1,5 @@
 "use client";
-import React, {useState} from "react";
+
 import CourseHero from "./CourseHero";
 import CourseInfo from "./CourseInfo";
 import Link from "next/link";
