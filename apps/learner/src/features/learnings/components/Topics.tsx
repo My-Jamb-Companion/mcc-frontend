@@ -54,7 +54,7 @@ export default function Topics() {
                   "Digital Art",
                   "iPad",
                 ]}
-                onClick={() => console.log("open course")}
+                // onClick={() => console.log("open course")}
               />
             </div>
           ))}

@@ -29,7 +29,7 @@ export default function Skills() {
                 course={card.course}
                 title={card.topic}
                 completePercent={card.completed}
-                onClick={() => console.log("open course")}
+                // onClick={() => console.log("open course")}
               />
             </div>
           ))}
@@ -53,7 +53,7 @@ export default function Skills() {
                   "Digital Art",
                   "iPad",
                 ]}
-                onClick={() => console.log("open course")}
+                // onClick={() => console.log("open course")}
               />
             </div>
           ))}

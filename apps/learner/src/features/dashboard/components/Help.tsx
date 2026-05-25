@@ -95,7 +95,6 @@ export default function Help() {
 export function CompleteProfileCard({onResume}: {onResume: () => void}) {
   const [open, setOpen] = useState(true);
   const {step, completedSteps} = useProfileProgressStore();
-  console.log(completedSteps);
 
   const steps = [
     {
