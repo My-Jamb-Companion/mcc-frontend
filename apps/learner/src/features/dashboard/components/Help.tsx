@@ -24,7 +24,7 @@ export default function Help() {
             ease: [0.22, 1, 0.36, 1],
           },
         }}
-        className="fixed right-10 top-1/2 -translate-y-1/2 flex flex-col items-end z-50"
+        className="fixed max-sm:w-full right-10 max-sm:right-1 top-1/2 -translate-y-1/2 flex flex-col items-end z-50"
       >
         <AnimatePresence mode="popLayout">
           {open && (
@@ -53,7 +53,7 @@ export default function Help() {
                 duration: 0.35,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="origin-bottom-right"
+              className="origin-bottom-right max-sm:w-full max-sm:pl-5 max-sm:pr-3"
             >
               <CompleteProfileCard
                 onResume={() => modalRef.current?.openDialog()}
@@ -144,7 +144,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
           ease: [0.22, 1, 0.36, 1],
         },
       }}
-      className="w-115 rounded-3xl border border-neutral-200 dark:border-white/20 bg-background p-4 shadow-sm h-fit"
+      className="sm:w-115 max-sm:w-full rounded-3xl border border-neutral-200 dark:border-white/20 bg-background p-4 shadow-sm h-fit"
     >
       {/* header */}
       <div className="flex items-center justify-between">
@@ -390,7 +390,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
                         delay: 0.35,
                         type: "spring",
                       }}
-                      className="absolute h-10 w-10 overflow-hidden rounded-full border-2 border-white bg-pink-600"
+                      className="absolute h-10 w-10 overflow-hidden rounded-full bg-white"
                     >
                       <div>
                         <Image
