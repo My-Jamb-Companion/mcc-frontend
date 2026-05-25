@@ -5,9 +5,10 @@ import CourseInfo from "./CourseInfo";
 import Link from "next/link";
 import {useParams} from "next/navigation";
 import {courseDetails} from "@/src/features/constants/demoCourses";
+import CourseDetailsSidebar from "./CourseDetailsSideBar";
+import PaymentDetails from "./PaymentDetails";
 
 export default function CoursePayment() {
-  const [isOnPayment, setPayment] = useState(false);
   const {id} = useParams();
   const course = courseDetails.find((c) => c.slug === id);
   if (!course) return null;
@@ -21,31 +22,21 @@ export default function CoursePayment() {
 
         <span className="text-subtle">/</span>
 
-        {isOnPayment ? (
-          <Link
-            href={`/learnings/course/${id}`}
-            className="text-subtle hover:underline"
-          >
-            Pilates Teacher Training Certification 20 CPD Points
-          </Link>
-        ) : (
-          <span className="text-muted/50 cursor-default">
-            Pilates Teacher Training Certification 20 CPD Points
-          </span>
-        )}
+        <Link
+          href={`/learnings/course/${id}`}
+          className="text-subtle hover:underline"
+        >
+          {course.title}
+        </Link>
 
-        {isOnPayment && (
-          <>
-            <span className="text-subtle">/</span>
-            <span className="text-muted/50 cursor-default">
-              Payment Details
-            </span>
-          </>
-        )}
+        <>
+          <span className="text-subtle">/</span>
+          <span className="text-muted/50 cursor-default">Payment Details</span>
+        </>
       </nav>
 
       <div className="grid grid-cols-2 gap-6">
-        <div className="pb-8">
+        <div className="flex flex-col gap-5 pb-8">
           <div className="pb-14">
             <CourseHero
               mainImage={course.imgBig}
@@ -61,10 +52,24 @@ export default function CoursePayment() {
             title={course.title}
             description={course.description}
             curriculum={course.curriculum}
+            isPaying
+          />
+
+          <CourseDetailsSidebar
+            price={course.price}
+            lessons={course.meta.lessons}
+            difficulty={course.meta.difficulty}
+            tags={course.tags}
+            extraTagsCount={course.extraTagsCount}
+            stats={course.stats}
+            features={course.features}
+            isPaying
           />
         </div>
 
-        <div></div>
+        <div className="w-full">
+          <PaymentDetails price={course.price} />
+        </div>
       </div>
     </section>
   );

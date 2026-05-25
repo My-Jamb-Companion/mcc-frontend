@@ -1,7 +1,8 @@
-import {Icon} from "@mcc/ui";
+import {Icon, Button} from "@mcc/ui";
 
 type CourseDetailsSidebarProps = {
   price: number;
+  isPaying?: boolean;
   currency?: string;
   lessons: number;
   difficulty: "Beginner" | "Moderate" | "Advanced";
@@ -75,19 +76,18 @@ export default function CourseDetailsSidebar({
   features,
   onEnroll,
   onGift,
+  isPaying = false,
 }: CourseDetailsSidebarProps) {
   const visibleTags = tags.slice(0, 2);
   const items = featureItems(stats, features);
 
   return (
     <div className="flex flex-col gap-5 w-full">
-      {/* Price */}
       <p className="text-4xl font-bold">
         <span className="text-2xl align-super font-semibold">{currency}</span>
         {price.toFixed(2)}
       </p>
 
-      {/* Lessons + Difficulty */}
       <div className="flex items-center border border-muted/30 rounded-2xl overflow-hidden">
         <div className="flex items-center gap-3 flex-1 px-5 py-4">
           <Icon icon="solar:monitor-smartphone-outline" size={22} />
@@ -112,7 +112,6 @@ export default function CourseDetailsSidebar({
         </div>
       </div>
 
-      {/* Tags */}
       {tags.length > 0 && (
         <div className="flex items-center gap-2 flex-wrap">
           {visibleTags.map((tag) => (
@@ -129,7 +128,6 @@ export default function CourseDetailsSidebar({
         </div>
       )}
 
-      {/* Feature list */}
       <ul className="flex flex-col gap-3">
         {items.map((item) => (
           <li key={item.label} className="flex items-center gap-3 text-sm">
@@ -138,25 +136,23 @@ export default function CourseDetailsSidebar({
           </li>
         ))}
       </ul>
+      {!isPaying && (
+        <div className="flex items-center gap-3 pt-1">
+          <Button onClick={onEnroll} width="fit">
+            <p className=" font-semibold flex items-center gap-2 mx-auto w-fit px-4">
+              <Icon icon="solar:cart-large-2-bold" size={18} color="white" />
+              <span>Enroll course</span>
+            </p>
+          </Button>
 
-      {/* CTAs */}
-      <div className="flex items-center gap-3 pt-1">
-        <button
-          onClick={onEnroll}
-          className="flex-1 flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-full py-3 transition-colors"
-        >
-          <Icon icon="solar:cart-large-2-bold" size={18} color="white" />
-          Enroll course
-        </button>
-
-        <button
-          onClick={onGift}
-          className="flex items-center justify-center gap-2 border border-muted/40 hover:bg-muted/10 text-sm font-semibold rounded-full px-5 py-3 transition-colors"
-        >
-          <Icon icon="solar:gift-outline" size={18} />
-          Buy as a gift
-        </button>
-      </div>
+          <Button variant="outline" onClick={onGift} width="fit">
+            <p className="font-semibold flex items-center gap-2 mx-auto w-fit px-4">
+              <Icon icon="solar:gift-outline" size={18} />
+              <span>Buy as a gift</span>
+            </p>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

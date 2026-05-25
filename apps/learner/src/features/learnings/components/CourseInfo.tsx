@@ -14,6 +14,7 @@ type CourseInfoProps = {
   title: string;
   description: string;
   curriculum: CurriculumItem[];
+  isPaying?: boolean;
 };
 
 function AccordionItem({item}: {item: CurriculumItem}) {
@@ -50,10 +51,10 @@ export default function CourseInfo({
   title,
   description,
   curriculum,
+  isPaying = false,
 }: CourseInfoProps) {
   return (
     <div className="flex flex-col gap-8">
-      {/* Header */}
       <div className="flex flex-col gap-2 max-w-[60%]">
         <p className="text-sm text-subtle">
           A course by{" "}
@@ -63,18 +64,19 @@ export default function CourseInfo({
         <p className="text-sm text-subtle leading-relaxed">{description}</p>
       </div>
 
-      {/* Curriculum */}
-      <div className="flex flex-col gap-2">
-        <p className="text-xs font-semibold uppercase tracking-widest text-subtle">
-          Course table of contents
-        </p>
+      {!isPaying && (
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-semibold uppercase tracking-widest text-subtle">
+            Course table of contents
+          </p>
 
-        <div className="border border-muted/30 rounded-2xl px-5">
-          {curriculum.map((item) => (
-            <AccordionItem key={item.id} item={item} />
-          ))}
+          <div className="border border-muted/30 rounded-2xl px-5">
+            {curriculum.map((item) => (
+              <AccordionItem key={item.id} item={item} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

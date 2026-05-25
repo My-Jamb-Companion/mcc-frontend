@@ -1,18 +1,14 @@
 "use client";
 import Link from "next/link";
-import {useParams, usePathname, useRouter} from "next/navigation";
-import {useState} from "react";
+import {useParams, useRouter} from "next/navigation";
 import CourseHero from "./CourseHero";
 import CourseDetailsSidebar from "./CourseDetailsSideBar";
 import CourseInfo from "./CourseInfo";
 import {courseDetails} from "@/src/features/constants/demoCourses";
 
 export default function BuyCourse() {
-  const {id} = useParams();
-  //   const pathname = usePathname();
-  //   const isOnPayment = pathname.includes("/payment");
   const router = useRouter();
-  const [isOnPayment, setPayment] = useState(false);
+  const {id} = useParams();
 
   if (!id) return null;
 
@@ -28,27 +24,7 @@ export default function BuyCourse() {
 
         <span className="text-subtle">/</span>
 
-        {isOnPayment ? (
-          <Link
-            href={`/learnings/${id}`}
-            className="text-subtle hover:underline"
-          >
-            Pilates Teacher Training Certification 20 CPD Points
-          </Link>
-        ) : (
-          <span className="text-muted/50 cursor-default">
-            Pilates Teacher Training Certification 20 CPD Points
-          </span>
-        )}
-
-        {isOnPayment && (
-          <>
-            <span className="text-subtle">/</span>
-            <span className="text-muted/50 cursor-default">
-              Payment Details
-            </span>
-          </>
-        )}
+        <span className="text-muted/50 cursor-default">{course.title}</span>
       </nav>
 
       <div className="grid grid-cols-2 gap-6">
