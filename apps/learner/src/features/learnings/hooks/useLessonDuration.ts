@@ -1,27 +1,18 @@
 import {useMemo} from "react";
-import {Lesson} from "../components/course/CourseModules";
+import {Lessons} from "../../constants/demoCourses";
 
-export function useLessonsDuration(lessons: Lesson[]) {
+export const formatDuration = (seconds: number) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+};
+
+export function useLessonsDuration(lessons: Lessons[]) {
   return useMemo(() => {
-    let totalSeconds = 0;
-
-    lessons.forEach((lesson) => {
-      const parts = lesson.duration.split(":").map(Number);
-
-      let seconds = 0;
-
-      // hh:mm:ss
-      if (parts.length === 3) {
-        seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
-      }
-
-      // mm:ss
-      else if (parts.length === 2) {
-        seconds = parts[0] * 60 + parts[1];
-      }
-
-      totalSeconds += seconds;
-    });
+    const totalSeconds = lessons.reduce(
+      (acc, lesson) => acc + lesson.duration,
+      0,
+    );
 
     const hours = Math.floor(totalSeconds / 3600);
 

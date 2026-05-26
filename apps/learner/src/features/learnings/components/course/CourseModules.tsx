@@ -1,6 +1,9 @@
 import {useState} from "react";
 import {Icon, Button} from "@mcc/ui";
-import {useLessonsDuration} from "@/src/features/learnings/hooks/useLessonDuration";
+import {
+  useLessonsDuration,
+  formatDuration,
+} from "@/src/features/learnings/hooks/useLessonDuration";
 import {
   CourseModule,
   CourseModuleLevel,
@@ -140,7 +143,7 @@ function ModuleAccordion({
 }) {
   const [open, setOpen] = useState(false);
   const hasLessons = !!module.lessons?.length;
-  const duration = useLessonsDuration(module.lessons || []);
+  const moduleDuration = useLessonsDuration(module.lessons || []);
   return (
     <div className="">
       <button
@@ -159,7 +162,7 @@ function ModuleAccordion({
 
         {hasLessons && (
           <div className="flex items-center gap-2">
-            <p className="text-subtle text-xs">{duration.formatted}</p>
+            <p className="text-subtle text-xs">{moduleDuration.formatted}</p>
             <Icon
               icon="ph:caret-down"
               size={14}
@@ -202,7 +205,9 @@ function ModuleAccordion({
                   >
                     {lesson.title}
                   </p>
-                  <p className="text-sm mt-0.5 text-muted">{lesson.duration}</p>
+                  <p className="text-sm mt-0.5 text-muted">
+                    {formatDuration(lesson.duration)}
+                  </p>
                 </div>
               </button>
             );
