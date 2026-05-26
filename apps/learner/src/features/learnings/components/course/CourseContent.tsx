@@ -25,10 +25,7 @@ export default function CourseContent({
       <div className="flex gap-6">
         <div className="pb-8">
           <div className="pb-14 w-full min-w-full">
-            <CoursePlayer
-              src={activeLesson?.src}
-              poster={"/assets/images/courses/photography-big.jpg"}
-            />
+            <CoursePlayer src={activeLesson?.src} poster={course.imgBig} />
           </div>
         </div>
         <CoursePlayModules
