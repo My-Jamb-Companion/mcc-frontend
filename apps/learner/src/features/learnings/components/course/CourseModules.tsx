@@ -2,17 +2,19 @@ import {useState} from "react";
 import {Icon, Button} from "@mcc/ui";
 import {
   useLessonsDuration,
+  useLevelProgress,
+  useModuleProgress,
   formatDuration,
 } from "@/src/features/learnings/hooks/useLessonDuration";
 import {
   CourseModule,
-  CourseModuleLevel,
+  CourseLevel,
   Lessons,
   LessonType,
 } from "@/src/features/constants/demoCourses";
 
 interface CourseContentSidebarProps {
-  levels: CourseModuleLevel[];
+  levels: CourseLevel[];
   onClose?: () => void;
   setActiveLessonSrc: (lesson: Lessons) => void;
 }
@@ -84,38 +86,13 @@ export default function CoursePlayModules({
       {activeTab === "course" && (
         <div className="overflow-y-auto">
           {levels.map((level) => (
-            <div key={level.title} className="flex flex-col gap-3">
-              <div className="flex items-center justify-between pt-6 text-muted py-3 sticky top-0 bg-background z-10">
-                <span className="text-sm font-bold tracking-widest text-subtle uppercase">
-                  {level.title}
-                </span>
-                {level.progress !== 0 ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="text-primary">
-                      <Icon icon="ri:progress-1-line" size={16} />
-                    </span>
-                    <span className="text-muted text-xs font-medium translate-y-[1.5px]">
-                      {level.progress}% completed
-                    </span>
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2 text-xs font-medium text-muted">
-                    <Icon icon="octicon:play-16" size={14} />
-                    Not Started
-                  </span>
-                )}
-              </div>
-
-              {level.modules.map((module) => (
-                <ModuleAccordion
-                  key={module.title}
-                  module={module}
-                  activeLesson={activeLesson}
-                  onSelectLesson={setActiveLesson}
-                  setActiveLessonSrc={setActiveLessonSrc}
-                />
-              ))}
-            </div>
+            <LevelSection
+              key={level.title}
+              level={level}
+              activeLesson={activeLesson}
+              onSelectLesson={setActiveLesson}
+              setActiveLessonSrc={setActiveLessonSrc}
+            />
           ))}
         </div>
       )}
@@ -126,6 +103,55 @@ export default function CoursePlayModules({
           <p>AI assistant panel</p>
         </div>
       )}
+    </div>
+  );
+}
+
+function LevelSection({
+  level,
+  activeLesson,
+  onSelectLesson,
+  setActiveLessonSrc,
+}: {
+  level: CourseLevel;
+  activeLesson: string | null;
+  onSelectLesson: (key: string) => void;
+  setActiveLessonSrc: (key: Lessons) => void;
+}) {
+  const progress = useLevelProgress(level.modules);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between pt-6 text-muted py-3 sticky top-0 bg-background z-10">
+        <span className="text-sm font-bold tracking-widest text-subtle uppercase">
+          {level.title}
+        </span>
+        {progress !== 0 ? (
+          <span className="flex items-center justify-center gap-2">
+            <span className="text-primary">
+              <Icon icon="ri:progress-1-line" size={16} />
+            </span>
+            <span className="text-muted text-xs font-medium translate-y-[1.5px]">
+              {progress}% completed
+            </span>
+          </span>
+        ) : (
+          <span className="flex items-center gap-2 text-xs font-medium text-muted">
+            <Icon icon="octicon:play-16" size={14} />
+            Not Started
+          </span>
+        )}
+      </div>
+
+      {level.modules.map((module) => (
+        <ModuleAccordion
+          key={module.title}
+          module={module}
+          activeLesson={activeLesson}
+          onSelectLesson={onSelectLesson}
+          setActiveLessonSrc={setActiveLessonSrc}
+        />
+      ))}
     </div>
   );
 }
@@ -144,6 +170,8 @@ function ModuleAccordion({
   const [open, setOpen] = useState(false);
   const hasLessons = !!module.lessons?.length;
   const moduleDuration = useLessonsDuration(module.lessons || []);
+  const moduleProgress = useModuleProgress(module.lessons || []);
+  const isCompleted = moduleProgress === 100;
   return (
     <div className="">
       <button
@@ -153,7 +181,11 @@ function ModuleAccordion({
       >
         <div className="flex items-center gap-2 min-w-0">
           <div
-            className={`border border-muted/20 rounded-sm h-4 w-4 flex items-center justify-center shrink-0 text-white`}
+            className={`rounded-md h-4 w-4 flex items-center justify-center shrink-0 ${
+              isCompleted
+                ? "bg-primary text-white"
+                : "border border-muted/20 text-transparent"
+            }`}
           >
             <Icon icon="ci:check" size={16} />
           </div>

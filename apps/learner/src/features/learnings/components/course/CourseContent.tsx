@@ -29,7 +29,7 @@ export default function CourseContent({
           </div>
         </div>
         <CoursePlayModules
-          levels={course.modules}
+          levels={course.curriculums}
           setActiveLessonSrc={setActiveLesson}
         />
       </div>

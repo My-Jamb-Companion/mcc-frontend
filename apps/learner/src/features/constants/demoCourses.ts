@@ -93,7 +93,7 @@ export interface CourseDetail {
 
   curriculum: CurriculumSection[];
 
-  modules: CourseModuleLevel[];
+  curriculums: CourseLevel[];
 }
 
 // ---------------------------------------------------------------------------
@@ -108,8 +108,7 @@ const videoSrcs = [
   "https://samplelib.com/lib/preview/mp4/sample-30s.mp4",
 ];
 
-const getRandomSrc = () =>
-  videoSrcs[Math.floor(Math.random() * videoSrcs.length)];
+const getRandomSrc = () => videoSrcs[Math.floor(Math.random() * videoSrcs.length)]
 
 // ---------------------------------------------------------------------------
 // Types
@@ -135,7 +134,7 @@ export interface CourseModule {
   lessons: Lessons[];
 }
 
-export interface CourseModuleLevel {
+export interface CourseLevel {
   id: string;
   title: string;
   progress: number;
@@ -210,7 +209,7 @@ export const courseDetails: CourseDetail[] = [
       },
     ],
 
-    modules: [
+    curriculums: [
       {
         id: "foundation",
         title: "Beginner level",
@@ -228,7 +227,7 @@ export const courseDetails: CourseDetail[] = [
                 duration: 122,
                 src: getRandomSrc(),
                 type: "video",
-                completed: false,
+                completed: true,
                 currentTime: 127,
               },
               {
@@ -237,7 +236,7 @@ export const courseDetails: CourseDetail[] = [
                 duration: 182,
                 src: getRandomSrc(),
                 type: "video",
-                completed: false,
+                completed: true,
                 currentTime: 127,
               },
               {
@@ -246,7 +245,7 @@ export const courseDetails: CourseDetail[] = [
                 duration: 734,
                 src: getRandomSrc(),
                 type: "video",
-                completed: false,
+                completed: true,
                 currentTime: 127,
               },
               {
@@ -255,8 +254,8 @@ export const courseDetails: CourseDetail[] = [
                 duration: 1125,
                 src: getRandomSrc(),
                 type: "video",
-                completed: false,
-                currentTime: 127,
+                completed: true,
+                currentTime: 856,
               },
               {
                 id: "Teaching Rules & Regulations",
@@ -264,8 +263,8 @@ export const courseDetails: CourseDetail[] = [
                 duration: 1945,
                 src: getRandomSrc(),
                 type: "video",
-                completed: false,
-                currentTime: 127,
+                completed: true,
+                currentTime: 1597,
               },
               {
                 id: "Certification Information",
@@ -273,8 +272,8 @@ export const courseDetails: CourseDetail[] = [
                 duration: 176,
                 src: getRandomSrc(),
                 type: "doc",
-                completed: false,
-                currentTime: 127,
+                completed: true,
+                currentTime: 107,
               },
               {
                 id: "Student Guide to MCC",
@@ -282,8 +281,8 @@ export const courseDetails: CourseDetail[] = [
                 duration: 49,
                 src: getRandomSrc(),
                 type: "doc",
-                completed: false,
-                currentTime: 127,
+                completed: true,
+                currentTime: 14,
               },
             ],
           },
@@ -669,7 +668,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Advanced Core Sequences",
@@ -678,7 +677,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "High-Level Flexibility Training",
@@ -687,7 +686,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Precision Movement Training",
@@ -696,7 +695,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Injury Prevention Methods",
@@ -705,7 +704,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Professional Class Demonstration",
@@ -714,7 +713,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Advanced Practice Workbook",
@@ -723,7 +722,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "doc",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
             ],
           },
@@ -740,7 +739,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Building Training Programs",
@@ -749,7 +748,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Correcting Student Form",
@@ -758,7 +757,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Motivational Coaching",
@@ -767,7 +766,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Teaching Group Classes",
@@ -776,7 +775,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Handling Injured Clients",
@@ -785,7 +784,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Instructor Evaluation Sheet",
@@ -794,7 +793,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "doc",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
             ],
           },
@@ -811,7 +810,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Building a Personal Brand",
@@ -820,16 +819,16 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Marketing Your Classes",
                 title: "Marketing Your Classes",
-                duration: 1127,
+                duration: 1137,
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Social Media for Trainers",
@@ -838,7 +837,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Managing Clients Professionally",
@@ -847,7 +846,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Creating Long-Term Success",
@@ -856,7 +855,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Career Planning Workbook",
@@ -865,7 +864,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "doc",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
             ],
           },
@@ -882,7 +881,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Mock Practical Assessment",
@@ -891,16 +890,16 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Advanced Flow Demonstration",
                 title: "Advanced Flow Demonstration",
-                duration: 1277,
+                duration: 1377,
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Professional Teaching Evaluation",
@@ -909,7 +908,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Building Your Final Routine",
@@ -918,7 +917,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Final Course Wrap-Up",
@@ -927,7 +926,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Final Certification Guide",
@@ -936,7 +935,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "doc",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
             ],
           },
@@ -1026,7 +1025,7 @@ export const courseDetails: CourseDetail[] = [
       },
     ],
 
-    modules: [
+    curriculums: [
       {
         id: "foundation",
         title: "Foundation level",
@@ -1493,7 +1492,7 @@ export const courseDetails: CourseDetail[] = [
       },
     ],
 
-    modules: [
+    curriculums: [
       {
         id: "foundation",
         title: "Foundation level",
@@ -2012,7 +2011,7 @@ export const courseDetails: CourseDetail[] = [
       {id: "projects", title: "Capstone Projects", isOpen: false, lessons: []},
     ],
 
-    modules: [
+    curriculums: [
       {
         id: "fundamentals",
         title: "Python Fundamentals",
@@ -2525,7 +2524,7 @@ export const courseDetails: CourseDetail[] = [
       },
     ],
 
-    modules: [
+    curriculums: [
       {
         id: "starter",
         title: "Starter level",
@@ -2897,7 +2896,7 @@ export const courseDetails: CourseDetail[] = [
       },
     ],
 
-    modules: [
+    curriculums: [
       {
         id: "intermediate",
         title: "Intermediate level",
@@ -2916,7 +2915,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Utility Types: Partial, Pick, Omit & More",
@@ -2925,7 +2924,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Type Guards & Narrowing",
@@ -2934,7 +2933,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "TypeScript with React: Props & State Patterns",
@@ -2943,7 +2942,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Strict Mode & Eliminating `any`",
@@ -2952,7 +2951,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Declaration Files & Third-Party Types",
@@ -2961,7 +2960,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "TypeScript Pattern Reference Guide",
@@ -2970,7 +2969,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "doc",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
             ],
           },
@@ -2987,7 +2986,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Server Components vs Client Components",
@@ -2996,7 +2995,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Data Fetching: fetch, cache & revalidate",
@@ -3005,7 +3004,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Loading UI & Suspense Boundaries",
@@ -3014,7 +3013,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Error Boundaries & Not Found Pages",
@@ -3023,7 +3022,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Route Handlers & Middleware",
@@ -3032,7 +3031,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Parallel & Intercepting Routes",
@@ -3041,7 +3040,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Next.js App Router Cheatsheet",
@@ -3050,7 +3049,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "doc",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
             ],
           },
@@ -3074,7 +3073,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Image Optimisation with next/image",
@@ -3083,7 +3082,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Font Loading & Layout Shift Prevention",
@@ -3092,7 +3091,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Bundle Analysis & Code Splitting",
@@ -3101,7 +3100,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "React Performance: Memo, useCallback & Profiler",
@@ -3110,7 +3109,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Caching Strategies: Stale-While-Revalidate",
@@ -3119,7 +3118,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Performance Audit Checklist",
@@ -3128,7 +3127,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "doc",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
             ],
           },
@@ -3145,7 +3144,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Setting Up Vitest in a Next.js Project",
@@ -3154,7 +3153,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Writing Unit Tests for Utilities & Hooks",
@@ -3163,7 +3162,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Component Testing with React Testing Library",
@@ -3172,7 +3171,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Mocking APIs & Modules",
@@ -3181,7 +3180,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "E2E Testing with Playwright",
@@ -3190,7 +3189,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Test Coverage Reports & CI Integration",
@@ -3199,7 +3198,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Testing Strategy Reference Doc",
@@ -3208,7 +3207,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "doc",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
             ],
           },
@@ -3232,7 +3231,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Monorepo Architecture with Turborepo",
@@ -3241,7 +3240,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Micro-frontends: When & How",
@@ -3250,7 +3249,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "API Design: REST, GraphQL & tRPC",
@@ -3259,7 +3258,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "State Management at Scale",
@@ -3268,7 +3267,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Designing Component Libraries",
@@ -3277,7 +3276,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "System Design Interview Notes",
@@ -3286,7 +3285,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "doc",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
             ],
           },
@@ -3303,7 +3302,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Automated Linting, Formatting & Type Checks",
@@ -3312,7 +3311,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Deploying to Vercel: Environments & Previews",
@@ -3321,7 +3320,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Feature Flags & Incremental Rollouts",
@@ -3330,7 +3329,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Error Monitoring with Sentry",
@@ -3339,7 +3338,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Analytics, Logging & Observability",
@@ -3348,7 +3347,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Final Capstone: Full-Stack Production App",
@@ -3357,7 +3356,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "video",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
               {
                 id: "Deployment & DevOps Runbook",
@@ -3366,7 +3365,7 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "doc",
                 completed: false,
-                currentTime: 127,
+                currentTime: 0,
               },
             ],
           },
