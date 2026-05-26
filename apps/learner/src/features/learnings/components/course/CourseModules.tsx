@@ -1,32 +1,17 @@
 import {useState} from "react";
 import {Icon, Button} from "@mcc/ui";
 import {useLessonsDuration} from "@/src/features/learnings/hooks/useLessonDuration";
-
-type LessonType = "video" | "quiz" | "doc";
-
-export interface Lesson {
-  title: string;
-  duration: string;
-  src: string;
-  type: LessonType;
-}
-
-interface Module {
-  title: string;
-  lessons?: Lesson[];
-}
-
-export interface CourseModuleLevel {
-  title: string;
-  status?: "completed" | "not started";
-  progress?: number;
-  modules: Module[];
-}
+import {
+  CourseModule,
+  CourseModuleLevel,
+  Lessons,
+  LessonType,
+} from "@/src/features/constants/demoCourses";
 
 interface CourseContentSidebarProps {
   levels: CourseModuleLevel[];
   onClose?: () => void;
-  setActiveLessonSrc: (lesson: Lesson) => void;
+  setActiveLessonSrc: (lesson: Lessons) => void;
 }
 
 const lessonIconMap: Record<LessonType, {icon: string; className: string}> = {
@@ -38,10 +23,10 @@ const lessonIconMap: Record<LessonType, {icon: string; className: string}> = {
     icon: "ri:booklet-line",
     className: "text-primary",
   },
-  quiz: {
-    icon: "ph:clock",
-    className: "text-primary",
-  },
+  //   quiz: {
+  //     icon: "ph:clock",
+  //     className: "text-primary",
+  //   },
 };
 
 export default function CoursePlayModules({
@@ -53,7 +38,7 @@ export default function CoursePlayModules({
   const [activeLesson, setActiveLesson] = useState<string | null>(null);
 
   return (
-    <div className="w-full min-w-fit max-w-[400px] pt-6 px-1 flex flex-col rounded-xl overflow-hidden bg-background">
+    <div className="w-full min-w-fit max-w-120 pt-6 px-1 flex flex-col rounded-xl overflow-hidden bg-background">
       <div className="flex gap-2 justify-between py-2">
         <div className="flex gap-2">
           {(["course", "ai"] as const).map((tab) => (
@@ -101,7 +86,7 @@ export default function CoursePlayModules({
                 <span className="text-sm font-bold tracking-widest text-subtle uppercase">
                   {level.title}
                 </span>
-                {level.progress !== undefined ? (
+                {level.progress !== 0 ? (
                   <span className="flex items-center justify-center gap-2">
                     <span className="text-primary">
                       <Icon icon="ri:progress-1-line" size={16} />
@@ -113,7 +98,7 @@ export default function CoursePlayModules({
                 ) : (
                   <span className="flex items-center gap-2 text-xs font-medium text-muted">
                     <Icon icon="octicon:play-16" size={14} />
-                    {level.status}
+                    Not Started
                   </span>
                 )}
               </div>
@@ -148,10 +133,10 @@ function ModuleAccordion({
   onSelectLesson,
   setActiveLessonSrc,
 }: {
-  module: Module;
+  module: CourseModule;
   activeLesson: string | null;
   onSelectLesson: (key: string) => void;
-  setActiveLessonSrc: (key: Lesson) => void;
+  setActiveLessonSrc: (key: Lessons) => void;
 }) {
   const [open, setOpen] = useState(false);
   const hasLessons = !!module.lessons?.length;
@@ -164,6 +149,11 @@ function ModuleAccordion({
         className="border border-muted/20 rounded-2xl flex items-center justify-between w-full px-3.5 py-5.5 hover:bg-muted/5 transition-colors text-left gap-2"
       >
         <div className="flex items-center gap-2 min-w-0">
+          <div
+            className={`border border-muted/20 rounded-sm h-4 w-4 flex items-center justify-center shrink-0 text-white`}
+          >
+            <Icon icon="ci:check" size={16} />
+          </div>
           <span className="text-sm font-medium truncate">{module.title}</span>
         </div>
 

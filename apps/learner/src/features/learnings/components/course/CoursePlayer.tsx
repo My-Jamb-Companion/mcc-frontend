@@ -4,7 +4,7 @@ import {useRef, useState, useEffect, useCallback} from "react";
 import {Icon} from "@mcc/ui";
 
 interface VideoPlayerProps {
-  src: string;
+  src: string | undefined;
   poster?: string;
 }
 
