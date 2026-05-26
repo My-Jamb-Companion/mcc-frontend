@@ -2,7 +2,7 @@
 import {courseDetails} from "@/src/features/constants/demoCourses";
 import {useParams} from "next/navigation";
 import BuyCourse from "./BuyCourse";
-import CoursePlayer from "./CoursePlayer";
+import CourseContent from "./CourseContent";
 
 export default function Course() {
   const {id} = useParams();
@@ -13,7 +13,7 @@ export default function Course() {
   if (!course) return null;
 
   return course.isEnrolled ? (
-    <CoursePlayer course={course} />
+    <CourseContent course={course} />
   ) : (
     <BuyCourse course={course} />
   );
