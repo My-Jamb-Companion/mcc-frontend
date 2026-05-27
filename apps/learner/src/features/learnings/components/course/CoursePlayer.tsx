@@ -6,6 +6,7 @@ import {Icon} from "@mcc/ui";
 interface VideoPlayerProps {
   src: string | undefined;
   poster?: string;
+  onEnded?: () => void;
 }
 
 function formatTime(seconds: number) {
@@ -14,7 +15,7 @@ function formatTime(seconds: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-export default function CoursePlayer({src, poster}: VideoPlayerProps) {
+export default function CoursePlayer({src, poster, onEnded}: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -70,7 +71,10 @@ export default function CoursePlayer({src, poster}: VideoPlayerProps) {
     setDuration(videoRef.current.duration);
   };
 
-  const onEnded = () => setPlaying(false);
+  const handleEnded = () => {
+    setPlaying(false);
+    if (onEnded) onEnded();
+  };
 
   // ── controls ──────────────────────────────────────────────────────
   const togglePlay = () => {
@@ -129,6 +133,39 @@ export default function CoursePlayer({src, poster}: VideoPlayerProps) {
     }
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
+      ) {
+        return;
+      }
+
+      switch (e.key.toLowerCase()) {
+        case "m":
+          toggleMute();
+          break;
+        case "f":
+          toggleFullscreen();
+          break;
+        case "arrowright":
+          skip(10);
+          break;
+        case "arrowleft":
+          skip(-10);
+          break;
+        case " ":
+          e.preventDefault();
+          togglePlay();
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [muted, isFullscreen, duration, playing]);
+
   const progress = duration ? (currentTime / duration) * 100 : 0;
 
   const volumeIcon =
@@ -155,7 +192,7 @@ export default function CoursePlayer({src, poster}: VideoPlayerProps) {
         className="w-full aspect-video object-cover"
         onTimeUpdate={onTimeUpdate}
         onLoadedMetadata={onLoadedMetadata}
-        onEnded={onEnded}
+        onEnded={handleEnded}
         onClick={togglePlay}
       />
 

@@ -1,9 +1,5 @@
 import {useMemo} from "react";
-import {Lessons, CourseModule} from "../../constants/demoCourses";
-
-// ---------------------------------------------------------------------------
-// Module progress helpers
-// ---------------------------------------------------------------------------
+import {Lessons, CourseModule, courseDetails} from "@/src/features/constants/demoCourses";
 
 /**
  * Calculate the progress percentage of a module from its lessons.
@@ -82,4 +78,19 @@ export function useLessonsDuration(lessons: Lessons[]) {
       formatted: hours > 0 ? `${hours}hr ${minutes}min` : `${minutes}min`,
     };
   }, [lessons]);
+}
+
+
+export function useAllLessons(course:  (typeof courseDetails)[0]){
+  return useMemo(()=>{
+    const allLessons:Lessons[] = []
+    course.curriculums.forEach((level)=>{
+      level.modules.forEach((module)=>{
+        module.lessons?.forEach((lesson)=>{
+          allLessons.push(lesson)
+        })
+      })
+    })
+    return allLessons
+  },[course])
 }

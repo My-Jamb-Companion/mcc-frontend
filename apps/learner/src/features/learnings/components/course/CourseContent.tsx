@@ -2,15 +2,28 @@ import {courseDetails, Lessons} from "@/src/features/constants/demoCourses";
 import CoursePlayModules from "./CourseModules";
 import Link from "next/link";
 import CoursePlayer from "./CoursePlayer";
-import {useState} from "react";
+import {useState } from "react";
+import { useAllLessons } from "@/src/features/learnings/hooks/useLesson";
 
 export default function CourseContent({
   course,
 }: {
   course: (typeof courseDetails)[0];
 }) {
-  const [activeLesson, setActiveLesson] = useState<Lessons | null>(null);
-  console.log(activeLesson, course);
+  const allLessons = useAllLessons(course)
+
+  const [activeLesson, setActiveLesson] = useState<Lessons | null>(allLessons[0] || null);
+
+console.log(allLessons,activeLesson)
+  const handleVideoEnded = () => {
+    if (!activeLesson) return;
+    const currentIndex = allLessons.findIndex((item) => item.id === activeLesson.id);
+    if (currentIndex >= 0 && currentIndex < allLessons.length - 1) {
+      setActiveLesson(allLessons[currentIndex + 1]);
+    }
+  };
+
+
   return (
     <section>
       <nav className="flex items-center gap-1 text-sm py-8">
@@ -25,12 +38,13 @@ export default function CourseContent({
       <div className="flex gap-6">
         <div className="pb-8">
           <div className="pb-14 w-full min-w-full">
-            <CoursePlayer src={activeLesson?.src} poster={course.imgBig} />
+            <CoursePlayer src={activeLesson?.src} poster={course.imgBig} onEnded={handleVideoEnded} />
           </div>
         </div>
         <CoursePlayModules
           levels={course.curriculums}
           setActiveLessonSrc={setActiveLesson}
+          activeLesson={activeLesson?.id}
         />
       </div>
     </section>

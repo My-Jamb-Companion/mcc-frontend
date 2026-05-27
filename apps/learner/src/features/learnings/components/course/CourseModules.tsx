@@ -5,7 +5,7 @@ import {
   useLevelProgress,
   useModuleProgress,
   formatDuration,
-} from "@/src/features/learnings/hooks/useLessonDuration";
+} from "@/src/features/learnings/hooks/useLesson";
 import {
   CourseModule,
   CourseLevel,
@@ -17,6 +17,7 @@ interface CourseContentSidebarProps {
   levels: CourseLevel[];
   onClose?: () => void;
   setActiveLessonSrc: (lesson: Lessons) => void;
+  activeLesson?: string | null;
 }
 
 const lessonIconMap: Record<LessonType, {icon: string; className: string}> = {
@@ -38,9 +39,9 @@ export default function CoursePlayModules({
   levels,
   onClose,
   setActiveLessonSrc,
+  activeLesson = null,
 }: CourseContentSidebarProps) {
   const [activeTab, setActiveTab] = useState<"course" | "ai">("course");
-  const [activeLesson, setActiveLesson] = useState<string | null>(null);
 
   return (
     <div className="w-full min-w-fit max-w-120 pt-6 px-1 flex flex-col rounded-xl overflow-hidden bg-background">
@@ -90,7 +91,6 @@ export default function CoursePlayModules({
               key={level.title}
               level={level}
               activeLesson={activeLesson}
-              onSelectLesson={setActiveLesson}
               setActiveLessonSrc={setActiveLessonSrc}
             />
           ))}
@@ -100,7 +100,7 @@ export default function CoursePlayModules({
       {activeTab === "ai" && (
         <div className="flex flex-col items-center justify-center gap-2 py-10 text-subtle text-[13px]">
           <Icon icon="ph:sparkle" size={32} />
-          <p>AI assistant panel</p>
+          <p>{"AI assistant panel"}</p>
         </div>
       )}
     </div>
@@ -110,12 +110,10 @@ export default function CoursePlayModules({
 function LevelSection({
   level,
   activeLesson,
-  onSelectLesson,
   setActiveLessonSrc,
 }: {
   level: CourseLevel;
   activeLesson: string | null;
-  onSelectLesson: (key: string) => void;
   setActiveLessonSrc: (key: Lessons) => void;
 }) {
   const progress = useLevelProgress(level.modules);
@@ -168,7 +166,6 @@ const iconIndex = (
           key={module.title}
           module={module}
           activeLesson={activeLesson}
-          onSelectLesson={onSelectLesson}
           setActiveLessonSrc={setActiveLessonSrc}
         />
       ))}
@@ -179,12 +176,10 @@ const iconIndex = (
 function ModuleAccordion({
   module,
   activeLesson,
-  onSelectLesson,
   setActiveLessonSrc,
 }: {
   module: CourseModule;
   activeLesson: string | null;
-  onSelectLesson: (key: string) => void;
   setActiveLessonSrc: (key: Lessons) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -227,7 +222,7 @@ function ModuleAccordion({
       {hasLessons && open && (
         <div className="pl-4 pt-6 pb-4 flex flex-col gap-4">
           {module.lessons!.map((lesson) => {
-            const key = `${module.title}__${lesson.title}`;
+            const key = lesson.id;
             const isActive = activeLesson === key;
             const iconConfig = lessonIconMap[lesson.type];
 
@@ -238,7 +233,6 @@ function ModuleAccordion({
                 onClick={() => {
                   console.log(lesson);
                   setActiveLessonSrc(lesson);
-                  onSelectLesson(key);
                 }}
                 className={`flex gap-2.5 w-full pl-1 pr-3.5 text-left hover:bg-muted/5 transition-colors ${
                   isActive ? "border-l-primary  border-l-3" : "border-l-0"
