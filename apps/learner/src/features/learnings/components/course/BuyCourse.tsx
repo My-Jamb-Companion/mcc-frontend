@@ -24,7 +24,7 @@ export default function BuyCourse({
         <span className="text-muted/50 cursor-default">{course.title}</span>
       </nav>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-6 max-sm:grid-cols-1">
         <div className="pb-8">
           <div className="pb-14">
             <CourseHero

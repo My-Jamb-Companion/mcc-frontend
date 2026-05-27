@@ -35,8 +35,8 @@ export default function CoursePayment() {
         </>
       </nav>
 
-      <div className="grid grid-cols-2 gap-6">
-        <div className="flex flex-col gap-5 pb-8">
+      <div className="grid grid-cols-2 gap-6 max-sm:grid-cols-1">
+        <div className="flex flex-col gap-5 pb-8 max-sm:hidden">
           <div className="pb-14">
             <CourseHero
               mainImage={course.imgBig}

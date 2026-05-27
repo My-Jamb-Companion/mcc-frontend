@@ -36,7 +36,7 @@ console.log(allLessons,activeLesson)
 
         <span className="text-muted/50 cursor-default">{course.title}</span>
       </nav>
-      <div className="flex gap-6">
+      <div className="flex gap-6 max-sm:flex-col">
         <div className="pb-8">
           <div className="pb-14 w-full min-w-full">
             <CoursePlayer src={activeLesson?.src} poster={course.imgBig} onEnded={handleVideoEnded} />

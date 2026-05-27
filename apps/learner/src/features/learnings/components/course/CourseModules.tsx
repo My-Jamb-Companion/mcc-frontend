@@ -44,7 +44,7 @@ export default function CoursePlayModules({
   const [activeTab, setActiveTab] = useState<"course" | "ai">("course");
 
   return (
-    <div className="w-full min-w-fit max-w-120 pt-6 px-1 flex flex-col rounded-xl overflow-hidden bg-background">
+    <div className="w-full min-w-fit max-w-120 max-sm:w-full pt-6 px-1 flex flex-col rounded-xl overflow-hidden bg-background">
       <div className="flex gap-2 justify-between py-2">
         <div className="flex gap-2">
           {(["course", "ai"] as const).map((tab) => (
