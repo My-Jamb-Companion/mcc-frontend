@@ -1,14 +1,15 @@
-import {courseDetails, Lessons} from "@/src/features/constants/demoCourses";
+import {CourseDetail, Lessons} from "@/src/features/constants/demoCourses";
 import CoursePlayModules from "./CourseModules";
 import Link from "next/link";
 import CoursePlayer from "./CoursePlayer";
 import {useState } from "react";
 import { useAllLessons } from "@/src/features/learnings/hooks/useLesson";
 
+
 export default function CourseContent({
   course,
 }: {
-  course: (typeof courseDetails)[0];
+  course: CourseDetail;
 }) {
   const allLessons = useAllLessons(course)
 

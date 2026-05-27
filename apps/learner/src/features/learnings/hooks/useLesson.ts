@@ -1,5 +1,5 @@
 import {useMemo} from "react";
-import {Lessons, CourseModule, courseDetails} from "@/src/features/constants/demoCourses";
+import {Lessons, CourseModule, CourseDetail} from "@/src/features/constants/demoCourses";
 
 /**
  * Calculate the progress percentage of a module from its lessons.
@@ -81,7 +81,7 @@ export function useLessonsDuration(lessons: Lessons[]) {
 }
 
 
-export function useAllLessons(course:  (typeof courseDetails)[0]){
+export function useAllLessons(course:CourseDetail){
   return useMemo(()=>{
     const allLessons:Lessons[] = []
     course.curriculums.forEach((level)=>{
