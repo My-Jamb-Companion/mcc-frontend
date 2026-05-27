@@ -119,7 +119,27 @@ function LevelSection({
   setActiveLessonSrc: (key: Lessons) => void;
 }) {
   const progress = useLevelProgress(level.modules);
-
+  const progressIconMap = {
+    0: "hugeicons:progress-01",
+    1: "ri:progress-2-line",
+    2: "ri:progress-3-line",
+    3: "ri:progress-4-line",
+    4: "ri:progress-5-line",
+    5: "ri:progress-6-line",
+    6: "ri:progress-7-line",
+    7: "ri:progress-8-line",
+  };
+const iconIndex = (
+  progress <= 0  ? 0
+  : progress < 15 ? 1
+  : progress < 30 ? 2
+  : progress < 45 ? 3
+  : progress < 60 ? 4
+  : progress < 75 ? 5
+  : progress < 90 ? 6
+  : 7
+) as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between pt-6 text-muted py-3 sticky top-0 bg-background z-10">
@@ -129,7 +149,7 @@ function LevelSection({
         {progress !== 0 ? (
           <span className="flex items-center justify-center gap-2">
             <span className="text-primary">
-              <Icon icon="ri:progress-1-line" size={16} />
+              <Icon icon={progressIconMap[iconIndex]} size={16} />
             </span>
             <span className="text-muted text-xs font-medium translate-y-[1.5px]">
               {progress}% completed
