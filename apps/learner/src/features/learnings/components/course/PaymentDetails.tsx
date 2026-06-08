@@ -87,60 +87,6 @@ export default function PaymentDetails({price}: {price: number}) {
         </motion.p>
       </motion.div>
 
-      <motion.div
-        variants={item}
-        whileHover={{
-          y: -3,
-          scale: 1.01,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 250,
-        }}
-        className="relative overflow-hidden rounded-2xl bg-black text-white p-5 h-48 flex flex-col justify-between"
-      >
-        <motion.div
-          animate={{
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 3,
-          }}
-          className="absolute -top-10 -right-10 size-32 rounded-full bg-white/10 blur-2xl"
-        />
-
-        <div className="flex items-center justify-between relative z-10">
-          <p className="text-sm text-white/70">Credit Card</p>
-
-          <Icon icon="solar:card-outline" size={28} />
-        </div>
-
-        <div className="relative z-10 flex flex-col gap-3">
-          <motion.p
-            key={cardNumber}
-            initial={{opacity: 0, y: 5}}
-            animate={{opacity: 1, y: 0}}
-            className="tracking-[0.3em] text-lg font-medium"
-          >
-            {cardNumber || "•••• •••• •••• ••••"}
-          </motion.p>
-
-          <div className="flex items-center justify-between">
-            <motion.p
-              key={cardName}
-              initial={{opacity: 0}}
-              animate={{opacity: 1}}
-              className="uppercase text-sm text-white/80"
-            >
-              {cardName || "CARD HOLDER"}
-            </motion.p>
-
-            <p className="text-sm text-white/60">VISA</p>
-          </div>
-        </div>
-      </motion.div>
-
       <motion.div variants={item}>
         <FormInputs
           label="Card owners name"

@@ -67,7 +67,7 @@ export default function CoursePayment() {
           />
         </div>
 
-        <div className="w-full">
+        <div className="w-full sm:w-fit mx-auto ">
           <PaymentDetails price={course.price} />
         </div>
       </div>
