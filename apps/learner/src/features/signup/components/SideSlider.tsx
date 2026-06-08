@@ -1,9 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { slides } from "../constants/slides";
-import { AnimatePresence, FadeInUp, ProgressBar, SlideTransition, Stagger } from "@mcc/ui";
+import {useEffect, useState} from "react";
+import {slides} from "../constants/slides";
+import {
+  AnimatePresence,
+  FadeInUp,
+  ProgressBar,
+  SlideTransition,
+  Stagger,
+} from "@mcc/ui";
 
 export default function SignUpSlider() {
   const [slide, setSlide] = useState(0);
@@ -43,51 +49,48 @@ export default function SignUpSlider() {
 
       <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-transparent" />
 
-      <div className="absolute inset-0 flex flex-col justify-end px-8 py-10 text-white backdrop-blur-[2px]">
+      <div className="absolute inset-0 flex flex-col justify-end px-8 py-10 text-white backdrop-blur-[.5px]">
         <AnimatePresence mode="wait">
           <Stagger key={slide}>
+            <h3 className="text-5xl font-bold" style={{fontFamily: "Recoleta"}}>
+              {slides[slide].title}
+            </h3>
 
-              <h3 className="text-5xl font-bold" style={{ fontFamily: "Recoleta" }}>
-                {slides[slide].title}
-              </h3>
-            
-
-              <FadeInUp>
-                <p className="text-sm mt-2 text-white/90">
-                  {slides[slide].description}
-                </p>
-              </FadeInUp>
+            <FadeInUp>
+              <p className="text-sm mt-2 text-white/90">
+                {slides[slide].description}
+              </p>
+            </FadeInUp>
           </Stagger>
         </AnimatePresence>
 
         <div className="mt-20 flex gap-2">
           {slides.map((s) => {
             const active = slide === s.id - 1;
-          return (
-            <div
-              key={s.id}
-              className="w-full cursor-pointer"
-              onClick={() => nextSlide(s.id - 1)}
-            >
-              <div className="mb-4 rounded-full bg-white/30 w-full h-0.5 overflow-hidden">
-
-
-                              <ProgressBar
+            return (
+              <div
+                key={s.id}
+                className="w-full cursor-pointer"
+                onClick={() => nextSlide(s.id - 1)}
+              >
+                <div className="mb-4 rounded-full bg-white/30 w-full h-0.5 overflow-hidden">
+                  <ProgressBar
                     active={active}
                     progress={width}
                     color={
                       slide === slides.length - 1
                         ? "#90CD22"
                         : slide === 0
-                        ? "#fff"
-                        : "#6717DE"
+                          ? "#fff"
+                          : "#6717DE"
                     }
                   />
-              </div>
+                </div>
 
-              <p className="text-xs font-medium text-white/90">{s.info}</p>
-            </div>
-          )})}
+                <p className="text-xs font-medium text-white/90">{s.info}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
