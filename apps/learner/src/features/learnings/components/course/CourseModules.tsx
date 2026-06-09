@@ -127,17 +127,24 @@ function LevelSection({
     6: "ri:progress-7-line",
     7: "ri:progress-8-line",
   };
-const iconIndex = (
-  progress <= 0  ? 0
-  : progress < 15 ? 1
-  : progress < 30 ? 2
-  : progress < 45 ? 3
-  : progress < 60 ? 4
-  : progress < 75 ? 5
-  : progress < 90 ? 6
-  : 7
-) as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
-  
+  const iconIndex = (
+    progress <= 0
+      ? 0
+      : progress < 15
+        ? 1
+        : progress < 30
+          ? 2
+          : progress < 45
+            ? 3
+            : progress < 60
+              ? 4
+              : progress < 75
+                ? 5
+                : progress < 90
+                  ? 6
+                  : 7
+  ) as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between pt-6 text-muted py-3 sticky top-0 bg-background z-10">
@@ -231,7 +238,6 @@ function ModuleAccordion({
                 key={key}
                 type="button"
                 onClick={() => {
-                  console.log(lesson);
                   setActiveLessonSrc(lesson);
                 }}
                 className={`flex gap-2.5 w-full pl-1 pr-3.5 text-left hover:bg-muted/5 transition-colors ${

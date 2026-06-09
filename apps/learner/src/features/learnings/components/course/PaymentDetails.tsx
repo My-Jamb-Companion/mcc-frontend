@@ -49,7 +49,6 @@ export default function PaymentDetails({price}: {price: number}) {
     },
   });
 
-  const cardName = watch("cardName");
   const cardNumber = watch("cardNumber");
   const watched = watch();
 
