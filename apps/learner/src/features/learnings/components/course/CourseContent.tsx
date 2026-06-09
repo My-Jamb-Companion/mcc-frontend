@@ -14,6 +14,7 @@ import FacilitatorTab from "./tabs/FacilitatorTab";
 import OverviewTab from "./tabs/OverviewTab";
 import BrainyCourseSidePanel from "./BrainyCourseSidePanel";
 import {motion, AnimatePresence} from "@mcc/ui";
+import {CoursePractice} from "./CoursePractice";
 
 export default function CourseContent({course}: {course: CourseDetail}) {
   const allLessons = useAllLessons(course);
@@ -51,7 +52,7 @@ export default function CourseContent({course}: {course: CourseDetail}) {
       setActiveLesson(allLessons[currentIndex + 1]);
     }
   };
-
+  console.log(activeLesson);
   return (
     <section>
       <nav className="flex items-center gap-1 text-sm py-8">
@@ -67,13 +68,51 @@ export default function CourseContent({course}: {course: CourseDetail}) {
         className={`grid grid-cols-1 ${isSidePanelOpen ? "lg:grid-cols-[1fr_30rem]" : "lg:grid-cols-[1fr_2rem]"} gap-6 transition-[grid-template-columns] duration-400 ease-in-out`}
       >
         <div className="pb-8">
-          <div className="pb-14 w-full min-w-full">
-            <CoursePlayer
-              src={activeLesson?.src}
-              poster={course.imgBig}
-              onEnded={handleVideoEnded}
-              onTimeUpdate={setCurrentVideoTime}
-            />
+          <div className="w-full min-w-full overflow-hidden">
+            <AnimatePresence mode="wait">
+              {activeLesson?.type === "video" && (
+                <motion.div
+                  key={`video-${activeLesson?.id}`}
+                  initial={{opacity: 0, scale: 0.98}}
+                  animate={{opacity: 1, scale: 1}}
+                  exit={{opacity: 0, scale: 0.98}}
+                  transition={{duration: 0.25}}
+                >
+                  <CoursePlayer
+                    src={activeLesson?.src}
+                    poster={course.imgBig}
+                    onEnded={handleVideoEnded}
+                    onTimeUpdate={setCurrentVideoTime}
+                  />
+                </motion.div>
+              )}
+
+              {activeLesson?.type === "doc" && (
+                <motion.div
+                  key={`doc-${activeLesson?.id}`}
+                  initial={{opacity: 0, scale: 0.98}}
+                  animate={{opacity: 1, scale: 1}}
+                  exit={{opacity: 0, scale: 0.98}}
+                  transition={{duration: 0.25}}
+                >
+                  <CoursePractice
+                    problem={{
+                      id: "p1",
+                      label: "PROBLEM 1",
+                      title: "Now, lets Practice",
+                      question: "Q1...",
+                      answerPlaceholder: "A1...",
+                      correctAnswer: "A1...",
+                      totalSteps: 6,
+                      currentStep: 1,
+                      upNext: "module 4",
+                    }}
+                    onCorrect={() => console.log("Correct!")}
+                    onUpNext={() => console.log("Navigate to next module")}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="flex items-center justify-between py-4 my-8">
@@ -93,14 +132,24 @@ export default function CourseContent({course}: {course: CourseDetail}) {
             </div>
           </div>
 
-          {activeTab === "overview" && <OverviewTab />}
-          {activeTab === "community" && (
-            <CommunityTab currentVideoTime={currentVideoTime} />
-          )}
-          {activeTab === "notes" && (
-            <NotesTab currentTimestamp={currentVideoTime} />
-          )}
-          {activeTab === "facilitator" && <FacilitatorTab />}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{opacity: 0, y: 10}}
+              animate={{opacity: 1, y: 0}}
+              exit={{opacity: 0, y: -10}}
+              transition={{duration: 0.15}}
+            >
+              {activeTab === "overview" && <OverviewTab />}
+              {activeTab === "community" && (
+                <CommunityTab currentVideoTime={currentVideoTime} />
+              )}
+              {activeTab === "notes" && (
+                <NotesTab currentTimestamp={currentVideoTime} />
+              )}
+              {activeTab === "facilitator" && <FacilitatorTab />}
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* side panel */}

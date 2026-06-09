@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {Icon, Button, motion, AnimatePresence} from "@mcc/ui";
+import {Icon, motion, AnimatePresence} from "@mcc/ui";
 import {
   useLessonsDuration,
   useLevelProgress,
