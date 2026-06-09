@@ -4,15 +4,16 @@ import {CourseDetail, Lessons} from "@/src/features/constants/demoCourses";
 import CoursePlayModules from "./CourseModules";
 import Link from "next/link";
 import CoursePlayer from "./CoursePlayer";
-import {useState, useCallback, useRef, useEffect} from "react";
+import {useState, useCallback} from "react";
 import {useAllLessons} from "@/src/features/learnings/hooks/useLesson";
 import {Button, Icon} from "@mcc/ui";
 import {useRouter, usePathname, useSearchParams} from "next/navigation";
-import Image from "next/image";
 import CommunityTab from "./tabs/CommunityTab";
 import NotesTab from "./tabs/NotesTab";
 import FacilitatorTab from "./tabs/FacilitatorTab";
 import OverviewTab from "./tabs/OverviewTab";
+import BrainyCourseSidePanel from "./BrainyCourseSidePanel";
+import {motion, AnimatePresence} from "@mcc/ui";
 
 export default function CourseContent({course}: {course: CourseDetail}) {
   const allLessons = useAllLessons(course);
@@ -22,6 +23,8 @@ export default function CourseContent({course}: {course: CourseDetail}) {
 
   const tabQuery = searchParams.get("tab");
   const tabs = ["overview", "community", "notes", "facilitator"];
+  const [sidePanel, setSidePanel] = useState<"course" | "ai">("course");
+  const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
 
   const activeTab = tabQuery && tabs.includes(tabQuery) ? tabQuery : "overview";
 
@@ -60,7 +63,9 @@ export default function CourseContent({course}: {course: CourseDetail}) {
 
         <span className="text-muted/50 cursor-default">{course.title}</span>
       </nav>
-      <div className="flex gap-6 max-sm:flex-col">
+      <div
+        className={`grid grid-cols-1 ${isSidePanelOpen ? "lg:grid-cols-[1fr_30rem]" : "lg:grid-cols-[1fr_2rem]"} gap-6 transition-[grid-template-columns] duration-400 ease-in-out`}
+      >
         <div className="pb-8">
           <div className="pb-14 w-full min-w-full">
             <CoursePlayer
@@ -71,19 +76,21 @@ export default function CourseContent({course}: {course: CourseDetail}) {
             />
           </div>
 
-          <div className="flex items-center gap-6 py-4 my-8">
-            {tabs.map((tab) => (
-              <Button
-                key={tab}
-                variant={activeTab === tab ? "outline" : "ghost"}
-                size="sm"
-                className={`capitalize ${activeTab === tab ? "font-bold text-black" : "text-muted"}`}
-                width="fit"
-                onClick={() => handleTabChange("tab", tab)}
-              >
-                {tab}
-              </Button>
-            ))}
+          <div className="flex items-center justify-between py-4 my-8">
+            <div className="flex items-center gap-6">
+              {tabs.map((tab) => (
+                <Button
+                  key={tab}
+                  variant={activeTab === tab ? "outline" : "ghost"}
+                  size="sm"
+                  className={`capitalize ${activeTab === tab ? "font-bold text-black" : "text-muted"}`}
+                  width="fit"
+                  onClick={() => handleTabChange("tab", tab)}
+                >
+                  {tab}
+                </Button>
+              ))}
+            </div>
           </div>
 
           {activeTab === "overview" && <OverviewTab />}
@@ -96,11 +103,75 @@ export default function CourseContent({course}: {course: CourseDetail}) {
           {activeTab === "facilitator" && <FacilitatorTab />}
         </div>
 
-        <CoursePlayModules
-          levels={course.curriculums}
-          setActiveLessonSrc={setActiveLesson}
-          activeLesson={activeLesson?.id}
-        />
+        {/* side panel */}
+        <AnimatePresence mode="wait">
+          {!isSidePanelOpen ? (
+            <motion.button
+              key="open-btn"
+              onClick={() => setIsSidePanelOpen(true)}
+              className="p-1.5 rounded text-subtle hover:bg-muted/10 transition-colors flex items-center gap-1.5 text-sm font-medium h-fit w-fit border rounded-full border-muted/40 cursor-pointer"
+              initial={{opacity: 0, scale: 0.8}}
+              animate={{opacity: 1, scale: 1}}
+              exit={{opacity: 0, scale: 0.8}}
+              transition={{duration: 0.2}}
+            >
+              <Icon icon="ri:sidebar-unfold-line" size={15} />
+            </motion.button>
+          ) : (
+            <motion.div
+              key="side-panel"
+              className="w-full min-w-fit md:max-w-120 max-sm:w-full pt-6 px-1 flex flex-col rounded-xl overflow-hidden bg-background h-fit"
+              initial={{opacity: 0, x: 40}}
+              animate={{opacity: 1, x: 0}}
+              exit={{opacity: 0, x: 40}}
+              transition={{type: "spring", stiffness: 300, damping: 30}}
+            >
+              <div className="flex gap-2 justify-between py-2">
+                <div className="flex gap-2">
+                  {(["course", "ai"] as const).map((tab) => (
+                    <Button
+                      key={tab}
+                      variant={sidePanel === tab ? "outline" : "ghost"}
+                      onClick={() => setSidePanel(tab)}
+                      width="fit"
+                      className={`text-nowrap py-1!  ${sidePanel == tab ? "" : "opacity-60"}`}
+                    >
+                      <p className="flex items-center gap-2">
+                        {tab === "ai" && (
+                          <Icon icon={"mingcute:ai-fill"} size={14} />
+                        )}
+                        <span>
+                          {tab === "course" ? "Course content" : "AI assistant"}
+                        </span>
+                      </p>
+                    </Button>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-1 px-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsSidePanelOpen(false)}
+                    aria-label="Close Sidepanel"
+                    className="p-1.5 rounded text-subtle hover:bg-muted/10 transition-colors"
+                  >
+                    <Icon icon="ri:sidebar-unfold-line" size={15} />
+                  </button>
+                </div>
+              </div>
+
+              {sidePanel === "course" && (
+                <CoursePlayModules
+                  levels={course.curriculums}
+                  setActiveLessonSrc={setActiveLesson}
+                  activeLesson={activeLesson?.id}
+                />
+              )}
+
+              {sidePanel === "ai" && <BrainyCourseSidePanel />}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );
