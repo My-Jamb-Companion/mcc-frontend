@@ -24,7 +24,7 @@ export default function Help() {
             ease: [0.22, 1, 0.36, 1],
           },
         }}
-        className="fixed max-sm:w-full right-10 max-sm:right-1 top-1/2 -translate-y-1/2 flex flex-col items-end z-50"
+        className="fixed max-sm:w-full right-10 max-sm:right-1 bottom-5  flex flex-col items-end z-50"
       >
         <AnimatePresence mode="popLayout">
           {open && (
