@@ -1,15 +1,36 @@
+"use client";
+
 import {CourseDetail, Lessons} from "@/src/features/constants/demoCourses";
 import CoursePlayModules from "./CourseModules";
 import Link from "next/link";
 import CoursePlayer from "./CoursePlayer";
-import {useState} from "react";
+import {useState, useCallback} from "react";
 import {useAllLessons} from "@/src/features/learnings/hooks/useLesson";
+import {Button} from "@mcc/ui";
+import {useRouter, usePathname, useSearchParams} from "next/navigation";
 
 export default function CourseContent({course}: {course: CourseDetail}) {
   const allLessons = useAllLessons(course);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const tabQuery = searchParams.get("tab");
+  const tabs = ["overview", "community", "notes", "facilitator"];
+
+  const activeTab = tabQuery && tabs.includes(tabQuery) ? tabQuery : "overview";
 
   const [activeLesson, setActiveLesson] = useState<Lessons | null>(
     allLessons[0] || null,
+  );
+
+  const handleTabChange = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(name, value);
+      router.push(pathname + "?" + params.toString(), {scroll: false});
+    },
+    [searchParams, pathname, router],
   );
 
   const handleVideoEnded = () => {
@@ -42,7 +63,23 @@ export default function CourseContent({course}: {course: CourseDetail}) {
               onEnded={handleVideoEnded}
             />
           </div>
+
+          <div className="flex items-center gap-6 py-4 mt-8">
+            {tabs.map((tab) => (
+              <Button
+                key={tab}
+                variant={activeTab === tab ? "outline" : "ghost"}
+                size="sm"
+                className={`capitalize ${activeTab === tab ? "font-bold text-black" : "text-muted"}`}
+                width="fit"
+                onClick={() => handleTabChange("tab", tab)}
+              >
+                {tab}
+              </Button>
+            ))}
+          </div>
         </div>
+
         <CoursePlayModules
           levels={course.curriculums}
           setActiveLessonSrc={setActiveLesson}
