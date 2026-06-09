@@ -11,9 +11,10 @@ import {useEffect, useState} from "react";
 import AskAICard from "./AskAI";
 import {exams} from "@/src/features/constants/ExamCards";
 import ExamCard from "@/src/features/components/ExamCard";
-import TopPickCard from "./TopPickCard";
+import TopPickCard from "@/src/features/components/TopPickCard";
 import RecTopics from "./RecTopics";
 import ExamCardSkeleton from "@/src/features/components/ExamCardSkeleton";
+import {courseDetails} from "@/src/features/constants/demoCourses";
 
 export default function Dashboard() {
   const [isContinueLoading, setIsContinueLoading] = useState(true);
@@ -98,25 +99,24 @@ export default function Dashboard() {
             skeleton={<CourseCardSkeleton />}
             skeletonCount={4}
           >
-            {[1, 2, 3, 4, 5].map((card) => (
-              <div key={card} className=" w-72">
-                <CourseCard
-                  image="/assets/images/tower.jpg"
-                  instructor="Brooke Graser"
-                  rating={4.7}
-                  reviewCount="5.2k"
-                  title="Intro to Procreate: Illustration on the iPad (UPDATED)"
-                  tags={[
-                    "Procreate",
-                    "Drawing Tablet",
-                    "Beginner",
-                    "Digital Art",
-                    "iPad",
-                  ]}
-                  // onClick={() => console.log("open course")}
-                />
-              </div>
-            ))}
+            {Array.from({length: 5}, (_, i) =>
+              courseDetails.map((card) => (
+                <div key={`${i}-${card.slug}`} className="shrink-0 w-72">
+                  <CourseCard
+                    image={card.imgBig}
+                    instructor={card.instructor}
+                    rating={card.rating}
+                    reviewCount={card.reviewCount}
+                    title={card.title}
+                    tags={card.tags}
+                    price={card.price}
+                    originalPrice={card.originalPrice}
+                    pricePerModule={card.pricePerModule}
+                    href={card.slug}
+                  />
+                </div>
+              )),
+            )}
           </ScrollRow>
 
           <ScrollRow
@@ -125,28 +125,24 @@ export default function Dashboard() {
             skeleton={<CourseCardSkeleton />}
             skeletonCount={4}
           >
-            {[6, 7, 8, 9].map((card) => (
-              <div key={card} className="w-72">
-                <CourseCard
-                  image="/assets/images/tower.jpg"
-                  instructor="Brooke Graser"
-                  rating={4.7}
-                  reviewCount="5.2k"
-                  title="Intro to Procreate: Illustration on the iPad (UPDATED)"
-                  tags={[
-                    "Procreate",
-                    "Drawing Tablet",
-                    "Beginner",
-                    "Digital Art",
-                    "iPad",
-                  ]}
-                  price={22345}
-                  originalPrice={3500}
-                  pricePerModule={75}
-                  // onClick={() => console.log("open course")}
-                />
-              </div>
-            ))}
+            {Array.from({length: 5}, (_, i) =>
+              courseDetails.map((card) => (
+                <div key={`${i}-${card.slug}`} className="shrink-0 w-72">
+                  <CourseCard
+                    image={card.imgBig}
+                    instructor={card.instructor}
+                    rating={card.rating}
+                    reviewCount={card.reviewCount}
+                    title={card.title}
+                    tags={card.tags}
+                    price={card.price}
+                    originalPrice={card.originalPrice}
+                    pricePerModule={card.pricePerModule}
+                    href={card.slug}
+                  />
+                </div>
+              )),
+            )}
           </ScrollRow>
         </div>
 

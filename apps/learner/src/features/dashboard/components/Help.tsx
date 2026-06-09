@@ -85,7 +85,7 @@ export default function Help() {
         </motion.button>
       </motion.div>
 
-      <Modal ref={modalRef}>
+      <Modal ref={modalRef} maxWidth="max-w-lg">
         <CompleteProfileForm close={() => modalRef.current?.closeDialog()} />
       </Modal>
     </>

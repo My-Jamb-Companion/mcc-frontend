@@ -7,8 +7,8 @@ import CourseCardSkeleton from "@/src/features/components/CourseCardSkeleton";
 import ExamCard from "@/src/features/components/ExamCard";
 import ExamCardSkeleton from "@/src/features/components/ExamCardSkeleton";
 import ScrollRow from "@/src/features/components/RowScroll";
-import {demoCourses} from "../constants/demoCourses";
-import CourseHeroCard from "./CourseHeroCard";
+import {demoCourses} from "@/src/features/constants/demoCourses";
+import TopPickCard from "@/src/features/components/TopPickCard";
 
 export default function Learnings() {
   return (
@@ -82,7 +82,7 @@ export default function Learnings() {
 
       <div>
         <p className="text-2xl font-semibold pb-4">Our top pick for you</p>
-        <CourseHeroCard
+        <TopPickCard
           image="/assets/images/pencil.jpg"
           title="Complete web development course"
           description="Only web development course that you will need. Covers HTML, CSS, Tailwind, Node, React, MongoDB, Prisma, Deployment etc"

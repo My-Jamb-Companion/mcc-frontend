@@ -1,5 +1,5 @@
 import {Icon} from "@mcc/ui";
-
+import Link from "next/link";
 export interface CourseCardProps {
   image: string;
   instructor?: string;
@@ -11,9 +11,9 @@ export interface CourseCardProps {
   originalPrice?: number;
   pricePerModule?: number;
   currency?: string;
-  onClick?: () => void;
   course?: string;
   completePercent?: number;
+  href?: string;
 }
 
 export default function CourseCard({
@@ -29,7 +29,7 @@ export default function CourseCard({
   currency = "₦",
   course,
   completePercent,
-  onClick,
+  href = "#",
 }: CourseCardProps) {
   const visibleTags = tags.slice(0, 2);
   const extraTags = tags.length - 2;
@@ -44,8 +44,8 @@ export default function CourseCard({
           : {icon: "ri:progress-2-line", color: "#ef4444"};
 
   return (
-    <div
-      onClick={onClick}
+    <Link
+      href={`/learnings/course/${href}`}
       className="w-full max-w-sm flex flex-col gap-2.5 cursor-pointer group"
     >
       {/* Thumbnail */}
@@ -125,6 +125,6 @@ export default function CourseCard({
           <p>{completePercent}% Completed</p>
         </div>
       )}
-    </div>
+    </Link>
   );
 }
