@@ -1,5 +1,5 @@
-import BuyCourse from "@/src/features/learnings/components/course/BuyCourse";
+import Course from "@/src/features/learnings/components/course/Course";
 
 export default function page() {
-  return <BuyCourse />;
+  return <Course />;
 }
