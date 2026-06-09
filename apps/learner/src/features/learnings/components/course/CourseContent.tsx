@@ -4,11 +4,12 @@ import {CourseDetail, Lessons} from "@/src/features/constants/demoCourses";
 import CoursePlayModules from "./CourseModules";
 import Link from "next/link";
 import CoursePlayer from "./CoursePlayer";
-import {useState, useCallback} from "react";
+import {useState, useCallback, useRef, useEffect} from "react";
 import {useAllLessons} from "@/src/features/learnings/hooks/useLesson";
 import {Button, Icon} from "@mcc/ui";
 import {useRouter, usePathname, useSearchParams} from "next/navigation";
 import Image from "next/image";
+import CommunityTab from "./tabs/CommunityTab";
 
 export default function CourseContent({course}: {course: CourseDetail}) {
   const allLessons = useAllLessons(course);
@@ -24,6 +25,7 @@ export default function CourseContent({course}: {course: CourseDetail}) {
   const [activeLesson, setActiveLesson] = useState<Lessons | null>(
     allLessons[0] || null,
   );
+  const [currentVideoTime, setCurrentVideoTime] = useState(0);
 
   const handleTabChange = useCallback(
     (name: string, value: string) => {
@@ -62,6 +64,7 @@ export default function CourseContent({course}: {course: CourseDetail}) {
               src={activeLesson?.src}
               poster={course.imgBig}
               onEnded={handleVideoEnded}
+              onTimeUpdate={setCurrentVideoTime}
             />
           </div>
 
@@ -81,7 +84,9 @@ export default function CourseContent({course}: {course: CourseDetail}) {
           </div>
 
           {activeTab === "overview" && <OverviewTab />}
-          {activeTab === "community" && <CommunityTab />}
+          {activeTab === "community" && (
+            <CommunityTab currentVideoTime={currentVideoTime} />
+          )}
           {activeTab === "notes" && <NotesTab />}
           {activeTab === "facilitator" && <FacilitatorTab />}
         </div>
@@ -224,13 +229,6 @@ function OverviewTab() {
   );
 }
 
-function CommunityTab() {
-  return (
-    <section>
-      <div className=""></div>
-    </section>
-  );
-}
 function NotesTab() {
   return (
     <section>
