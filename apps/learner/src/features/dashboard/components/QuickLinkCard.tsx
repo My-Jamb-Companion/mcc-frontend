@@ -1,14 +1,22 @@
 import {Icon} from "@mcc/ui";
+import Link from "next/link";
 
 interface QuickLinkCardProps {
   title?: string;
   icon?: string;
+  link: string;
   onClick?: () => void;
 }
 
-export default function QuickLinkCard({title, icon, onClick}: QuickLinkCardProps) {
+export default function QuickLinkCard({
+  title,
+  icon,
+  link,
+  onClick,
+}: QuickLinkCardProps) {
   return (
-    <button
+    <Link
+      href={link}
       onClick={onClick}
       className="relative w-full rounded-2xl bg-[#2a2a2e] overflow-hidden px-5 py-6 flex items-center justify-between cursor-pointer hover:brightness-110 transition-all hover:scale-95"
     >
@@ -36,6 +44,6 @@ export default function QuickLinkCard({title, icon, onClick}: QuickLinkCardProps
       <div className="relative z-10 flex items-center">
         <Icon icon={String(icon)} size={36} color="white" />
       </div>
-    </button>
+    </Link>
   );
 }

@@ -5,7 +5,7 @@ import {useAuth} from "@mcc/features";
 import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
 import Header from "@/src/features/dashboard/components/header/Header";
-import SideNav from "@/src/features/dashboard/components/SideNav";
+import SideNav from "@/src/features/components/SideNav";
 import Help from "@/src/features/dashboard/components/Help";
 
 export default function DashboardLayout({

@@ -16,7 +16,8 @@ const FormInputs = ({
   isPassword = false,
   value,
   onChange,
-}: Props) => {
+  inputProps,
+}: inputProps) => {
   const [show, setShow] = useState(false);
   const id = registration?.name;
 
@@ -54,6 +55,7 @@ const FormInputs = ({
         type={resolvedType}
         placeholder={placeholder}
         className={inputClass}
+        {...inputProps}
         {...registration}
       />
     );
@@ -106,7 +108,7 @@ const Err = ({message}: {message?: string}) => {
 };
 export default FormInputs;
 
-type Props = {
+type inputProps = {
   label: string;
   errors?: FieldError;
   className?: string;
@@ -126,4 +128,5 @@ type Props = {
   isPassword?: boolean;
   value?: string;
   onChange?: (value: string) => void;
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
 };

@@ -44,9 +44,9 @@ export default function RecTopics({
   const row1 = topics.slice(0, Math.ceil(topics.length / 2));
   const row2 = topics.slice(Math.ceil(topics.length / 2));
 
- const TopicButton = ({topic}: {topic: string}) => (
+  const TopicButton = ({topic}: {topic: string}) => (
     <Link
-      href={`/programs/topic/${topic.replace(/ /g, "-").toLowerCase()}`}
+      href={`/learnings/topic/${topic.replace(/ /g, "-").toLowerCase()}`}
       onClick={() => onSelect?.(topic)}
       className="flex items-center gap-2 border border-muted/40 shadow-sm rounded-xl px-4 py-3 text-sm font-medium  hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap w-full"
     >

@@ -85,7 +85,7 @@ export default function Help() {
         </motion.button>
       </motion.div>
 
-      <Modal ref={modalRef}>
+      <Modal ref={modalRef} maxWidth="max-w-lg">
         <CompleteProfileForm close={() => modalRef.current?.closeDialog()} />
       </Modal>
     </>
@@ -95,7 +95,6 @@ export default function Help() {
 export function CompleteProfileCard({onResume}: {onResume: () => void}) {
   const [open, setOpen] = useState(true);
   const {step, completedSteps} = useProfileProgressStore();
-  console.log(completedSteps);
 
   const steps = [
     {

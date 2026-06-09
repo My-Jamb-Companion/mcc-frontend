@@ -1,19 +1,20 @@
 "use client";
 import {Icon} from "@mcc/ui";
-import BannerCarousel from "./BannerCarousel";
+import BannerCarousel from "@/src/features/components/BannerCarousel";
 import QuickLinkCard from "./QuickLinkCard";
 import {quickLinkCard} from "../constants/QuickLinks";
 import LiveClassCard from "./LiveClassCard";
-import ScrollRow from "./RowScroll";
-import CourseCard from "./CourseCard";
-import CourseCardSkeleton from "./CourseCardSkeleton";
+import ScrollRow from "@/src/features/components/RowScroll";
+import CourseCard from "@/src/features/components/CourseCard";
+import CourseCardSkeleton from "@/src/features/components/CourseCardSkeleton";
 import {useEffect, useState} from "react";
 import AskAICard from "./AskAI";
-import {exams} from "../constants/ExamCards";
-import ExamCard from "./ExamCard";
-import TopPickCard from "./TopPickCard";
+import {exams} from "@/src/features/constants/ExamCards";
+import ExamCard from "@/src/features/components/ExamCard";
+import TopPickCard from "@/src/features/components/TopPickCard";
 import RecTopics from "./RecTopics";
-import ExamCardSkeleton from "./ExamCardSkeleton";
+import ExamCardSkeleton from "@/src/features/components/ExamCardSkeleton";
+import {courseDetails} from "@/src/features/constants/demoCourses";
 
 export default function Dashboard() {
   const [isContinueLoading, setIsContinueLoading] = useState(true);
@@ -80,7 +81,12 @@ export default function Dashboard() {
 
       <div className="flex items-center gap-4 mt-8 max-md:flex-col">
         {quickLinkCard.map((card) => (
-          <QuickLinkCard key={card.title} title={card.title} icon={card.icon} />
+          <QuickLinkCard
+            key={card.title}
+            title={card.title}
+            icon={card.icon}
+            link={card.link}
+          />
         ))}
       </div>
 
@@ -93,25 +99,24 @@ export default function Dashboard() {
             skeleton={<CourseCardSkeleton />}
             skeletonCount={4}
           >
-            {[1, 2, 3, 4, 5].map((card) => (
-              <div key={card} className=" w-72">
-                <CourseCard
-                  image="/assets/images/tower.jpg"
-                  instructor="Brooke Graser"
-                  rating={4.7}
-                  reviewCount="5.2k"
-                  title="Intro to Procreate: Illustration on the iPad (UPDATED)"
-                  tags={[
-                    "Procreate",
-                    "Drawing Tablet",
-                    "Beginner",
-                    "Digital Art",
-                    "iPad",
-                  ]}
-                  // onClick={() => console.log("open course")}
-                />
-              </div>
-            ))}
+            {Array.from({length: 5}, (_, i) =>
+              courseDetails.map((card) => (
+                <div key={`${i}-${card.slug}`} className="shrink-0 w-72">
+                  <CourseCard
+                    image={card.imgBig}
+                    instructor={card.instructor}
+                    rating={card.rating}
+                    reviewCount={card.reviewCount}
+                    title={card.title}
+                    tags={card.tags}
+                    price={card.price}
+                    originalPrice={card.originalPrice}
+                    pricePerModule={card.pricePerModule}
+                    href={card.slug}
+                  />
+                </div>
+              )),
+            )}
           </ScrollRow>
 
           <ScrollRow
@@ -120,28 +125,24 @@ export default function Dashboard() {
             skeleton={<CourseCardSkeleton />}
             skeletonCount={4}
           >
-            {[6, 7, 8, 9].map((card) => (
-              <div key={card} className="w-72">
-                <CourseCard
-                  image="/assets/images/tower.jpg"
-                  instructor="Brooke Graser"
-                  rating={4.7}
-                  reviewCount="5.2k"
-                  title="Intro to Procreate: Illustration on the iPad (UPDATED)"
-                  tags={[
-                    "Procreate",
-                    "Drawing Tablet",
-                    "Beginner",
-                    "Digital Art",
-                    "iPad",
-                  ]}
-                  price={22345}
-                  originalPrice={3500}
-                  pricePerModule={75}
-                  // onClick={() => console.log("open course")}
-                />
-              </div>
-            ))}
+            {Array.from({length: 5}, (_, i) =>
+              courseDetails.map((card) => (
+                <div key={`${i}-${card.slug}`} className="shrink-0 w-72">
+                  <CourseCard
+                    image={card.imgBig}
+                    instructor={card.instructor}
+                    rating={card.rating}
+                    reviewCount={card.reviewCount}
+                    title={card.title}
+                    tags={card.tags}
+                    price={card.price}
+                    originalPrice={card.originalPrice}
+                    pricePerModule={card.pricePerModule}
+                    href={card.slug}
+                  />
+                </div>
+              )),
+            )}
           </ScrollRow>
         </div>
 

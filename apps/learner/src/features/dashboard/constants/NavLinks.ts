@@ -10,9 +10,9 @@ export const sideBarLinks = [
     label: "classroom studio",
   },
   {
-    link: "/programs",
+    link: "/learnings",
     icon: "ri:artboard-line",
-    label: "programs",
+    label: "learnings",
   },
   {
     link: "/rewards",
