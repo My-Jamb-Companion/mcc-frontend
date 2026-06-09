@@ -26,6 +26,7 @@ export interface ModalProps {
   onOpen?: () => void;
   maxWidth?: string;
   open?: boolean;
+  x?: boolean;
 }
 
 export const Modal = forwardRef<ModalRef, ModalProps>(
@@ -39,6 +40,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
       onOpen,
       maxWidth = "max-w-md",
       open: controlledOpen,
+      x = false,
     },
     ref,
   ) => {
@@ -115,18 +117,20 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
               className={[
                 "fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2",
                 maxWidth,
-                "rounded-xl border-2 bg-background p-6 shadow-xl outline-none",
+                "rounded-3xl bg-background px-6 py-8 shadow-xl outline-none",
                 "animate-in fade-in zoom-in-95 duration-200",
               ].join(" ")}
             >
-              <button
-                type="button"
-                aria-label="Close"
-                onClick={closeDialog}
-                className="absolute right-4 top-4 rounded-sm opacity-60 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <Icon icon="lucide:x" size={18} />
-              </button>
+              {x && (
+                <button
+                  type="button"
+                  aria-label="Close"
+                  onClick={closeDialog}
+                  className="absolute right-4 top-4 rounded-sm opacity-60 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <Icon icon="lucide:x" size={18} />
+                </button>
+              )}
 
               {(title || description) && (
                 <div className="mb-4 space-y-1 pr-6">

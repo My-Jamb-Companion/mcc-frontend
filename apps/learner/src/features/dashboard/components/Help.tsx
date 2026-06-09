@@ -1,64 +1,22 @@
 "use client";
 
-import {AnimatePresence, motion} from "framer-motion";
-import {useState} from "react";
-import {Icon} from "@mcc/ui";
+import {useRef, useState} from "react";
+import {AnimatePresence, motion, Icon, Modal, ModalRef} from "@mcc/ui";
+import CompleteProfileForm from "./CompleteProfileForm";
+import Image from "next/image";
+import {useProfileProgressStore} from "@mcc/store";
 
 export default function Help() {
   const [open, setOpen] = useState(false);
+  const modalRef = useRef<ModalRef>(null);
 
   return (
-    <motion.div
-      layout
-      transition={{
-        layout: {
-          duration: 0.45,
-          ease: [0.22, 1, 0.36, 1],
-        },
-      }}
-      className="fixed right-10 top-1/2 -translate-y-1/2 flex flex-col items-end z-[9999]"
-    >
-      <AnimatePresence mode="popLayout">
-        {open && (
-          <motion.div
-            layout="position"
-            key="profile-card"
-            initial={{
-              opacity: 0,
-              scale: 0.92,
-              y: 20,
-              filter: "blur(8px)",
-            }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-              y: 0,
-              filter: "blur(0px)",
-            }}
-            exit={{
-              opacity: 0,
-              scale: 0.92,
-              y: 20,
-              filter: "blur(8px)",
-            }}
-            transition={{
-              duration: 0.35,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-            className="origin-bottom-right"
-          >
-            <CompleteProfileCard />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.button
-        layout="position"
-        whileHover={{
-          scale: 1.06,
-        }}
-        whileTap={{
-          scale: 0.92,
+    <>
+      <motion.div
+        layout
+        initial={{opacity: 0}}
+        animate={{
+          opacity: 1,
         }}
         transition={{
           layout: {
@@ -66,41 +24,115 @@ export default function Help() {
             ease: [0.22, 1, 0.36, 1],
           },
         }}
-        className="self-end rounded-full mt-4 p-2 w-fit border border-muted/40 cursor-pointer bg-white hover:bg-muted/30 dark:text-white dark:bg-subtle dark:border dark:border-white"
-        onClick={() => setOpen(!open)}
+        className="fixed max-sm:w-full right-10 max-sm:right-1 top-1/2 -translate-y-1/2 flex flex-col items-end z-50"
       >
-        <motion.div
-          animate={{
-            rotate: open ? 360 : 0,
+        <AnimatePresence mode="popLayout">
+          {open && (
+            <motion.div
+              layout="position"
+              key="profile-card"
+              initial={{
+                opacity: 0,
+                scale: 0.92,
+                y: 20,
+                filter: "blur(8px)",
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                filter: "blur(0px)",
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.92,
+                y: 20,
+                filter: "blur(8px)",
+              }}
+              transition={{
+                duration: 0.35,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className="origin-bottom-right max-sm:w-full max-sm:pl-5 max-sm:pr-3"
+            >
+              <CompleteProfileCard
+                onResume={() => modalRef.current?.openDialog()}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <motion.button
+          layout="position"
+          whileHover={{
+            scale: 1.06,
+          }}
+          whileTap={{
+            scale: 0.92,
           }}
           transition={{
-            duration: 0.3,
+            layout: {
+              duration: 0.45,
+              ease: [0.22, 1, 0.36, 1],
+            },
           }}
+          className="self-end rounded-full mt-4 p-2 w-fit border border-muted/40 cursor-pointer bg-white hover:opacity-80 dark:text-white dark:bg-subtle/50 dark:border dark:border-white/40 outline-0 focus:outline focus:outline-primary"
+          onClick={() => setOpen(!open)}
         >
-          <Icon icon="line-md:question" size={24} />
-        </motion.div>
-      </motion.button>
-    </motion.div>
+          <motion.div>
+            <Icon icon="line-md:question" size={24} />
+          </motion.div>
+        </motion.button>
+      </motion.div>
+
+      <Modal ref={modalRef} maxWidth="max-w-lg">
+        <CompleteProfileForm close={() => modalRef.current?.closeDialog()} />
+      </Modal>
+    </>
   );
 }
 
-const steps = [
-  {
-    title: "Personal details",
-    status: "complete",
-  },
-  {
-    title: "Your location",
-    status: "loading",
-  },
-  {
-    title: "Profile photo",
-    status: "pending",
-  },
-] as const;
-
-export function CompleteProfileCard() {
+export function CompleteProfileCard({onResume}: {onResume: () => void}) {
   const [open, setOpen] = useState(true);
+  const {step, completedSteps} = useProfileProgressStore();
+
+  const steps = [
+    {
+      title: "Personal details",
+      status: completedSteps.includes(1)
+        ? "complete"
+        : step === 1
+          ? "loading"
+          : "pending",
+    },
+
+    {
+      title: "Your location",
+      status: completedSteps.includes(2)
+        ? "complete"
+        : step === 2
+          ? "loading"
+          : "pending",
+    },
+
+    {
+      title: "Profile photo",
+      status: completedSteps.includes(3)
+        ? "complete"
+        : step === 3
+          ? "loading"
+          : "pending",
+    },
+  ];
+
+  const progressIconMap = {
+    0: "hugeicons:progress-01",
+    1: "ri:progress-3-line",
+    2: "ri:progress-5-line",
+    3: "ri:progress-8-line",
+  };
+
+  const progress = completedSteps.length;
 
   return (
     <motion.div
@@ -111,7 +143,7 @@ export function CompleteProfileCard() {
           ease: [0.22, 1, 0.36, 1],
         },
       }}
-      className="w-115 rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm h-fit"
+      className="sm:w-115 max-sm:w-full rounded-3xl border border-neutral-200 dark:border-white/20 bg-background p-4 shadow-sm h-fit"
     >
       {/* header */}
       <div className="flex items-center justify-between">
@@ -125,10 +157,10 @@ export function CompleteProfileCard() {
             }}
             className="text-violet-600"
           >
-            <Icon icon="lucide:user" size={22} />
+            <Icon icon="ri:user-4-line" size={22} />
           </motion.div>
 
-          <p className="text-xl font-semibold text-neutral-900">
+          <p className="text-xl font-semibold text-neutral-900 dark:text-white">
             Complete profile
           </p>
         </div>
@@ -144,13 +176,15 @@ export function CompleteProfileCard() {
               }}
             >
               <Icon
-                icon="ri:progress-2-line"
+                icon={progressIconMap[progress as 0 | 1 | 2 | 3]}
                 size={20}
                 className="text-violet-600"
               />
             </motion.div>
 
-            <span className="text-xs font-semibold">1/3</span>
+            <span className="text-xs font-semibold dark:text-muted">
+              {completedSteps.length}/3
+            </span>
           </div>
 
           <motion.button
@@ -212,7 +246,7 @@ export function CompleteProfileCard() {
               }}
             >
               {/* steps */}
-              <div className="mt-6 rounded-[28px] bg-[#f3f3f3] p-6">
+              <div className="mt-6 rounded-[28px] bg-[#f3f3f3] dark:bg-subtle/30 p-6">
                 <div className="flex flex-1 flex-col justify-between py-1">
                   {steps.map((step, i) => (
                     <motion.div
@@ -231,7 +265,7 @@ export function CompleteProfileCard() {
                         duration: 0.3,
                         ease: "easeOut",
                       }}
-                      className="flex min-h-[64px] items-start gap-3"
+                      className="flex min-h-16 items-start gap-3"
                     >
                       {/* status icon */}
                       {step.status === "pending" ? (
@@ -303,7 +337,7 @@ export function CompleteProfileCard() {
                         transition={{
                           delay: i * 0.05,
                         }}
-                        className="pt-2 text-sm font-medium text-neutral-900"
+                        className="pt-2 text-sm font-medium text-neutral-900 dark:text-white"
                       >
                         {step.title}
                       </motion.p>
@@ -328,19 +362,19 @@ export function CompleteProfileCard() {
                 }}
                 className="mt-8 flex items-center gap-4"
               >
-                <div className="relative h-14 flex-1 overflow-hidden rounded-full bg-white shadow-inner">
+                <div className="relative h-14 flex-1 overflow-hidden rounded-full bg-white dark:bg-subtle/30 shadow-inner">
                   <motion.div
                     initial={{
                       width: 0,
                     }}
                     animate={{
-                      width: "33%",
+                      width: `${(completedSteps.length / 3) * 100}%`,
                     }}
                     transition={{
                       duration: 0.8,
                       ease: [0.22, 1, 0.36, 1],
                     }}
-                    className="relative flex h-full items-center justify-between rounded-full bg-primary px-2"
+                    className={`"relative flex h-full items-center justify-between rounded-full px-2 ${completedSteps.length !== 0 ? "bg-primary" : ""}`}
                   >
                     <motion.div
                       initial={{
@@ -355,13 +389,17 @@ export function CompleteProfileCard() {
                         delay: 0.35,
                         type: "spring",
                       }}
-                      className="absolute h-10 w-10 overflow-hidden rounded-full border-2 border-white bg-pink-600"
+                      className="absolute h-10 w-10 overflow-hidden rounded-full bg-white"
                     >
-                      <img
-                        src="/assets/images/profile.png"
-                        alt="profile"
-                        className="h-full w-full object-cover"
-                      />
+                      <div>
+                        <Image
+                          src="/assets/images/profile.png"
+                          alt="profile"
+                          width={100}
+                          height={100}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
                     </motion.div>
 
                     <motion.span
@@ -374,9 +412,9 @@ export function CompleteProfileCard() {
                       transition={{
                         delay: 0.55,
                       }}
-                      className="ml-auto text-sm font-bold text-white"
+                      className={`text-sm font-bold  ${completedSteps.length !== 0 ? "text-white ml-auto " : "text-muted ml-12"}`}
                     >
-                      33%
+                      {Math.round((completedSteps.length / 3) * 100)}%
                     </motion.span>
                   </motion.div>
                 </div>
@@ -388,7 +426,8 @@ export function CompleteProfileCard() {
                   whileTap={{
                     scale: 0.92,
                   }}
-                  className="flex h-14 w-14 items-center justify-center rounded-full border border-neutral-200 bg-[#f8f8f8] transition"
+                  className="flex h-14 w-14 items-center justify-center rounded-full  bg-[#f8f8f8] dark:bg-subtle/30 transition cursor-pointer"
+                  onClick={onResume}
                 >
                   <motion.div
                     whileHover={{
@@ -399,7 +438,7 @@ export function CompleteProfileCard() {
                     <Icon
                       icon="lucide:move-up-right"
                       size={22}
-                      className="text-neutral-700"
+                      className="text-neutral-700 dark:text-white"
                     />
                   </motion.div>
                 </motion.button>

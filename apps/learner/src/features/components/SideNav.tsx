@@ -3,7 +3,7 @@
 import {AnimatePresence, Icon, motion} from "@mcc/ui";
 import Link from "next/link";
 import {useEffect, useState} from "react";
-import {sideBarLinks} from "../constants/NavLinks";
+import {sideBarLinks} from "../dashboard/constants/NavLinks";
 import {usePathname} from "next/navigation";
 
 export default function SideNav({

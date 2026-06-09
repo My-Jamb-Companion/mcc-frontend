@@ -1,7 +1,31 @@
-export function LoadingCircle({className}: {className?: string}) {
+type LoadingCircleProps = {
+  className?: string;
+  size?: number;
+  borderWidth?: number;
+  color?: string;
+};
+
+export function LoadingCircle({
+  className = "",
+  size = 20,
+  borderWidth = 3,
+  color = "border-white",
+}: LoadingCircleProps) {
   return (
     <div
-      className={`border-6 border-t-transparent border-black dark:border-white dark:border-t-transparent p-5 rounded-full animate-spin w-fit ${className || ""}`}
+      className={`
+        animate-spin
+        rounded-full
+        border-solid
+        border-t-transparent
+        ${color}
+        ${className}
+      `}
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        borderWidth: `${borderWidth}px`,
+      }}
     />
   );
 }
