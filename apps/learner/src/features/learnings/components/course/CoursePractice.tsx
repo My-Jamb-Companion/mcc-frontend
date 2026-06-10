@@ -72,7 +72,7 @@ export function CoursePractice({
       : state === "incorrect"
         ? "border-red-400 bg-red-50 focus:ring-red-200"
         : "border-gray-200 bg-white focus:ring-violet-100";
-  console.log(problem);
+
   return (
     <div className="w-full h-full bg-gray-50 rounded-2xl p-6 font-sans">
       {/* Header */}

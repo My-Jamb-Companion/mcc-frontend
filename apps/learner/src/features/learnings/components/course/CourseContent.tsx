@@ -52,7 +52,7 @@ export default function CourseContent({course}: {course: CourseDetail}) {
       setActiveLesson(allLessons[currentIndex + 1]);
     }
   };
-  console.log(activeLesson);
+
   return (
     <section>
       <nav className="flex items-center gap-1 text-sm py-8">
