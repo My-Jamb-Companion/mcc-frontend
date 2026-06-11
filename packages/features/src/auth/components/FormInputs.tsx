@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {Icon, motion} from "@mcc/ui";
 import {FieldError, UseFormRegisterReturn} from "@mcc/features";
+import {CustomSelect} from "./CustomSelectInput";
 
 const FormInputs = ({
   label,
@@ -15,7 +16,8 @@ const FormInputs = ({
   isPassword = false,
   value,
   onChange,
-}: Props) => {
+  inputProps,
+}: inputProps) => {
   const [show, setShow] = useState(false);
   const id = registration?.name;
 
@@ -35,22 +37,15 @@ const FormInputs = ({
         />
       );
     }
-
     if (type === "select") {
       return (
-        <select
-          id={id}
-          className={inputClass}
+        <CustomSelect
+          options={options}
           value={value}
-          onChange={onChange ? (e) => onChange(e.target.value) : undefined}
-          {...registration}
-        >
-          {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          placeholder={placeholder}
+          onChange={onChange}
+          error={errors?.message}
+        />
       );
     }
 
@@ -60,6 +55,7 @@ const FormInputs = ({
         type={resolvedType}
         placeholder={placeholder}
         className={inputClass}
+        {...inputProps}
         {...registration}
       />
     );
@@ -112,7 +108,7 @@ const Err = ({message}: {message?: string}) => {
 };
 export default FormInputs;
 
-type Props = {
+type inputProps = {
   label: string;
   errors?: FieldError;
   className?: string;
@@ -132,4 +128,5 @@ type Props = {
   isPassword?: boolean;
   value?: string;
   onChange?: (value: string) => void;
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
 };

@@ -6,4 +6,6 @@ export * from "./lib/toast";
 export * from "./components/feedback/ErrorBoundary";
 export * from "./lib/motion";
 export * from "./components/motion";
+export * from "./components/Modal";
+export * from "./components/ConfirmModal";
 // export * from "./lib/iconify";

@@ -34,7 +34,7 @@ export default function TopPickCard({
       className="flex gap-6 cursor-pointer group w-full max-md:flex-col"
     >
       <div className="w-full max-h-70 max-w-95 max-md:max-w-full max-md:max-h-40 rounded-2xl overflow-hidden shrink-0">
-          <Image
+        <Image
           src={image}
           alt={title}
           width={100}
