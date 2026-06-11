@@ -1,4 +1,20 @@
 import {Icon} from "@mcc/ui";
+import Link from "next/link";
+export interface CourseCardProps {
+  image: string;
+  instructor?: string;
+  rating?: number;
+  reviewCount?: string;
+  title: string;
+  tags?: string[];
+  price?: number;
+  originalPrice?: number;
+  pricePerModule?: number;
+  currency?: string;
+  course?: string;
+  completePercent?: number;
+  href?: string;
+}
 
 export default function CourseCard({
   image,
@@ -11,9 +27,9 @@ export default function CourseCard({
   originalPrice,
   pricePerModule,
   currency = "₦",
-  continueCourseTitle,
+  course,
   completePercent,
-  onClick,
+  href = "#",
 }: CourseCardProps) {
   const visibleTags = tags.slice(0, 2);
   const extraTags = tags.length - 2;
@@ -28,10 +44,11 @@ export default function CourseCard({
           : {icon: "ri:progress-2-line", color: "#ef4444"};
 
   return (
-    <div
-      onClick={onClick}
+    <Link
+      href={`/learnings/course/${href}`}
       className="w-full max-w-sm flex flex-col gap-2.5 cursor-pointer group"
     >
+      {/* Thumbnail */}
       <div className="w-full aspect-video rounded-2xl overflow-hidden">
         <img
           src={image}
@@ -40,8 +57,9 @@ export default function CourseCard({
         />
       </div>
 
-      {continueCourseTitle ? (
-        <p className="text-xs text-subtle">{continueCourseTitle}</p>
+      {/* Instructor + Rating / Continue course label */}
+      {course ? (
+        <p className="text-xs text-subtle">{course}</p>
       ) : (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
@@ -56,8 +74,10 @@ export default function CourseCard({
         </div>
       )}
 
+      {/* Title */}
       <p className="text-base font-semibold leading-snug">{title}</p>
 
+      {/* Tags */}
       {tags.length > 0 && (
         <div className="flex items-center gap-2 flex-wrap">
           {visibleTags.map((tag) => (
@@ -74,10 +94,11 @@ export default function CourseCard({
         </div>
       )}
 
+      {/* Pricing */}
       {price && (
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2">
-            <span className="font-bold ">
+            <span className="font-bold">
               {currency}
               {price.toLocaleString()}
             </span>
@@ -93,32 +114,17 @@ export default function CourseCard({
         </div>
       )}
 
-      {completePercent && (
+      {/* Completion */}
+      {completePercent !== undefined && (
         <div className="flex items-center gap-1.5 text-sm font-medium">
           <Icon
-            icon={progressConfig?.icon}
+            icon={progressConfig.icon}
             size={14}
-            color={progressConfig?.color}
+            color={progressConfig.color}
           />
           <p>{completePercent}% Completed</p>
         </div>
       )}
-    </div>
+    </Link>
   );
-}
-
-export interface CourseCardProps {
-  image: string;
-  instructor?: string;
-  rating?: number;
-  reviewCount?: string;
-  title: string;
-  tags?: string[];
-  price?: number;
-  originalPrice?: number;
-  pricePerModule?: number;
-  currency?: string;
-  continueCourseTitle?: string;
-  completePercent?: number;
-  onClick?: () => void;
 }

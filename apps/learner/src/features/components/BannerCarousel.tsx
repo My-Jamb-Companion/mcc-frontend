@@ -2,9 +2,7 @@
 
 import {useState} from "react";
 import {motion, AnimatePresence} from "framer-motion";
-import { banners } from "../constants/Banners";
-
-
+import {banners} from "../dashboard/constants/Banners";
 
 const BannerCard = ({banner}: {banner: (typeof banners)[0]}) => (
   <div
@@ -31,7 +29,6 @@ const BannerCard = ({banner}: {banner: (typeof banners)[0]}) => (
         </span>
       </button>
     </div>
-
   </div>
 );
 
