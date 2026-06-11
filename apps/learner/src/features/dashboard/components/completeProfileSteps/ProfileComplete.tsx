@@ -1,4 +1,4 @@
-"use client ";
+"use client";
 
 import {Button} from "@mcc/ui";
 import Image from "next/image";
