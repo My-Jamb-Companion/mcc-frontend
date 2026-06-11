@@ -65,7 +65,7 @@ export default function CourseContent({course}: {course: CourseDetail}) {
         <span className="text-muted/50 cursor-default">{course.title}</span>
       </nav>
       <div
-        className={`grid grid-cols-1 ${isSidePanelOpen ? "lg:grid-cols-[1fr_30rem]" : "lg:grid-cols-[1fr_2rem]"} gap-6 transition-[grid-template-columns] duration-400 ease-in-out`}
+        className={`grid grid-cols-1 ${isSidePanelOpen ? "lg:grid-cols-[1fr_19rem]" : "lg:grid-cols-[1fr_2rem]"} gap-6 transition-[grid-template-columns] duration-400 ease-in-out`}
       >
         <div className="pb-8">
           <div className="w-full min-w-full overflow-hidden">
@@ -158,7 +158,7 @@ export default function CourseContent({course}: {course: CourseDetail}) {
             <motion.button
               key="open-btn"
               onClick={() => setIsSidePanelOpen(true)}
-              className="p-1.5 rounded text-subtle hover:bg-muted/10 transition-colors flex items-center gap-1.5 text-sm font-medium h-fit w-fit border rounded-full border-muted/40 cursor-pointer"
+              className="p-1.5 text-subtle hover:bg-muted/10 transition-colors flex items-center gap-1.5 text-sm font-medium h-fit w-fit border rounded-full border-muted/40 cursor-pointer"
               initial={{opacity: 0, scale: 0.8}}
               animate={{opacity: 1, scale: 1}}
               exit={{opacity: 0, scale: 0.8}}
@@ -169,7 +169,7 @@ export default function CourseContent({course}: {course: CourseDetail}) {
           ) : (
             <motion.div
               key="side-panel"
-              className="w-full min-w-fit md:max-w-120 max-sm:w-full pt-6 px-1 flex flex-col rounded-xl overflow-hidden bg-background h-fit"
+              className="w-full min-w-fit md:max-w-80 max-sm:w-full pt-6 px-1 flex flex-col rounded-xl overflow-hidden bg-background h-fit"
               initial={{opacity: 0, x: 40}}
               animate={{opacity: 1, x: 0}}
               exit={{opacity: 0, x: 40}}

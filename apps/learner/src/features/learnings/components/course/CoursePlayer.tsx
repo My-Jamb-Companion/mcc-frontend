@@ -16,7 +16,12 @@ function formatTime(seconds: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-export default function CoursePlayer({src, poster, onEnded, onTimeUpdate: onTimeUpdateProp}: VideoPlayerProps) {
+export default function CoursePlayer({
+  src,
+  poster,
+  onEnded,
+  onTimeUpdate: onTimeUpdateProp,
+}: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
