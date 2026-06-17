@@ -2,8 +2,6 @@ import {useState, useRef, useEffect} from "react";
 import {Plus, Send, ArrowUp} from "lucide-react";
 import {motion, AnimatePresence} from "@mcc/ui";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -16,8 +14,6 @@ interface AIChatProps {
   placeholder?: string;
 }
 
-// ─── AIChatPanel (main export) ────────────────────────────────────────────────
-
 export default function BrainyCourseSidePanel({
   suggestions = DEFAULT_SUGGESTIONS,
   onSend,
@@ -26,13 +22,15 @@ export default function BrainyCourseSidePanel({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const hasMessages = messages.length > 0;
 
-  // Auto-scroll to bottom on new messages
+  // Auto-scroll to bottom on new messages within the message container
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({behavior: "smooth"});
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    el.scrollTo({top: el.scrollHeight, behavior: "smooth"});
   }, [messages, loading]);
 
   // Auto-grow textarea
@@ -92,7 +90,10 @@ export default function BrainyCourseSidePanel({
       </motion.div>
 
       {/* Message area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto px-4 py-6"
+      >
         <AnimatePresence mode="wait">
           {!hasMessages ? (
             /* Empty state */
@@ -158,7 +159,6 @@ export default function BrainyCourseSidePanel({
                   </motion.div>
                 )}
               </AnimatePresence>
-              <div ref={bottomRef} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -172,7 +172,7 @@ export default function BrainyCourseSidePanel({
         transition={{delay: 0.2, duration: 0.35}}
       >
         <div className="flex items-end gap-2 border border-gray-200 rounded-2xl px-3 py-2 bg-white focus-within:border-gray-300 transition-colors">
-          <button className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors mb-0.5">
+          <button className="shrink-0 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors mb-0.5">
             <Plus className="w-5 h-5" />
           </button>
           <textarea
@@ -187,7 +187,7 @@ export default function BrainyCourseSidePanel({
           <motion.button
             onClick={() => handleSend(input)}
             disabled={!input.trim() || loading}
-            className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-violet-500 text-white hover:bg-violet-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all mb-0.5"
+            className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-violet-500 text-white hover:bg-violet-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all mb-0.5"
             whileTap={{scale: 0.9}}
           >
             <Send className="w-3.5 h-3.5" />
@@ -200,8 +200,6 @@ export default function BrainyCourseSidePanel({
     </div>
   );
 }
-
-// ─── Suggestion chips ─────────────────────────────────────────────────────────
 
 function SuggestionChip({
   label,
@@ -227,8 +225,6 @@ function SuggestionChip({
   );
 }
 
-// ─── Message bubble ───────────────────────────────────────────────────────────
-
 function MessageBubble({message}: {message: Message}) {
   const isUser = message.role === "user";
   return (
@@ -239,7 +235,7 @@ function MessageBubble({message}: {message: Message}) {
       transition={{type: "spring", stiffness: 400, damping: 25}}
     >
       <div
-        className={`max-w-[80%] text-sm px-4 py-2.5 leading-relaxed ${
+        className={`max-w-[80%] text-sm px-4 py-2.5 leading-relaxed  hover:shadow-md transition-all duration-150 ease-in-out hover:scale-105 ${
           isUser
             ? "bg-blue-500 text-white rounded-2xl rounded-br-sm"
             : "bg-gray-100 text-gray-800 rounded-2xl rounded-bl-sm"
@@ -251,16 +247,12 @@ function MessageBubble({message}: {message: Message}) {
   );
 }
 
-// ─── Default suggestions ──────────────────────────────────────────────────────
-
 const DEFAULT_SUGGESTIONS = [
   "Give me an overview of the course",
   "Summarize the main points of this lecture",
   "What is the difference between absolute and relative",
   "Why are relative stretch important in pilates",
 ];
-
-// ─── Fake AI response ─────────────────────────────────────────────────────────
 
 async function fakeAIResponse(message: string): Promise<string> {
   await new Promise((r) => setTimeout(r, 800));
