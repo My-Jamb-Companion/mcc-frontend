@@ -19,7 +19,7 @@ export default function OverviewTab() {
               4.6
               <Icon
                 icon="tabler:star-filled"
-                size={8}
+                size={14}
                 className="text-lime-500"
               />
             </p>
