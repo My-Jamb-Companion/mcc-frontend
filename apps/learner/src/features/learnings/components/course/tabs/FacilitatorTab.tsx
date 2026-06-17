@@ -5,8 +5,6 @@ import {Check, ChevronDown, Reply} from "lucide-react";
 import Image from "next/image";
 import {formatDuration} from "../../../hooks/useLesson";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
 interface InstructorReply {
   id: string;
   body: string;
@@ -14,10 +12,10 @@ interface InstructorReply {
 
 interface InstructorQuestion {
   id: string;
-  label: string; // e.g. "Q1", "Q2"
+  label: string;
   body: string;
   status: "delivered" | "seen" | "replied";
-  timestamp?: number; // e.g. "2:13"
+  timestamp?: number;
   reply?: InstructorReply;
 }
 
