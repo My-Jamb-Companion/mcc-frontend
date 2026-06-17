@@ -205,8 +205,7 @@ export const courseDetails: CourseDetail[] = [
     enrolledStudents: 343,
     hours: 13,
     lastUpdated: "2026-05-12",
-    certificate:
-      "Classical Mat Pilates Teacher Training Certificate (20 CPD Points)",
+    certificate: "",
     instructorBio:
       "Benedict Laura is a certified Classical Pilates instructor with over 12 years of teaching experience, specializing in mat-based training and instructor certification programs. She has trained hundreds of students who now teach professionally across studios and gyms worldwide.",
     instructorAvatar: `https://i.pravatar.cc/300?img=${Math.floor(Math.random() * 70)}`,
@@ -3529,7 +3528,7 @@ export const courseDetails: CourseDetail[] = [
     hours: 44,
     lastUpdated: "June 2026",
 
-    certificate: "Advanced Frontend Engineering & System Design Certificate",
+    certificate: "",
 
     availableLanguage: ["English"],
   },

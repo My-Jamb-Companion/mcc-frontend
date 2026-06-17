@@ -25,7 +25,7 @@ export default function OverviewTab({
   enrolledStudents: number;
   hours: number;
   lastUpdated: string;
-  certificate: string;
+  certificate: string | undefined;
   instructor: string;
   instructorBio: string;
   instructorAvatar: string;
@@ -36,6 +36,19 @@ export default function OverviewTab({
   availableLanguage: string[];
   instructorRole: string;
 }) {
+  const handleDownloadCertificate = () => {
+    if (!certificate) return;
+
+    const fileName = certificate.split("/").pop() || "certificate";
+    const link = document.createElement("a");
+    link.href = certificate;
+    link.download = fileName;
+    link.target = "_blank";
+    link.rel = "noreferrer noopener";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   return (
     <section>
       <div className="space-y-4">
@@ -55,12 +68,17 @@ export default function OverviewTab({
                 className="text-lime-500"
               />
             </p>
-            <p className="text-xs">{reviewCount} ratings</p>
+            <p className="text-xs">
+              {reviewCount > 1000 ? reviewCount / 1000 + "k" : reviewCount}{" "}
+              ratings
+            </p>
           </div>
 
           <div>
             <p className="text-sm flex items-center gap-1 font-semibold">
-              {enrolledStudents}
+              {enrolledStudents > 1000
+                ? enrolledStudents / 1000 + "k"
+                : enrolledStudents}
             </p>
             <p className="text-xs">
               {enrolledStudents > 1 ? "Students" : "Student"}
@@ -91,15 +109,16 @@ export default function OverviewTab({
           </p>
 
           <Button
-            variant="disabled"
+            variant={certificate ? "primary" : "disabled"}
+            onClick={handleDownloadCertificate}
             width="fit"
             radius="sm"
-            className="mt-3 flex! bg-[#27272A]/14! cursor-not-allowed!"
+            className={`mt-3 flex! ${certificate ? "" : "bg-[#27272A]/14! cursor-not-allowed!"}`}
             leftIcon={
               <Icon
                 icon="line-md:file-download"
                 size={16}
-                className="text-hint"
+                className={`${certificate ? "text-white" : "text-hint"}`}
               />
             }
           >
@@ -115,7 +134,7 @@ export default function OverviewTab({
         <div className="pb-5">
           <p className="font-medium pb-3">Instructor</p>
           <div className="flex items-center gap-2">
-            <div className="h-[120px] w-[120px] rounded-2xl border border-muted/40 p-1">
+            <div className="h-30 w-30 rounded-2xl border border-muted/40 p-1">
               <div className="relative h-full w-full rounded-xl border border-muted/40 overflow-hidden">
                 {/* <Image */}
                 <img
