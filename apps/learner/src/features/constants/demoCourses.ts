@@ -63,7 +63,7 @@ export interface CourseDetail {
   isEnrolled: boolean;
 
   rating: number;
-  reviewCount: string;
+  reviewCount: number;
 
   tags: string[];
   extraTagsCount: number;
@@ -91,8 +91,17 @@ export interface CourseDetail {
     certificateOnCompletion: boolean;
   };
 
-  curriculum: CurriculumSection[];
+  enrolledStudents: number;
+  hours: number;
+  lastUpdated: string;
+  certificate: string;
+  instructorBio: string;
+  instructorAvatar: string;
+  instructorSocial: {name: string; link: string}[];
+  availableLanguage: string[];
+  instructorRole: string;
 
+  curriculum: CurriculumSection[];
   curriculums: CourseLevel[];
 }
 
@@ -108,7 +117,8 @@ const videoSrcs = [
   "https://samplelib.com/lib/preview/mp4/sample-30s.mp4",
 ];
 
-const getRandomSrc = () => videoSrcs[Math.floor(Math.random() * videoSrcs.length)]
+const getRandomSrc = () =>
+  videoSrcs[Math.floor(Math.random() * videoSrcs.length)];
 
 // ---------------------------------------------------------------------------
 // Types
@@ -167,7 +177,7 @@ export const courseDetails: CourseDetail[] = [
     isEnrolled: true,
 
     rating: 4.7,
-    reviewCount: "5.2k",
+    reviewCount: 5231,
 
     tags: ["Procreate", "Drawing Tablet", "Beginner", "Digital Art", "iPad"],
     extraTagsCount: 8,
@@ -191,6 +201,22 @@ export const courseDetails: CourseDetail[] = [
       fullLifetimeAccess: true,
       certificateOnCompletion: true,
     },
+
+    enrolledStudents: 343,
+    hours: 13,
+    lastUpdated: "2026-05-12",
+    certificate:
+      "Classical Mat Pilates Teacher Training Certificate (20 CPD Points)",
+    instructorBio:
+      "Benedict Laura is a certified Classical Pilates instructor with over 12 years of teaching experience, specializing in mat-based training and instructor certification programs. She has trained hundreds of students who now teach professionally across studios and gyms worldwide.",
+    instructorAvatar: `https://i.pravatar.cc/300?img=${Math.floor(Math.random() * 70)}`,
+    instructorSocial: [
+      {name: "Instagram", link: "https://instagram.com/benedictlaura"},
+      {name: "LinkedIn", link: "https://linkedin.com/in/benedictlaura"},
+      {name: "YouTube", link: "https://youtube.com/@benedictlaura"},
+    ],
+    availableLanguage: ["English"],
+    instructorRole: "Lead Pilates Instructor & Course Creator",
 
     curriculum: [
       {id: "intro", title: "Introduction", isOpen: false, lessons: []},
@@ -943,7 +969,6 @@ export const courseDetails: CourseDetail[] = [
       },
     ],
   },
-
   // ─────────────────────────────────────────────────────────────────────────
   // 2. Digital Photography Masterclass
   // ─────────────────────────────────────────────────────────────────────────
@@ -965,7 +990,7 @@ export const courseDetails: CourseDetail[] = [
     isEnrolled: true,
 
     rating: 4.5,
-    reviewCount: "3.8k",
+    reviewCount: 3872,
 
     tags: [
       "DSLR",
@@ -996,6 +1021,21 @@ export const courseDetails: CourseDetail[] = [
       fullLifetimeAccess: true,
       certificateOnCompletion: true,
     },
+
+    enrolledStudents: 512,
+    hours: 18,
+    lastUpdated: "2026-04-28",
+    certificate: "Digital Photography Masterclass Certificate of Completion",
+    instructorBio:
+      "Amara Okonkwo is a professional photographer and visual educator with a decade of experience shooting portraits, landscapes, and editorial work. She has taught photography workshops across Lagos and Accra, helping beginners move confidently from auto mode to full manual control.",
+    instructorAvatar: `https://i.pravatar.cc/300?img=${Math.floor(Math.random() * 70)}`,
+    instructorSocial: [
+      {name: "Instagram", link: "https://instagram.com/amaraokonkwophoto"},
+      {name: "YouTube", link: "https://youtube.com/@amaraokonkwophoto"},
+      {name: "Website", link: "https://amaraokonkwo.com"},
+    ],
+    availableLanguage: ["English"],
+    instructorRole: "Professional Photographer & Course Instructor",
 
     curriculum: [
       {
@@ -1426,7 +1466,7 @@ export const courseDetails: CourseDetail[] = [
     isEnrolled: false,
 
     rating: 4.9,
-    reviewCount: "7.1k",
+    reviewCount: 7184,
 
     tags: [
       "Figma",
@@ -1932,6 +1972,36 @@ export const courseDetails: CourseDetail[] = [
         ],
       },
     ],
+
+    instructorRole: "Senior Product Designer at Flutterwave",
+
+    instructorBio:
+      "Chidi Mensah is a Senior Product Designer with over 9 years of experience designing fintech, e-commerce, and SaaS products across Africa. He has helped startups scale design systems and improve user experiences used by millions of customers.",
+
+    instructorAvatar: `https://i.pravatar.cc/300?img=${Math.floor(Math.random() * 70)}`,
+
+    instructorSocial: [
+      {
+        name: "LinkedIn",
+        link: "https://linkedin.com/in/chidimensah",
+      },
+      {
+        name: "X",
+        link: "https://x.com/chidimensah",
+      },
+      {
+        name: "Portfolio",
+        link: "https://chididesigns.com",
+      },
+    ],
+
+    enrolledStudents: 18742,
+    hours: 28,
+    lastUpdated: "May 2026",
+
+    certificate: "Professional Certificate in UI/UX Design & Product Thinking",
+
+    availableLanguage: ["English", "French", "Spanish"],
   },
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1955,7 +2025,7 @@ export const courseDetails: CourseDetail[] = [
     isEnrolled: false,
 
     rating: 4.8,
-    reviewCount: "9.4k",
+    reviewCount: 9423,
 
     tags: [
       "Python",
@@ -2442,6 +2512,36 @@ export const courseDetails: CourseDetail[] = [
         ],
       },
     ],
+
+    instructorRole: "Lead Data Scientist",
+
+    instructorBio:
+      "Fatima Al-Hassan is a machine learning engineer and data scientist with extensive experience building predictive models, recommendation systems, and AI-powered analytics products. She has trained thousands of students worldwide in practical data science.",
+
+    instructorAvatar: `https://i.pravatar.cc/300?img=${Math.floor(Math.random() * 70)}`,
+
+    instructorSocial: [
+      {
+        name: "LinkedIn",
+        link: "https://linkedin.com/in/fatimaalhassan",
+      },
+      {
+        name: "GitHub",
+        link: "https://github.com/fatimaalhassan",
+      },
+      {
+        name: "Kaggle",
+        link: "https://kaggle.com/fatimaalhassan",
+      },
+    ],
+
+    enrolledStudents: 24316,
+    hours: 35,
+    lastUpdated: "April 2026",
+
+    certificate: "Professional Certificate in Data Science & Machine Learning",
+
+    availableLanguage: ["English", "Arabic", "French"],
   },
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -2465,7 +2565,7 @@ export const courseDetails: CourseDetail[] = [
     isEnrolled: true,
 
     rating: 4.6,
-    reviewCount: "2.3k",
+    reviewCount: 2356,
 
     tags: [
       "Acoustic Guitar",
@@ -2806,6 +2906,36 @@ export const courseDetails: CourseDetail[] = [
         ],
       },
     ],
+
+    instructorRole: "Professional Guitar Instructor & Performer",
+
+    instructorBio:
+      "Seun Adeyemi is a professional guitarist and music educator who has spent over a decade teaching beginners how to confidently play acoustic guitar. His practical teaching style focuses on helping students play real songs quickly.",
+
+    instructorAvatar: `https://i.pravatar.cc/300?img=${Math.floor(Math.random() * 70)}`,
+
+    instructorSocial: [
+      {
+        name: "YouTube",
+        link: "https://youtube.com/@seunadeyemi",
+      },
+      {
+        name: "Instagram",
+        link: "https://instagram.com/seunadeyemi",
+      },
+      {
+        name: "Website",
+        link: "https://seunmusic.com",
+      },
+    ],
+
+    enrolledStudents: 6845,
+    hours: 12,
+    lastUpdated: "March 2026",
+
+    certificate: "Certificate of Completion in Acoustic Guitar Fundamentals",
+
+    availableLanguage: ["English"],
   },
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -2829,7 +2959,7 @@ export const courseDetails: CourseDetail[] = [
     isEnrolled: false,
 
     rating: 4.9,
-    reviewCount: "4.6k",
+    reviewCount: 4678,
 
     tags: [
       "Next.js",
@@ -3372,5 +3502,35 @@ export const courseDetails: CourseDetail[] = [
         ],
       },
     ],
+
+    instructorRole: "Senior Frontend Architect",
+
+    instructorBio:
+      "Tobenna Eze is a software architect and frontend engineering mentor with over 10 years of experience building large-scale web applications using React, Next.js, TypeScript, cloud infrastructure, and modern frontend architecture patterns.",
+
+    instructorAvatar: `https://i.pravatar.cc/300?img=${Math.floor(Math.random() * 70)}`,
+
+    instructorSocial: [
+      {
+        name: "LinkedIn",
+        link: "https://linkedin.com/in/tobennaeze",
+      },
+      {
+        name: "GitHub",
+        link: "https://github.com/tobennaeze",
+      },
+      {
+        name: "Website",
+        link: "https://tobenna.dev",
+      },
+    ],
+
+    enrolledStudents: 12563,
+    hours: 44,
+    lastUpdated: "June 2026",
+
+    certificate: "Advanced Frontend Engineering & System Design Certificate",
+
+    availableLanguage: ["English"],
   },
 ];

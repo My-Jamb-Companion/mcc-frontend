@@ -52,7 +52,7 @@ export default function CourseContent({course}: {course: CourseDetail}) {
       setActiveLesson(allLessons[currentIndex + 1]);
     }
   };
-
+  console.log(course);
   return (
     <section>
       <nav className="flex items-center gap-1 text-sm py-8">
@@ -140,14 +140,38 @@ export default function CourseContent({course}: {course: CourseDetail}) {
               exit={{opacity: 0, y: -10}}
               transition={{duration: 0.15}}
             >
-              {activeTab === "overview" && <OverviewTab />}
+              {activeTab === "overview" && (
+                <OverviewTab
+                  title={course.title}
+                  description={course.description}
+                  rating={course.rating}
+                  reviewCount={course.reviewCount}
+                  enrolledStudents={course.enrolledStudents}
+                  hours={course.hours}
+                  lastUpdated={course.lastUpdated}
+                  certificate={course.certificate}
+                  instructor={course.instructor}
+                  instructorBio={course.instructorBio}
+                  instructorAvatar={course.instructorAvatar}
+                  instructorSocial={course.instructorSocial}
+                  availableLanguage={course.availableLanguage}
+                  instructorRole={course.instructorRole}
+                />
+              )}
               {activeTab === "community" && (
                 <CommunityTab currentVideoTime={currentVideoTime} />
               )}
               {activeTab === "notes" && (
                 <NotesTab currentTimestamp={currentVideoTime} />
               )}
-              {activeTab === "facilitator" && <FacilitatorTab />}
+              {activeTab === "facilitator" && (
+                <FacilitatorTab
+                  instructorName={course.instructor}
+                  courseDescription={course.description}
+                  instructorAvatar={course.instructorAvatar}
+                  currentTime={currentVideoTime}
+                />
+              )}
             </motion.div>
           </AnimatePresence>
         </div>

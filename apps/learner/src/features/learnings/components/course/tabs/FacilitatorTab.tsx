@@ -2,12 +2,13 @@
 
 import {useState} from "react";
 import {Check, ChevronDown, Reply} from "lucide-react";
+import Image from "next/image";
+import {formatDuration} from "../../../hooks/useLesson";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface InstructorReply {
   id: string;
-  avatarUrl?: string;
   body: string;
 }
 
@@ -16,28 +17,30 @@ interface InstructorQuestion {
   label: string; // e.g. "Q1", "Q2"
   body: string;
   status: "delivered" | "seen" | "replied";
-  timestamp?: string; // e.g. "2:13"
+  timestamp?: number; // e.g. "2:13"
   reply?: InstructorReply;
 }
 
 interface FacilitatorProps {
   instructorName?: string;
   courseDescription?: string;
+  instructorAvatar?: string;
   questions?: InstructorQuestion[];
   onAsk?: (body: string) => void;
   onReply?: (questionId: string, body: string) => void;
-  onTimestampClick?: (ts: string) => void;
+  onTimestampClick?: (ts: number) => void;
+  currentTime?: number;
 }
 
-// ─── Facilitator (main export) ─────────────────────────────────────────────
-
 export default function FacilitatorTab({
-  instructorName = "Laura",
-  courseDescription = "Realise your dreams and train to be a Classical Mat Pilates instructor with this accredited Teacher Training course",
+  instructorName,
+  courseDescription,
+  instructorAvatar,
   questions: initialQuestions = DEFAULT_QUESTIONS,
   onAsk,
   onReply,
   onTimestampClick,
+  currentTime,
 }: FacilitatorProps) {
   const [questions, setQuestions] = useState(initialQuestions);
   const [newQuestion, setNewQuestion] = useState("");
@@ -49,6 +52,7 @@ export default function FacilitatorTab({
       label: `Q${questions.length + 1}`,
       body: newQuestion.trim(),
       status: "delivered",
+      timestamp: currentTime,
     };
     setQuestions((prev) => [q, ...prev]);
     onAsk?.(newQuestion.trim());
@@ -58,7 +62,7 @@ export default function FacilitatorTab({
   const handleReply = (questionId: string, body: string) => {
     onReply?.(questionId, body);
   };
-
+  console.log(currentTime);
   return (
     <section className="w-full max-w-[75%] font-sans">
       {/* Heading */}
@@ -91,7 +95,7 @@ export default function FacilitatorTab({
 
       {/* Hint */}
       <p className="text-xs text-gray-400 mb-6">
-        Use <span className="font-medium text-gray-500">&quot;@&quot;</span> to
+        Use <span className="font-bold text-blue-500">&quot;@&quot;</span> to
         highlight the timeline of the course you want to talk about.
       </p>
 
@@ -101,7 +105,8 @@ export default function FacilitatorTab({
           <QuestionItem
             key={q.id}
             question={q}
-            instructorName={instructorName}
+            instructorName={instructorName || ""}
+            instructorAvatar={instructorAvatar}
             onReply={handleReply}
             onTimestampClick={onTimestampClick}
           />
@@ -111,26 +116,16 @@ export default function FacilitatorTab({
   );
 }
 
-// ─── TimestampBadge ───────────────────────────────────────────────────────────
-
-function TimestampBadge({
-  label,
-  onClick,
-}: {
-  label: string;
-  onClick?: () => void;
-}) {
+function TimestampBadge({time, onClick}: {time: number; onClick?: () => void}) {
   return (
     <button
       onClick={onClick}
       className="px-2.5 py-0.5 rounded-full border border-violet-300 text-violet-600 text-xs font-semibold bg-white hover:bg-violet-50 transition-colors"
     >
-      {label}
+      {formatDuration(time)}
     </button>
   );
 }
-
-// ─── StatusBadge ─────────────────────────────────────────────────────────────
 
 function StatusBadge({status}: {status: InstructorQuestion["status"]}) {
   if (status === "delivered") {
@@ -150,18 +145,18 @@ function StatusBadge({status}: {status: InstructorQuestion["status"]}) {
   return null;
 }
 
-// ─── QuestionItem ─────────────────────────────────────────────────────────────
-
 function QuestionItem({
   question,
   instructorName,
+  instructorAvatar,
   onReply,
   onTimestampClick,
 }: {
   question: InstructorQuestion;
   instructorName: string;
+  instructorAvatar?: string;
   onReply?: (id: string, body: string) => void;
-  onTimestampClick?: (ts: string) => void;
+  onTimestampClick?: (ts: number) => void;
 }) {
   const [expanded, setExpanded] = useState(!!question.reply);
   const [replyText, setReplyText] = useState("");
@@ -181,7 +176,7 @@ function QuestionItem({
         <h3 className="text-2xl font-bold text-gray-900">{question.label}</h3>
         {question.timestamp && (
           <TimestampBadge
-            label={question.timestamp}
+            time={question.timestamp}
             onClick={() => onTimestampClick?.(question.timestamp!)}
           />
         )}
@@ -213,12 +208,15 @@ function QuestionItem({
         <div className="mt-4 ml-3 border-l-2 border-gray-100 pl-4">
           {/* Instructor avatar + message */}
           <div className="flex gap-3 mb-3">
-            <div className="w-9 h-9 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden">
-              {question.reply.avatarUrl ? (
+            <div className="relative w-9 h-9 rounded-full bg-gray-200 shrink-0 overflow-hidden">
+              {instructorAvatar ? (
+                // <Image
                 <img
-                  src={question.reply.avatarUrl}
+                  src={instructorAvatar}
                   alt={instructorName}
                   className="w-full h-full object-cover"
+                  // fill
+                  // priority
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-xs font-semibold text-gray-500">
@@ -267,7 +265,7 @@ function QuestionItem({
           {showReplyBox && (
             <p className="mt-2 text-xs text-gray-400">
               Use{" "}
-              <span className="font-medium text-gray-500">&quot;@&quot;</span>{" "}
+              <span className="font-semibold text-blue-500">&quot;@&quot;</span>{" "}
               to highlight the timeline of the course you want to talk about.
             </p>
           )}
@@ -276,8 +274,6 @@ function QuestionItem({
     </div>
   );
 }
-
-// ─── Default data ─────────────────────────────────────────────────────────────
 
 const DEFAULT_QUESTIONS: InstructorQuestion[] = [
   {
@@ -291,7 +287,7 @@ const DEFAULT_QUESTIONS: InstructorQuestion[] = [
     label: "Q1",
     body: "Realise your dreams and train to be a Classical Mat Pilates instructor with this accredited Teacher Training course",
     status: "seen",
-    timestamp: "2:13",
+    timestamp: 14,
     reply: {
       id: "r1",
       body: "Realise your dreams and train to be a Classical Mat Pilates instructor with this accredited Teacher Training course",
