@@ -52,7 +52,7 @@ export default function CourseContent({course}: {course: CourseDetail}) {
       setActiveLesson(allLessons[currentIndex + 1]);
     }
   };
-  console.log(course);
+
   return (
     <section>
       <nav className="flex items-center gap-1 text-sm py-8">
@@ -104,19 +104,28 @@ export default function CourseContent({course}: {course: CourseDetail}) {
                   transition={{duration: 0.25}}
                 >
                   <CoursePractice
-                    problem={{
-                      id: "p1",
-                      label: "PROBLEM 1",
-                      title: "Now, lets Practice",
-                      question: "Q1...",
-                      answerPlaceholder: "A1...",
-                      correctAnswer: "A1...",
-                      totalSteps: 6,
-                      currentStep: 1,
-                      upNext: "module 4",
-                    }}
-                    onCorrect={() => console.log("Correct!")}
-                    onUpNext={() => console.log("Navigate to next module")}
+                    problems={[
+                      {
+                        id: "p1",
+                        label: "PROBLEM 1",
+                        title: "Now, lets Practice",
+                        question: "Q1...",
+                        answerPlaceholder: "A1...",
+                        correctAnswer: "A1...",
+                      },
+                      {
+                        id: "p2",
+                        label: "PROBLEM 2",
+                        title: "Keep going",
+                        question: "Q2...",
+                        answerPlaceholder: "A2...",
+                        correctAnswer: "A2...",
+                      },
+                    ]}
+                    onCorrect={(problem, index) =>
+                      console.log("Correct!", problem.id, index)
+                    }
+                    onUpNext={() => handleVideoEnded()}
                   />
                 </motion.div>
               )}
