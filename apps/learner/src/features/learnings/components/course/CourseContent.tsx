@@ -67,7 +67,15 @@ export default function CourseContent({course}: {course: CourseDetail}) {
       <div
         className={`grid grid-cols-1 ${isSidePanelOpen ? "lg:grid-cols-[1fr_.1fr]" : "lg:grid-cols-[1fr_2rem]"} gap-6 transition-[grid-template-columns] duration-400 ease-in-out`}
       >
-        <div className="pb-8">
+        <motion.div
+          layout
+          transition={{
+            type: "spring",
+            stiffness: 120,
+            damping: 20,
+          }}
+          className="pb-8"
+        >
           <div className="w-full min-w-full overflow-hidden">
             <AnimatePresence mode="wait">
               {activeLesson?.type === "video" && (
@@ -174,7 +182,7 @@ export default function CourseContent({course}: {course: CourseDetail}) {
               )}
             </motion.div>
           </AnimatePresence>
-        </div>
+        </motion.div>
 
         {/* side panel */}
         <AnimatePresence mode="wait">
