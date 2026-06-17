@@ -99,7 +99,12 @@ export default function OverviewTab({
             size={14}
             className="text-muted"
           />
-          <p className="text-sm">Last updated {lastUpdated || "Never"}</p>
+          <p className="text-sm">
+            Last updated{" "}
+            <span className="capitalize">
+              {formatMonthYear(lastUpdated) || "Never"}
+            </span>
+          </p>
         </div>
 
         <div className="border-b border-muted/40 pb-5">
@@ -202,4 +207,13 @@ export default function OverviewTab({
       </div>
     </section>
   );
+}
+
+function formatMonthYear(dateString: string): string {
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return dateString;
+
+  return date
+    .toLocaleString("en-US", {month: "long", year: "numeric"})
+    .toLowerCase();
 }
