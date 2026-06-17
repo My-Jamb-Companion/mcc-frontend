@@ -169,7 +169,9 @@ function ModuleAccordion({
 
         {hasLessons && (
           <div className="flex items-center gap-2">
-            <p className="text-subtle text-xs">{moduleDuration.formatted}</p>
+            <p className="text-subtle text-xs text-nowrap">
+              {moduleDuration.formatted}
+            </p>
             <Icon
               icon="ph:caret-down"
               size={14}

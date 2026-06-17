@@ -192,8 +192,6 @@ function TimestampLink({
   );
 }
 
-// ─── QuestionCard ─────────────────────────────────────────────────────────────
-
 function QuestionCard({
   question,
   onTimestampClick,
@@ -308,8 +306,6 @@ function QuestionCard({
   );
 }
 
-// ─── Dropdown ────────────────────────────────────────────────────────────────
-
 function Dropdown({
   value,
   options,
@@ -351,8 +347,6 @@ function Dropdown({
     </div>
   );
 }
-
-// ─── QAFeed (main export) ────────────────────────────────────────────────────
 
 const DEFAULT_QUESTIONS: Question[] = [
   {

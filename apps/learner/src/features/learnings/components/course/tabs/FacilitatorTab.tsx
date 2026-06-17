@@ -62,7 +62,7 @@ export default function FacilitatorTab({
   const handleReply = (questionId: string, body: string) => {
     onReply?.(questionId, body);
   };
-  console.log(currentTime);
+
   return (
     <section className="w-full max-w-[75%] font-sans">
       {/* Heading */}
@@ -120,9 +120,9 @@ function TimestampBadge({time, onClick}: {time: number; onClick?: () => void}) {
   return (
     <button
       onClick={onClick}
-      className="px-2.5 py-0.5 rounded-full border border-violet-300 text-violet-600 text-xs font-semibold bg-white hover:bg-violet-50 transition-colors"
+      className="flex items-center justify-center px-2.5 py-0.5 rounded-full border border-violet-300 text-violet-600 text-xs font-semibold hover:bg-violet-50 bg-violet-100 transition-colors"
     >
-      {formatDuration(time)}
+      <p className="translate-y-px">{formatDuration(time)}</p>
     </button>
   );
 }
