@@ -122,9 +122,9 @@ export default function CourseContent({course}: {course: CourseDetail}) {
                         correctAnswer: "A2...",
                       },
                     ]}
-                    onCorrect={(problem, index) =>
-                      console.log("Correct!", problem.id, index)
-                    }
+                    // onCorrect={(problem, index) =>
+                    //   console.log("Correct!", problem.id, index)
+                    // }
                     onUpNext={() => handleVideoEnded()}
                   />
                 </motion.div>
