@@ -33,6 +33,15 @@ const lessonIconMap: Record<LessonType, {icon: string; className: string}> = {
   //     icon: "ph:clock",
   //     className: "text-primary",
   //   },
+  practice: {
+    icon: "material-symbols:quiz-outline",
+    className: "text-orange-500",
+  },
+
+  exam: {
+    icon: "mdi:certificate-outline",
+    className: "text-green-500",
+  },
 };
 
 export default function CoursePlayModules({
@@ -224,9 +233,21 @@ function ModuleAccordion({
                       >
                         {lesson.title}
                       </p>
-                      <p className="text-sm mt-0.5 text-muted">
-                        {formatDuration(lesson.duration)}
-                      </p>
+                      {lesson.duration && (
+                        <p className="text-sm mt-0.5 text-muted">
+                          {formatDuration(lesson.duration)}
+                        </p>
+                      )}
+
+                      {lesson.type === "practice" && (
+                        <p className="text-xs text-orange-500">Practice Quiz</p>
+                      )}
+
+                      {lesson.type === "exam" && (
+                        <p className="text-xs text-green-500">
+                          Certification Exam
+                        </p>
+                      )}
                     </div>
                   </motion.button>
                 );

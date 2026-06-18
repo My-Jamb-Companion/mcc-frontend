@@ -124,7 +124,7 @@ const getRandomSrc = () =>
 // Types
 // ---------------------------------------------------------------------------
 
-export type LessonType = "video" | "doc";
+export type LessonType = "video" | "doc" | "practice" | "exam";
 
 export interface Lessons {
   id: string;
@@ -142,6 +142,19 @@ export interface Lessons {
 
     correctAnswer: string;
   }[];
+  exam?: {
+    passingScore: number;
+    maxAttempts: number;
+    attempts: number;
+    score: number;
+    passed: boolean;
+    questions: {
+      id: string;
+      question: string;
+      answers: string[];
+      correctAnswer: string;
+    }[];
+  };
 }
 
 export interface CourseModule {

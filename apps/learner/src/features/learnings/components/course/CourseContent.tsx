@@ -15,6 +15,7 @@ import OverviewTab from "./tabs/OverviewTab";
 import BrainyCourseSidePanel from "./BrainyCourseSidePanel";
 import {motion, AnimatePresence} from "@mcc/ui";
 import {CoursePractice} from "./CoursePractice";
+import CourseTestFlow from "./CourseExamFlow";
 
 export default function CourseContent({course}: {course: CourseDetail}) {
   const allLessons = useAllLessons(course);
@@ -126,6 +127,24 @@ export default function CourseContent({course}: {course: CourseDetail}) {
                       console.log("Correct!", problem.id, index)
                     }
                     onUpNext={() => handleVideoEnded()}
+                  />
+                </motion.div>
+              )}
+
+              {activeLesson?.type === "exam" && (
+                <motion.div
+                  key={`exam-${activeLesson?.id}`}
+                  initial={{opacity: 0, scale: 0.98}}
+                  animate={{opacity: 1, scale: 1}}
+                  exit={{opacity: 0, scale: 0.98}}
+                  transition={{duration: 0.25}}
+                >
+                  <CourseTestFlow
+                    questions={activeLesson?.exam?.questions || []}
+                    // onCorrect={(problem, index) =>
+                    //   console.log("Correct!", problem.id, index)
+                    // }
+                    // onUpNext={() => handleVideoEnded()}
                   />
                 </motion.div>
               )}
