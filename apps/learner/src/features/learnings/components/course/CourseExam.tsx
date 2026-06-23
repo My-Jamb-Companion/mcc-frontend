@@ -54,6 +54,7 @@ export default function CourseExam({
 
   const isLastQuestion = currentIndex === questions.length - 1;
   const isFirstQuestion = currentIndex === 0;
+  const allAnswered = answers.length === questions.length;
 
   const handleSelectOption = (answer: string) => {
     if (reviewMode) return;
@@ -92,6 +93,7 @@ export default function CourseExam({
 
   const handleNext = () => {
     if (!reviewMode && isLastQuestion) {
+      console.log(answers);
       onComplete?.(answers);
       return;
     } else if (reviewMode && isLastQuestion) {
@@ -105,7 +107,7 @@ export default function CourseExam({
   if (!currentQuestion) return null;
 
   return (
-    <div className="w-full rounded-2xl border border-gray-100 bg-white shadow-sm">
+    <div className="w-full rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-[#222225]">
       {/* HEADER */}
       <div className="flex items-start justify-between border-b border-gray-100 px-8 py-6">
         <div>
@@ -113,7 +115,7 @@ export default function CourseExam({
             Compulsory
           </p>
 
-          <h2 className="mt-1 text-lg font-bold text-gray-900 text-nowrap">
+          <h2 className="mt-1 text-lg font-bold text-gray-900 dark:text-white text-nowrap">
             {reviewMode ? "Review your answers" : "Course test"}
           </h2>
         </div>
@@ -123,28 +125,35 @@ export default function CourseExam({
             Complete your {questions.length} Exercises
           </span>
 
-          <div className="flex flex-wrap gap-1.5 justify-evenly w-full">
-            {questions.map((_, i) => (
-              <span
-                key={i}
-                onClick={() => setCurrentIndex(i)}
-                className={`h-1.5 w-6 rounded-full cursor-pointer ${
-                  currentIndex === i
-                    ? "bg-primary"
-                    : reviewMode &&
-                        submittedAnswers[i].answer ===
-                          submittedAnswers[i].correctAnswer
-                      ? "bg-success"
+          <div className="flex gap-1 w-full">
+            {questions.map((_, i) => {
+              const hasAnswer = answers.some(
+                (a) => a.id === randomizedQuestions[i]?.id,
+              );
+
+              return (
+                <span
+                  key={i}
+                  onClick={() => setCurrentIndex(i)}
+                  style={{flex: `1 1 ${100 / questions.length}%`}}
+                  className={`h-1.5 min-w-1 rounded-full cursor-pointer transition-colors ${
+                    currentIndex === i
+                      ? "bg-primary"
                       : reviewMode &&
-                          submittedAnswers[i].answer !=
+                          submittedAnswers[i].answer ===
                             submittedAnswers[i].correctAnswer
-                        ? "bg-danger"
-                        : i <= currentIndex
-                          ? "bg-primary"
-                          : "bg-gray-200"
-                }`}
-              />
-            ))}
+                        ? "bg-success"
+                        : reviewMode &&
+                            submittedAnswers[i].answer !=
+                              submittedAnswers[i].correctAnswer
+                          ? "bg-danger"
+                          : hasAnswer
+                            ? "bg-primary/50"
+                            : "bg-gray-200 dark:bg-gray-600"
+                  }`}
+                />
+              );
+            })}
           </div>
         </div>
       </div>
@@ -152,7 +161,7 @@ export default function CourseExam({
       {/* BODY */}
 
       <div className="px-8 py-8">
-        <h3 className="text-base font-bold text-gray-900">
+        <h3 className="text-base font-bold text-gray-900 dark:text-white">
           {currentQuestion.question}
         </h3>
 
@@ -164,18 +173,22 @@ export default function CourseExam({
 
             const isWrongSelected = reviewMode && isSelected && !isCorrect;
 
-            let optionStyle = "border-gray-200 text-gray-800";
+            let optionStyle =
+              "border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200";
 
             if (reviewMode) {
               if (isCorrect) {
-                optionStyle = "border-green-500 bg-green-50 text-green-700";
+                optionStyle =
+                  "border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400";
               }
 
               if (isWrongSelected) {
-                optionStyle = "border-red-500 bg-red-50 text-red-700";
+                optionStyle =
+                  "border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400";
               }
             } else if (isSelected) {
-              optionStyle = "border-blue-600 bg-blue-50 text-blue-600";
+              optionStyle =
+                "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
             }
 
             return (
@@ -202,7 +215,7 @@ export default function CourseExam({
                           ? "border-danger bg-danger text-white"
                           : isSelected
                             ? "border-blue-600 bg-blue-600 text-white"
-                            : "border-gray-300"
+                            : "border-gray-300 dark:border-gray-500 dark:text-gray-300"
                     }
                   `}
                 >
@@ -218,12 +231,14 @@ export default function CourseExam({
 
       {/* FOOTER */}
 
-      <div className="flex justify-end gap-3 rounded-b-2xl border-t bg-gray-50 px-8 py-5">
+      <div className="flex justify-end gap-3 rounded-b-2xl bg-gray-100 dark:bg-gray-900 px-8 py-5">
         <button
           type="button"
           onClick={handlePrev}
           disabled={isFirstQuestion}
-          className="text-sm font-semibold text-gray-700 disabled:text-gray-300 px-5 py-2.5"
+          className={`text-sm font-semibold text-gray-700 disabled:text-gray-300 dark:text-gray-300 dark:disabled:text-gray-600 px-5 py-2.5 cursor-pointer
+          ${isFirstQuestion && "cursor-not-allowed"}
+          `}
         >
           Prev
         </button>
@@ -231,8 +246,8 @@ export default function CourseExam({
         <button
           type="button"
           onClick={handleNext}
-          disabled={!selectedAnswer}
-          className="flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 active:scale-95 transition-all"
+          disabled={isLastQuestion && !reviewMode ? !allAnswered : !selectedAnswer}
+          className={`flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 active:scale-95 transition-all ${isLastQuestion && !reviewMode && !allAnswered ? "cursor-not-allowed" : "cursor-pointer"}`}
         >
           {reviewMode && isLastQuestion ? (
             "View Feedback"

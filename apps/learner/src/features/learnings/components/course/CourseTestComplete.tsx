@@ -54,10 +54,10 @@ export default function CourseCompletion({
   continueLabel = "Up next: Your certificate!",
 }: CourseCompletionProps) {
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+    <div className="w-full overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-[#111112]">
       <div className="grid grid-cols-1 sm:grid-cols-2">
         {/* Left panel */}
-        <div className="relative flex min-h-[420px] flex-col items-center justify-center overflow-hidden bg-violet-600 px-8 py-12 text-center">
+        <div className="relative flex min-h-[420px] flex-col items-center justify-center overflow-hidden bg-primary/90 px-8 py-12 text-center">
           {/* Decorative asterisk, subtle, bottom-right */}
           <Icon
             icon="mdi:asterisk"
@@ -96,7 +96,7 @@ export default function CourseCompletion({
 
         {/* Right panel */}
         <div className="px-8 py-10">
-          <h3 className="text-base font-semibold text-gray-800">
+          <h3 className="text-base font-semibold text-gray-800 dark:text-white">
             Skill mastery level
           </h3>
 
@@ -106,7 +106,7 @@ export default function CourseCompletion({
                 key={level.id}
                 className={`flex items-center justify-between py-4 ${
                   idx !== skillLevels.length - 1
-                    ? "border-b border-gray-100"
+                    ? "border-b border-gray-100 dark:border-gray-700"
                     : ""
                 }`}
               >
@@ -119,18 +119,18 @@ export default function CourseCompletion({
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-8 py-5">
+      <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-8 py-5">
         <button
           type="button"
           onClick={onShowSummary}
-          className="text-sm font-semibold text-gray-800 hover:text-gray-900"
+          className="text-sm font-semibold text-gray-800 hover:text-gray-900 dark:hover:text-gray-300 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 cursor-pointer"
         >
           Show summary
         </button>
         <button
           type="button"
           onClick={onContinue}
-          className="rounded-lg bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-700"
+          className="rounded-lg bg-primary dark:bg-primary/80 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/70 dark:hover:bg-primary/60 cursor-pointer"
         >
           {continueLabel}
         </button>

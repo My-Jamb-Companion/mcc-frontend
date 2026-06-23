@@ -1167,126 +1167,126 @@ export const courseDetails: CourseDetail[] = [
                       correctAnswer: "Proper technique",
                     },
 
-                    {
-                      id: "exam-16",
-                      question: "A good instructor should?",
-                      answers: [
-                        "Adapt exercises to clients",
-                        "Ignore needs",
-                        "Use one method only",
-                        "Avoid feedback",
-                      ],
-                      correctAnswer: "Adapt exercises to clients",
-                    },
+                    // {
+                    //   id: "exam-16",
+                    //   question: "A good instructor should?",
+                    //   answers: [
+                    //     "Adapt exercises to clients",
+                    //     "Ignore needs",
+                    //     "Use one method only",
+                    //     "Avoid feedback",
+                    //   ],
+                    //   correctAnswer: "Adapt exercises to clients",
+                    // },
 
-                    {
-                      id: "exam-17",
-                      question: "Client assessment helps create?",
-                      answers: [
-                        "Safe programs",
-                        "Random workouts",
-                        "Competition",
-                        "Pressure",
-                      ],
-                      correctAnswer: "Safe programs",
-                    },
+                    // {
+                    //   id: "exam-17",
+                    //   question: "Client assessment helps create?",
+                    //   answers: [
+                    //     "Safe programs",
+                    //     "Random workouts",
+                    //     "Competition",
+                    //     "Pressure",
+                    //   ],
+                    //   correctAnswer: "Safe programs",
+                    // },
 
-                    {
-                      id: "exam-18",
-                      question: "Effective coaching requires?",
-                      answers: [
-                        "Clear communication",
-                        "Silence",
-                        "Confusion",
-                        "No feedback",
-                      ],
-                      correctAnswer: "Clear communication",
-                    },
+                    // {
+                    //   id: "exam-18",
+                    //   question: "Effective coaching requires?",
+                    //   answers: [
+                    //     "Clear communication",
+                    //     "Silence",
+                    //     "Confusion",
+                    //     "No feedback",
+                    //   ],
+                    //   correctAnswer: "Clear communication",
+                    // },
 
-                    {
-                      id: "exam-19",
-                      question: "A personal brand helps build?",
-                      answers: [
-                        "Trust and recognition",
-                        "Confusion",
-                        "Avoidance",
-                        "Isolation",
-                      ],
-                      correctAnswer: "Trust and recognition",
-                    },
+                    // {
+                    //   id: "exam-19",
+                    //   question: "A personal brand helps build?",
+                    //   answers: [
+                    //     "Trust and recognition",
+                    //     "Confusion",
+                    //     "Avoidance",
+                    //     "Isolation",
+                    //   ],
+                    //   correctAnswer: "Trust and recognition",
+                    // },
 
-                    {
-                      id: "exam-20",
-                      question: "Career growth requires?",
-                      answers: [
-                        "Continuous learning",
-                        "Stopping education",
-                        "Avoiding practice",
-                        "Reducing skills",
-                      ],
-                      correctAnswer: "Continuous learning",
-                    },
+                    // {
+                    //   id: "exam-20",
+                    //   question: "Career growth requires?",
+                    //   answers: [
+                    //     "Continuous learning",
+                    //     "Stopping education",
+                    //     "Avoiding practice",
+                    //     "Reducing skills",
+                    //   ],
+                    //   correctAnswer: "Continuous learning",
+                    // },
 
-                    {
-                      id: "exam-21",
-                      question: "Professional instructors prioritize?",
-                      answers: [
-                        "Client safety",
-                        "Competition",
-                        "Speed",
-                        "Difficulty",
-                      ],
-                      correctAnswer: "Client safety",
-                    },
+                    // {
+                    //   id: "exam-21",
+                    //   question: "Professional instructors prioritize?",
+                    //   answers: [
+                    //     "Client safety",
+                    //     "Competition",
+                    //     "Speed",
+                    //     "Difficulty",
+                    //   ],
+                    //   correctAnswer: "Client safety",
+                    // },
 
-                    {
-                      id: "exam-22",
-                      question: "A successful Pilates class should provide?",
-                      answers: [
-                        "Value and guidance",
-                        "Pressure",
-                        "Confusion",
-                        "Random exercises",
-                      ],
-                      correctAnswer: "Value and guidance",
-                    },
+                    // {
+                    //   id: "exam-22",
+                    //   question: "A successful Pilates class should provide?",
+                    //   answers: [
+                    //     "Value and guidance",
+                    //     "Pressure",
+                    //     "Confusion",
+                    //     "Random exercises",
+                    //   ],
+                    //   correctAnswer: "Value and guidance",
+                    // },
 
-                    {
-                      id: "exam-23",
-                      question: "Mastery comes from?",
-                      answers: [
-                        "Practice and understanding",
-                        "Speed",
-                        "Strength only",
-                        "Flexibility only",
-                      ],
-                      correctAnswer: "Practice and understanding",
-                    },
+                    // {
+                    //   id: "exam-23",
+                    //   question: "Mastery comes from?",
+                    //   answers: [
+                    //     "Practice and understanding",
+                    //     "Speed",
+                    //     "Strength only",
+                    //     "Flexibility only",
+                    //   ],
+                    //   correctAnswer: "Practice and understanding",
+                    // },
 
-                    {
-                      id: "exam-24",
-                      question: "Certification demonstrates?",
-                      answers: [
-                        "Knowledge and competency",
-                        "Only popularity",
-                        "Only strength",
-                        "Only experience",
-                      ],
-                      correctAnswer: "Knowledge and competency",
-                    },
+                    // {
+                    //   id: "exam-24",
+                    //   question: "Certification demonstrates?",
+                    //   answers: [
+                    //     "Knowledge and competency",
+                    //     "Only popularity",
+                    //     "Only strength",
+                    //     "Only experience",
+                    //   ],
+                    //   correctAnswer: "Knowledge and competency",
+                    // },
 
-                    {
-                      id: "exam-25",
-                      question:
-                        "A professional Pilates instructor should always maintain?",
-                      answers: [
-                        "Safety, control, and professionalism",
-                        "Competition",
-                        "Maximum intensity",
-                        "Random methods",
-                      ],
-                      correctAnswer: "Safety, control, and professionalism",
-                    },
+                    // {
+                    //   id: "exam-25",
+                    //   question:
+                    //     "A professional Pilates instructor should always maintain?",
+                    //   answers: [
+                    //     "Safety, control, and professionalism",
+                    //     "Competition",
+                    //     "Maximum intensity",
+                    //     "Random methods",
+                    //   ],
+                    //   correctAnswer: "Safety, control, and professionalism",
+                    // },
                   ],
                 },
               },

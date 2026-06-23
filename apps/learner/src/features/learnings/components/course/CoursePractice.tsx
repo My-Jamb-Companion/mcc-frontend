@@ -81,20 +81,20 @@ export function CoursePractice({
 
   const inputBorderClass =
     state === "correct"
-      ? "border-green-400 bg-green-50 focus:ring-green-200"
+      ? "border-green-400 bg-green-50 focus:ring-green-200 dark:text-black"
       : state === "incorrect"
-        ? "border-red-400 bg-red-50 focus:ring-red-200"
-        : "border-gray-200 bg-white focus:ring-violet-100";
+        ? "border-red-400 bg-red-50 focus:ring-red-200 dark:text-black"
+        : "border-gray-200 bg-white dark:bg-gray-700  text-gray-700 dark:text-white";
 
   return (
-    <div className="w-full h-full bg-gray-50 rounded-2xl p-6 font-sans">
+    <div className="w-full h-full bg-gray-50 dark:bg-[#222225] rounded-2xl p-6 font-sans">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div>
           <p className="text-[11px] font-semibold tracking-widest text-gray-400 uppercase mb-0.5">
             {isComplete ? problems[problems.length - 1]?.label : problem?.label}
           </p>
-          <h3 className="text-base font-bold text-gray-900">
+          <h3 className="text-base font-bold text-gray-900 dark:text-white">
             {isComplete ? "All done!" : problem?.title}
           </h3>
         </div>
@@ -107,7 +107,7 @@ export function CoursePractice({
       </div>
 
       {/* Divider */}
-      <div className="border-t border-gray-200 mb-5" />
+      <div className="border-t border-gray-200 dark:border-gray-600 mb-5" />
 
       <AnimatePresence mode="wait">
         {!isComplete ? (
@@ -119,39 +119,52 @@ export function CoursePractice({
             transition={{duration: 0.25, ease: [0.22, 1, 0.36, 1]}}
           >
             {/* Question */}
-            <p className="text-sm font-medium text-gray-700 mb-4">
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
               {problem?.question}
             </p>
 
             {/* Answer row */}
             <div className="flex items-center gap-2 mb-4">
               {/* Status icon */}
-              <div className="w-6 h-6 shrink-0 flex items-center justify-center">
-                <AnimatePresence mode="wait">
-                  {state === "incorrect" && (
-                    <motion.div
-                      key="incorrect"
-                      initial={{scale: 0, rotate: -45}}
-                      animate={{scale: 1, rotate: 0}}
-                      exit={{scale: 0}}
-                      transition={{type: "spring", stiffness: 300, damping: 15}}
-                    >
-                      <XCircle className="w-6 h-6 text-red-500" />
-                    </motion.div>
-                  )}
-                  {state === "correct" && (
-                    <motion.div
-                      key="correct"
-                      initial={{scale: 0, rotate: 45}}
-                      animate={{scale: 1, rotate: 0}}
-                      exit={{scale: 0}}
-                      transition={{type: "spring", stiffness: 300, damping: 15}}
-                    >
-                      <CheckCircle className="w-6 h-6 text-green-500" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              <AnimatePresence mode="wait">
+                {state !== "idle" && (
+                  <div
+                    key={problem?.id}
+                    className="w-6 h-6 shrink-0 flex items-center justify-center"
+                  >
+                    {state === "incorrect" && (
+                      <motion.div
+                        key="incorrect"
+                        initial={{scale: 0, rotate: -45}}
+                        animate={{scale: 1, rotate: 0}}
+                        exit={{scale: 0}}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 15,
+                        }}
+                      >
+                        <XCircle className="w-6 h-6 text-red-500" />
+                      </motion.div>
+                    )}
+                    {state === "correct" && (
+                      <motion.div
+                        key="correct"
+                        initial={{scale: 0, rotate: 45}}
+                        animate={{scale: 1, rotate: 0}}
+                        exit={{scale: 0}}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 15,
+                        }}
+                      >
+                        <CheckCircle className="w-6 h-6 text-green-500" />
+                      </motion.div>
+                    )}
+                  </div>
+                )}
+              </AnimatePresence>
 
               {/* Input */}
               <motion.input
@@ -168,7 +181,7 @@ export function CoursePractice({
                   state === "incorrect" ? {x: [-6, 6, -6, 6, -3, 3, 0]} : {}
                 }
                 transition={{duration: 0.4}}
-                className={`w-40 border rounded-lg px-3 py-2 text-sm text-gray-700 placeholder:text-gray-400 outline-none focus:ring-2 transition-all ${inputBorderClass} disabled:cursor-not-allowed`}
+                className={`w-40 border rounded-lg px-3 py-2 text-sm placeholder:text-gray-400 outline-none transition-all ${inputBorderClass} disabled:cursor-not-allowed`}
               />
             </div>
 
@@ -177,7 +190,7 @@ export function CoursePractice({
               <button
                 onClick={handleCheck}
                 disabled={!answer.trim() || state === "correct"}
-                className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 text-sm font-medium border border-gray-300 dark:border-0 rounded-lg text-gray-700 bg-white dark:bg-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Check
               </button>
@@ -190,7 +203,7 @@ export function CoursePractice({
             animate={{opacity: 1, y: 0}}
             transition={{duration: 0.25, ease: [0.22, 1, 0.36, 1]}}
           >
-            <p className="text-sm font-medium text-gray-700 mb-4">
+            <p className="text-sm font-medium text-gray-700 dark:text-white mb-4">
               You&apos;ve completed all {problems.length} problems.
             </p>
 
@@ -200,7 +213,7 @@ export function CoursePractice({
                 animate={{opacity: 1, y: 0}}
                 transition={{duration: 0.2}}
                 onClick={onUpNext}
-                className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition-colors"
+                className="px-4 py-2 text-sm font-medium border border-gray-300 dark:border-0 rounded-lg text-gray-700 bg-white dark:bg-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Next Module
               </motion.button>
