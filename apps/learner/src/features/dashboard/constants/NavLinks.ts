@@ -5,9 +5,9 @@ export const sideBarLinks = [
     label: "explore",
   },
   {
-    link: "/classroom",
+    link: "/brainy",
     icon: "ri:ai-generate",
-    label: "classroom studio",
+    label: "brainy",
   },
   {
     link: "/learnings",
