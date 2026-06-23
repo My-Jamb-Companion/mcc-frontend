@@ -146,6 +146,30 @@ export default function CourseContent({course}: {course: CourseDetail}) {
                     // }
                     // onUpNext={() => handleVideoEnded()}
                   />
+                  {/* <CourseExcercise
+                    problems={[
+                      {
+                        id: "p1",
+                        label: "PROBLEM 1",
+                        title: "Now, lets Practice",
+                        question: "Q1...",
+                        answerPlaceholder: "A1...",
+                        correctAnswer: "A1...",
+                      },
+                      {
+                        id: "p2",
+                        label: "PROBLEM 2",
+                        title: "Keep going",
+                        question: "Q2...",
+                        answerPlaceholder: "A2...",
+                        correctAnswer: "A2...",
+                      },
+                    ]}
+                    onCorrect={(problem, index) =>
+                      console.log("Correct!", problem.id, index)
+                    }
+                    onUpNext={() => handleVideoEnded()}
+                  /> */}
                 </motion.div>
               )}
             </AnimatePresence>
