@@ -1,6 +1,7 @@
 "use client";
 import {Button, Icon} from "@mcc/ui";
 import {useState} from "react";
+import BrainyChatBox from "./BrainyChatBox";
 
 export default function Brainy() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -92,7 +93,22 @@ export default function Brainy() {
         )}
       </nav>
 
-      <div className="bg-white grow"></div>
+      <div className="grow flex min-h-screen items-center justify-center px-4">
+        <BrainyChatBox
+          onFeatureSelect={(featureId) => {
+            console.log("Feature selected:", featureId);
+          }}
+          onFilesAdded={(files) => {
+            console.log(
+              "Files added:",
+              files.map((f) => f.name),
+            );
+          }}
+          onSubmitQuestion={(question, files) => {
+            console.log("Question submitted:", question, files);
+          }}
+        />
+      </div>
     </section>
   );
 }
