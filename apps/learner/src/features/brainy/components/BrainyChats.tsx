@@ -38,7 +38,7 @@ export default function BrainyChats() {
 
   if (!activeSession) redirect("/brainy/new");
   return (
-    <div className="relative flex flex-col h-full w-full bg-white dark:bg-transparent">
+    <div className="relative flex flex-col h-full grow bg-white dark:bg-transparent">
       {/* Messages View */}
       <div className="flex-1 w-full overflow-y-auto flex flex-col gap-4 p-6 pb-32">
         {activeSession?.messages.map((msg) => (

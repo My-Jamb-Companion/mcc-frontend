@@ -18,7 +18,6 @@ export interface ActionCardGridProps {
   subtext?: string;
   actions: ActionCardConfig[];
   onSelect?: (id: string) => void;
-  /** Number of columns at the sm breakpoint and up. Defaults to 2. */
   columns?: 2 | 3;
   className?: string;
 }

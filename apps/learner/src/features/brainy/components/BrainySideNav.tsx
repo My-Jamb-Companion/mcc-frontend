@@ -20,7 +20,7 @@ export default function BrainySideNav() {
   );
 
   const router = useRouter();
-  const {sessions, setMode, setSubject} = useBrainy();
+  const {sessions, setMode, setSubject, setActiveSessionId} = useBrainy();
   const pathname = usePathname();
 
   const activeSessionId = useMemo(() => {
@@ -59,6 +59,7 @@ export default function BrainySideNav() {
 
   const handleSelectSession = (session: BrainySession) => {
     setMode(session.category);
+    setActiveSessionId(session.id);
     router.push(`/brainy/chat/${session.id}`);
   };
 
