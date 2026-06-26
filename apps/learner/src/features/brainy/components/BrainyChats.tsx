@@ -146,7 +146,7 @@ export default function BrainyChats() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 whileTap={{scale: 0.95}}
-                className="flex items-center justify-center h-10 w-10 rounded-full bg-muted/15 hover:bg-muted/25 transition-colors flex-shrink-0"
+                className="flex items-center justify-center h-10 w-10 rounded-full bg-muted/15 hover:bg-muted/25 transition-colors shrink-0"
               >
                 <Icon icon="line-md:plus" size={16} color="black" />
               </motion.button>
@@ -182,7 +182,7 @@ export default function BrainyChats() {
                 onClick={handleSend}
                 whileTap={{scale: 0.95}}
                 disabled={!question.trim() && files.length === 0}
-                className="flex items-center justify-center h-10 w-10 rounded-full bg-primary hover:opacity-90 text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-30 flex-shrink-0"
+                className="flex items-center justify-center h-10 w-10 rounded-full bg-primary hover:opacity-90 text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-30 shrink-0"
               >
                 <Icon icon="ph:arrow-up" size={16} />
               </motion.button>

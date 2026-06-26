@@ -122,7 +122,7 @@ export function AssignmentSubjectSelector({
           type="button"
           onClick={() => scrollByPill("left")}
           aria-label="Scroll subjects left"
-          className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
         >
           <Icon icon="ph:caret-left" className="h-4 w-4" />
         </button>
@@ -145,7 +145,7 @@ export function AssignmentSubjectSelector({
                 onClick={() => handleSelect(subject.id)}
                 aria-pressed={isActive}
                 className={[
-                  "relative flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
+                  "relative flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
                   isActive
                     ? "border-blue-300 bg-blue-50 text-blue-600"
                     : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50",
@@ -165,7 +165,7 @@ export function AssignmentSubjectSelector({
           type="button"
           onClick={() => scrollByPill("right")}
           aria-label="Scroll subjects right"
-          className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
         >
           <Icon icon="ph:caret-right" className="h-4 w-4" />
         </button>

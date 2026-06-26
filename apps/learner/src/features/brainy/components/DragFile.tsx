@@ -11,7 +11,7 @@ export function useGlobalFileDrag(onDrop: (files: File[]) => void) {
 
   const handleDragEnter = useCallback((e: DragEvent) => {
     e.preventDefault();
-    // Ignore drags that aren't carrying files (e.g. dragging text/links)
+
     if (!e.dataTransfer?.types?.includes("Files")) return;
     setDragDepth((d) => d + 1);
     setIsDragging(true);
