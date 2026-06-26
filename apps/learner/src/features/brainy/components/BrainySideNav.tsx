@@ -1,9 +1,11 @@
 "use client";
 import {Button, Icon} from "@mcc/ui";
 import {useState} from "react";
+import {useRouter} from "next/navigation";
 
 export default function BrainySideNav() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const router = useRouter();
   return (
     <nav
       className={`${isSidebarOpen ? "w-[400px]" : "w-[64px]"} transition-all flex flex-col gap-4 bg-muted/10 border-r border-muted/30`}
@@ -31,6 +33,7 @@ export default function BrainySideNav() {
       <div className={`"flex flex-col gap-2 ${isSidebarOpen ? "px-3" : ""}`}>
         <Button
           variant="ghost"
+          onClick={() => router.push("/brainy/new")}
           className={`flex rounded-none! ${isSidebarOpen ? "justify-start!" : "mx-auto! justify-center! "}`}
         >
           <div className="flex items-center gap-2">

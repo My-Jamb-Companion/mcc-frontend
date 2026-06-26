@@ -1,11 +1,11 @@
 "use client";
 import {AnimatePresence, motion} from "@mcc/ui";
-import {useState} from "react";
 import BrainyChatBox from "./BrainyChatBox";
 import AssignmentSubjectSelector from "./AssigmentSubjectScrollBarSelector";
 import BrainyFeatureCard from "./BrainyFeatureCard";
 import {useRouter} from "next/navigation";
-// import BrainyTypeSelector from "./BrainyTypeSelector";
+import {useBrainy} from "../contexts/BrainyContext";
+
 export interface FeatureCardConfig {
   id: string;
   icon: string;
@@ -16,8 +16,7 @@ export interface FeatureCardConfig {
 }
 
 export default function Brainy() {
-  const [subject, setSubject] = useState("");
-  const [mode, setMode] = useState<"assignment" | "exam" | "new">("new");
+  const {subject, setSubject, mode, setMode, createNewSession} = useBrainy();
   const router = useRouter();
 
   return (
@@ -71,7 +70,8 @@ export default function Brainy() {
           }}
           onSubmitQuestion={(question, files) => {
             console.log("Question submitted:", question, files);
-            router.push("/brainy/chat/wanna");
+            // router.push("/brainy/chat/wanna");
+            createNewSession("Title", "assignment", "Math");
           }}
         />
       </AnimatePresence>
