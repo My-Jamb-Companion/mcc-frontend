@@ -1,103 +1,68 @@
 "use client";
-import {Button, Icon} from "@mcc/ui";
+import {AnimatePresence, motion} from "@mcc/ui";
 import {useState} from "react";
 import BrainyChatBox from "./BrainyChatBox";
+import AssignmentSubjectSelector from "./AssigmentSubjectScrollBarSelector";
+import BrainyFeatureCard from "./BrainyFeatureCard";
+import {useRouter} from "next/navigation";
+// import BrainyTypeSelector from "./BrainyTypeSelector";
+export interface FeatureCardConfig {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  badge?: string;
+  disabled?: boolean;
+}
 
 export default function Brainy() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [subject, setSubject] = useState("");
+  const [mode, setMode] = useState<"assignment" | "exam" | "new">("new");
+  const router = useRouter();
 
   return (
-    <section className="h-screen flex">
-      <nav
-        className={`${isSidebarOpen ? "w-[400px]" : "w-[64px]"} transition-all flex flex-col gap-4 bg-muted/10 border-r border-muted/30`}
-      >
-        <div className="flex items-center justify-between w-full py-4 px-3">
-          {isSidebarOpen && (
-            <p className="text-2xl font-semibold">
-              Brainy<span className="text-primary">.AI</span>{" "}
-            </p>
-          )}
-          <button
-            onClick={() => {
-              setIsSidebarOpen(!isSidebarOpen);
-            }}
-            className={`${isSidebarOpen ? "" : "mx-auto"}`}
+    <section className="grow flex flex-col gap-12 min-h-screen items-center justify-center px-4">
+      <AnimatePresence mode="wait">
+        {mode === "assignment" && (
+          <motion.div
+            key="assignment"
+            initial={{opacity: 0, y: 15}}
+            animate={{opacity: 1, y: 0}}
+            exit={{opacity: 0, y: -15}}
+            transition={{duration: 0.25, ease: "easeInOut"}}
+            className="w-full flex justify-center"
           >
-            <Icon
-              icon="hugeicons:sidebar-left-01"
-              size={24}
-              className="text-muted/40 hover:text-muted dark:hover:text-white"
+            <AssignmentSubjectSelector
+              selectedId={subject}
+              onSelect={setSubject}
             />
-          </button>
-        </div>
-
-        <div className={`"flex flex-col gap-2 ${isSidebarOpen ? "px-3" : ""}`}>
-          <Button
-            variant="ghost"
-            className={`flex rounded-none! ${isSidebarOpen ? "justify-start!" : "mx-auto! justify-center! "}`}
-          >
-            <div className="flex items-center gap-2">
-              <Icon icon="line-md:plus" size={24} />
-              {isSidebarOpen && (
-                <p className="text-sm font-medium text-subtle">
-                  New Study Session
-                </p>
-              )}
-            </div>
-          </Button>
-
-          <Button
-            variant="ghost"
-            className={`flex rounded-none! ${isSidebarOpen ? "justify-start!" : "mx-auto! justify-center!"}`}
-          >
-            <div className="flex items-center gap-2">
-              <Icon icon="solar:folder-open-outline" size={24} />
-              {isSidebarOpen && (
-                <p className="text-sm font-medium text-subtle">Libary</p>
-              )}
-            </div>
-          </Button>
-        </div>
-
-        {isSidebarOpen && (
-          <div className="flex flex-col gap-2.5">
-            <p className="text-xs font-medium px-3 text-subtle">History</p>
-
-            <div className="flex flex-col gap-6">
-              <div className="p-3 rounded-md border border-muted/30">
-                <p className="text-sm font-medium text-subtle">
-                  I want to learn more about web development using HTML, CSS,
-                  and JavaScript.
-                </p>
-              </div>
-              <div className="p-3 rounded-md border border-muted/30">
-                <p className="text-sm font-medium text-subtle">
-                  I want to learn more about web development using HTML, CSS,
-                  and JavaScript.
-                </p>
-              </div>
-              <div className="p-3 rounded-md border border-muted/30">
-                <p className="text-sm font-medium text-subtle">
-                  I want to learn more about web development using HTML, CSS,
-                  and JavaScript.
-                </p>
-              </div>
-              <div className="p-3 rounded-md border border-muted/30">
-                <p className="text-sm font-medium text-subtle">
-                  I want to learn more about web development using HTML, CSS,
-                  and JavaScript.
-                </p>
-              </div>
-            </div>
-          </div>
+          </motion.div>
         )}
-      </nav>
+        {mode === "exam" && <div key="exam" />}
 
-      <div className="grow flex min-h-screen items-center justify-center px-4">
+        {mode === "new" && (
+          <motion.div
+            key="new"
+            initial={{opacity: 0, y: 15}}
+            animate={{opacity: 1, y: 0}}
+            exit={{opacity: 0, y: -15}}
+            transition={{duration: 0.25, ease: "easeInOut"}}
+          >
+            <div className="flex flex-col gap-3 sm:flex-row max-w-[700px]">
+              {DEFAULT_FEATURES.map((feature) => (
+                <BrainyFeatureCard
+                  key={feature.id}
+                  feature={feature}
+                  onSelect={(featureId) =>
+                    setMode(featureId as "assignment" | "exam")
+                  }
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         <BrainyChatBox
-          onFeatureSelect={(featureId) => {
-            console.log("Feature selected:", featureId);
-          }}
           onFilesAdded={(files) => {
             console.log(
               "Files added:",
@@ -106,9 +71,29 @@ export default function Brainy() {
           }}
           onSubmitQuestion={(question, files) => {
             console.log("Question submitted:", question, files);
+            router.push("/brainy/chat/wanna");
           }}
         />
-      </div>
+      </AnimatePresence>
     </section>
   );
 }
+
+const DEFAULT_FEATURES: FeatureCardConfig[] = [
+  {
+    id: "exam",
+    icon: "ph:exam",
+    title: "Prepare for your exam",
+    description:
+      "Transform lecture slides and notes into flashcards, quizzes, and fill-in-the-blank questions instantly.",
+    badge: "Coming soon",
+    disabled: true,
+  },
+  {
+    id: "assignment",
+    icon: "ph:book-open",
+    title: "Get support with your assignment",
+    description:
+      "Generate summaries and interactive study materials to simplify complex assignments.",
+  },
+];
