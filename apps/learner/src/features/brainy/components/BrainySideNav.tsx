@@ -15,8 +15,6 @@ const CATEGORY_CONFIG: {key: CategoryKey; label: string}[] = [
 
 export default function BrainySideNav() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  // Only one category section open at a time — matches the screenshot,
-  // where Research History is expanded while Assignment/Exam stay collapsed.
   const [openCategory, setOpenCategory] = useState<CategoryKey | null>(
     "research",
   );
@@ -92,7 +90,7 @@ export default function BrainySideNav() {
         >
           <Icon
             icon="hugeicons:sidebar-left-01"
-            size={24}
+            size={20}
             className="text-muted/40 hover:text-muted dark:hover:text-white"
           />
         </button>
@@ -109,7 +107,7 @@ export default function BrainySideNav() {
           className={`flex rounded-none! ${isSidebarOpen ? "justify-start!" : "mx-auto! justify-center! "}`}
         >
           <div className="flex items-center gap-2 overflow-hidden">
-            <Icon icon="line-md:plus" size={24} className="flex-shrink-0" />
+            <Icon icon="line-md:plus" size={18} className="shrink-0" />
             <AnimatePresence mode="popLayout">
               {isSidebarOpen && (
                 <motion.p
@@ -133,8 +131,8 @@ export default function BrainySideNav() {
           <div className="flex items-center gap-2 overflow-hidden">
             <Icon
               icon="solar:folder-open-outline"
-              size={24}
-              className="flex-shrink-0"
+              size={18}
+              className="shrink-0"
             />
             <AnimatePresence mode="popLayout">
               {isSidebarOpen && (

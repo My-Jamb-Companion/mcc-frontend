@@ -5,22 +5,12 @@ import {motion} from "framer-motion";
 import {Icon} from "@mcc/ui";
 import DragImageOverlay, {useGlobalFileDrag} from "./DragFile";
 import UploadZone from "./BrainyUpload";
-import BrainyFeatureCard from "./BrainyFeatureCard";
-
-/* -------------------------------------------------------------------------- */
-/* Types                                                                      */
-/* -------------------------------------------------------------------------- */
 
 export interface BrainyChatBoxProps {
-  /** Called when a feature card (not disabled) is clicked */
   onFeatureSelect?: (featureId: string) => void;
-  /** Called when files are dropped or selected */
   onFilesAdded?: (files: File[]) => void;
-  /** Called when the question is submitted */
   onSubmitQuestion?: (question: string, files: File[]) => void;
-  /** Accepted file types for the upload zone */
   accept?: string;
-  /** Max files allowed at once */
   maxFiles?: number;
   className?: string;
 }
