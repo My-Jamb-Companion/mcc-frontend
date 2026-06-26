@@ -158,7 +158,7 @@ export default function BrainySideNav() {
           >
             <p className="text-xs font-medium px-3 text-subtle">History</p>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 overflow-y-auto">
               {CATEGORY_CONFIG.map(({key, label}) => (
                 <CategorySection
                   key={key}
