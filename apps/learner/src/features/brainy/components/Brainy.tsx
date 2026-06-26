@@ -16,7 +16,15 @@ export interface FeatureCardConfig {
 }
 
 export default function Brainy() {
-  const {subject, setSubject, mode, setMode, createNewSession} = useBrainy();
+  const {
+    subject,
+    setSubject,
+    mode,
+    setMode,
+    sessions,
+    activeSessionId,
+    createNewSession,
+  } = useBrainy();
   const router = useRouter();
 
   return (
@@ -39,9 +47,9 @@ export default function Brainy() {
         )}
         {mode === "exam" && <div key="exam" />}
 
-        {mode === "new" && (
+        {mode === "research" && (
           <motion.div
-            key="new"
+            key="research"
             initial={{opacity: 0, y: 15}}
             animate={{opacity: 1, y: 0}}
             exit={{opacity: 0, y: -15}}
@@ -69,9 +77,15 @@ export default function Brainy() {
             );
           }}
           onSubmitQuestion={(question, files) => {
-            console.log("Question submitted:", question, files);
+            console.log(
+              "Question submitted:",
+              question,
+              files,
+              activeSessionId,
+              sessions,
+            );
             // router.push("/brainy/chat/wanna");
-            createNewSession("Title", "assignment", "Math");
+            createNewSession("Title", mode, subject || "Uncategorized");
           }}
         />
       </AnimatePresence>

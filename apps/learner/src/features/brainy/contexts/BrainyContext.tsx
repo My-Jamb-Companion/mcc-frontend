@@ -2,7 +2,7 @@
 
 import React, {createContext, useContext, useState, useCallback} from "react";
 
-export type BrainyMode = "new" | "assignment" | "exam";
+export type BrainyMode = "research" | "assignment" | "exam";
 
 export interface ChatMessage {
   id: string;
@@ -34,15 +34,19 @@ interface BrainyContextType {
   sessions: StudySession[];
   activeSessionId: string | null;
   setActiveSessionId: (id: string | null) => void;
-  createNewSession: (title: string, mode: BrainyMode, subject?: string) => string;
+  createNewSession: (
+    title: string,
+    mode: BrainyMode,
+    subject?: string,
+  ) => string;
   addMessageToActiveSession: (sender: "user" | "ai", text: string) => void;
 }
 
 const BrainyContext = createContext<BrainyContextType | undefined>(undefined);
 
 export function BrainyProvider({children}: {children: React.ReactNode}) {
-  const [mode, setMode] = useState<BrainyMode>("new");
-  const [subject, setSubject] = useState("");
+  const [mode, setMode] = useState<BrainyMode>("research");
+  const [subject, setSubject] = useState("general");
   const [files, setFiles] = useState<File[]>([]);
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
