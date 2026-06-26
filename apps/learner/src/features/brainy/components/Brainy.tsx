@@ -5,6 +5,9 @@ import AssignmentSubjectSelector from "./AssigmentSubjectScrollBarSelector";
 import BrainyFeatureCard from "./BrainyFeatureCard";
 import {useRouter} from "next/navigation";
 import {ChatMessage, useBrainy} from "../contexts/BrainyContext";
+import BrainyExamActionCardGrid, {
+  ActionCardConfig,
+} from "./BrainyExamActionCard";
 
 export interface FeatureCardConfig {
   id: string;
@@ -45,7 +48,20 @@ export default function Brainy() {
             />
           </motion.div>
         )}
-        {mode === "exam" && <div key="exam" />}
+        {mode === "exam" && (
+          <div key="exam">
+            {" "}
+            <BrainyExamActionCardGrid
+              eyebrow="Exam Preparations"
+              heading="How do you want to prepare for your exams?"
+              subtext="Upload anything and get interactive notes, flashcards, quizzes, and more"
+              actions={EXAM_PREP_ACTIONS}
+              onSelect={(id) => {
+                console.log("Action selected:", id);
+              }}
+            />
+          </div>
+        )}
 
         {mode === "research" && (
           <motion.div
@@ -70,12 +86,6 @@ export default function Brainy() {
         )}
 
         <BrainyChatBox
-          onFilesAdded={(files) => {
-            console.log(
-              "Files added:",
-              files.map((f) => f.name),
-            );
-          }}
           onSubmitQuestion={(question, files) => {
             const firstMessage: ChatMessage = {
               id: Math.random().toString(36).substring(7),
@@ -116,5 +126,27 @@ const DEFAULT_FEATURES: FeatureCardConfig[] = [
     title: "Get support with your assignment",
     description:
       "Generate summaries and interactive study materials to simplify complex assignments.",
+  },
+];
+const EXAM_PREP_ACTIONS: ActionCardConfig[] = [
+  {
+    id: "upload",
+    icon: "hugeicons:pencil-ruler",
+    title: "Upload",
+    description: "Image, file, audio, video.",
+  },
+  {
+    id: "record",
+    icon: "ph:book-open",
+    title: "Record",
+    description: "Record live lecture",
+    badge: "Coming soon",
+    disabled: true,
+  },
+  {
+    id: "paste",
+    icon: "ph:book-open",
+    title: "Paste",
+    description: "Youtube, website, text",
   },
 ];

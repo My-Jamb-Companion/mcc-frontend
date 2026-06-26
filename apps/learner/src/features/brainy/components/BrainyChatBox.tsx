@@ -7,8 +7,6 @@ import DragImageOverlay, {useGlobalFileDrag} from "./DragFile";
 import UploadZone from "./BrainyUpload";
 
 export interface BrainyChatBoxProps {
-  onFeatureSelect?: (featureId: string) => void;
-  onFilesAdded?: (files: File[]) => void;
   onSubmitQuestion?: (question: string, files: File[]) => void;
   accept?: string;
   maxFiles?: number;
@@ -16,7 +14,6 @@ export interface BrainyChatBoxProps {
 }
 
 export function BrainyChatBox({
-  onFilesAdded,
   onSubmitQuestion,
   accept = ".pdf,.doc,.docx,.ppt,.pptx,.png,.jpg,.jpeg",
   maxFiles = 5,
@@ -27,13 +24,9 @@ export function BrainyChatBox({
   const [isThinking, setIsThinking] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleFilesAdded = useCallback(
-    (incoming: File[]) => {
-      setFiles((prev) => [...prev, ...incoming]);
-      onFilesAdded?.(incoming);
-    },
-    [onFilesAdded],
-  );
+  const handleFilesAdded = useCallback((incoming: File[]) => {
+    setFiles((prev) => [...prev, ...incoming]);
+  }, []);
 
   const handleRemoveFile = useCallback((index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));

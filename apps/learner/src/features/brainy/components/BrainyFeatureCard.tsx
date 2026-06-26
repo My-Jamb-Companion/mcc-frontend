@@ -17,8 +17,8 @@ export default function BrainyFeatureCard({
   return (
     <motion.button
       type="button"
-      onClick={() => !isDisabled && onSelect?.(feature.id)}
-      disabled={isDisabled}
+      onClick={() => onSelect?.(feature.id)}
+      // disabled={isDisabled}
       whileHover={!isDisabled ? {y: -2} : undefined}
       whileTap={!isDisabled ? {scale: 0.99} : undefined}
       transition={{type: "spring", stiffness: 400, damping: 28}}
