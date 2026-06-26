@@ -8,6 +8,7 @@ export interface ChatMessage {
   id: string;
   sender: "user" | "ai";
   text: string;
+  file?: File[];
   timestamp: Date;
 }
 
@@ -38,6 +39,7 @@ interface BrainyContextType {
     title: string,
     mode: BrainyMode,
     subject?: string,
+    initialMessages?: ChatMessage[],
   ) => string;
   addMessageToActiveSession: (sender: "user" | "ai", text: string) => void;
 }
@@ -64,7 +66,12 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
   }, []);
 
   const createNewSession = useCallback(
-    (title: string, sessionMode: BrainyMode, sessionSubject?: string) => {
+    (
+      title: string,
+      sessionMode: BrainyMode,
+      sessionSubject?: string,
+      initialMessages?: ChatMessage[],
+    ) => {
       const newSessionId = Math.random().toString(36).substring(7);
       const newSession: StudySession = {
         id: newSessionId,
@@ -72,7 +79,7 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
         mode: sessionMode,
         subject: sessionSubject,
         files: files.map((f) => f.name),
-        messages: [],
+        messages: initialMessages || [],
         createdAt: new Date(),
       };
       setSessions((prev) => [newSession, ...prev]);

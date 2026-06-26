@@ -1,7 +1,7 @@
 "use client";
 import {Button, Icon, motion, AnimatePresence} from "@mcc/ui";
 import {useMemo, useState} from "react";
-import {useRouter} from "next/navigation";
+import {useRouter, usePathname} from "next/navigation";
 import {useBrainy} from "../contexts/BrainyContext";
 import {groupByDateBucket} from "../helper/DateBuckets";
 
@@ -20,12 +20,19 @@ export default function BrainySideNav() {
   const [openCategory, setOpenCategory] = useState<CategoryKey | null>(
     "research",
   );
-  const [activeSessionId, setActiveSessionId] = useState<string | undefined>(
-    undefined,
-  );
 
   const router = useRouter();
   const {sessions, setMode, setSubject} = useBrainy();
+  const pathname = usePathname();
+
+  const activeSessionId = useMemo(() => {
+    const parts = pathname.split("/");
+    const chatIndex = parts.indexOf("chat");
+    if (chatIndex !== -1 && parts[chatIndex + 1]) {
+      return parts[chatIndex + 1];
+    }
+    return undefined;
+  }, [pathname]);
 
   const sessionsByCategory = useMemo(() => {
     const grouped: Record<CategoryKey, BrainySession[]> = {
@@ -53,7 +60,6 @@ export default function BrainySideNav() {
   }, [sessions]);
 
   const handleSelectSession = (session: BrainySession) => {
-    setActiveSessionId(session.id);
     setMode(session.category);
     router.push(`/brainy/chat/${session.id}`);
   };
@@ -196,7 +202,6 @@ function CategorySection({
       <button
         type="button"
         onClick={onToggle}
-        // disabled={isEmpty}
         className="flex items-center gap-1.5 px-3 py-1.5 text-left cursor-pointer hover:text-foreground hover:bg-muted/10"
       >
         <motion.span
@@ -230,7 +235,7 @@ function CategorySection({
                         type="button"
                         onClick={() => onSelectSession?.(session)}
                         className={[
-                          "truncate rounded-md px-2 py-1.5 text-left text-sm transition-colors",
+                          "truncate rounded-md px-2 py-1.5 text-left text-sm transition-colors cursor-pointer",
                           isActive
                             ? "bg-muted/20 font-medium text-foreground"
                             : "text-subtle hover:bg-muted/10 hover:text-foreground",

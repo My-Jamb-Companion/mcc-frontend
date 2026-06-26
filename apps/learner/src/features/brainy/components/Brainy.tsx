@@ -4,7 +4,7 @@ import BrainyChatBox from "./BrainyChatBox";
 import AssignmentSubjectSelector from "./AssigmentSubjectScrollBarSelector";
 import BrainyFeatureCard from "./BrainyFeatureCard";
 import {useRouter} from "next/navigation";
-import {useBrainy} from "../contexts/BrainyContext";
+import {ChatMessage, useBrainy} from "../contexts/BrainyContext";
 
 export interface FeatureCardConfig {
   id: string;
@@ -21,8 +21,8 @@ export default function Brainy() {
     setSubject,
     mode,
     setMode,
-    sessions,
-    activeSessionId,
+    // sessions,
+    // activeSessionId,
     createNewSession,
   } = useBrainy();
   const router = useRouter();
@@ -77,15 +77,22 @@ export default function Brainy() {
             );
           }}
           onSubmitQuestion={(question, files) => {
-            console.log(
-              "Question submitted:",
-              question,
-              files,
-              activeSessionId,
-              sessions,
+            const firstMessage: ChatMessage = {
+              id: Math.random().toString(36).substring(7),
+              sender: "user" as const,
+              text: question,
+              file: files,
+              timestamp: new Date(),
+            };
+            const sessionId = createNewSession(
+              question.length > 50
+                ? `${question.slice(0, 47)}...`
+                : question || "New Study Session",
+              mode,
+              subject || "general",
+              [firstMessage],
             );
-            // router.push("/brainy/chat/wanna");
-            createNewSession("Title", mode, subject || "Uncategorized");
+            router.push(`/brainy/chat/${sessionId}`);
           }}
         />
       </AnimatePresence>
