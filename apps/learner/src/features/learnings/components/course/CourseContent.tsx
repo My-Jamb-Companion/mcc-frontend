@@ -16,6 +16,8 @@ import BrainyCourseSidePanel from "./BrainyCourseSidePanel";
 import {motion, AnimatePresence} from "@mcc/ui";
 import {CoursePractice} from "./CoursePractice";
 import CourseTestFlow from "./CourseExamFlow";
+import CourseExam from "./CourseExam";
+import CourseExercise from "./CourseExcercise";
 
 export default function CourseContent({course}: {course: CourseDetail}) {
   const allLessons = useAllLessons(course);
@@ -53,6 +55,9 @@ export default function CourseContent({course}: {course: CourseDetail}) {
       setActiveLesson(allLessons[currentIndex + 1]);
     }
   };
+
+  console.log(activeLesson?.type === "exercise" && activeLesson.exercise);
+  console.log("activeLesson", activeLesson);
 
   return (
     <section>
@@ -133,22 +138,34 @@ export default function CourseContent({course}: {course: CourseDetail}) {
 
               {activeLesson?.type === "practice" && (
                 <motion.div
-                  key={`exam-${activeLesson?.id}`}
+                  key={`practice-${activeLesson?.id}`}
                   initial={{opacity: 0, scale: 0.98}}
                   animate={{opacity: 1, scale: 1}}
                   exit={{opacity: 0, scale: 0.98}}
                   transition={{duration: 0.25}}
-                ></motion.div>
+                >
+                  <CourseExam
+                    questions={activeLesson?.practice?.questions || []}
+                  />
+                </motion.div>
               )}
 
               {activeLesson?.type === "exercise" && (
                 <motion.div
-                  key={`exam-${activeLesson?.id}`}
+                  key={`exercise-${activeLesson?.id}`}
                   initial={{opacity: 0, scale: 0.98}}
                   animate={{opacity: 1, scale: 1}}
                   exit={{opacity: 0, scale: 0.98}}
                   transition={{duration: 0.25}}
-                ></motion.div>
+                >
+                  <CourseExercise
+                    questions={activeLesson?.exercise?.questions || []}
+                    title={course?.title}
+                    onComplete={(answers) => {
+                      console.log("answers", answers);
+                    }}
+                  />
+                </motion.div>
               )}
 
               {activeLesson?.type === "exam" && (

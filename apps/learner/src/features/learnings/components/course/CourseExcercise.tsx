@@ -1,180 +1,270 @@
 "use client";
 
-import {useState} from "react";
-import {motion, AnimatePresence} from "@mcc/ui";
+import {useMemo, useState} from "react";
+import {Icon} from "@mcc/ui";
+import {shuffleArray} from "../../helper/helper";
 
-type AnswerState = "idle" | "correct" | "incorrect";
-
-interface Problem {
+interface Question {
   id: string;
-  label: string;
-  title: string;
   question: string;
-  answerPlaceholder: string;
+  answers: string[];
   correctAnswer: string;
 }
 
-interface CourseExcerciseProps {
-  problems: Problem[];
-  upNext?: string;
-  onCorrect?: (problem: Problem, index: number) => void;
-  onUpNext?: () => void;
+export interface SubmittedAnswer {
+  id: string;
+  question: string;
+  answer: string;
+  correctAnswer: string;
 }
 
-function ProgressBar({total, current}: {total: number; current: number}) {
-  return (
-    <div className="flex items-center gap-1">
-      {Array.from({length: total}).map((_, i) => (
-        <div
-          key={i}
-          className={`h-1 rounded-full transition-all duration-300 ${
-            i < current ? "bg-violet-500 w-7" : "bg-gray-300 w-7"
-          }`}
-        />
-      ))}
-    </div>
-  );
+interface CourseExerciseProps {
+  questions?: Question[];
+  onComplete?: (answers: SubmittedAnswer[]) => void;
+  reviewMode?: boolean;
+  submittedAnswers?: SubmittedAnswer[];
+  endReview?: () => void;
+  title?: string;
 }
 
-export function CourseExcercise({
-  problems,
-  onCorrect,
-  onUpNext,
-}: CourseExcerciseProps) {
+export default function CourseExercise({
+  questions = [],
+  onComplete,
+  reviewMode = false,
+  submittedAnswers = [],
+  endReview,
+  title,
+}: CourseExerciseProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answer, setAnswer] = useState("");
-  const [state, setState] = useState<AnswerState>("idle");
 
-  const isComplete = currentIndex >= problems.length;
-  const problem = !isComplete ? problems[currentIndex] : null;
+  const [answers, setAnswers] = useState<SubmittedAnswer[]>([]);
 
-  const handleCheck = () => {
-    if (!problem || !answer.trim()) return;
-    const correct =
-      answer.trim().toLowerCase() ===
-      problem.correctAnswer.trim().toLowerCase();
+  const randomizedQuestions = useMemo(() => {
+    return questions.map((question) => ({
+      ...question,
+      answers: shuffleArray(question.answers),
+    }));
+  }, []);
 
-    setState(correct ? "correct" : "incorrect");
+  const currentQuestion = randomizedQuestions[currentIndex];
 
-    if (correct) {
-      onCorrect?.(problem, currentIndex);
+  const currentSubmittedAnswer =
+    answers.find((item) => item.id === currentQuestion?.id) ??
+    submittedAnswers.find((item) => item.id === currentQuestion?.id);
 
-      // brief pause so the correct-state checkmark is visible before advancing
-      setTimeout(() => {
-        setCurrentIndex((prev) => prev + 1);
-        setAnswer("");
-        setState("idle");
-      }, 600);
+  const selectedAnswer = currentSubmittedAnswer?.answer;
+
+  const isLastQuestion = currentIndex === questions.length - 1;
+  const isFirstQuestion = currentIndex === 0;
+  const allAnswered = answers.length === questions.length;
+
+  const handleSelectOption = (answer: string) => {
+    if (reviewMode) return;
+
+    setAnswers((prev) => {
+      const exists = prev.find((item) => item.id === currentQuestion.id);
+
+      if (exists) {
+        return prev.map((item) =>
+          item.id === currentQuestion.id
+            ? {
+                ...item,
+                answer,
+              }
+            : item,
+        );
+      }
+
+      return [
+        ...prev,
+        {
+          id: currentQuestion.id,
+          question: currentQuestion.question,
+          answer,
+          correctAnswer: currentQuestion.correctAnswer,
+        },
+      ];
+    });
+  };
+
+  const handlePrev = () => {
+    if (!isFirstQuestion) {
+      setCurrentIndex((prev) => prev - 1);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") handleCheck();
+  const handleNext = () => {
+    if (!reviewMode && isLastQuestion) {
+      console.log(answers);
+      onComplete?.(answers);
+      return;
+    } else if (reviewMode && isLastQuestion) {
+      endReview?.();
+      return;
+    }
+
+    setCurrentIndex((prev) => prev + 1);
   };
 
-  const inputBorderClass =
-    state === "correct"
-      ? "border-green-400 bg-green-50 focus:ring-green-200 dark:text-black"
-      : state === "incorrect"
-        ? "border-red-400 bg-red-50 focus:ring-red-200 dark:text-black"
-        : "border-gray-200 bg-white dark:bg-gray-700  text-gray-700 dark:text-white";
+  if (!currentQuestion) return null;
 
   return (
-    <div className="w-full h-full bg-gray-50 dark:bg-[#222225] rounded-2xl p-6 font-sans">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+    <div className="w-full rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-[#222225]">
+      {/* HEADER */}
+      <div className="flex items-start justify-between border-b border-gray-100 px-8 py-6">
         <div>
-          <p className="text-[11px] font-semibold tracking-widest text-gray-400 uppercase mb-0.5">
-            Excercise {currentIndex + 1}
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+            Exercise {questions.length}
           </p>
-          <h3 className="text-base font-bold text-gray-900 dark:text-white">
-            {isComplete ? "All done!" : problem?.title}
-          </h3>
+
+          <h2 className="mt-1 text-lg font-bold text-gray-900 dark:text-white text-nowrap">
+            {title}
+          </h2>
         </div>
-        <div className="pt-1">
-          <ProgressBar
-            total={problems.length}
-            current={isComplete ? problems.length : currentIndex}
-          />
+
+        <div className="flex items-center justify-center gap-3 max-w-[60%]">
+          <span className="text-sm font-medium text-gray-500 text-nowrap">
+            Complete your {questions.length} Exercises
+          </span>
+
+          <div className="flex gap-1 w-full">
+            {questions.map((_, i) => {
+              const hasAnswer = answers.some(
+                (a) => a.id === randomizedQuestions[i]?.id,
+              );
+
+              return (
+                <span
+                  key={i}
+                  onClick={() => setCurrentIndex(i)}
+                  style={{flex: `1 1 ${100 / questions.length}%`}}
+                  className={`h-1.5 min-w-1 rounded-full cursor-pointer transition-colors ${
+                    currentIndex === i
+                      ? "bg-primary"
+                      : reviewMode &&
+                          submittedAnswers[i].answer ===
+                            submittedAnswers[i].correctAnswer
+                        ? "bg-success"
+                        : reviewMode &&
+                            submittedAnswers[i].answer !=
+                              submittedAnswers[i].correctAnswer
+                          ? "bg-danger"
+                          : hasAnswer
+                            ? "bg-primary/50"
+                            : "bg-gray-200 dark:bg-gray-600"
+                  }`}
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="border-t border-gray-200 dark:border-gray-600 mb-5" />
+      {/* BODY */}
 
-      <AnimatePresence mode="wait">
-        {!isComplete ? (
-          <motion.div
-            key={problem?.id ?? currentIndex}
-            initial={{opacity: 0, y: 8}}
-            animate={{opacity: 1, y: 0}}
-            exit={{opacity: 0, y: -8}}
-            transition={{duration: 0.25, ease: [0.22, 1, 0.36, 1]}}
-          >
-            {/* Question */}
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
-              {problem?.question}
-            </p>
+      <div className="px-8 py-8">
+        <h3 className="text-base font-bold text-gray-900 dark:text-white">
+          {currentQuestion.question}
+        </h3>
 
-            {/* Answer row */}
-            <div className="flex items-center gap-2 mb-4">
-              {/* Status icon */}
+        <div className="mt-6 flex flex-col gap-3">
+          {currentQuestion.answers.map((answer, index) => {
+            const isSelected = selectedAnswer === answer;
 
-              {/* Input */}
-              <motion.input
-                type="text"
-                value={answer}
-                onChange={(e) => {
-                  setAnswer(e.target.value);
-                  if (state !== "idle") setState("idle");
-                }}
-                onKeyDown={handleKeyDown}
-                placeholder={problem?.answerPlaceholder}
-                disabled={state === "correct"}
-                animate={
-                  state === "incorrect" ? {x: [-6, 6, -6, 6, -3, 3, 0]} : {}
-                }
-                transition={{duration: 0.4}}
-                className={`w-40 border rounded-lg px-3 py-2 text-sm placeholder:text-gray-400 outline-none transition-all ${inputBorderClass} disabled:cursor-not-allowed`}
-              />
-            </div>
+            const isCorrect = answer === currentQuestion.correctAnswer;
 
-            {/* Check button */}
-            <div className="h-10 mt-2 flex items-center">
+            const isWrongSelected = reviewMode && isSelected && !isCorrect;
+
+            let optionStyle =
+              "border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200";
+
+            if (reviewMode) {
+              if (isCorrect) {
+                optionStyle =
+                  "border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400";
+              }
+
+              if (isWrongSelected) {
+                optionStyle =
+                  "border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400";
+              }
+            } else if (isSelected) {
+              optionStyle =
+                "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
+            }
+
+            return (
               <button
-                onClick={handleCheck}
-                disabled={!answer.trim() || state === "correct"}
-                className="px-4 py-2 text-sm font-medium border border-gray-300 dark:border-0 rounded-lg text-gray-700 bg-white dark:bg-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                key={answer}
+                type="button"
+                onClick={() => handleSelectOption(answer)}
+                className={`
+                  flex w-fit items-center gap-4
+                  border-y px-2 py-4
+                  text-left transition-colors
+                  ${optionStyle}
+                `}
               >
-                Check
-              </button>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="complete"
-            initial={{opacity: 0, y: 8}}
-            animate={{opacity: 1, y: 0}}
-            transition={{duration: 0.25, ease: [0.22, 1, 0.36, 1]}}
-          >
-            <p className="text-sm font-medium text-gray-700 dark:text-white mb-4">
-              You&apos;ve completed all {problems.length} problems.
-            </p>
+                <span
+                  className={`
+                    flex h-8 w-8 items-center justify-center
+                    rounded-full border text-sm font-semibold
 
-            <div className="h-10 mt-2 flex items-center ">
-              <motion.button
-                initial={{opacity: 0, y: 10}}
-                animate={{opacity: 1, y: 0}}
-                transition={{duration: 0.2}}
-                onClick={onUpNext}
-                className="px-4 py-2 text-sm font-medium border border-gray-300 dark:border-0 rounded-lg text-gray-700 bg-white dark:bg-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-              >
-                Next Module
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                    ${
+                      reviewMode && isCorrect
+                        ? "border-success bg-success text-white"
+                        : reviewMode && isWrongSelected
+                          ? "border-danger bg-danger text-white"
+                          : isSelected
+                            ? "border-blue-600 bg-blue-600 text-white"
+                            : "border-gray-300 dark:border-gray-500 dark:text-gray-300"
+                    }
+                  `}
+                >
+                  {String.fromCharCode(65 + index)}
+                </span>
+
+                <span className="text-sm font-semibold">{answer}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* FOOTER */}
+
+      <div className="flex justify-end gap-3 rounded-b-2xl bg-gray-100 dark:bg-gray-900 px-8 py-5">
+        <button
+          type="button"
+          onClick={handlePrev}
+          disabled={isFirstQuestion}
+          className={`text-sm font-semibold text-gray-700 disabled:text-gray-300 dark:text-gray-300 dark:disabled:text-gray-600 px-5 py-2.5 cursor-pointer
+          ${isFirstQuestion && "cursor-not-allowed"}
+          `}
+        >
+          Prev
+        </button>
+
+        <button
+          type="button"
+          onClick={handleNext}
+          disabled={
+            isLastQuestion && !reviewMode ? !allAnswered : !selectedAnswer
+          }
+          className={`flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 active:scale-95 transition-all ${isLastQuestion && !reviewMode && !allAnswered ? "cursor-not-allowed" : "cursor-pointer"}`}
+        >
+          {reviewMode && isLastQuestion ? (
+            "View Feedback"
+          ) : (
+            <>
+              {isLastQuestion ? "Submit" : "Next question"}
+              {isLastQuestion && (
+                <Icon icon="mdi:arrow-right" className="h-4 w-4" />
+              )}
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 }

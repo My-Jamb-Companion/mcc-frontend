@@ -139,9 +139,23 @@ export interface Lessons {
     label: string;
     title: string;
     question: string;
-
     correctAnswer: string;
   }[];
+
+  exercise?: {
+    passingScore: number;
+    maxAttempts: number;
+    attempts: number;
+    score: number;
+    passed: boolean;
+    questions: {
+      id: string;
+      question: string;
+      answers: string[];
+      correctAnswer: string;
+    }[];
+  };
+
   exam?: {
     passingScore: number;
     maxAttempts: number;
@@ -415,6 +429,62 @@ export const courseDetails: CourseDetail[] = [
                 src: getRandomSrc(),
                 type: "exercise",
                 completed: false,
+                exercise: {
+                  passingScore: 70,
+                  maxAttempts: 3,
+                  attempts: 0,
+                  score: 0,
+                  passed: false,
+                  questions: [
+                    {
+                      id: "exam-1",
+                      question: "A good instructor should?",
+                      answers: [
+                        "Adapt exercises to clients",
+                        "Ignore needs",
+                        "Use one method only",
+                        "Avoid feedback",
+                      ],
+                      correctAnswer: "Adapt exercises to clients",
+                    },
+
+                    {
+                      id: "exam-2",
+                      question: "Client assessment helps create?",
+                      answers: [
+                        "Safe programs",
+                        "Random workouts",
+                        "Competition",
+                        "Pressure",
+                      ],
+                      correctAnswer: "Safe programs",
+                    },
+
+                    {
+                      id: "exam-3",
+                      question: "Effective coaching requires?",
+                      answers: [
+                        "Clear communication",
+                        "Silence",
+                        "Confusion",
+                        "No feedback",
+                      ],
+                      correctAnswer: "Clear communication",
+                    },
+
+                    {
+                      id: "exam-3",
+                      question: "A personal brand helps build?",
+                      answers: [
+                        "Trust and recognition",
+                        "Confusion",
+                        "Avoidance",
+                        "Isolation",
+                      ],
+                      correctAnswer: "Trust and recognition",
+                    },
+                  ],
+                },
               },
             ],
           },
