@@ -7,7 +7,7 @@ import {Icon} from "@mcc/ui";
 
 export function useGlobalFileDrag(onDrop: (files: File[]) => void) {
   const [isDragging, setIsDragging] = useState(false);
-  const [dragDepth, setDragDepth] = useState(0);
+  const [, setDragDepth] = useState(0);
 
   const handleDragEnter = useCallback((e: DragEvent) => {
     e.preventDefault();
