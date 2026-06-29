@@ -29,10 +29,10 @@ const lessonIconMap: Record<LessonType, {icon: string; className: string}> = {
     icon: "ri:booklet-line",
     className: "text-primary",
   },
-  //   quiz: {
-  //     icon: "ph:clock",
-  //     className: "text-primary",
-  //   },
+  exercise: {
+    icon: "ph:clock",
+    className: "text-blue-500",
+  },
   practice: {
     icon: "material-symbols:quiz-outline",
     className: "text-orange-500",
@@ -241,6 +241,10 @@ function ModuleAccordion({
 
                       {lesson.type === "practice" && (
                         <p className="text-xs text-orange-500">Practice Quiz</p>
+                      )}
+
+                      {lesson.type === "exercise" && (
+                        <p className="text-xs text-blue-500">Exercise</p>
                       )}
 
                       {lesson.type === "exam" && (

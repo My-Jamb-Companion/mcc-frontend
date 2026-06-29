@@ -124,7 +124,7 @@ const getRandomSrc = () =>
 // Types
 // ---------------------------------------------------------------------------
 
-export type LessonType = "video" | "doc" | "practice" | "exam";
+export type LessonType = "video" | "doc" | "practice" | "exam" | "exercise";
 
 export interface Lessons {
   id: string;
@@ -366,6 +366,13 @@ export const courseDetails: CourseDetail[] = [
                 currentTime: 127,
               },
               {
+                id: "Quick practice",
+                title: "Quick Practice",
+                src: getRandomSrc(),
+                type: "practice",
+                completed: false,
+              },
+              {
                 id: "Breathing Fundamentals",
                 title: "Breathing Fundamentals",
                 duration: 690,
@@ -400,6 +407,14 @@ export const courseDetails: CourseDetail[] = [
                 type: "doc",
                 completed: false,
                 currentTime: 127,
+              },
+
+              {
+                id: "Module Exercise",
+                title: "Module Exercise",
+                src: getRandomSrc(),
+                type: "exercise",
+                completed: false,
               },
             ],
           },

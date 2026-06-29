@@ -1,30 +1,25 @@
 "use client";
 
 import {useState} from "react";
-import {XCircle, CheckCircle} from "lucide-react";
 import {motion, AnimatePresence} from "@mcc/ui";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
 
 type AnswerState = "idle" | "correct" | "incorrect";
 
 interface Problem {
   id: string;
-  label: string; // e.g. "PROBLEM 1"
-  title: string; // e.g. "Now, lets Practice"
-  question: string; // e.g. "Q1..."
-  answerPlaceholder: string; // e.g. "A1..."
+  label: string;
+  title: string;
+  question: string;
+  answerPlaceholder: string;
   correctAnswer: string;
 }
 
 interface CourseExcerciseProps {
   problems: Problem[];
-  upNext?: string; // shown once all problems are answered correctly
+  upNext?: string;
   onCorrect?: (problem: Problem, index: number) => void;
   onUpNext?: () => void;
 }
-
-// ─── Progress bar ─────────────────────────────────────────────────────────────
 
 function ProgressBar({total, current}: {total: number; current: number}) {
   return (
@@ -40,8 +35,6 @@ function ProgressBar({total, current}: {total: number; current: number}) {
     </div>
   );
 }
-
-// ─── PracticeCard ─────────────────────────────────────────────────────────────
 
 export function CourseExcercise({
   problems,

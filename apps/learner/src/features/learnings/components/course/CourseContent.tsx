@@ -131,6 +131,26 @@ export default function CourseContent({course}: {course: CourseDetail}) {
                 </motion.div>
               )}
 
+              {activeLesson?.type === "practice" && (
+                <motion.div
+                  key={`exam-${activeLesson?.id}`}
+                  initial={{opacity: 0, scale: 0.98}}
+                  animate={{opacity: 1, scale: 1}}
+                  exit={{opacity: 0, scale: 0.98}}
+                  transition={{duration: 0.25}}
+                ></motion.div>
+              )}
+
+              {activeLesson?.type === "exercise" && (
+                <motion.div
+                  key={`exam-${activeLesson?.id}`}
+                  initial={{opacity: 0, scale: 0.98}}
+                  animate={{opacity: 1, scale: 1}}
+                  exit={{opacity: 0, scale: 0.98}}
+                  transition={{duration: 0.25}}
+                ></motion.div>
+              )}
+
               {activeLesson?.type === "exam" && (
                 <motion.div
                   key={`exam-${activeLesson?.id}`}
