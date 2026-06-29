@@ -1,10 +1,6 @@
 import {Icon, motion} from "@mcc/ui";
 import {FeatureCardConfig} from "./Brainy";
 
-/* -------------------------------------------------------------------------- */
-/* Feature Card                                                              */
-/* -------------------------------------------------------------------------- */
-
 export default function BrainyFeatureCard({
   feature,
   onSelect,
@@ -17,8 +13,8 @@ export default function BrainyFeatureCard({
   return (
     <motion.button
       type="button"
-      onClick={() => onSelect?.(feature.id)}
-      // disabled={isDisabled}
+      onClick={() => !isDisabled && onSelect?.(feature.id)}
+      disabled={isDisabled}
       whileHover={!isDisabled ? {y: -2} : undefined}
       whileTap={!isDisabled ? {scale: 0.99} : undefined}
       transition={{type: "spring", stiffness: 400, damping: 28}}

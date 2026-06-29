@@ -16,7 +16,7 @@ export interface BrainyChatBoxProps {
 export function BrainyChatBox({
   onSubmitQuestion,
   accept = ".pdf,.doc,.docx,.ppt,.pptx,.png,.jpg,.jpeg",
-  maxFiles = 5,
+  maxFiles = 3,
   className = "",
 }: BrainyChatBoxProps) {
   const [question, setQuestion] = useState("");
@@ -99,7 +99,6 @@ export function BrainyChatBox({
         </div>
       </div>
 
-      {/* Trust footer */}
       <div className="mt-4 flex items-center justify-center gap-5 text-xs text-gray-400">
         <span className="flex items-center gap-1.5">
           <Icon icon="ph:shield-check" className="h-3.5 w-3.5" />

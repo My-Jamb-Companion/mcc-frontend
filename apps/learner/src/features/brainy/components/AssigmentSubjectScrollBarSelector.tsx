@@ -30,14 +30,10 @@ const DEFAULT_SUBJECTS: SubjectOption[] = [
   {id: "physics", label: "Physics", icon: "ph:atom"},
   {id: "biology", label: "Biology", icon: "ph:leaf"},
   {id: "math", label: "Math", icon: "ph:calculator"},
-  {id: "general", label: "General", icon: "ph:smiley"},
+  {id: "general", label: "General", icon: "charm:graduate-cap"},
   {id: "language", label: "Language", icon: "ph:translate"},
   {id: "chemistry", label: "Chemistry", icon: "ph:flask"},
 ];
-
-/* -------------------------------------------------------------------------- */
-/* Component                                                                  */
-/* -------------------------------------------------------------------------- */
 
 export function AssignmentSubjectSelector({
   eyebrow = "Assignment",
@@ -60,7 +56,6 @@ export function AssignmentSubjectSelector({
       if (!isControlled) setInternalSelected(id);
       onSelect?.(id);
 
-      // Bring the newly selected pill fully into view if it's clipped.
       const el = pillRefs.current.get(id);
       el?.scrollIntoView({
         behavior: "smooth",
@@ -81,10 +76,9 @@ export function AssignmentSubjectSelector({
     if (pills.length === 0) return;
 
     const containerRect = container.getBoundingClientRect();
-    const epsilon = 4; // tolerance for sub-pixel rounding
+    const epsilon = 4;
 
     if (direction === "right") {
-      // First pill whose right edge extends past the container's right edge.
       const next = pills.find(
         (p) => p.getBoundingClientRect().right > containerRect.right + epsilon,
       );
@@ -94,7 +88,6 @@ export function AssignmentSubjectSelector({
         inline: "end",
       });
     } else {
-      // Last pill whose left edge is before the container's left edge.
       const candidates = pills.filter(
         (p) => p.getBoundingClientRect().left < containerRect.left - epsilon,
       );
@@ -109,7 +102,7 @@ export function AssignmentSubjectSelector({
 
   return (
     <div className={`mx-auto w-full max-w-[660px] text-center ${className}`}>
-      <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">
+      <span className="inline-flex rounded-md bg-muted/10 px-3 py-1 text-xs font-medium text-subtle border border-muted/30">
         {eyebrow}
       </span>
 
@@ -145,7 +138,7 @@ export function AssignmentSubjectSelector({
                 onClick={() => handleSelect(subject.id)}
                 aria-pressed={isActive}
                 className={[
-                  "relative flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
+                  "relative flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border px-3.5 py-1.5 text-sm font-medium transition-colors",
                   isActive
                     ? "border-blue-300 bg-blue-50 text-blue-600"
                     : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50",

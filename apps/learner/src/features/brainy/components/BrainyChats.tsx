@@ -33,13 +33,11 @@ export default function BrainyChats() {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
-  console.log(activeSession);
   const isDraggingFile = useGlobalFileDrag(handleFilesAdded);
 
   if (!activeSession) redirect("/brainy/new");
   return (
     <div className="relative flex flex-col h-full grow bg-white dark:bg-transparent">
-      {/* Messages View */}
       <div className="flex-1 w-full overflow-y-auto flex flex-col gap-4 p-6 pb-32">
         {activeSession?.messages.map((msg) => (
           <div key={msg.id} className="flex flex-col gap-1 max-w-[80%]">
@@ -63,17 +61,6 @@ export default function BrainyChats() {
                   <span className="max-w-[140px] text-sm font-medium truncate">
                     {file.name}
                   </span>
-                  {/* <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveFile(i);
-                    }}
-                    className="ml-0.5 rounded-full p-0.5 hover:bg-gray-100"
-                    aria-label={`Remove ${file.name}`}
-                  >
-                    <Icon icon="ph:x" className="h-3 w-3 text-gray-400" />
-                  </button> */}
                 </li>
               );
             })}
@@ -93,53 +80,64 @@ export default function BrainyChats() {
         ))}
       </div>
 
-      {/* Input / Composer Area */}
       <div className="absolute bottom-12 w-full">
-        <div className="flex flex-col gap-2 w-[90%] mx-auto">
+        <div className="flex flex-col w-[90%] mx-auto">
           {files.length > 0 && (
-            <motion.ul
+            <motion.div
               initial={{opacity: 0, height: 0}}
               animate={{opacity: 1, height: "auto"}}
               exit={{opacity: 0, height: 0}}
               transition={{duration: 0.18}}
-              className="mt-2 flex flex-wrap gap-2 overflow-hidden"
+              className="flex gap-2 p-3 pt-1 rounded-t-2xl border border-muted/20 border-b-0 shadow-sm w-[90%] mx-auto"
             >
-              {files.map((file, i) => {
-                const fileIcon = () => {
-                  if (file.type === "application/pdf") {
-                    return "material-icon-theme:pdf";
-                  }
-                  if (file.type === "image/jpeg" || file.type === "image/png") {
-                    return "fluent-color:image-20";
-                  }
-                  return "catppuccin:text";
-                };
-                return (
-                  <li
-                    key={`${file.name}-${i}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex items-center gap-1.5 rounded-lg border-2 border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 z-20"
-                  >
-                    <Icon icon={fileIcon()} size={24} />
-                    <span className="max-w-[140px] text-sm font-medium truncate">
-                      {file.name}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveFile(i);
-                      }}
-                      className="ml-0.5 rounded-full p-0.5 hover:bg-gray-100"
-                      aria-label={`Remove ${file.name}`}
+              <motion.ul
+                initial={{opacity: 0, height: 0}}
+                animate={{opacity: 1, height: "auto"}}
+                exit={{opacity: 0, height: 0}}
+                transition={{duration: 0.18}}
+                className="mt-2 flex flex-wrap gap-2 overflow-hidden"
+              >
+                {files.map((file, i) => {
+                  const fileIcon = () => {
+                    if (file.type === "application/pdf") {
+                      return "material-icon-theme:pdf";
+                    }
+                    if (
+                      file.type === "image/jpeg" ||
+                      file.type === "image/png"
+                    ) {
+                      return "fluent-color:image-20";
+                    }
+                    return "catppuccin:text";
+                  };
+                  return (
+                    <li
+                      key={`${file.name}-${i}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-1.5 rounded-lg border-2 border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 z-20"
                     >
-                      <Icon icon="ph:x" className="h-3 w-3 text-gray-400" />
-                    </button>
-                  </li>
-                );
-              })}
-            </motion.ul>
+                      <Icon icon={fileIcon()} size={24} />
+                      <span className="max-w-[140px] text-sm font-medium truncate">
+                        {file.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveFile(i);
+                        }}
+                        className="ml-0.5 rounded-full p-0.5 hover:bg-gray-100"
+                        aria-label={`Remove ${file.name}`}
+                      >
+                        <Icon icon="ph:x" className="h-3 w-3 text-gray-400" />
+                      </button>
+                    </li>
+                  );
+                })}
+              </motion.ul>
+            </motion.div>
           )}
+
           <div className="flex flex-col items-center gap-2 w-full rounded-full bg-[#F9F9F9] border border-muted/20 shadow-md p-1.5 min-h-[74px] mx-auto">
             <div className="flex items-center gap-2 w-full">
               <motion.button

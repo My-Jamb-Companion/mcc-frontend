@@ -61,10 +61,6 @@ export function useGlobalFileDrag(onDrop: (files: File[]) => void) {
   return isDragging;
 }
 
-/* -------------------------------------------------------------------------- */
-/* DragImageOverlay                                                           */
-/* -------------------------------------------------------------------------- */
-
 export interface DragImageOverlayProps {
   isVisible: boolean;
   title?: string;
@@ -86,7 +82,7 @@ export function DragImageOverlay({
           animate={{opacity: 1}}
           exit={{opacity: 0}}
           transition={{duration: 0.15}}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60"
+          className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60"
           aria-hidden="true"
         >
           <div className="relative flex flex-col items-center">
