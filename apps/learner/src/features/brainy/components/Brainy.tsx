@@ -56,9 +56,9 @@ export default function Brainy() {
               heading="How do you want to prepare for your exams?"
               subtext="Upload anything and get interactive notes, flashcards, quizzes, and more"
               actions={EXAM_PREP_ACTIONS}
-              onSelect={(id) => {
-                // console.log("Action selected:", id);
-              }}
+              // onSelect={(id) => {
+              // console.log("Action selected:", id);
+              // }}
             />
           </div>
         )}
