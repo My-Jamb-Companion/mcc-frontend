@@ -9,6 +9,7 @@ interface Question {
   question: string;
   answers: string[];
   correctAnswer: string;
+  hint?: string;
 }
 
 export interface SubmittedAnswer {
@@ -16,28 +17,51 @@ export interface SubmittedAnswer {
   question: string;
   answer: string;
   correctAnswer: string;
+  tries: number;
 }
 
 interface CourseExerciseProps {
   questions?: Question[];
   onComplete?: (answers: SubmittedAnswer[]) => void;
-  reviewMode?: boolean;
-  submittedAnswers?: SubmittedAnswer[];
-  endReview?: () => void;
   title?: string;
+}
+
+interface QuestionAttemptState {
+  tries: number;
+  isChecked: boolean;
+  isCorrect: boolean;
+  locked: boolean;
+  hintShown: boolean;
+  hintUsed: boolean;
+}
+
+const MAX_TRIES = 2;
+
+function createInitialAttemptState(): QuestionAttemptState {
+  return {
+    tries: 0,
+    isChecked: false,
+    isCorrect: false,
+    locked: false,
+    hintShown: false,
+    hintUsed: false,
+  };
 }
 
 export default function CourseExercise({
   questions = [],
   onComplete,
-  reviewMode = false,
-  submittedAnswers = [],
-  endReview,
   title,
 }: CourseExerciseProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [answers, setAnswers] = useState<SubmittedAnswer[]>([]);
+
+  const [attemptState, setAttemptState] = useState<QuestionAttemptState>(
+    createInitialAttemptState(),
+  );
+
+  const [isReviewMode, setIsReviewMode] = useState(false);
 
   const randomizedQuestions = useMemo(() => {
     return questions.map((question) => ({
@@ -48,18 +72,20 @@ export default function CourseExercise({
 
   const currentQuestion = randomizedQuestions[currentIndex];
 
-  const currentSubmittedAnswer =
-    answers.find((item) => item.id === currentQuestion?.id) ??
-    submittedAnswers.find((item) => item.id === currentQuestion?.id);
+  const currentSubmittedAnswer = answers.find(
+    (item) => item.id === currentQuestion?.id,
+  );
 
   const selectedAnswer = currentSubmittedAnswer?.answer;
 
   const isLastQuestion = currentIndex === questions.length - 1;
-  const isFirstQuestion = currentIndex === 0;
-  const allAnswered = answers.length === questions.length;
+
+  const isFinalTryUsed = attemptState.tries >= MAX_TRIES;
+  const showRetryPopover = attemptState.isChecked && !attemptState.isCorrect;
 
   const handleSelectOption = (answer: string) => {
-    if (reviewMode) return;
+    if (attemptState.locked) return;
+    if (attemptState.isChecked) return;
 
     setAnswers((prev) => {
       const exists = prev.find((item) => item.id === currentQuestion.id);
@@ -82,31 +108,104 @@ export default function CourseExercise({
           question: currentQuestion.question,
           answer,
           correctAnswer: currentQuestion.correctAnswer,
+          tries: attemptState.tries,
         },
       ];
     });
   };
 
-  const handlePrev = () => {
+  const handleCheck = () => {
+    if (!selectedAnswer || attemptState.isChecked) return;
+
+    const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+    const nextTries = attemptState.tries + 1;
+
+    setAttemptState((prev) => ({
+      ...prev,
+      tries: nextTries,
+      isChecked: true,
+      isCorrect,
+      locked: isCorrect || nextTries >= MAX_TRIES,
+    }));
+
+    setAnswers((prev) =>
+      prev.map((item) =>
+        item.id === currentQuestion.id ? {...item, tries: nextTries} : item,
+      ),
+    );
+  };
+
+  const handleTryAgain = () => {
+    setAnswers((prev) => prev.filter((item) => item.id !== currentQuestion.id));
+
+    setAttemptState((prev) => ({
+      ...prev,
+      isChecked: false,
+      isCorrect: false,
+    }));
+  };
+
+  const handleHint = () => {
+    if (attemptState.hintUsed) return;
+
+    setAttemptState((prev) => ({
+      ...prev,
+      hintShown: true,
+      hintUsed: true,
+    }));
+  };
+
+  const handleNext = () => {
+    if (isLastQuestion) {
+      onComplete?.(answers);
+      setIsReviewMode(true);
+      setCurrentIndex(0);
+      return;
+    }
+
+    setCurrentIndex((prev) => prev + 1);
+    setAttemptState(createInitialAttemptState());
+  };
+
+  const isFirstQuestion = currentIndex === 0;
+
+  const handleReviewPrev = () => {
     if (!isFirstQuestion) {
       setCurrentIndex((prev) => prev - 1);
     }
   };
 
-  const handleNext = () => {
-    if (!reviewMode && isLastQuestion) {
-      console.log(answers);
-      onComplete?.(answers);
-      return;
-    } else if (reviewMode && isLastQuestion) {
-      endReview?.();
-      return;
+  const handleReviewNext = () => {
+    if (!isLastQuestion) {
+      setCurrentIndex((prev) => prev + 1);
     }
+  };
 
-    setCurrentIndex((prev) => prev + 1);
+  const handleReviewJump = (index: number) => {
+    setCurrentIndex(index);
   };
 
   if (!currentQuestion) return null;
+
+  const nextButtonState: "check" | "try-again" | "next" =
+    !attemptState.isChecked
+      ? "check"
+      : attemptState.isCorrect || isFinalTryUsed
+        ? "next"
+        : "try-again";
+
+  const nextButtonDisabled =
+    nextButtonState === "check" ? !selectedAnswer : false;
+
+  const handlePrimaryAction = () => {
+    if (nextButtonState === "check") {
+      handleCheck();
+    } else if (nextButtonState === "try-again") {
+      handleTryAgain();
+    } else {
+      handleNext();
+    }
+  };
 
   return (
     <div className="w-full rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-[#222225]">
@@ -129,25 +228,31 @@ export default function CourseExercise({
 
           <div className="flex gap-1 w-full">
             {questions.map((_, i) => {
-              const hasAnswer = answers.some(
-                (a) => a.id === randomizedQuestions[i]?.id,
-              );
+              const questionId = randomizedQuestions[i]?.id;
+              const hasAnswer = answers.some((a) => a.id === questionId);
+              const reviewAnswer = answers.find((a) => a.id === questionId);
+              const isReviewCorrect =
+                isReviewMode &&
+                reviewAnswer &&
+                reviewAnswer.answer === reviewAnswer.correctAnswer;
+              const isReviewWrong =
+                isReviewMode &&
+                reviewAnswer &&
+                reviewAnswer.answer !== reviewAnswer.correctAnswer;
 
               return (
                 <span
                   key={i}
-                  onClick={() => setCurrentIndex(i)}
+                  onClick={isReviewMode ? () => handleReviewJump(i) : undefined}
                   style={{flex: `1 1 ${100 / questions.length}%`}}
-                  className={`h-1.5 min-w-1 rounded-full cursor-pointer transition-colors ${
+                  className={`h-1.5 min-w-1 rounded-full transition-colors ${
+                    isReviewMode ? "cursor-pointer" : ""
+                  } ${
                     currentIndex === i
                       ? "bg-primary"
-                      : reviewMode &&
-                          submittedAnswers[i].answer ===
-                            submittedAnswers[i].correctAnswer
+                      : isReviewCorrect
                         ? "bg-success"
-                        : reviewMode &&
-                            submittedAnswers[i].answer !=
-                              submittedAnswers[i].correctAnswer
+                        : isReviewWrong
                           ? "bg-danger"
                           : hasAnswer
                             ? "bg-primary/50"
@@ -170,21 +275,19 @@ export default function CourseExercise({
         <div className="mt-6 flex flex-col gap-3">
           {currentQuestion.answers.map((answer, index) => {
             const isSelected = selectedAnswer === answer;
-
-            const isCorrect = answer === currentQuestion.correctAnswer;
-
-            const isWrongSelected = reviewMode && isSelected && !isCorrect;
+            const isCorrectAnswer = answer === currentQuestion.correctAnswer;
+            const isRevealed = isReviewMode || attemptState.locked;
+            const isWrongSelected =
+              isRevealed && isSelected && !isCorrectAnswer;
 
             let optionStyle =
               "border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200";
 
-            if (reviewMode) {
-              if (isCorrect) {
+            if (isRevealed) {
+              if (isCorrectAnswer) {
                 optionStyle =
                   "border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400";
-              }
-
-              if (isWrongSelected) {
+              } else if (isWrongSelected) {
                 optionStyle =
                   "border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400";
               }
@@ -198,10 +301,14 @@ export default function CourseExercise({
                 key={answer}
                 type="button"
                 onClick={() => handleSelectOption(answer)}
+                disabled={
+                  isReviewMode || attemptState.isChecked || attemptState.locked
+                }
                 className={`
                   flex w-fit items-center gap-4
                   border-y px-2 py-4
                   text-left transition-colors
+                  disabled:cursor-not-allowed
                   ${optionStyle}
                 `}
               >
@@ -211,9 +318,9 @@ export default function CourseExercise({
                     rounded-full border text-sm font-semibold
 
                     ${
-                      reviewMode && isCorrect
+                      isRevealed && isCorrectAnswer
                         ? "border-success bg-success text-white"
-                        : reviewMode && isWrongSelected
+                        : isRevealed && isWrongSelected
                           ? "border-danger bg-danger text-white"
                           : isSelected
                             ? "border-blue-600 bg-blue-600 text-white"
@@ -229,42 +336,105 @@ export default function CourseExercise({
             );
           })}
         </div>
+
+        {isReviewMode && currentSubmittedAnswer && (
+          <p className="mt-4 text-xs font-semibold text-gray-400">
+            Tries: {currentSubmittedAnswer.tries}/{MAX_TRIES}
+          </p>
+        )}
       </div>
 
       {/* FOOTER */}
 
-      <div className="flex justify-end gap-3 rounded-b-2xl bg-gray-100 dark:bg-gray-900 px-8 py-5">
-        <button
-          type="button"
-          onClick={handlePrev}
-          disabled={isFirstQuestion}
-          className={`text-sm font-semibold text-gray-700 disabled:text-gray-300 dark:text-gray-300 dark:disabled:text-gray-600 px-5 py-2.5 cursor-pointer
-          ${isFirstQuestion && "cursor-not-allowed"}
-          `}
-        >
-          Prev
-        </button>
+      {isReviewMode ? (
+        <div className="flex justify-end gap-3 rounded-b-2xl bg-gray-100 dark:bg-gray-900 px-8 py-5">
+          <button
+            type="button"
+            onClick={handleReviewPrev}
+            disabled={isFirstQuestion}
+            className={`text-sm font-semibold text-gray-700 disabled:text-gray-300 dark:text-gray-300 dark:disabled:text-gray-600 px-5 py-2.5 cursor-pointer
+            ${isFirstQuestion && "cursor-not-allowed"}
+            `}
+          >
+            Prev
+          </button>
 
-        <button
-          type="button"
-          onClick={handleNext}
-          disabled={
-            isLastQuestion && !reviewMode ? !allAnswered : !selectedAnswer
-          }
-          className={`flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 active:scale-95 transition-all ${isLastQuestion && !reviewMode && !allAnswered ? "cursor-not-allowed" : "cursor-pointer"}`}
-        >
-          {reviewMode && isLastQuestion ? (
-            "View Feedback"
-          ) : (
-            <>
-              {isLastQuestion ? "Submit" : "Next question"}
-              {isLastQuestion && (
-                <Icon icon="mdi:arrow-right" className="h-4 w-4" />
+          <button
+            type="button"
+            onClick={handleReviewNext}
+            disabled={isLastQuestion}
+            className={`flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 active:scale-95 transition-all ${isLastQuestion ? "cursor-not-allowed" : "cursor-pointer"}`}
+          >
+            Next
+          </button>
+        </div>
+      ) : (
+        <div className="relative flex justify-end gap-3 rounded-b-2xl bg-gray-100 dark:bg-gray-900 px-8 py-5">
+          {showRetryPopover && (
+            <div className="absolute top-0 right-5 translate-y-[-140%] flex items-center justify-center gap-2 p-2 rounded-2xl border-2 bg-[#222225]">
+              <div className="text-left">
+                <p className="text-sm font-semibold">Not quite yet..</p>
+                <p className="text-xs">
+                  {isFinalTryUsed
+                    ? "Here's the correct answer."
+                    : "Give it another try."}
+                </p>
+              </div>
+
+              {!isFinalTryUsed && (
+                <button
+                  type="button"
+                  onClick={handleTryAgain}
+                  className="rounded-full bg-muted/60 p-1"
+                >
+                  <Icon icon="mdi:refresh" className="h-4 w-4" />
+                </button>
               )}
-            </>
+            </div>
           )}
-        </button>
-      </div>
+
+          {attemptState.hintShown && (
+            <div className="absolute top-0 left-5 translate-y-[-140%] flex items-center justify-center gap-2 p-2 rounded-2xl border-2 bg-[#222225]">
+              <div className="text-left">
+                <p className="text-sm font-semibold">Hint</p>
+                <p className="text-xs">
+                  {currentQuestion.hint ??
+                    "No hint available for this question."}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={handleHint}
+            disabled={attemptState.hintUsed}
+            className={`text-sm font-semibold text-gray-700 disabled:text-gray-300 dark:text-gray-300 dark:disabled:text-gray-600 px-5 py-2.5 cursor-pointer
+            ${attemptState.hintUsed && "cursor-not-allowed"}
+            `}
+          >
+            Hint
+          </button>
+
+          <button
+            type="button"
+            onClick={handlePrimaryAction}
+            disabled={nextButtonDisabled}
+            className={`flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 active:scale-95 transition-all ${nextButtonDisabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+          >
+            {nextButtonState === "check" && "Check"}
+            {nextButtonState === "try-again" && "Try again"}
+            {nextButtonState === "next" && (
+              <>
+                {isLastQuestion ? "Submit" : "Next question"}
+                {isLastQuestion && (
+                  <Icon icon="mdi:arrow-right" className="h-4 w-4" />
+                )}
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

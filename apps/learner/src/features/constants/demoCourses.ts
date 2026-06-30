@@ -152,6 +152,7 @@ export interface Lessons {
       id: string;
       question: string;
       answers: string[];
+      hint: string;
       correctAnswer: string;
     }[];
   };
@@ -446,6 +447,7 @@ export const courseDetails: CourseDetail[] = [
                         "Avoid feedback",
                       ],
                       correctAnswer: "Adapt exercises to clients",
+                      hint: "Think about putting the client's individual needs, abilities, and goals first rather than using the same approach for everyone.",
                     },
 
                     {
@@ -458,6 +460,7 @@ export const courseDetails: CourseDetail[] = [
                         "Pressure",
                       ],
                       correctAnswer: "Safe programs",
+                      hint: "An assessment is performed before training begins to ensure the exercise plan is appropriate and minimizes the risk of injury.",
                     },
 
                     {
@@ -470,10 +473,11 @@ export const courseDetails: CourseDetail[] = [
                         "No feedback",
                       ],
                       correctAnswer: "Clear communication",
+                      hint: "A coach should make instructions easy to understand and encourage two-way interaction with clients.",
                     },
 
                     {
-                      id: "exam-3",
+                      id: "exam-4",
                       question: "A personal brand helps build?",
                       answers: [
                         "Trust and recognition",
@@ -482,6 +486,7 @@ export const courseDetails: CourseDetail[] = [
                         "Isolation",
                       ],
                       correctAnswer: "Trust and recognition",
+                      hint: "Consider what makes clients remember you and feel confident choosing your services over others.",
                     },
                   ],
                 },
