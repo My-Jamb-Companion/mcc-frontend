@@ -134,13 +134,16 @@ export interface Lessons {
   type: LessonType;
   completed: boolean;
   currentTime?: number;
+
   practice?: {
-    id: string;
-    label: string;
-    title: string;
-    question: string;
-    correctAnswer: string;
-  }[];
+    questions: {
+      id: string;
+      question: string;
+      answers: string[];
+      correctAnswer: string;
+      explanation: string;
+    }[];
+  };
 
   exercise?: {
     passingScore: number;
@@ -383,9 +386,83 @@ export const courseDetails: CourseDetail[] = [
               {
                 id: "Quick practice",
                 title: "Quick Practice",
-                src: getRandomSrc(),
                 type: "practice",
                 completed: false,
+                practice: {
+                  questions: [
+                    {
+                      id: "p1",
+                      question:
+                        "Who developed the Pilates exercise method in the early 20th century?",
+                      answers: [
+                        "Joseph Pilates",
+                        "Josephine Pilates",
+                        "Gregor Pilates",
+                        "Kevin Pilates",
+                      ],
+                      correctAnswer: "Joseph Pilates",
+                      explanation:
+                        "The method was created by German physical trainer Joseph Pilates, who originally called it 'Contrology' to emphasize the mind's control over muscles.",
+                    },
+                    {
+                      id: "p2",
+                      question:
+                        "Which of the following is considered one of the six fundamental principles of Pilates?",
+                      answers: [
+                        "Centering",
+                        "Hyperflexion",
+                        "Velocity",
+                        "Gravitational flow",
+                      ],
+                      correctAnswer: "Centering",
+                      explanation:
+                        "Centering is a core principle of Pilates, focusing on the 'powerhouse' (the muscles of the abdomen, lower back, and hips) as the energetic center of the body.",
+                    },
+                    {
+                      id: "p3",
+                      question:
+                        "What is the primary purpose of using the Pilates Reformer machine?",
+                      answers: [
+                        "To track cardiovascular heart rate zones",
+                        "To provide adjustable resistance using springs",
+                        "To automate stretching without user effort",
+                        "To provide adjustable resistance using springs",
+                      ],
+                      correctAnswer:
+                        "To provide adjustable resistance using springs",
+                      explanation:
+                        "The Reformer uses a system of springs and pulleys to provide variable resistance, which helps build core strength, flexibility, and muscular endurance.",
+                    },
+                    {
+                      id: "p4",
+                      question:
+                        "How is breathing typically coordinated during Pilates exercises?",
+                      answers: [
+                        "Holding the breath during the most difficult movement",
+                        "Exhaling on the exertion or effort phase",
+                        "Inhaling on the exertion or effort phase",
+                        "Breathing 5 seconds in and 5 seconds out",
+                      ],
+                      correctAnswer: "Exhaling on the exertion or effort phase",
+                      explanation:
+                        "In Pilates, you generally inhale to prepare and exhale during the exertion or most challenging part of the movement to engage deep core muscles.",
+                    },
+                    {
+                      id: "p5",
+                      question:
+                        "Which Pilates exercise involves sitting tall, twisting the torso, and reaching toward the opposite pinky toe?",
+                      answers: [
+                        "The Hundred",
+                        "The Saw",
+                        "The Swan Dive",
+                        "The Roll Up",
+                      ],
+                      correctAnswer: "The Saw",
+                      explanation:
+                        "The Saw is a classic mat exercise that targets spinal rotation, hamstring flexibility, and core control as you stretch toward the opposite foot.",
+                    },
+                  ],
+                },
               },
               {
                 id: "Breathing Fundamentals",
@@ -427,7 +504,6 @@ export const courseDetails: CourseDetail[] = [
               {
                 id: "Module Exercise",
                 title: "Module Exercise",
-                src: getRandomSrc(),
                 type: "exercise",
                 completed: false,
                 exercise: {

@@ -16,6 +16,7 @@ export interface SubmittedAnswer {
   question: string;
   answer: string;
   correctAnswer: string;
+  explanation?: string;
 }
 
 interface CourseTestProps {
@@ -93,7 +94,6 @@ export default function CourseExam({
 
   const handleNext = () => {
     if (!reviewMode && isLastQuestion) {
-      console.log(answers);
       onComplete?.(answers);
       return;
     } else if (reviewMode && isLastQuestion) {
@@ -237,8 +237,8 @@ export default function CourseExam({
           onClick={handlePrev}
           disabled={isFirstQuestion}
           className={`text-sm font-semibold text-gray-700 disabled:text-gray-300 dark:text-gray-300 dark:disabled:text-gray-600 px-5 py-2.5 cursor-pointer
-          ${isFirstQuestion && "cursor-not-allowed"}
-          `}
+            ${isFirstQuestion && "cursor-not-allowed"}
+            `}
         >
           Prev
         </button>
@@ -246,7 +246,9 @@ export default function CourseExam({
         <button
           type="button"
           onClick={handleNext}
-          disabled={isLastQuestion && !reviewMode ? !allAnswered : !selectedAnswer}
+          disabled={
+            isLastQuestion && !reviewMode ? !allAnswered : !selectedAnswer
+          }
           className={`flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 active:scale-95 transition-all ${isLastQuestion && !reviewMode && !allAnswered ? "cursor-not-allowed" : "cursor-pointer"}`}
         >
           {reviewMode && isLastQuestion ? (

@@ -56,9 +56,6 @@ export default function CourseContent({course}: {course: CourseDetail}) {
     }
   };
 
-  console.log(activeLesson?.type === "exercise" && activeLesson.exercise);
-  console.log("activeLesson", activeLesson);
-
   return (
     <section>
       <nav className="flex items-center gap-1 text-sm py-8">
@@ -108,32 +105,7 @@ export default function CourseContent({course}: {course: CourseDetail}) {
                   animate={{opacity: 1, scale: 1}}
                   exit={{opacity: 0, scale: 0.98}}
                   transition={{duration: 0.25}}
-                >
-                  <CoursePractice
-                    problems={[
-                      {
-                        id: "p1",
-                        label: "PROBLEM 1",
-                        title: "Now, lets Practice",
-                        question: "Q1...",
-                        answerPlaceholder: "A1...",
-                        correctAnswer: "A1...",
-                      },
-                      {
-                        id: "p2",
-                        label: "PROBLEM 2",
-                        title: "Keep going",
-                        question: "Q2...",
-                        answerPlaceholder: "A2...",
-                        correctAnswer: "A2...",
-                      },
-                    ]}
-                    onCorrect={(problem, index) =>
-                      console.log("Correct!", problem.id, index)
-                    }
-                    onUpNext={() => handleVideoEnded()}
-                  />
-                </motion.div>
+                ></motion.div>
               )}
 
               {activeLesson?.type === "practice" && (
@@ -144,8 +116,10 @@ export default function CourseContent({course}: {course: CourseDetail}) {
                   exit={{opacity: 0, scale: 0.98}}
                   transition={{duration: 0.25}}
                 >
-                  <CourseExam
+                  <CoursePractice
                     questions={activeLesson?.practice?.questions || []}
+                    // onComplete={(answers) => console.log("Correct!", answers)}
+                    onDone={() => handleVideoEnded()}
                   />
                 </motion.div>
               )}
@@ -161,9 +135,9 @@ export default function CourseContent({course}: {course: CourseDetail}) {
                   <CourseExercise
                     questions={activeLesson?.exercise?.questions || []}
                     title={course?.title}
-                    onComplete={(answers) => {
-                      console.log("answers", answers);
-                    }}
+                    // onComplete={(answers) => {
+                    //   console.log("answers", answers);
+                    // }}
                   />
                 </motion.div>
               )}
@@ -183,30 +157,6 @@ export default function CourseContent({course}: {course: CourseDetail}) {
                     // }
                     // onUpNext={() => handleVideoEnded()}
                   />
-                  {/* <CourseExcercise
-                    problems={[
-                      {
-                        id: "p1",
-                        label: "PROBLEM 1",
-                        title: "Now, lets Practice",
-                        question: "Q1...",
-                        answerPlaceholder: "A1...",
-                        correctAnswer: "A1...",
-                      },
-                      {
-                        id: "p2",
-                        label: "PROBLEM 2",
-                        title: "Keep going",
-                        question: "Q2...",
-                        answerPlaceholder: "A2...",
-                        correctAnswer: "A2...",
-                      },
-                    ]}
-                    onCorrect={(problem, index) =>
-                      console.log("Correct!", problem.id, index)
-                    }
-                    onUpNext={() => handleVideoEnded()}
-                  /> */}
                 </motion.div>
               )}
             </AnimatePresence>

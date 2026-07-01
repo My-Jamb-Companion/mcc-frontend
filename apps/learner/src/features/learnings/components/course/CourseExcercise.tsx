@@ -68,7 +68,7 @@ export default function CourseExercise({
       ...question,
       answers: shuffleArray(question.answers),
     }));
-  }, []);
+  }, [questions]);
 
   const currentQuestion = randomizedQuestions[currentIndex];
 
