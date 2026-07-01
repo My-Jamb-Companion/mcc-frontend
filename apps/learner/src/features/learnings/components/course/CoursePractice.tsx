@@ -179,7 +179,10 @@ export function CoursePractice({questions, onDone}: PracticeCardProps) {
               review={submittedAnswers}
               onRetry={retry}
               onDone={onDone}
-              onReview={() => setReviewMode(true)}
+              onReview={() => {
+                setCurrentIndex(0);
+                setReviewMode(true);
+              }}
             />
           </motion.div>
         ) : (
@@ -647,7 +650,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({
             scale: 0.96,
           }}
           onClick={onReview}
-          className="min-w-[110px] px-7 py-3 text-sm font-semibold text-white bg-[#6211eb] rounded-full hover:bg-[#4e0bc3] active:bg-[#3d08a1] transition-colors duration-200 cursor-pointer"
+          className="flex items-center justify-center gap-2 px-7 py-3 text-sm font-semibold text-gray-800 bg-white border border-gray-300 rounded-full hover:bg-gray-50 active:bg-gray-100 transition-colors duration-200 cursor-pointer"
         >
           Review
         </motion.button>
