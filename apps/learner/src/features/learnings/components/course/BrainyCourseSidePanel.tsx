@@ -75,7 +75,7 @@ export default function BrainyCourseSidePanel({
   };
 
   return (
-    <div className="flex flex-col h-screen w-full font-sans bg-white border border-muted/30 rounded-2xl">
+    <div className="flex flex-col h-screen w-full font-sans  border border-muted/30 rounded-2xl">
       {/* Scroll hint */}
       <motion.div
         className="flex justify-center py-3 border-b border-gray-100"
@@ -171,7 +171,7 @@ export default function BrainyCourseSidePanel({
         animate={{opacity: 1, y: 0}}
         transition={{delay: 0.2, duration: 0.35}}
       >
-        <div className="flex items-end gap-2 border border-gray-200 rounded-2xl px-3 py-2 bg-white focus-within:border-gray-300 transition-colors">
+        <div className="flex items-end gap-2 border border-gray-200 rounded-2xl px-3 py-2  focus-within:border-gray-300 transition-colors">
           <button className="shrink-0 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors mb-0.5">
             <Plus className="w-5 h-5" />
           </button>

@@ -16,7 +16,6 @@ import BrainyCourseSidePanel from "./BrainyCourseSidePanel";
 import {motion, AnimatePresence} from "@mcc/ui";
 import {CoursePractice} from "./CoursePractice";
 import CourseTestFlow from "./CourseExamFlow";
-import CourseExam from "./CourseExam";
 import CourseExercise from "./CourseExcercise";
 
 export default function CourseContent({course}: {course: CourseDetail}) {

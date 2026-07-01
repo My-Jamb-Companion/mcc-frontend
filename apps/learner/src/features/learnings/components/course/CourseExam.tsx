@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useMemo, useState} from "react";
+import {useMemo, useState} from "react";
 import {AnimatePresence, Icon, motion, Variants} from "@mcc/ui";
 import {shuffleArray} from "../../helper/helper";
 
