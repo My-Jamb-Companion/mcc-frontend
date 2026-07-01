@@ -1,7 +1,7 @@
 "use client";
 
 import {useMemo, useState} from "react";
-import {Icon} from "@mcc/ui";
+import {AnimatePresence, Icon, motion} from "@mcc/ui";
 import {shuffleArray} from "../../helper/helper";
 
 interface Question {
@@ -370,40 +370,99 @@ export default function CourseExercise({
         </div>
       ) : (
         <div className="relative flex justify-end gap-3 rounded-b-2xl bg-gray-100 dark:bg-gray-900 px-8 py-5">
-          {showRetryPopover && (
-            <div className="absolute top-0 right-5 translate-y-[-140%] flex items-center justify-center gap-2 p-2 rounded-2xl border-2 bg-[#222225]">
-              <div className="text-left">
-                <p className="text-sm font-semibold">Not quite yet..</p>
-                <p className="text-xs">
-                  {isFinalTryUsed
-                    ? "Here's the correct answer."
-                    : "Give it another try."}
-                </p>
-              </div>
+          <AnimatePresence>
+            {showRetryPopover && (
+              <motion.div
+                initial={{
+                  opacity: 0,
+                  y: 12,
+                  scale: 0.95,
+                }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                }}
+                exit={{
+                  opacity: 0,
+                  y: 12,
+                  scale: 0.95,
+                }}
+                transition={{
+                  duration: 0.25,
+                }}
+                className="absolute top-0 right-5 translate-y-[-140%] flex items-center justify-center gap-2 p-2 rounded-2xl border-2 bg-[#222225]"
+              >
+                <div className="text-left">
+                  <p className="text-sm font-semibold">Not quite yet..</p>
+                  <p className="text-xs">
+                    {isFinalTryUsed
+                      ? "Here's the correct answer."
+                      : "Give it another try."}
+                  </p>
+                </div>
 
-              {!isFinalTryUsed && (
+                {!isFinalTryUsed && (
+                  <button
+                    type="button"
+                    onClick={handleTryAgain}
+                    className="rounded-full bg-muted/60 p-1"
+                  >
+                    <Icon icon="mdi:refresh" className="h-4 w-4" />
+                  </button>
+                )}
+              </motion.div>
+            )}
+
+            {attemptState.hintShown && (
+              <motion.div
+                initial={{
+                  opacity: 0,
+                  y: 12,
+                  scale: 0.95,
+                }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                }}
+                exit={{
+                  opacity: 0,
+                  y: 12,
+                  scale: 0.95,
+                }}
+                transition={{
+                  duration: 0.25,
+                }}
+                className="absolute top-0 left-5 translate-y-[-140%] rounded-2xl border-2 bg-[#222225] p-3 shadow-xl"
+              >
                 <button
                   type="button"
-                  onClick={handleTryAgain}
-                  className="rounded-full bg-muted/60 p-1"
+                  onClick={() =>
+                    setAttemptState((prev) => ({
+                      ...prev,
+                      hintShown: false,
+                    }))
+                  }
+                  className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/10 transition-colors"
                 >
-                  <Icon icon="mdi:refresh" className="h-4 w-4" />
+                  <Icon
+                    icon="material-symbols:close-rounded"
+                    className="h-4 w-4"
+                  />
                 </button>
-              )}
-            </div>
-          )}
 
-          {attemptState.hintShown && (
-            <div className="absolute top-0 left-5 translate-y-[-140%] flex items-center justify-center gap-2 p-2 rounded-2xl border-2 bg-[#222225]">
-              <div className="text-left">
-                <p className="text-sm font-semibold">Hint</p>
-                <p className="text-xs">
-                  {currentQuestion.hint ??
-                    "No hint available for this question."}
-                </p>
-              </div>
-            </div>
-          )}
+                <div className="pr-5">
+                  <p className="text-sm font-semibold">Hint</p>
+
+                  <p className="text-xs mt-1">
+                    {currentQuestion.hint ??
+                      "No hint available for this question."}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <button
             type="button"
