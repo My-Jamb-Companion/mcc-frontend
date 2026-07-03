@@ -114,7 +114,6 @@ export default function CourseExam({
       animate="visible"
       className="w-full rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-[#222225]"
     >
-      {/* HEADER */}
       <motion.div
         layout
         variants={fadeUp}
@@ -194,8 +193,6 @@ export default function CourseExam({
           </div>
         </motion.div>
       </motion.div>
-
-      {/* BODY */}
 
       <motion.div className="px-8 py-8">
         <AnimatePresence mode="wait">
@@ -282,8 +279,6 @@ export default function CourseExam({
             </motion.div>
           </motion.div>
         </AnimatePresence>
-
-        {/* FOOTER */}
 
         <motion.div className="flex justify-end gap-3 rounded-b-2xl bg-gray-100 dark:bg-gray-900 px-8 py-5 mt-5">
           <motion.button
