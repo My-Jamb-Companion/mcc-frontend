@@ -303,7 +303,7 @@ export function CoursePractice({questions, onDone}: PracticeCardProps) {
               <motion.div
                 layout
                 variants={fadeUp}
-                className="flex justify-end gap-3 px-8 py-5"
+                className="flex flex-col-reverse md:flex-row  md:justify-end gap-3 md:px-8 py-5  "
               >
                 {reviewMode && (
                   <motion.button
@@ -348,7 +348,7 @@ export function CoursePractice({questions, onDone}: PracticeCardProps) {
                     type="button"
                     onClick={() => setShowExplanation(true)}
                     disabled={showExplanation}
-                    className={`flex items-center gap-2 border rounded-full text-sm font-semibold text-gray-700 disabled:text-gray-300 disabled:bg-gray-100 dark:text-gray-300 dark:disabled:text-gray-600 dark:disabled:bg-neutral-800 px-5 py-2.5 transition-all
+                    className={`flex items-center gap-2 border rounded-full text-sm font-semibold text-gray-700 disabled:text-gray-300 disabled:bg-gray-100 dark:text-gray-300 dark:disabled:text-gray-600 dark:disabled:bg-neutral-800 px-5 py-2.5 transition-all text-nowrap
                   ${showExplanation ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-gray-100 dark:hover:bg-neutral-800"}
                 `}
                   >
@@ -376,7 +376,7 @@ export function CoursePractice({questions, onDone}: PracticeCardProps) {
                       ? !allAnswered
                       : !selectedAnswer
                   }
-                  className={`flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 active:scale-95 transition-all ${isLastQuestion && !reviewMode && !allAnswered ? "cursor-not-allowed" : "cursor-pointer"}`}
+                  className={`flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 active:scale-95 transition-all text-nowrap ${isLastQuestion && !reviewMode && !allAnswered ? "cursor-not-allowed" : "cursor-pointer"}`}
                 >
                   {reviewMode && isLastQuestion ? (
                     "View Feedback"
@@ -621,7 +621,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({
         ))}
       </motion.div>
 
-      <div className="flex justify-center gap-4">
+      <div className="flex flex-col md:flex-row justify-center gap-4">
         <motion.button
           custom={0}
           variants={buttonVariants}

@@ -34,7 +34,7 @@ export default function DashboardLayout({
         <div className="flex flex-col h-screen scrollbar-hide">
           <Header open={sideNav} setOpen={setSideNav} />
           <div
-            className="grid max-sm:grid-cols-1 h-full relative pr-12 max-sm:px-4 overflow-hidden"
+            className="grid max-sm:grid-cols-1 h-full relative md:pr-12 md:px-4 overflow-hidden"
             style={{gridTemplateColumns: "auto 1fr"}}
           >
             <SideNav open={sideNav} setOpen={setSideNav} />

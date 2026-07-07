@@ -12,12 +12,14 @@ interface AIChatProps {
   suggestions?: string[];
   onSend?: (message: string) => Promise<string>;
   placeholder?: string;
+  className?: string;
 }
 
 export default function BrainyCourseSidePanel({
   suggestions = DEFAULT_SUGGESTIONS,
   onSend,
   placeholder = "Message",
+  className = "h-screen",
 }: AIChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -75,7 +77,7 @@ export default function BrainyCourseSidePanel({
   };
 
   return (
-    <div className="flex flex-col h-screen w-full font-sans  border border-muted/30 rounded-2xl">
+    <div className={`flex flex-col w-full font-sans border border-muted/30 rounded-2xl ${className}`}>
       {/* Scroll hint */}
       <motion.div
         className="flex justify-center py-3 border-b border-gray-100"

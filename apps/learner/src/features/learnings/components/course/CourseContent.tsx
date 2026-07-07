@@ -4,7 +4,7 @@ import {CourseDetail, Lessons} from "@/src/features/constants/demoCourses";
 import CoursePlayModules from "./CourseModules";
 import Link from "next/link";
 import CoursePlayer from "./CoursePlayer";
-import {useState, useCallback} from "react";
+import {useState, useCallback, useEffect} from "react";
 import {useAllLessons} from "@/src/features/learnings/hooks/useLesson";
 import {Button, Icon} from "@mcc/ui";
 import {useRouter, usePathname, useSearchParams} from "next/navigation";
@@ -24,8 +24,17 @@ export default function CourseContent({course}: {course: CourseDetail}) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const [isMobile, setIsMobile] = useState(false);
+
   const tabQuery = searchParams.get("tab");
-  const tabs = ["overview", "community", "notes", "facilitator"];
+  const tabs = [
+    "content",
+    "ai",
+    "overview",
+    "community",
+    "notes",
+    "facilitator",
+  ];
   const [sidePanel, setSidePanel] = useState<"course" | "ai">("course");
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
 
@@ -55,17 +64,35 @@ export default function CourseContent({course}: {course: CourseDetail}) {
     }
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile) {
+      handleTabChange("tab", "overview");
+    }
+  }, [isMobile]);
+
   return (
-    <section>
-      <nav className="flex items-center gap-1 text-sm py-8">
+    <section className="flex flex-col">
+      <nav className="flex items-center gap-1 text-sm py-8 px-4">
         <Link href="/learnings" className="text-subtle hover:underline">
           Course
         </Link>
 
         <span className="text-subtle">/</span>
 
-        <span className="text-muted/50 cursor-default">{course.title}</span>
+        <span className="text-muted/50 cursor-default text-nowrap truncate">
+          {course.title}
+        </span>
       </nav>
+
       <div
         className={`grid grid-cols-1 ${isSidePanelOpen ? "lg:grid-cols-[1fr_.1fr]" : "lg:grid-cols-[1fr_2rem]"} gap-6 transition-[grid-template-columns] duration-400 ease-in-out`}
       >
@@ -163,18 +190,29 @@ export default function CourseContent({course}: {course: CourseDetail}) {
             </AnimatePresence>
           </div>
 
-          <div className="flex items-center justify-between py-4 my-8">
-            <div className="flex items-center gap-6">
+          <div className="flex items-center justify-between my-8">
+            <div className="flex items-center gap-6 p-4 max-lg:overflow-x-auto">
               {tabs.map((tab) => (
                 <Button
                   key={tab}
                   variant={activeTab === tab ? "outline" : "ghost"}
                   size="sm"
-                  className={`capitalize ${activeTab === tab ? "font-bold text-black" : "text-muted"}`}
+                  className={`capitalize text-nowrap  ${activeTab === tab ? "font-bold text-black" : "text-muted"} ${
+                    tab === "content" || tab === "ai" ? "lg:hidden" : ""
+                  }`}
                   width="fit"
                   onClick={() => handleTabChange("tab", tab)}
                 >
-                  {tab}
+                  <span className="flex items-center gap-2">
+                    {tab === "ai" && (
+                      <Icon icon={"mingcute:ai-fill"} size={14} />
+                    )}
+                    {tab === "ai"
+                      ? "AI Assistant"
+                      : tab === "content"
+                        ? "Course Content"
+                        : tab}
+                  </span>
                 </Button>
               ))}
             </div>
@@ -187,7 +225,20 @@ export default function CourseContent({course}: {course: CourseDetail}) {
               animate={{opacity: 1, y: 0}}
               exit={{opacity: 0, y: -10}}
               transition={{duration: 0.15}}
+              className="px-4"
             >
+              {activeTab === "content" && isMobile && (
+                <CoursePlayModules
+                  levels={course.curriculums}
+                  setActiveLessonSrc={setActiveLesson}
+                  activeLesson={activeLesson?.id}
+                />
+              )}
+              {activeTab === "ai" && isMobile && (
+                <div className="h-[550px] w-full">
+                  <BrainyCourseSidePanel className="h-full" />
+                </div>
+              )}
               {activeTab === "overview" && (
                 <OverviewTab
                   title={course.title}
@@ -230,7 +281,7 @@ export default function CourseContent({course}: {course: CourseDetail}) {
             <motion.button
               key="open-btn"
               onClick={() => setIsSidePanelOpen(true)}
-              className="p-1.5 text-subtle hover:bg-muted/10 transition-colors flex items-center gap-1.5 text-sm font-medium h-fit w-fit border rounded-full border-muted/40 cursor-pointer"
+              className="max-lg:hidden p-1.5 text-subtle hover:bg-muted/10 transition-colors flex items-center gap-1.5 text-sm font-medium h-fit w-fit border rounded-full border-muted/40 cursor-pointer"
               initial={{opacity: 0, scale: 0.8}}
               animate={{opacity: 1, scale: 1}}
               exit={{opacity: 0, scale: 0.8}}
@@ -241,7 +292,7 @@ export default function CourseContent({course}: {course: CourseDetail}) {
           ) : (
             <motion.div
               key="side-panel"
-              className="w-full min-w-fit md:max-w-80 max-sm:w-full pt-6 px-1 flex flex-col rounded-xl overflow-hidden bg-background h-fit"
+              className="w-full min-w-fit md:max-w-80 max-sm:w-full pt-6 px-1 lg:flex flex-col rounded-xl overflow-hidden bg-background h-fit hidden"
               initial={{opacity: 0, x: 40}}
               animate={{opacity: 1, x: 0}}
               exit={{opacity: 0, x: 40}}

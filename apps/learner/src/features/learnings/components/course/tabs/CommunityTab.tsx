@@ -49,7 +49,7 @@ export default function CommunityTab({
     }
   };
   return (
-    <section className="mx-auto w-[75%]">
+    <section className="mx-auto w-full md:w-[75%]">
       <div>
         <div className="w-full rounded-2xl border border-gray-200 bg-white px-4 pt-3 pb-3 shadow-sm">
           <textarea
