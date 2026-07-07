@@ -13,7 +13,7 @@ export default function BuyCourse({
 }) {
   const router = useRouter();
   return (
-    <section>
+    <section className="px-4 pb-5">
       <nav className="flex items-center gap-1 text-sm py-8">
         <Link href="/learnings" className="text-subtle hover:underline">
           Course
@@ -21,7 +21,9 @@ export default function BuyCourse({
 
         <span className="text-subtle">/</span>
 
-        <span className="text-muted/50 cursor-default">{course.title}</span>
+        <span className="text-muted/50 cursor-default text-nowrap truncate">
+          {course.title}
+        </span>
       </nav>
 
       <div className="grid grid-cols-2 gap-6 max-sm:grid-cols-1">

@@ -2,7 +2,7 @@ export const quickLinkCard = [
   {
     title: "Prepare for an exam",
     icon: "healthicons:i-exam-multiple-choice-outline",
-    link: "/programs/exams",
+    link: "/learnings/exams",
   },
   {
     title: "Study your materials with AI",
@@ -12,6 +12,6 @@ export const quickLinkCard = [
   {
     title: "Aquire high value skills",
     icon: "ph:certificate",
-    link: "/programs/skills",
+    link: "/learnings/skills",
   },
 ];
