@@ -119,18 +119,18 @@ export default function CourseCompletion({
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-8 py-5">
+      <div className="flex items-center justify-between max-sm:flex-col max-sm:gap-3 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-8 py-5">
         <button
           type="button"
           onClick={onShowSummary}
-          className="text-sm font-semibold text-gray-800 hover:text-gray-900 dark:hover:text-gray-300 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 cursor-pointer"
+          className="max-sm:w-full text-sm font-semibold text-gray-800 hover:text-gray-900 dark:hover:text-gray-300 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 cursor-pointer"
         >
           Show summary
         </button>
         <button
           type="button"
           onClick={onContinue}
-          className="rounded-lg bg-primary dark:bg-primary/80 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/70 dark:hover:bg-primary/60 cursor-pointer"
+          className="max-sm:w-full rounded-lg bg-primary dark:bg-primary/80 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/70 dark:hover:bg-primary/60 cursor-pointer"
         >
           {continueLabel}
         </button>

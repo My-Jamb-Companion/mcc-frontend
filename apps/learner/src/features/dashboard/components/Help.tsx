@@ -165,7 +165,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
           </p>
         </div>
 
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-5 pl-4">
           <div className="flex items-center gap-2 text-neutral-600">
             <motion.div
               animate={{

@@ -210,18 +210,18 @@ export default function CourseExercise({
   return (
     <div className="w-full rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-[#222225]">
       {/* HEADER */}
-      <div className="flex items-start justify-between border-b border-gray-100 px-8 py-6">
+      <div className="flex items-start justify-between max-sm:flex-col-reverse max-sm:gap-4 border-b border-gray-100 px-8 py-6 max-sm:px-4">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
             Exercise {questions.length}
           </p>
 
-          <h2 className="mt-1 text-lg font-bold text-gray-900 dark:text-white text-nowrap">
+          <h2 className="mt-1 text-lg font-bold text-gray-900 dark:text-white line-clamp-2">
             {title}
           </h2>
         </div>
 
-        <div className="flex items-center justify-center gap-3 max-w-[60%]">
+        <div className="flex items-center justify-center max-sm:flex-col gap-3 sm:max-w-[60%] max-sm:w-full max-sm:max-w-full ">
           <span className="text-sm font-medium text-gray-500 text-nowrap">
             Complete your {questions.length} Exercises
           </span>
@@ -267,7 +267,7 @@ export default function CourseExercise({
 
       {/* BODY */}
 
-      <div className="px-8 py-8">
+      <div className="px-8 py-8 max-sm:px-4">
         <h3 className="text-base font-bold text-gray-900 dark:text-white">
           {currentQuestion.question}
         </h3>
@@ -347,7 +347,7 @@ export default function CourseExercise({
       {/* FOOTER */}
 
       {isReviewMode ? (
-        <div className="flex justify-end gap-3 rounded-b-2xl bg-gray-100 dark:bg-gray-900 px-8 py-5">
+        <div className="flex justify-end gap-3 rounded-b-2xl max-sm:rounded-none bg-gray-100 dark:bg-gray-900 px-8 py-5">
           <button
             type="button"
             onClick={handleReviewPrev}
