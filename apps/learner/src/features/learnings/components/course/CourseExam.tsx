@@ -117,7 +117,7 @@ export default function CourseExam({
       <motion.div
         layout
         variants={fadeUp}
-        className="flex items-start justify-between border-b border-gray-100 px-8 py-6"
+        className="flex items-start justify-between max-sm:flex-col-reverse max-sm:gap-6 border border-b border-gray-100 px-8 py-6 max-sm:px-4"
       >
         <motion.div>
           <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
@@ -141,7 +141,7 @@ export default function CourseExam({
           </motion.h2>
         </motion.div>
 
-        <motion.div className="flex items-center justify-center gap-3 max-w-[60%]">
+        <motion.div className="flex items-center justify-center gap-3 max-w-[40%] max-sm:flex-col max-sm:max-w-full w-full">
           <span className="text-sm font-medium text-gray-500 text-nowrap">
             Complete your {questions.length} Exercises
           </span>
@@ -171,8 +171,8 @@ export default function CourseExam({
                   }}
                   key={i}
                   onClick={() => setCurrentIndex(i)}
-                  style={{flex: `1 1 ${100 / questions.length}%`}}
-                  className={`h-1.5 min-w-1 rounded-full cursor-pointer transition-colors ${
+                  // style={{flex: `1 1 ${100 / questions.length}%`}}
+                  className={`h-1.5 min-w-1 rounded-full w-full cursor-pointer transition-colors ${
                     currentIndex === i
                       ? "bg-primary"
                       : reviewMode &&
@@ -194,7 +194,7 @@ export default function CourseExam({
         </motion.div>
       </motion.div>
 
-      <motion.div className="px-8 py-8">
+      <motion.div className="px-8 py-8 max-sm:px-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={`${currentQuestion.id}-${reviewMode}`}
@@ -203,6 +203,7 @@ export default function CourseExam({
             initial="initial"
             animate="animate"
             exit="exit"
+            className="max-sm:px-4"
           >
             <h3 className="text-base font-bold text-gray-900 dark:text-white">
               {currentQuestion.question}
@@ -280,7 +281,7 @@ export default function CourseExam({
           </motion.div>
         </AnimatePresence>
 
-        <motion.div className="flex justify-end gap-3 rounded-b-2xl bg-gray-100 dark:bg-gray-900 px-8 py-5 mt-5">
+        <motion.div className="flex justify-end gap-3 rounded-b-2xl max-sm:rounded-none bg-gray-100 dark:bg-gray-900 px-8 py-5 mt-5">
           <motion.button
             layout="position"
             whileHover={{

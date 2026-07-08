@@ -45,7 +45,7 @@ export default function Topics() {
                 image="/assets/images/tower.jpg"
                 instructor="Brooke Graser"
                 rating={4.7}
-                reviewCount="5.2k"
+                reviewCount={28942}
                 title="Intro to Procreate: Illustration on the iPad (UPDATED)"
                 tags={[
                   "Procreate",
