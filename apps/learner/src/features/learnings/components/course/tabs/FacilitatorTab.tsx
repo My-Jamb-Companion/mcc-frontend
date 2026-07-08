@@ -2,8 +2,8 @@
 
 import {useState} from "react";
 import {Check, ChevronDown, Reply} from "lucide-react";
-import Image from "next/image";
-import {formatDuration} from "../../../hooks/useLesson";
+// import Image from "next/image";
+import {formatDuration} from "@/src/features/learnings/hooks/useLesson";
 
 interface InstructorReply {
   id: string;

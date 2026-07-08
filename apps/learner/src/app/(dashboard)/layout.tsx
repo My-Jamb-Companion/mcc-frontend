@@ -20,17 +20,18 @@ export default function DashboardLayout({
   useEffect(() => {
     if (!hydrated) return;
     if (!isAuthenticated) {
-      // router.replace("/login");
+      router.replace("/login");
     } else if (user && !user.is_onboarded) {
       router.replace("/onboarding");
     }
   }, [hydrated, isAuthenticated, user, router]);
 
   if (!hydrated || !isAuthenticated || (user && !user.is_onboarded))
-    // return null;
+    return null;
+
 
     return (
-      <RoleLayout allowedRoles={["student"]}>
+       <RoleLayout allowedRoles={["student"]}>
         <div className="flex flex-col h-screen scrollbar-hide">
           <Header open={sideNav} setOpen={setSideNav} />
           <div
@@ -45,5 +46,5 @@ export default function DashboardLayout({
           <Help />
         </div>
       </RoleLayout>
-    );
+  );
 }

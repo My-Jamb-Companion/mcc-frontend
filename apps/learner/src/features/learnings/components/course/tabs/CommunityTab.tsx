@@ -22,11 +22,13 @@ interface QAFeedProps {
   onTimestampClick?: (seconds: number) => void;
 }
 
-export default function CommunityTab({
-  currentVideoTime,
-}: {
-  currentVideoTime?: number;
-}) {
+export default function CommunityTab(
+  {
+    // currentVideoTime,
+    // }: {
+    // currentVideoTime?: number;
+  },
+) {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -80,10 +82,10 @@ export default function CommunityTab({
       </div>
 
       <QAFeed
-        onTimestampClick={(seconds) => {
-          // seek your video player to `seconds`
-          // playerRef.current?.seekTo(seconds);
-        }}
+      // onTimestampClick={(seconds) => {
+      // seek your video player to `seconds`
+      // playerRef.current?.seekTo(seconds);
+      // }}
       />
     </section>
   );
