@@ -114,10 +114,11 @@ export default function OverviewTab({
           </p>
 
           <Button
-            variant={certificate ? "primary" : "disabled"}
+            variant={!certificate ? "primary" : "disabled"}
             onClick={handleDownloadCertificate}
             width="fit"
             radius="sm"
+            disabled={!certificate}
             className={`mt-3 flex! ${certificate ? "" : "bg-[#27272A]/14! cursor-not-allowed!"}`}
             leftIcon={
               <Icon
