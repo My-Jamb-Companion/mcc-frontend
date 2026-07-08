@@ -1,6 +1,7 @@
 import {Icon} from "@mcc/ui";
 import Notifications from "./Notification";
 import ThemeButton from "./ThemeButton";
+import Link from "next/link";
 
 export default function Header({
   setOpen,
@@ -16,15 +17,12 @@ export default function Header({
           onClick={() => setOpen(!open)}
           className="rounded-full border border-muted/30 p-2 sm:hidden shadow-md dark:shadow-muted/20"
         >
-          <Icon
-            icon={open ? "line-md:close" : "tabler:menu-3"}
-   size={24}
-          />
+          <Icon icon={open ? "line-md:close" : "tabler:menu-3"} size={24} />
         </button>
-        <h4 className="text-xl">
+        <Link href="/dashboard" className="text-xl cursor-pointer">
           <span className="text-primary font-bagel">MC. </span>
           Companion
-        </h4>
+        </Link>
       </div>
       <div className="flex items-center gap-5">
         <Notifications />

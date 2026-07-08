@@ -12,7 +12,7 @@ import TopPickCard from "@/src/features/components/TopPickCard";
 
 export default function Learnings() {
   return (
-    <section className="flex flex-col gap-8 pb-20">
+    <section className="flex flex-col gap-8 pb-20 px-4">
       <div className="mt-7">
         <BannerCarousel />
       </div>

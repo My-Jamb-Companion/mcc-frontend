@@ -8,7 +8,7 @@ import LearningsHeader from "./LearningsHeader";
 
 export default function Skills() {
   return (
-    <section className="py-6">
+    <section className="py-6 px-4">
       <LearningsHeader
         stats={demoStats}
         title={"Acquire high value skills"}

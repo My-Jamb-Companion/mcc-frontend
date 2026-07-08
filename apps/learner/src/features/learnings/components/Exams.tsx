@@ -11,7 +11,7 @@ import {exams} from "@/src/features/constants/ExamCards";
 
 export default function Exams() {
   return (
-    <section className="py-6">
+    <section className="py-6 px-4">
       <LearningsHeader
         stats={demoStats}
         title="Prepare for Exam"
