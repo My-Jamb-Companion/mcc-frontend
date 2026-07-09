@@ -258,7 +258,9 @@ export default function CourseContent({course}: {course: CourseDetail}) {
                 />
               )}
               {activeTab === "community" && (
-                <CommunityTab currentVideoTime={currentVideoTime} />
+                <CommunityTab
+                // currentVideoTime={currentVideoTime}
+                />
               )}
               {activeTab === "notes" && (
                 <NotesTab currentTimestamp={currentVideoTime} />
