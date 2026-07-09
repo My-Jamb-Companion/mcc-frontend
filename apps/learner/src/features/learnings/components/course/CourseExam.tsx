@@ -2,7 +2,7 @@
 
 import {useMemo, useState} from "react";
 import {AnimatePresence, Icon, motion, Variants} from "@mcc/ui";
-import {shuffleArray} from "../../helper/helper";
+import {shuffleArray} from "@/src/features/learnings/helper/helper";
 
 interface Question {
   id: string;
