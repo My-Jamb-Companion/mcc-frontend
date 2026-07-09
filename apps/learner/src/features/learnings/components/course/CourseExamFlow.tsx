@@ -4,7 +4,7 @@ import {useState} from "react";
 import CourseCompletion from "./CourseTestComplete";
 import CourseExam from "./CourseExam";
 import {calculateExamScore} from "@/src/features/learnings/helper/helper";
-import {Icon, motion} from "@mcc/ui";
+import {motion} from "@mcc/ui";
 
 type FlowStep = "intro" | "quiz" | "completion" | "summary" | "certificate";
 
