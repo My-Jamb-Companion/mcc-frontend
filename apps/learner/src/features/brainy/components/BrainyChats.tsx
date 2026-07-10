@@ -37,10 +37,10 @@ export default function BrainyChats() {
 
   if (!activeSession) redirect("/brainy/new");
   return (
-    <div className="relative flex flex-col h-full grow bg-white dark:bg-transparent">
-      <div className="flex-1 w-full overflow-y-auto flex flex-col gap-4 p-6 pb-32">
+    <div className="relative flex flex-col h-full grow bg-white dark:bg-transparent max-sm:pt-20">
+      <div className="flex-1 w-full overflow-y-auto flex flex-col gap-4 p-6 pb-32 max-sm:px-0">
         {activeSession?.messages.map((msg) => (
-          <div key={msg.id} className="flex flex-col gap-1 max-w-[80%]">
+          <div key={msg.id} className="flex flex-col gap-1">
             {msg?.file?.map((file, i) => {
               const fileIcon = () => {
                 if (file.type === "application/pdf") {
@@ -55,7 +55,7 @@ export default function BrainyChats() {
                 <li
                   key={`${file.name}-${i}`}
                   onClick={(e) => e.stopPropagation()}
-                  className="flex items-center self-end gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 z-20 w-fit"
+                  className="flex items-center self-end gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 z-10 w-fit"
                 >
                   <Icon icon={fileIcon()} size={24} />
                   <span className="max-w-[140px] text-sm font-medium truncate">
@@ -80,8 +80,8 @@ export default function BrainyChats() {
         ))}
       </div>
 
-      <div className="absolute bottom-12 w-full">
-        <div className="flex flex-col w-[90%] mx-auto">
+      <div className="absolute bottom-8 w-full max-sm:bottom-3">
+        <div className="flex flex-col w-[90%] mx-auto max-sm:w-full">
           {files.length > 0 && (
             <motion.div
               initial={{opacity: 0, height: 0}}
@@ -114,7 +114,7 @@ export default function BrainyChats() {
                     <li
                       key={`${file.name}-${i}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-1.5 rounded-lg border-2 border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 z-20"
+                      className="flex items-center gap-1.5 rounded-lg border-2 border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 z-10"
                     >
                       <Icon icon={fileIcon()} size={24} />
                       <span className="max-w-[140px] text-sm font-medium truncate">
@@ -138,7 +138,7 @@ export default function BrainyChats() {
             </motion.div>
           )}
 
-          <div className="flex flex-col items-center gap-2 w-full rounded-full bg-[#F9F9F9] border border-muted/20 shadow-md p-1.5 min-h-[74px] mx-auto">
+          <div className="flex flex-col items-center gap-2 w-full rounded-full bg-[#F9F9F9] border border-muted/20 shadow-md p-1.5 mx-auto">
             <div className="flex items-center gap-2 w-full">
               <motion.button
                 type="button"

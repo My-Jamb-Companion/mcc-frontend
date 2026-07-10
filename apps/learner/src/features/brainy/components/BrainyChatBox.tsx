@@ -99,7 +99,7 @@ export function BrainyChatBox({
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-center gap-5 text-xs text-gray-400">
+      <div className="mt-4 flex max-sm:flex-col max-sm:gap-2 items-center justify-center gap-5 text-xs text-gray-400">
         <span className="flex items-center gap-1.5">
           <Icon icon="ph:shield-check" className="h-3.5 w-3.5" />
           Encrypted

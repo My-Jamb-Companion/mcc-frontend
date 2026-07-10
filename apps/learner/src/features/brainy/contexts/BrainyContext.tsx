@@ -1,6 +1,13 @@
 "use client";
 
-import React, {createContext, useContext, useState, useCallback} from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 
 export type BrainyMode = "research" | "assignment" | "exam";
 
@@ -24,6 +31,7 @@ export interface StudySession {
 interface BrainyContextType {
   mode: BrainyMode;
   setMode: (mode: BrainyMode) => void;
+  isMobile: boolean;
   subject: string;
   setSubject: (subject: string) => void;
   files: File[];
@@ -45,6 +53,9 @@ interface BrainyContextType {
     text: string,
     files?: File[],
   ) => void;
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  toggleSidebar: () => void;
 }
 
 const BrainyContext = createContext<BrainyContextType | undefined>(undefined);
@@ -55,19 +66,22 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
   const [files, setFiles] = useState<File[]>([]);
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen((prev) => !prev);
+  }, []);
 
   const addFiles = useCallback((newFiles: File[]) => {
     setFiles((prev) => [...prev, ...newFiles]);
   }, []);
-
   const removeFile = useCallback((index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   }, []);
-
   const clearFiles = useCallback(() => {
     setFiles([]);
   }, []);
-
   const createNewSession = useCallback(
     (
       title: string,
@@ -91,7 +105,6 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
     },
     [clearFiles],
   );
-
   const addMessageToActiveSession = useCallback(
     (sender: "user" | "ai", text: string, files?: File[]) => {
       if (!activeSessionId) return;
@@ -119,6 +132,24 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
     [activeSessionId],
   );
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+
+  const prevIsMobile = useRef(isMobile);
+  useEffect(() => {
+    if (prevIsMobile.current !== isMobile) {
+      setIsSidebarOpen(!isMobile);
+      prevIsMobile.current = isMobile;
+    }
+  }, [isMobile]);
+
   return (
     <BrainyContext.Provider
       value={{
@@ -126,6 +157,10 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
         setMode,
         subject,
         setSubject,
+        isMobile,
+        isSidebarOpen,
+        setIsSidebarOpen,
+        toggleSidebar,
         files,
         setFiles,
         addFiles,
