@@ -120,7 +120,7 @@ export function HeadUnit() {
   const chatIndex = pathNameArray.indexOf("chat");
   const isChatPage = chatIndex !== -1 && pathNameArray[chatIndex + 1];
   return (
-    <header className="sm:hidden absolute left-0 top-5 w-full flex items-center justify-between py-3 px-1 border border-muted/20 rounded-2xl shadow-md z-10 bg-white dark:bg-card/30 backdrop-blur-md">
+    <header className="sm:hidden absolute left-0 top-5 w-full flex items-center justify-between py-2 z-10 bg-white backdrop-blur-md">
       <div className="flex items-center gap-3">
         {isChatPage && (
           <Link
