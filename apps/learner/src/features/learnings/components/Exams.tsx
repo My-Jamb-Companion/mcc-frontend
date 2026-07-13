@@ -49,7 +49,11 @@ export default function Exams() {
           skeletonCount={5}
         >
           {exams.map((exam, i) => (
-            <ExamCard key={i} exam={exam} />
+            <ExamCard
+              key={i}
+              exam={exam}
+              onEnroll={(enroll) => console.log(enroll)}
+            />
           ))}
         </ScrollRow>
       </div>

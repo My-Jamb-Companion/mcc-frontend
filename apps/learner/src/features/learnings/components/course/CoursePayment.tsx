@@ -6,7 +6,7 @@ import Link from "next/link";
 import {useParams} from "next/navigation";
 import {courseDetails} from "@/src/features/constants/demoCourses";
 import CourseDetailsSidebar from "./CourseDetailsSideBar";
-import PaymentDetails from "./PaymentDetails";
+import PaymentDetails from "../PaymentDetails";
 
 export default function CoursePayment() {
   const {id} = useParams();
