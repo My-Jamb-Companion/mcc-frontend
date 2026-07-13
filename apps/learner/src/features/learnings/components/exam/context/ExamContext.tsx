@@ -1,7 +1,7 @@
 "use client";
 
 import {examDetails} from "@/src/features/constants/demoExams";
-import type {ExamSubject} from "@/src/features/constants/demoExams";
+import type {ExamSubject, ExamUnit} from "@/src/features/constants/demoExams";
 import {
   createContext,
   useContext,
@@ -21,15 +21,16 @@ interface ExamContextType {
   hasUnpaidSelection: boolean;
   totalPrice: number;
   subjects: ExamSubject[];
+  activeClassroomSubject: string | null;
+  setActiveClassroomSubject: (subject: string | null) => void;
+  activeClassroomUnit: ExamUnit | null;
+  setActiveClassroomUnit: (unit: ExamUnit | null) => void;
 }
 
 const ExamContext = createContext<ExamContextType | undefined>(undefined);
 
 interface ExamProviderProps {
   children: ReactNode;
-  // optional override — by default the exam slug is read straight off the
-  // route (e.g. app/exams/[slug]/...), so this only needs to be passed
-  // explicitly for testing, previews, or routes that don't carry a slug param
   examSlug?: string;
 }
 
@@ -59,9 +60,6 @@ export function ExamProvider({children, examSlug}: ExamProviderProps) {
   const lastSlugRef = useRef(resolvedSlug);
 
   useEffect(() => {
-    // only reset selection when the exam itself changes (e.g. navigating
-    // from /exams/utme to /exams/waec) — not on every re-render, so we don't
-    // stomp on choices the user made within the current exam
     if (lastSlugRef.current === resolvedSlug) return;
     lastSlugRef.current = resolvedSlug;
     setSelectedSubjectIds(
@@ -69,9 +67,6 @@ export function ExamProvider({children, examSlug}: ExamProviderProps) {
     );
   }, [resolvedSlug, subjects]);
 
-  // any selected subject that isn't already enrolled means there's something
-  // left to pay for, which is what the sidebar's Enroll/Access button and
-  // label switch on
   const {hasUnpaidSelection, totalPrice} = useMemo(() => {
     const selected = subjects.filter((s) => selectedSubjectIds.includes(s.id));
     return {
@@ -82,6 +77,11 @@ export function ExamProvider({children, examSlug}: ExamProviderProps) {
     };
   }, [selectedSubjectIds, subjects]);
 
+  const [activeClassroomSubject, setActiveClassroomSubject] = useState<
+    string | null
+  >(null);
+  const [activeClassroomUnit, setActiveClassroomUnit] =
+    useState<ExamUnit | null>(null);
   return (
     <ExamContext.Provider
       value={{
@@ -92,6 +92,10 @@ export function ExamProvider({children, examSlug}: ExamProviderProps) {
         hasUnpaidSelection,
         totalPrice,
         subjects,
+        activeClassroomSubject,
+        setActiveClassroomSubject,
+        activeClassroomUnit,
+        setActiveClassroomUnit,
       }}
     >
       {children}
