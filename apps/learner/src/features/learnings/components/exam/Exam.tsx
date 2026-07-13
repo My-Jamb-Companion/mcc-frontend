@@ -3,7 +3,7 @@
 import {examDetails} from "@/src/features/constants/demoExams";
 import {useParams} from "next/navigation";
 import BuyExam from "./BuyExam";
-import ExamContent from "./ExamContent"; // Import your exam content component
+import ExamContent from "./ExamContent";
 import {useExam} from "./context/ExamContext";
 
 export default function Exam() {
@@ -23,8 +23,28 @@ export default function Exam() {
   const hasEnrolledCourse = subjects.some((subject) => subject.isEnrolled);
 
   // 3. If the toggle flag is true AND they have an active enrollment, show content.
-  // Otherwise, fallback to the BuyExam layout.
   const showExamContent = viewEnrolledCourse && hasEnrolledCourse;
+  console.log(hasEnrolledCourse);
 
-  return <>{showExamContent ? <ExamContent /> : <BuyExam exam={exam} />}</>;
+  // 4. Filter the exam to only include enrolled subjects before rendering content
+  // We match the exam's subjects against the enrolled subjects in your context.
+  const enrolledSubjectIds = new Set(
+    subjects.filter((s) => s.isEnrolled).map((s) => s.id),
+  );
+
+  const filteredExam = {
+    ...exam,
+    subjects:
+      exam.subjects?.filter((sub) => enrolledSubjectIds.has(sub.id)) || [],
+  };
+  console.log(filteredExam);
+  return (
+    <>
+      {showExamContent ? (
+        <ExamContent exam={filteredExam} />
+      ) : (
+        <BuyExam exam={exam} />
+      )}
+    </>
+  );
 }
