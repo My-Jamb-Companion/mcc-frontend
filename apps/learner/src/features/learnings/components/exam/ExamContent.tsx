@@ -2,6 +2,7 @@ import {useState} from "react";
 import {Icon} from "@iconify/react";
 import {usePathname, useRouter} from "next/navigation";
 import {ExamDetail} from "@/src/features/constants/demoExams";
+import {useExam} from "./context/ExamContext";
 
 interface Lesson {
   id: string;
@@ -23,23 +24,20 @@ interface Subject {
   units: Unit[];
 }
 
-const LESSON_ICON = "solar:widget-4-bold";
-
 function UnitCard({unit, subject}: {unit: Unit; subject: string}) {
   const router = useRouter();
   const pathname = usePathname();
+  const {setActiveClassroomSubject, setActiveClassroomUnit} = useExam();
 
   const [showAll, setShowAll] = useState(false);
   const visibleLessons = showAll ? unit.lessons : unit.lessons.slice(0, 4);
   const hasMore = unit.lessons.length > 4;
 
-  const handleNavigation = (lessonId?: string) => {
-    const baseClassroomUrl = `${pathname}/classroom`;
-    const finalUrl = lessonId
-      ? `${baseClassroomUrl}?examId=${unit.id}&lessonId=${lessonId}`
-      : `${baseClassroomUrl}?examId=${unit.id}`;
+  const handleNavigation = () => {
+    setActiveClassroomSubject(subject);
+    setActiveClassroomUnit(unit);
 
-    router.push(finalUrl);
+    router.push(`${pathname}/classroom`);
   };
 
   return (
@@ -58,8 +56,7 @@ function UnitCard({unit, subject}: {unit: Unit; subject: string}) {
         {unit.status === "resume" ? (
           <button
             onClick={() => {
-              console.log(unit);
-              handleNavigation(unit.lessons[0].id);
+              handleNavigation();
             }}
             className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg pl-4 pr-3 py-2 transition-colors"
           >
@@ -68,7 +65,7 @@ function UnitCard({unit, subject}: {unit: Unit; subject: string}) {
           </button>
         ) : (
           <button
-            onClick={() => handleNavigation(unit.lessons[0].id)}
+            onClick={() => handleNavigation()}
             className="flex items-center gap-1.5 border border-muted/30 hover:bg-muted/5 text-foreground text-sm font-medium rounded-lg pl-4 pr-3 py-2 transition-colors"
           >
             Start learning

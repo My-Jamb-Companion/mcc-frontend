@@ -68,7 +68,7 @@ export interface ExamSubject {
   diamonds: number;
   opening: string;
   isEnrolled: boolean;
-  units: Unit[];
+  units: ExamUnit[];
 }
 
 interface Lesson {
@@ -77,7 +77,7 @@ interface Lesson {
   icon: string;
 }
 
-interface Unit {
+export interface ExamUnit {
   id: string;
   title: string;
   totalLessons: number;
