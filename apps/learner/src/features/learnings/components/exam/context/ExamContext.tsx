@@ -21,10 +21,12 @@ interface ExamContextType {
   hasUnpaidSelection: boolean;
   totalPrice: number;
   subjects: ExamSubject[];
-  activeClassroomSubject: string | null;
-  setActiveClassroomSubject: (subject: string | null) => void;
-  activeClassroomUnit: ExamUnit | null;
-  setActiveClassroomUnit: (unit: ExamUnit | null) => void;
+  activeClassroomExam: string;
+  setActiveClassroomExam: (exam: string) => void;
+  activeClassroomSubject: string;
+  setActiveClassroomSubject: (subject: string) => void;
+  activeClassroomUnit: ExamUnit;
+  setActiveClassroomUnit: (unit: ExamUnit) => void;
 }
 
 const ExamContext = createContext<ExamContextType | undefined>(undefined);
@@ -77,11 +79,12 @@ export function ExamProvider({children, examSlug}: ExamProviderProps) {
     };
   }, [selectedSubjectIds, subjects]);
 
-  const [activeClassroomSubject, setActiveClassroomSubject] = useState<
-    string | null
-  >(null);
-  const [activeClassroomUnit, setActiveClassroomUnit] =
-    useState<ExamUnit | null>(null);
+  const [activeClassroomExam, setActiveClassroomExam] = useState<string>("");
+  const [activeClassroomSubject, setActiveClassroomSubject] =
+    useState<string>("");
+  const [activeClassroomUnit, setActiveClassroomUnit] = useState<ExamUnit>(
+    {} as ExamUnit,
+  );
   return (
     <ExamContext.Provider
       value={{
@@ -92,6 +95,8 @@ export function ExamProvider({children, examSlug}: ExamProviderProps) {
         hasUnpaidSelection,
         totalPrice,
         subjects,
+        activeClassroomExam,
+        setActiveClassroomExam,
         activeClassroomSubject,
         setActiveClassroomSubject,
         activeClassroomUnit,

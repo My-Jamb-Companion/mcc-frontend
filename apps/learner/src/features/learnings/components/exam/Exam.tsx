@@ -24,7 +24,7 @@ export default function Exam() {
 
   // 3. If the toggle flag is true AND they have an active enrollment, show content.
   const showExamContent = viewEnrolledCourse && hasEnrolledCourse;
-  console.log(hasEnrolledCourse);
+  // console.log(hasEnrolledCourse);
 
   // 4. Filter the exam to only include enrolled subjects before rendering content
   // We match the exam's subjects against the enrolled subjects in your context.
@@ -37,7 +37,7 @@ export default function Exam() {
     subjects:
       exam.subjects?.filter((sub) => enrolledSubjectIds.has(sub.id)) || [],
   };
-  console.log(filteredExam);
+  // console.log(filteredExam);
   return (
     <>
       {showExamContent ? (
