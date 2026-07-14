@@ -27,13 +27,19 @@ interface Subject {
 function UnitCard({unit, subject}: {unit: Unit; subject: string}) {
   const router = useRouter();
   const pathname = usePathname();
-  const {setActiveClassroomSubject, setActiveClassroomUnit} = useExam();
+  const {
+    setActiveClassroomExam,
+    setActiveClassroomSubject,
+    setActiveClassroomUnit,
+  } = useExam();
 
   const [showAll, setShowAll] = useState(false);
   const visibleLessons = showAll ? unit.lessons : unit.lessons.slice(0, 4);
   const hasMore = unit.lessons.length > 4;
+  const lastUrl = pathname.split("/").at(-1) || "";
 
   const handleNavigation = () => {
+    setActiveClassroomExam(lastUrl);
     setActiveClassroomSubject(subject);
     setActiveClassroomUnit(unit);
 
@@ -108,7 +114,7 @@ function UnitCard({unit, subject}: {unit: Unit; subject: string}) {
   );
 }
 function SubjectSection({subject}: {subject: Subject}) {
-  const [isOpen, setIsOpen] = useState(subject.id === "mathematics");
+  const [isOpen, setIsOpen] = useState(subject.id === "" ? false : true);
 
   return (
     <div className="flex flex-col">
