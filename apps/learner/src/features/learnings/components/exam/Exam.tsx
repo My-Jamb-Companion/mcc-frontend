@@ -15,7 +15,7 @@ export default function Exam() {
   if (!id) return null;
 
   const exam = examDetails.find((c) => c.slug === id);
-  console.log(id, exam);
+  // console.log(id, exam);
 
   if (!exam) return null;
 

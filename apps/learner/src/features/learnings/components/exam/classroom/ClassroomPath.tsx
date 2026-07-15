@@ -1,6 +1,9 @@
 import {ExamLesson, ExamUnit} from "@/src/features/constants/demoExams";
 import {Icon} from "@mcc/ui";
+import Link from "next/link";
+import {usePathname} from "next/navigation";
 import {useState} from "react";
+import {useExam} from "../context/ExamContext";
 
 // Same course data, now each lesson (unit) carries a `subLessons` list.
 // Each subLesson is either a regular practice node, a quiz checkpoint
@@ -133,11 +136,11 @@ const dcourseData = {
   ],
 };
 
-function SubLessonNode({
+export function SubLessonNode({
   subLesson,
   isUpNext,
 }: {
-  subLesson: {type: "practice" | "quiz" | "test"};
+  subLesson: {type: "topic" | "quiz" | "test" | "practice"};
   isUpNext: boolean;
 }) {
   const base =
@@ -210,6 +213,7 @@ function UnitIcon() {
 
 export function UnitList({unit}: {unit: ExamUnit}) {
   const [openId, setOpenId] = useState(unit.lessons[0]?.id ?? "");
+  const pathname = usePathname();
 
   return (
     <div className="w-full">
@@ -248,7 +252,10 @@ export function UnitList({unit}: {unit: ExamUnit}) {
               <div className="pb-5">
                 <div className="grid grid-cols-2 gap-x-8 gap-y-2">
                   {lesson.subLessons
-                    .filter((s) => s.type === "practice")
+                    .filter(
+                      (s) =>
+                        s.type === "topic" || (s.type as string) === "practice",
+                    )
                     .map((sub) => (
                       <p key={sub.id} className="text-[13.5px] text-slate-600">
                         {sub.title}
@@ -256,12 +263,12 @@ export function UnitList({unit}: {unit: ExamUnit}) {
                     ))}
                 </div>
 
-                <button
-                  type="button"
-                  className="mt-5 px-5 py-2.5 rounded-lg bg-blue-600 text-white text-[13.5px] font-medium hover:bg-blue-700 transition-colors"
+                <Link
+                  href={`${pathname}/player?lesson=${lesson?.id}`}
+                  className="inline-block mt-5 px-5 py-2.5 rounded-lg bg-blue-600 text-white text-[13.5px] font-medium hover:bg-blue-700 transition-colors"
                 >
                   Get started
-                </button>
+                </Link>
               </div>
             )}
           </div>

@@ -2,7 +2,7 @@
 
 import {RoleLayout} from "@/src/components/RoleLayout";
 import {useAuth} from "@mcc/features";
-import {useRouter} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
 import Header from "@/src/features/dashboard/components/header/Header";
 import SideNav from "@/src/features/components/SideNav";
@@ -16,6 +16,7 @@ export default function DashboardLayout({
   const {isAuthenticated, hydrated, user} = useAuth();
   const [sideNav, setSideNav] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!hydrated) return;
@@ -26,13 +27,19 @@ export default function DashboardLayout({
     }
   }, [hydrated, isAuthenticated, user, router]);
 
-  if (!hydrated || !isAuthenticated || (user && !user.is_onboarded))
+  if (!hydrated || !isAuthenticated || (user && !user.is_onboarded)) {
     // return null;
+  }
 
-    return (
-      <RoleLayout allowedRoles={["student"]}>
-        <div className="flex flex-col h-screen scrollbar-hide">
-          <Header open={sideNav} setOpen={setSideNav} />
+  const isClassroom = pathname.includes("/classroom");
+  return (
+    <RoleLayout allowedRoles={["student"]}>
+      <div className="flex flex-col h-screen scrollbar-hide">
+        <Header open={sideNav} setOpen={setSideNav} />
+
+        {isClassroom ? (
+          <section className="flex-1 overflow-hidden">{children}</section>
+        ) : (
           <div
             className="grid max-sm:grid-cols-1 h-full relative md:pr-12 md:px-4 overflow-hidden"
             style={{gridTemplateColumns: "auto 1fr"}}
@@ -42,8 +49,10 @@ export default function DashboardLayout({
               {children}
             </div>
           </div>
-          <Help />
-        </div>
-      </RoleLayout>
-    );
+        )}
+
+        <Help />
+      </div>
+    </RoleLayout>
+  );
 }

@@ -79,12 +79,42 @@ export function ExamProvider({children, examSlug}: ExamProviderProps) {
     };
   }, [selectedSubjectIds, subjects]);
 
-  const [activeClassroomExam, setActiveClassroomExam] = useState<string>("");
-  const [activeClassroomSubject, setActiveClassroomSubject] =
-    useState<string>("");
-  const [activeClassroomUnit, setActiveClassroomUnit] = useState<ExamUnit>(
-    {} as ExamUnit,
+  const [activeClassroomExam, setActiveClassroomExam] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("activeClassroomExam") ?? "";
+  });
+
+  const [activeClassroomSubject, setActiveClassroomSubject] = useState<string>(
+    () => {
+      if (typeof window === "undefined") return "";
+      return localStorage.getItem("activeClassroomSubject") ?? "";
+    },
   );
+
+  const [activeClassroomUnit, setActiveClassroomUnit] = useState<ExamUnit>(
+    () => {
+      if (typeof window === "undefined") return {} as ExamUnit;
+
+      const saved = localStorage.getItem("activeClassroomUnit");
+
+      return saved ? JSON.parse(saved) : ({} as ExamUnit);
+    },
+  );
+
+  const updateActiveClassroomExam = (exam: string) => {
+    setActiveClassroomExam(exam);
+    localStorage.setItem("activeClassroomExam", exam);
+  };
+
+  const updateActiveClassroomSubject = (subject: string) => {
+    setActiveClassroomSubject(subject);
+    localStorage.setItem("activeClassroomSubject", subject);
+  };
+
+  const updateActiveClassroomUnit = (unit: ExamUnit) => {
+    setActiveClassroomUnit(unit);
+    localStorage.setItem("activeClassroomUnit", JSON.stringify(unit));
+  };
   return (
     <ExamContext.Provider
       value={{
@@ -96,11 +126,11 @@ export function ExamProvider({children, examSlug}: ExamProviderProps) {
         totalPrice,
         subjects,
         activeClassroomExam,
-        setActiveClassroomExam,
+        setActiveClassroomExam: updateActiveClassroomExam,
         activeClassroomSubject,
-        setActiveClassroomSubject,
+        setActiveClassroomSubject: updateActiveClassroomSubject,
         activeClassroomUnit,
-        setActiveClassroomUnit,
+        setActiveClassroomUnit: updateActiveClassroomUnit,
       }}
     >
       {children}

@@ -71,15 +71,16 @@ export interface ExamSubject {
   units: ExamUnit[];
 }
 
+export type SubLessonNode = TopicNode | CheckpointNode;
 export interface ExamLesson {
   id: string;
   title: string;
   icon: string;
-  subLessons: {
-    id: string;
-    title: string;
-    type: "practice" | "quiz" | "test";
-  }[];
+  about: {
+    intro: string;
+    note: string;
+  };
+  subLessons: SubLessonNode[];
 }
 
 export interface ExamUnit {
@@ -89,6 +90,28 @@ export interface ExamUnit {
   status: "resume" | "start";
   lessons: ExamLesson[];
 }
+
+interface Practice {
+  title: string;
+  subtitle: string;
+  upNext?: boolean;
+}
+
+interface TopicNode {
+  id: string;
+  type: "topic";
+  title: string;
+  learnItems: {id: string; title: string; src: string; type: string}[];
+  practice?: Practice;
+}
+
+interface CheckpointNode {
+  id: string;
+  type: "quiz" | "test";
+  title: string;
+  description: string;
+}
+
 const LESSON_ICON = "solar:widget-4-bold";
 export const UTME_SUBJECTS: ExamSubject[] = [
   {
@@ -1080,266 +1103,638 @@ export const UTME_SUBJECTS: ExamSubject[] = [
       {
         id: "chem-reactions",
         title: "Chemical Reactions & Stoichiometry",
-        totalLessons: 8,
+        totalLessons: 6,
         status: "start",
         lessons: [
           {
             id: "reaction-types",
-            title: "Synthesis, decomposition, & combustion reactions",
+            title: "Reaction types",
+            about: {
+              intro:
+                "Why do chemists sort reactions into categories in the first place? Let's look at the major reaction types and the patterns that help you recognize them.",
+              note: "Unit guides are here! Power up your classroom with engaging strategies, tools, and activities from the learning experts.",
+            },
             icon: LESSON_ICON,
             subLessons: [
               {
-                id: "rt-1",
-                type: "practice",
-                title: "What is a chemical reaction?",
+                id: "rt-topic-1",
+                type: "topic",
+                title: "Overview of reaction types",
+                learnItems: [
+                  {
+                    id: "rt-topic-1-1",
+                    title: "What is a chemical reaction?",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "rt-topic-1-2",
+                    title: "Signs a reaction has occurred",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "rt-topic-1-3",
+                    title: "Reactants and products",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "rt-topic-1-4",
+                    title: "Why we classify reactions",
+                    src: "",
+                    type: "video",
+                  },
+                ],
               },
-              {id: "rt-2", type: "practice", title: "Synthesis reactions"},
               {
-                id: "rt-3",
+                id: "rt-topic-2",
+                type: "topic",
+                title: "Synthesis & decomposition",
+                learnItems: [
+                  {
+                    id: "rt-topic-2-1",
+                    title: "Synthesis reactions",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "rt-topic-2-2",
+                    title: "Decomposition reactions",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "rt-topic-2-3",
+                    title: "Creativity break: spotting the pattern",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Classify synthesis & decomposition reactions",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                  upNext: true,
+                },
+              },
+              {
+                id: "rt-quiz-1",
                 type: "quiz",
-                title: "Checkpoint: synthesis & decomposition",
-              },
-              {id: "rt-4", type: "practice", title: "Decomposition reactions"},
-              {
-                id: "rt-5",
-                type: "practice",
-                title: "Single replacement reactions",
+                title: "Quiz 1",
+                description:
+                  "Level up on the above skills and collect up to 240 Mastery points",
               },
               {
-                id: "rt-6",
-                type: "practice",
-                title: "Double replacement reactions",
+                id: "rt-topic-3",
+                type: "topic",
+                title: "Replacement & combustion",
+                learnItems: [
+                  {
+                    id: "rt-topic-3-1",
+                    title: "Single replacement reactions",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "rt-topic-3-2",
+                    title: "Double replacement reactions",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "rt-topic-3-3",
+                    title: "Combustion reactions",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Identify combustion reactions",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                },
               },
-              {id: "rt-7", type: "practice", title: "Combustion reactions"},
-              {id: "rt-8", type: "quiz", title: "Checkpoint: reaction types"},
-              {id: "rt-9", type: "test", title: "Unit test: reaction types"},
+              {
+                id: "rt-test",
+                type: "test",
+                title: "Unit test",
+                description:
+                  "Put it all together and see how you've mastered reaction types",
+              },
             ],
           },
           {
             id: "balancing-eq",
-            title: "Balancing complex chemical equations",
+            title: "Balancing equations",
+            about: {
+              intro:
+                "A chemical equation has to obey the law of conservation of mass. Here we'll build the skills to balance even tricky equations.",
+              note: "Unit guides are here! Power up your classroom with engaging strategies, tools, and activities from the learning experts.",
+            },
             icon: LESSON_ICON,
             subLessons: [
               {
-                id: "be-1",
-                type: "practice",
-                title: "Why equations must balance",
+                id: "be-topic-1",
+                type: "topic",
+                title: "Basics of balancing",
+                learnItems: [
+                  {
+                    id: "be-topic-1-1",
+                    title: "Coefficients vs subscripts",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "be-topic-1-2",
+                    title: "Balancing simple equations",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "be-topic-1-3",
+                    title: "Balancing with polyatomic ions",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Balance simple equations",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                  upNext: true,
+                },
               },
               {
-                id: "be-2",
-                type: "practice",
-                title: "Coefficients vs subscripts",
-              },
-              {
-                id: "be-3",
-                type: "practice",
-                title: "Balancing simple equations",
-              },
-              {
-                id: "be-4",
-                type: "practice",
-                title: "Balancing with polyatomic ions",
-              },
-              {id: "be-5", type: "quiz", title: "Checkpoint: basic balancing"},
-              {
-                id: "be-6",
-                type: "practice",
-                title: "Balancing combustion equations",
-              },
-              {
-                id: "be-7",
-                type: "practice",
-                title: "Balancing redox equations",
-              },
-              {
-                id: "be-8",
+                id: "be-quiz-1",
                 type: "quiz",
-                title: "Checkpoint: complex balancing",
+                title: "Quiz 1",
+                description:
+                  "Level up on the above skills and collect up to 240 Mastery points",
               },
               {
-                id: "be-9",
-                type: "practice",
-                title: "Word equations to formulas",
+                id: "be-topic-2",
+                type: "topic",
+                title: "Balancing tricky equations",
+                learnItems: [
+                  {
+                    id: "be-topic-2-1",
+                    title: "Balancing combustion equations",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "be-topic-2-2",
+                    title: "Balancing redox equations",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "be-topic-2-3",
+                    title: "Word equations to formulas",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Balance combustion equations",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                },
               },
-              {id: "be-10", type: "quiz", title: "Checkpoint: word equations"},
               {
-                id: "be-11",
+                id: "be-test",
                 type: "test",
-                title: "Unit test: balancing equations",
+                title: "Unit test",
+                description:
+                  "Put it all together and see how you've mastered balancing equations",
               },
             ],
           },
           {
             id: "the-mole",
-            title: "Avogadro's number & the mole concept",
+            title: "The mole concept",
+            about: {
+              intro:
+                "How do chemists count atoms too small to see? The mole gives us a bridge between the atomic world and the everyday world.",
+              note: "Unit guides are here! Power up your classroom with engaging strategies, tools, and activities from the learning experts.",
+            },
             icon: LESSON_ICON,
             subLessons: [
-              {id: "tm-1", type: "practice", title: "Introducing the mole"},
-              {id: "tm-2", type: "practice", title: "Avogadro's number"},
               {
-                id: "tm-3",
-                type: "practice",
-                title: "Moles to particles conversions",
+                id: "tm-topic-1",
+                type: "topic",
+                title: "Introducing the mole",
+                learnItems: [
+                  {
+                    id: "tm-topic-1-1",
+                    title: "Avogadro's number",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "tm-topic-1-2",
+                    title: "Moles to particles conversions",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Convert moles to particles",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                  upNext: true,
+                },
               },
               {
-                id: "tm-4",
-                type: "practice",
-                title: "Moles to mass conversions",
+                id: "tm-test",
+                type: "test",
+                title: "Unit test",
+                description:
+                  "Put it all together and see how you've mastered the mole concept",
               },
-              {id: "tm-5", type: "test", title: "Unit test: the mole concept"},
             ],
           },
           {
             id: "molar-mass-calc",
-            title: "Calculating molar mass & empirical formulas",
+            title: "Molar mass & empirical formulas",
+            about: {
+              intro:
+                "Once you can find molar mass, a whole world of formula calculations opens up. Let's build that skill and use it to find empirical and molecular formulas.",
+              note: "Unit guides are here! Power up your classroom with engaging strategies, tools, and activities from the learning experts.",
+            },
             icon: LESSON_ICON,
             subLessons: [
               {
-                id: "mm-1",
-                type: "practice",
-                title: "Reading the periodic table for mass",
-              },
-              {id: "mm-2", type: "practice", title: "Calculating molar mass"},
-              {id: "mm-3", type: "practice", title: "Molar mass of compounds"},
-              {id: "mm-4", type: "practice", title: "Percent composition"},
-              {id: "mm-5", type: "practice", title: "Empirical formula basics"},
-              {
-                id: "mm-6",
-                type: "practice",
-                title: "Finding empirical formulas",
-              },
-              {id: "mm-7", type: "quiz", title: "Checkpoint: molar mass"},
-              {
-                id: "mm-8",
-                type: "practice",
-                title: "Molecular vs empirical formulas",
-              },
-              {
-                id: "mm-9",
-                type: "practice",
-                title: "Finding molecular formulas",
-              },
-              {
-                id: "mm-10",
-                type: "practice",
-                title: "Hydrates and water of crystallization",
-              },
-              {
-                id: "mm-11",
-                type: "practice",
-                title: "Combustion analysis basics",
+                id: "mm-topic-1",
+                type: "topic",
+                title: "Calculating molar mass",
+                learnItems: [
+                  {
+                    id: "mm-topic-1-1",
+                    title: "Reading the periodic table for mass",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "mm-topic-1-2",
+                    title: "Molar mass of compounds",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "mm-topic-1-3",
+                    title: "Percent composition",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Calculate molar mass of compounds",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                  upNext: true,
+                },
               },
               {
-                id: "mm-12",
-                type: "practice",
-                title: "Practice: empirical formulas",
-              },
-              {
-                id: "mm-13",
-                type: "practice",
-                title: "Practice: molecular formulas",
-              },
-              {
-                id: "mm-14",
+                id: "mm-quiz-1",
                 type: "quiz",
-                title: "Checkpoint: empirical formulas",
+                title: "Quiz 1",
+                description:
+                  "Level up on the above skills and collect up to 240 Mastery points",
               },
               {
-                id: "mm-15",
+                id: "mm-topic-2",
+                type: "topic",
+                title: "Empirical & molecular formulas",
+                learnItems: [
+                  {
+                    id: "mm-topic-2-1",
+                    title: "Finding empirical formulas",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "mm-topic-2-2",
+                    title: "Molecular vs empirical formulas",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "mm-topic-2-3",
+                    title: "Hydrates",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Find empirical formulas",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                },
+              },
+              {
+                id: "mm-test",
                 type: "test",
-                title: "Unit test: molar mass & formulas",
+                title: "Unit test",
+                description:
+                  "Put it all together and see how you've mastered molar mass & formulas",
               },
             ],
           },
           {
             id: "stoichiometry-mass",
-            title: "Mass-to-mass stoichiometry calculations",
+            title: "Mass-to-mass stoichiometry",
+            about: {
+              intro:
+                "Balanced equations aren't just symbols — they're recipes. Here we'll use mole ratios to predict exactly how much product a reaction makes.",
+              note: "Unit guides are here! Power up your classroom with engaging strategies, tools, and activities from the learning experts.",
+            },
             icon: LESSON_ICON,
             subLessons: [
-              {id: "sm-1", type: "practice", title: "What is stoichiometry?"},
               {
-                id: "sm-2",
-                type: "practice",
-                title: "Mole ratios from equations",
+                id: "sm-topic-1",
+                type: "topic",
+                title: "Mole ratios",
+                learnItems: [
+                  {
+                    id: "sm-topic-1-1",
+                    title: "Mole ratios from equations",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "sm-topic-1-2",
+                    title: "Mole-to-mole conversions",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Use mole ratios",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                  upNext: true,
+                },
               },
-              {id: "sm-3", type: "practice", title: "Mole-to-mole conversions"},
-              {id: "sm-4", type: "quiz", title: "Checkpoint: mole ratios"},
-              {id: "sm-5", type: "practice", title: "Mass-to-mole conversions"},
-              {id: "sm-6", type: "practice", title: "Mass-to-mass conversions"},
-              {id: "sm-7", type: "quiz", title: "Checkpoint: mass-to-mass"},
-              {id: "sm-8", type: "test", title: "Unit test: stoichiometry"},
+              {
+                id: "sm-topic-2",
+                type: "topic",
+                title: "Mass-to-mass conversions",
+                learnItems: [
+                  {
+                    id: "sm-topic-2-1",
+                    title: "Mass-to-mole conversions",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "sm-topic-2-2",
+                    title: "Mass-to-mass conversions",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Solve mass-to-mass problems",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                },
+              },
+              {
+                id: "sm-test",
+                type: "test",
+                title: "Unit test",
+                description:
+                  "Put it all together and see how you've mastered stoichiometry",
+              },
             ],
           },
           {
             id: "limiting-reactants",
-            title: "Identifying limiting reactants & theoretical yield",
+            title: "Limiting reactants & yield",
+            about: {
+              intro:
+                "In real reactions, one reactant usually runs out first. Let's learn to spot it and use it to predict theoretical and percent yield.",
+              note: "Unit guides are here! Power up your classroom with engaging strategies, tools, and activities from the learning experts.",
+            },
             icon: LESSON_ICON,
             subLessons: [
               {
-                id: "lr-1",
-                type: "practice",
-                title: "What is a limiting reactant?",
-              },
-              {
-                id: "lr-2",
-                type: "practice",
+                id: "lr-topic-1",
+                type: "topic",
                 title: "Finding the limiting reactant",
+                learnItems: [
+                  {
+                    id: "lr-topic-1-1",
+                    title: "What is a limiting reactant?",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "lr-topic-1-2",
+                    title: "Finding the limiting reactant",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "lr-topic-1-3",
+                    title: "Excess reactant amounts",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Identify the limiting reactant",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                  upNext: true,
+                },
               },
-              {id: "lr-3", type: "practice", title: "Excess reactant amounts"},
-              {id: "lr-4", type: "practice", title: "Theoretical yield"},
               {
-                id: "lr-5",
+                id: "lr-quiz-1",
                 type: "quiz",
-                title: "Checkpoint: limiting reactants",
+                title: "Quiz 1",
+                description:
+                  "Level up on the above skills and collect up to 240 Mastery points",
               },
               {
-                id: "lr-6",
-                type: "practice",
-                title: "Actual yield vs theoretical yield",
+                id: "lr-topic-2",
+                type: "topic",
+                title: "Yield",
+                learnItems: [
+                  {
+                    id: "lr-topic-2-1",
+                    title: "Theoretical yield",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "lr-topic-2-2",
+                    title: "Actual vs theoretical yield",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "lr-topic-2-3",
+                    title: "Percent yield",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Calculate percent yield",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                },
               },
-              {id: "lr-7", type: "practice", title: "Percent yield"},
               {
-                id: "lr-8",
+                id: "lr-test",
                 type: "test",
-                title: "Unit test: limiting reactants & yield",
+                title: "Unit test",
+                description:
+                  "Put it all together and see how you've mastered limiting reactants & yield",
               },
             ],
           },
           {
             id: "solutions-molarity",
-            title: "Molarity concentration & solution dilutions",
+            title: "Molarity & dilutions",
+            about: {
+              intro:
+                "Most reactions in a lab happen in solution. Molarity gives us a precise way to describe and prepare those solutions.",
+              note: "Unit guides are here! Power up your classroom with engaging strategies, tools, and activities from the learning experts.",
+            },
             icon: LESSON_ICON,
             subLessons: [
-              {id: "so-1", type: "practice", title: "What is molarity?"},
-              {id: "so-2", type: "practice", title: "Calculating molarity"},
-              {id: "so-3", type: "practice", title: "Preparing solutions"},
-              {id: "so-4", type: "quiz", title: "Checkpoint: molarity"},
-              {id: "so-5", type: "practice", title: "Dilution calculations"},
               {
-                id: "so-6",
+                id: "so-topic-1",
+                type: "topic",
+                title: "Molarity",
+                learnItems: [
+                  {
+                    id: "so-topic-1-1",
+                    title: "What is molarity?",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "so-topic-1-2",
+                    title: "Calculating molarity",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "so-topic-1-3",
+                    title: "Preparing solutions",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Calculate molarity",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                  upNext: true,
+                },
+              },
+              {
+                id: "so-topic-2",
+                type: "topic",
+                title: "Dilutions",
+                learnItems: [
+                  {
+                    id: "so-topic-2-1",
+                    title: "Dilution calculations",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Solve dilution problems",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                },
+              },
+              {
+                id: "so-test",
                 type: "test",
-                title: "Unit test: solutions & molarity",
+                title: "Unit test",
+                description:
+                  "Put it all together and see how you've mastered molarity & dilutions",
               },
             ],
           },
           {
             id: "gas-laws",
-            title: "Ideal gas laws & gas stoichiometry",
+            title: "Ideal gas laws",
+            about: {
+              intro:
+                "Gases behave in wonderfully predictable ways. We'll connect pressure, volume, and temperature — then bring stoichiometry into the mix.",
+              note: "Unit guides are here! Power up your classroom with engaging strategies, tools, and activities from the learning experts.",
+            },
             icon: LESSON_ICON,
             subLessons: [
-              {id: "gl-1", type: "practice", title: "Properties of gases"},
-              {id: "gl-2", type: "practice", title: "Boyle's & Charles's laws"},
-              {id: "gl-3", type: "practice", title: "The combined gas law"},
-              {id: "gl-4", type: "practice", title: "The ideal gas law"},
-              {id: "gl-5", type: "practice", title: "STP and molar volume"},
-              {id: "gl-6", type: "quiz", title: "Checkpoint: gas laws"},
-              {id: "gl-7", type: "practice", title: "Gas stoichiometry"},
               {
-                id: "gl-8",
-                type: "quiz",
-                title: "Checkpoint: gas stoichiometry",
+                id: "gl-topic-1",
+                type: "topic",
+                title: "Gas law fundamentals",
+                learnItems: [
+                  {
+                    id: "gl-topic-1-1",
+                    title: "Properties of gases",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "gl-topic-1-2",
+                    title: "Boyle's & Charles's laws",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "gl-topic-1-3",
+                    title: "The combined gas law",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "gl-topic-1-4",
+                    title: "The ideal gas law",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Apply the ideal gas law",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                  upNext: true,
+                },
               },
-              {id: "gl-9", type: "test", title: "Unit test: gas laws"},
+              {
+                id: "gl-quiz-1",
+                type: "quiz",
+                title: "Quiz 1",
+                description:
+                  "Level up on the above skills and collect up to 240 Mastery points",
+              },
+              {
+                id: "gl-topic-2",
+                type: "topic",
+                title: "Gas stoichiometry",
+                learnItems: [
+                  {
+                    id: "gl-topic-2-1",
+                    title: "STP and molar volume",
+                    src: "",
+                    type: "video",
+                  },
+                  {
+                    id: "gl-topic-2-2",
+                    title: "Gas stoichiometry",
+                    src: "",
+                    type: "video",
+                  },
+                ],
+                practice: {
+                  title: "Solve gas stoichiometry problems",
+                  subtitle: "Get 5 of 7 questions to level up!",
+                },
+              },
+              {
+                id: "gl-test",
+                type: "test",
+                title: "Unit test",
+                description:
+                  "Put it all together and see how you've mastered gas laws",
+              },
             ],
           },
         ],

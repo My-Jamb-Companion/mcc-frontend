@@ -2,11 +2,11 @@
 
 import {Button, Icon} from "@mcc/ui";
 import {useExam} from "../context/ExamContext";
-
 import ClassroomSidebar from "./ClassroomSidebar";
 import {redirect} from "next/navigation";
 import {useState} from "react";
-import ClassroomUnitsPath, {UnitList} from "./ClassroomPath";
+import ClassroomUnitsPath, {SubLessonNode, UnitList} from "./ClassroomPath";
+import UnitDetailView from "./UnitDetails";
 
 export default function Classroom() {
   const {activeClassroomExam, activeClassroomSubject, activeClassroomUnit} =
@@ -16,8 +16,22 @@ export default function Classroom() {
   }
   const [isHeaderActive, setIsHeaderActive] = useState(true);
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
+
+  const selectedLessonIndex = selectedLessonId
+    ? activeClassroomUnit.lessons.findIndex((l) => l.id === selectedLessonId)
+    : 0;
+
+  const selectedLesson =
+    activeClassroomUnit.lessons[selectedLessonIndex] ??
+    activeClassroomUnit.lessons[0];
+
+  if (!selectedLesson) {
+    return null;
+  }
+
+  // console.log(activeClassroomUnit);
   return (
-    <section className="flex flex-col gap-y-6 min-h-screen py-6 px-4">
+    <section className="flex flex-col gap-y-6 min-h-screen py-6 px-4 overflow-y-auto">
       <div className="w-full flex items-center justify-between">
         <div>
           <p className="text-xl">
@@ -80,15 +94,21 @@ export default function Classroom() {
 
         <div className="w-full grow">
           <ClassRoomHeader
-            exam={activeClassroomExam}
+            examName={activeClassroomExam}
             subject={activeClassroomSubject}
             unit={activeClassroomUnit.title}
+            isHeaderActive={isHeaderActive}
+            unitTitle={`Unit ${selectedLessonIndex + 1}: ${selectedLesson.title}`}
+            // masteryPoints={selectedLesson.masteryPoints}
+            subLessons={selectedLesson.subLessons}
           />
-          {isHeaderActive && (
+          {isHeaderActive ? (
             <div className="flex flex-col gap-8">
               <ClassroomUnitsPath lessons={activeClassroomUnit.lessons} />
               <UnitList unit={activeClassroomUnit} />
             </div>
+          ) : (
+            <UnitDetailView lesson={selectedLesson} />
           )}
         </div>
       </div>
@@ -97,13 +117,23 @@ export default function Classroom() {
 }
 
 function ClassRoomHeader({
-  exam,
+  examName,
   subject,
   unit,
+  isHeaderActive,
+  unitTitle,
+  masteryPoints,
+  subLessons,
 }: {
-  exam: string;
+  examName: string;
   subject: string;
   unit: string;
+  isHeaderActive: boolean;
+  unitTitle: string;
+  masteryPoints?: number;
+  subLessons: {
+    type: "topic" | "quiz" | "test" | "practice";
+  }[];
 }) {
   return (
     <section className="relative bg-primary-gradient px-8 py-10 text-white">
@@ -111,14 +141,40 @@ function ClassRoomHeader({
         <div className="flex items-center gap-2">
           <p className="text-sm font-medium">Course </p>
           <Icon icon="iconoir:slash" color="black" size={14} />
-          <p className="text-sm font-medium uppercase">{exam}</p>
+          <p className="text-sm font-medium uppercase">{examName}</p>
           <Icon icon="iconoir:slash" color="black" size={14} />
-          <p className="text-sm font-medium capitalize opacity-70">{subject}</p>
+          <p
+            className={`text-sm font-medium capitalize ${isHeaderActive ? "opacity-70" : ""}`}
+          >
+            {subject}
+          </p>
+          {!isHeaderActive && (
+            <>
+              <Icon icon="iconoir:slash" color="black" size={14} />
+              <p className="text-sm font-medium capitalize opacity-70">
+                classroom
+              </p>
+            </>
+          )}
         </div>
 
         <div className="flex flex-col gap-3">
-          <h4 className="text-2xl font-bold">{unit}</h4>
+          <h4 className="text-2xl font-bold">
+            {isHeaderActive ? unit : unitTitle}
+          </h4>
           <p className="font-medium ">18,200 possible mastery points</p>
+
+          {!isHeaderActive && (
+            <div className="flex items-center gap-2">
+              {subLessons?.map((subLesson, idx) => (
+                <SubLessonNode
+                  key={`${subLesson.type}-${idx + 1}`}
+                  subLesson={subLesson}
+                  isUpNext={false}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
       <img
