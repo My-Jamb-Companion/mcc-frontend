@@ -38,7 +38,7 @@ export default function DashboardLayout({
         <Header open={sideNav} setOpen={setSideNav} />
 
         {isClassroom ? (
-          <section className="flex-1 overflow-hidden">{children}</section>
+          <section className="flex-1 overflow-y-scroll">{children}</section>
         ) : (
           <div
             className="grid max-sm:grid-cols-1 h-full relative md:pr-12 md:px-4 overflow-hidden"

@@ -24,7 +24,7 @@ export function ClassroomPlayerSidebar({
   const canGoNext = activeIndex !== -1 && activeIndex < lessons.length - 1;
 
   return (
-    <aside className="flex h-full flex-col border-r border-gray-200">
+    <aside className="relative flex h-full flex-col border-r border-gray-200">
       {/* Header */}
       <div className="px-4 py-4">
         <div className="flex items-center gap-3">
