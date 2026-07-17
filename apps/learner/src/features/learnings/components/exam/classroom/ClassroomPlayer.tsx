@@ -4,10 +4,19 @@ import {useRouter, useSearchParams} from "next/navigation";
 import {useExam} from "../context/ExamContext";
 import {ClassroomPlayerSidebar} from "./ClassroomPlayerSidBar";
 import ClassroomLessonPlayer from "./ClassroomlessonPlayer";
-import {useEffect, useState} from "react";
-import VideoTabs from "./Tabs";
+import {useEffect, useMemo, useState} from "react";
+import ClassroomPlayerTabs from "./ClassroomPlayerTabs";
 import {Icon} from "@mcc/ui";
 import MagicNote from "./MagicNote";
+
+type NavigationItem = {
+  id: string;
+  title: string;
+  type: string;
+  src?: string;
+  parentTopicId: string | null;
+  parentTopicTitle: string | null;
+};
 
 export default function ClassroomPlayer() {
   const {activeClassroomUnit, activeClassroomSubject} = useExam();
@@ -17,6 +26,7 @@ export default function ClassroomPlayer() {
 
   const [navOpen, setNavOpen] = useState(true);
   const [magicOpen, setMagicOpen] = useState(false);
+  const [openTopics, setOpenTopics] = useState<string[]>([]);
 
   const lessonId = searchParams.get("lesson");
   const subLessonId = searchParams.get("subLesson");
@@ -26,10 +36,6 @@ export default function ClassroomPlayer() {
   );
 
   const subLessons = activeLesson?.subLessons ?? [];
-
-  const activeSubLesson = subLessons.find(
-    (lesson) => lesson.id === subLessonId,
-  );
 
   const navigateSubLesson = (id: string) => {
     const params = new URLSearchParams(searchParams);
@@ -41,12 +47,91 @@ export default function ClassroomPlayer() {
 
   useEffect(() => {
     if (!subLessonId && subLessons.length > 0) {
+      const firstPlayableItem =
+        subLessons[0].type === "topic"
+          ? subLessons[0].learnItems?.[0]
+          : subLessons[0];
+
+      if (!firstPlayableItem) return;
+
       const params = new URLSearchParams(searchParams);
-      params.set("subLesson", subLessons[0].id);
+      params.set("subLesson", firstPlayableItem.id);
+
       router.replace(`?${params.toString()}`);
     }
+  }, [subLessonId, subLessons, searchParams, router]);
+
+  useEffect(() => {
+    if (!subLessonId) return;
+
+    const topic = subLessons.find(
+      (lesson) =>
+        lesson.type === "topic" &&
+        lesson.learnItems?.some((item) => item.id === subLessonId),
+    );
+
+    if (!topic) return;
+
+    setOpenTopics([topic.id]);
   }, [subLessonId, subLessons]);
 
+  const navigationItems = useMemo<NavigationItem[]>(() => {
+    return subLessons.flatMap<NavigationItem>((lesson) => {
+      if (lesson.type === "topic") {
+        return (
+          lesson.learnItems?.map((item) => ({
+            id: item.id,
+            title: item.title,
+            type: item.type,
+            src: item.src,
+            parentTopicId: lesson.id,
+            parentTopicTitle: lesson.title,
+          })) ?? []
+        );
+      }
+
+      return [
+        {
+          id: lesson.id,
+          title: lesson.title,
+          type: lesson.type,
+          parentTopicId: null,
+          parentTopicTitle: null,
+        },
+      ];
+    });
+  }, [subLessons]);
+
+  const activeIndex = navigationItems.findIndex(
+    (item) => item.id === subLessonId,
+  );
+
+  const activeNavigationItem = navigationItems[activeIndex];
+
+  const canGoPrevious = activeIndex > 0;
+
+  const canGoNext =
+    activeIndex >= 0 && activeIndex < navigationItems.length - 1;
+
+  const goPrevious = () => {
+    if (!canGoPrevious) return;
+
+    const previousItem = navigationItems[activeIndex - 1];
+
+    if (previousItem) {
+      navigateSubLesson(previousItem.id);
+    }
+  };
+
+  const goNext = () => {
+    if (!canGoNext) return;
+
+    const nextItem = navigationItems[activeIndex + 1];
+
+    if (nextItem) {
+      navigateSubLesson(nextItem.id);
+    }
+  };
   return (
     <section className="flex h-full flex-col gap-6  p-4">
       <div className="flex flex-1 gap-6 ">
@@ -62,6 +147,15 @@ export default function ClassroomPlayer() {
               lessons={subLessons}
               activeLessonId={subLessonId}
               setActiveLessonId={navigateSubLesson}
+              openTopics={openTopics}
+              setOpenTopics={setOpenTopics}
+              canGoPrevious={canGoPrevious}
+              canGoNext={canGoNext}
+              goPrevious={goPrevious}
+              goNext={goNext}
+              activeTitle={activeNavigationItem?.title}
+              activeTopicTitle={activeNavigationItem?.parentTopicTitle || ""}
+              activeIndex={activeIndex}
             />
           </div>
 
@@ -81,7 +175,9 @@ export default function ClassroomPlayer() {
         <div className="min-w-0 flex-1">
           <section className="relative bg-primary-gradient px-8 py-10 text-white">
             <div className="flex flex-col gap-5 items-center">
-              <h4 className="text-2xl font-bold">{activeSubLesson?.title}</h4>
+              <h4 className="text-2xl font-bold">
+                {activeNavigationItem?.title ?? "Select a lesson"}
+              </h4>
               <div className="flex items-center gap-3">
                 <Icon icon="ri:live-fill" />
                 <span className="font-medium">Learn Live</span>
@@ -97,7 +193,7 @@ export default function ClassroomPlayer() {
           </section>
 
           {magicOpen ? (
-            <MagicNote topic={activeSubLesson?.title || ""} />
+            <MagicNote topic={activeNavigationItem?.title || ""} />
           ) : (
             activeLesson && (
               <ClassroomLessonPlayer
@@ -107,7 +203,7 @@ export default function ClassroomPlayer() {
             )
           )}
 
-          <VideoTabs
+          <ClassroomPlayerTabs
             magicOpen={magicOpen}
             setMagicOpen={setMagicOpen}
             description={`Where did the word "Algebra" and its underlying ideas come from?

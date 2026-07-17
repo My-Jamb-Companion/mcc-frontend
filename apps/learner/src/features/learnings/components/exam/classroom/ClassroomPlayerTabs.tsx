@@ -17,7 +17,7 @@ interface VideoTabsProps {
   setMagicOpen: (open: boolean) => void;
 }
 
-export default function VideoTabs({
+export default function ClassroomPlayerTabs({
   description,
   transcript,
   magicOpen,
