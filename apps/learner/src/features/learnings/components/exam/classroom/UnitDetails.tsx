@@ -1,6 +1,7 @@
-import {Play, HelpCircle, Award} from "lucide-react";
+import {Play, HelpCircle, Award, FileText, Video} from "lucide-react";
 import {ExamLesson} from "@/src/features/constants/demoExams";
-import {redirect, usePathname} from "next/navigation";
+import {usePathname} from "next/navigation";
+import Link from "next/link";
 
 interface Practice {
   title: string;
@@ -10,35 +11,38 @@ interface Practice {
 
 interface CheckpointNode {
   id: string;
-  type: "quiz" | "test";
+  type: "quiz" | "test" | "doc" | "video";
   title: string;
-  description: string;
+  description?: string;
+  document?: string;
 }
 
 function LearnRow({
   text,
   active,
-  onClick,
+  href,
 }: {
   text: string;
   active: boolean;
-  onClick: () => void;
+  href: string;
 }) {
   return (
-    <div
-      onClick={onClick}
-      className="flex items-center gap-3 py-2 w-fit cursor-pointer"
-    >
-      <div
-        className={`w-7 h-7 rounded-md border flex items-center justify-center shrink-0 ${
-          active
-            ? "border-b-violet-600 border-b-4 border-muted/30"
-            : "border-muted/30"
-        }`}
+    <div>
+      <Link
+        href={href}
+        className="flex items-center gap-3 py-2 w-fit hover:scale-90 transition-all duration-300"
       >
-        <Play className="w-3 h-3 text-slate-500" fill="currentColor" />
-      </div>
-      <span className="text-[13.5px] text-slate-700">{text}</span>
+        <div
+          className={`w-7 h-7 rounded-md border flex items-center justify-center shrink-0 cursor-pointer ${
+            active
+              ? "border-b-violet-600 border-b-4 border-muted/30"
+              : "border-muted/30"
+          }`}
+        >
+          <Play className="w-3 h-3 text-slate-500" fill="currentColor" />
+        </div>
+        <span className="text-[13.5px] text-slate-700">{text}</span>
+      </Link>
     </div>
   );
 }
@@ -68,33 +72,59 @@ function PracticeCard({practice}: {practice: Practice}) {
   );
 }
 
-function CheckpointCard({node}: {node: CheckpointNode}) {
+function CheckpointCard({node, href}: {node: CheckpointNode; href: string}) {
   const isTest = node.type === "test";
-  const Icon = isTest ? Award : HelpCircle;
+  const isDoc = node.type === "doc";
+  const isVideo = node.type === "video";
 
+  const Icon = isTest ? Award : isDoc ? FileText : isVideo ? Video : HelpCircle;
+
+  const bgClass = isTest
+    ? "bg-amber-50"
+    : isDoc
+      ? "bg-emerald-50"
+      : isVideo
+        ? "bg-blue-50"
+        : "bg-violet-50";
+
+  const iconColorClass = isTest
+    ? "text-amber-500"
+    : isDoc
+      ? "text-emerald-500"
+      : isVideo
+        ? "text-blue-500"
+        : "text-violet-500";
+
+  let buttonText = "Start quiz";
+  if (isTest) {
+    buttonText = "Start unit test";
+  } else if (isDoc) {
+    buttonText = "Read";
+  } else if (isVideo) {
+    buttonText = "Watch";
+  }
+  console.log(node);
   return (
     <div className="flex items-center justify-between gap-6 py-6">
       <div>
         <p className="text-[15px] font-semibold text-slate-900">{node.title}</p>
-        <p className="text-[13px] text-slate-500 mt-1 max-w-md">
-          {node.description}
-        </p>
-        <button
-          type="button"
-          className="mt-4 flex items-center gap-1 px-4 py-1.5 rounded-md border border-slate-300 text-slate-800 text-[13px] font-medium hover:bg-slate-50 transition-colors"
+        {node.description && (
+          <p className="text-[13px] text-slate-500 mt-1 max-w-md">
+            {node.description}
+          </p>
+        )}
+        <Link
+          href={href + `&subLesson=${node.id}`}
+          className="mt-4 w-fit flex items-center gap-1 px-4 py-1.5 rounded-md border border-slate-300 text-slate-800 text-[13px] font-medium hover:bg-slate-50 transition-colors"
         >
-          {isTest ? "Start unit test" : "Start quiz"}
+          {buttonText}
           <Play className="w-3 h-3" fill="currentColor" />
-        </button>
+        </Link>
       </div>
       <div
-        className={`hidden sm:flex items-center justify-center w-16 h-16 rounded-full shrink-0 ${
-          isTest ? "bg-amber-50" : "bg-violet-50"
-        }`}
+        className={`hidden sm:flex items-center justify-center w-16 h-16 rounded-full shrink-0 ${bgClass}`}
       >
-        <Icon
-          className={`w-7 h-7 ${isTest ? "text-amber-500" : "text-violet-500"}`}
-        />
+        <Icon className={`w-7 h-7 ${iconColorClass}`} />
       </div>
     </div>
   );
@@ -137,16 +167,16 @@ export default function UnitDetailView({lesson}: {lesson: ExamLesson}) {
                   <p className="text-[11px] font-medium text-slate-400 mb-1">
                     Learn
                   </p>
-                  {node.learnItems.map((item, idx) => (
-                    <LearnRow
-                      key={item.id}
-                      text={item.title}
-                      active={idx === 0}
-                      onClick={() =>
-                        redirect(`${pathname}/player?lesson=${lesson?.id}`)
-                      }
-                    />
-                  ))}
+                  {node.learnItems.map((item, idx) => {
+                    return (
+                      <LearnRow
+                        key={item.id}
+                        text={item.title}
+                        active={idx === 0}
+                        href={`${pathname}/player?lesson=${lesson?.id}&subLesson=${item.id}`}
+                      />
+                    );
+                  })}
                 </div>
                 {node.practice && (
                   <div>
@@ -174,7 +204,10 @@ export default function UnitDetailView({lesson}: {lesson: ExamLesson}) {
             : node;
         return (
           <div key={node.id} className="border-b border-slate-100">
-            <CheckpointCard node={checkpoint} />
+            <CheckpointCard
+              node={checkpoint}
+              href={`${pathname}/player?lesson=${lesson?.id}`}
+            />
           </div>
         );
       })}

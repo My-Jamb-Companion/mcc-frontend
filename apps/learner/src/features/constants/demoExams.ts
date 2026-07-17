@@ -1,4 +1,4 @@
-﻿import {Difficulty, CurriculumSection} from "./demoCourses";
+import {Difficulty, CurriculumSection} from "./demoCourses";
 
 export interface ExamDetail {
   id: number;
@@ -107,9 +107,10 @@ interface TopicNode {
 
 interface CheckpointNode {
   id: string;
-  type: "quiz" | "test";
+  type: "quiz" | "test" | "doc" | "video";
   title: string;
-  description: string;
+  description?: string;
+  document?: string;
 }
 
 const LESSON_ICON = "solar:widget-4-bold";
@@ -1176,6 +1177,12 @@ export const UTME_SUBJECTS: ExamSubject[] = [
                   subtitle: "Get 5 of 7 questions to level up!",
                   upNext: true,
                 },
+              },
+              {
+                id: "rt-doc-1",
+                type: "doc",
+                title: "Explanation: Synthesis & decomposition",
+                document: "",
               },
               {
                 id: "rt-quiz-1",
