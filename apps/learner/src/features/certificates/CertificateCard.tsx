@@ -3,12 +3,12 @@ import React from "react";
 
 export default function CertificateCard() {
   return (
-    <div className="w-full">
+    <div className="w-full px-4">
       <h2 className="mb-6 text-xl font-bold text-gray-900">Certificates</h2>
 
-      <div className="flex flex-col items-center gap-6 rounded-[28px] border-2 border-muted/30 p-5 shadow-lg md:flex-row">
+      <div className="flex max-md:flex-col md:items-center gap-6 rounded-[28px] border-2 border-muted/30 md:p-5 p-3  shadow-lg">
         {/* Thumbnail */}
-        <div className="h-30 w-30 flex-shrink-0 overflow-hidden rounded-3xl">
+        <div className="h-30 w-30 max-md:w-full shrink-0 overflow-hidden rounded-3xl">
           <img
             src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=500&q=80"
             alt="Certificate"
@@ -17,14 +17,12 @@ export default function CertificateCard() {
         </div>
 
         {/* Content */}
-        <div className="flex-1">
+        <div className="flex-1 max-md:w-full flex flex-col gap-2">
           <p className="text-xs font-medium text-gray-600">
-            Pilates Teacher Training Certification
+            Pilates Teacher Training Certification 20 CPD Points
           </p>
 
-          <p className="mb-5 text-xs text-gray-500">20 CPD Points</p>
-
-          <h3 className="mb-8 text-xl font-bold text-gray-900">
+          <h3 className=" text-xl font-bold text-gray-900">
             Signed Certificate.
           </h3>
 
@@ -38,7 +36,7 @@ export default function CertificateCard() {
         </div>
 
         {/* Share */}
-        <button className="flex items-center gap-3 self-center font-medium text-gray-900 transition hover:text-black">
+        <button className="flex items-center gap-3 md:self-center font-medium text-gray-900 transition hover:text-black mb-2">
           <Icon icon="ri:share-line" size={20} />
           Share
         </button>

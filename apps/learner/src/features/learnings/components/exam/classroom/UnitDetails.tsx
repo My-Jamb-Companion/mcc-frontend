@@ -103,7 +103,7 @@ function CheckpointCard({node, href}: {node: CheckpointNode; href: string}) {
   } else if (isVideo) {
     buttonText = "Watch";
   }
-  console.log(node);
+
   return (
     <div className="flex items-center justify-between gap-6 py-6">
       <div>

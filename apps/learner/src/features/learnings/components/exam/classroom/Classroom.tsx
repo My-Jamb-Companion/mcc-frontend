@@ -1,6 +1,6 @@
 "use client";
 
-import {Button, Icon} from "@mcc/ui";
+import {Icon} from "@mcc/ui";
 import {useExam} from "../context/ExamContext";
 import ClassroomSidebar from "./ClassroomSidebar";
 import {redirect} from "next/navigation";
@@ -29,11 +29,10 @@ export default function Classroom() {
     return null;
   }
 
-  // console.log(activeClassroomUnit);
   return (
     <section className="flex flex-col gap-y-6 min-h-screen py-6 px-4 overflow-y-auto">
       <div className="w-full flex items-center justify-between">
-        <div>
+        <div className="hidden md:block">
           <p className="text-xl">
             Welcome <span className="font-bold">Bright 🌞</span>
           </p>
@@ -42,7 +41,7 @@ export default function Classroom() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 max-md:w-full">
           <div className="flex items-center">
             <Icon icon="ri:rocket-fill" />
             <div className="flex items-center">
@@ -57,32 +56,34 @@ export default function Classroom() {
 
           <div></div>
 
-          <div className="flex items-center">
-            <Icon icon="raphael:arrowright" size={45} />
-            <div className="flex flex-col gap-1 ml-2">
+          <div className="flex items-center flex-1 min-w-0">
+            <Icon icon="raphael:arrowright" size={15} />
+
+            <div className="flex flex-col flex-1 min-w-0 gap-1 ml-2">
               <div className="flex items-center gap-1">
-                <p className="text-sm text-nowrap">Level 1 </p>
+                <p className="text-sm whitespace-nowrap">Level 1</p>
                 <Icon icon="ri:information-2-line" size={17} />
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="rounded-full bg-muted/10  w-[140px] h-1" />
-                <div className="flex items-center justify-center text-nowrap">
+              <div className="flex items-center gap-3 w-full">
+                <div className="flex-1 h-1 rounded-full bg-muted/10 md:flex-none md:w-[140px]" />
+
+                <div className="flex items-center justify-center whitespace-nowrap">
                   <span className="font-medium">0</span>
                   <span className="text-subtle">/1 skill</span>
                 </div>
               </div>
             </div>
 
-            <Button radius="sm" className="bg-blue-500! ml-10">
+            <button className="bg-blue-500! rounded-sm md:ml-10 ml-3 w-fit flex items-center gap-3 py-2 px-3 max-sm:hidden">
               Level up <Icon icon="grommet-icons:link-next" />
-            </Button>
+            </button>
           </div>
         </div>
       </div>
 
       <div className="flex w-full flex-1 gap-6">
-        <div className="w-full grow max-w-[300px]">
+        <div className="w-full grow max-w-[300px] max-sm:hidden">
           <ClassroomSidebar
             units={activeClassroomUnit}
             isHeaderActive={isHeaderActive}
@@ -101,10 +102,16 @@ export default function Classroom() {
             unitTitle={`Unit ${selectedLessonIndex + 1}: ${selectedLesson.title}`}
             // masteryPoints={selectedLesson.masteryPoints}
             subLessons={selectedLesson.subLessons}
+            setIsHeaderActive={setIsHeaderActive}
+            setSelectedLessonId={setSelectedLessonId}
           />
           {isHeaderActive ? (
             <div className="flex flex-col gap-8">
-              <ClassroomUnitsPath lessons={activeClassroomUnit.lessons} />
+              <ClassroomUnitsPath
+                lessons={activeClassroomUnit.lessons}
+                setIsHeaderActive={setIsHeaderActive}
+                setSelectedLessonId={setSelectedLessonId}
+              />
               <UnitList unit={activeClassroomUnit} />
             </div>
           ) : (
@@ -121,6 +128,8 @@ function ClassRoomHeader({
   subject,
   unit,
   isHeaderActive,
+  setIsHeaderActive,
+  setSelectedLessonId,
   unitTitle,
   masteryPoints,
   subLessons,
@@ -132,19 +141,27 @@ function ClassRoomHeader({
   unitTitle: string;
   masteryPoints?: number;
   subLessons: {
-    type: "topic" | "quiz" | "test" | "practice";
+    type: "topic" | "quiz" | "test" | "practice" | "video" | "doc";
   }[];
+  setIsHeaderActive: (value: boolean) => void;
+  setSelectedLessonId: (value: string | null) => void;
 }) {
   return (
-    <section className="relative bg-primary-gradient px-8 py-10 text-white">
-      <div className="flex flex-col gap-5">
+    <section className="relative bg-primary-gradient sm:px-8 sm:py-10 px-4 py-5 text-white">
+      <div className="flex flex-col gap-5 max-sm:gap-2">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-medium">Course </p>
+          <p className="text-sm font-medium max-sm:text-xs">Course </p>
           <Icon icon="iconoir:slash" color="black" size={14} />
-          <p className="text-sm font-medium uppercase">{examName}</p>
+          <p className="text-sm font-medium max-sm:text-xs uppercase">
+            {examName}
+          </p>
           <Icon icon="iconoir:slash" color="black" size={14} />
           <p
-            className={`text-sm font-medium capitalize ${isHeaderActive ? "opacity-70" : ""}`}
+            onClick={() => {
+              setIsHeaderActive(true);
+              setSelectedLessonId("");
+            }}
+            className={`text-sm font-medium max-sm:text-xs capitalize ${isHeaderActive ? "opacity-70" : ""}`}
           >
             {subject}
           </p>
@@ -159,10 +176,12 @@ function ClassRoomHeader({
         </div>
 
         <div className="flex flex-col gap-3">
-          <h4 className="text-2xl font-bold">
+          <h4 className="text-2xl font-bold max-sm:text-xl">
             {isHeaderActive ? unit : unitTitle}
           </h4>
-          <p className="font-medium ">18,200 possible mastery points</p>
+          <p className="font-medium max-sm:text-xs">
+            18,200 possible mastery points
+          </p>
 
           {!isHeaderActive && (
             <div className="flex items-center gap-2">

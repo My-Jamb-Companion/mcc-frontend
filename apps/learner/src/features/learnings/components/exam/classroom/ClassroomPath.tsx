@@ -3,17 +3,12 @@ import {Icon} from "@mcc/ui";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useState} from "react";
-import {useExam} from "../context/ExamContext";
-
-// Same course data, now each lesson (unit) carries a `subLessons` list.
-// Each subLesson is either a regular practice node, a quiz checkpoint
-// (bulb), or the unit's closing test (star).
 
 export function SubLessonNode({
   subLesson,
   isUpNext,
 }: {
-  subLesson: {type: "video" | "quiz" | "test" | "doc"};
+  subLesson: {type: "video" | "quiz" | "test" | "doc" | "topic" | "practice"};
   isUpNext: boolean;
 }) {
   const base =
@@ -34,16 +29,27 @@ export function SubLessonNode({
   );
 }
 
-export default function ClassroomUnitsPath({lessons}: {lessons: ExamLesson[]}) {
-  // The very first sub-lesson of the very first unit is "up next".
+export default function ClassroomUnitsPath({
+  lessons,
+  setSelectedLessonId,
+  setIsHeaderActive,
+}: {
+  lessons: ExamLesson[];
+  setSelectedLessonId: (value: string | null) => void;
+  setIsHeaderActive: (value: boolean) => void;
+}) {
   const upNextId = lessons[0]?.subLessons?.[0]?.id;
 
   return (
-    <div className="w-full grid grid-cols-2 gap-x-6 ">
+    <div className="w-full grid grid-cols-2 gap-x-6 max-sm:grid-cols-1">
       {lessons.map((lesson, i) => (
         <div
           key={lesson.id}
           className="py-4 border-b border-slate-100 last:border-b-0"
+          onClick={() => {
+            setIsHeaderActive(false);
+            setSelectedLessonId(lesson.id);
+          }}
         >
           <div className="flex items-center gap-1.5 mb-3">
             <span className="text-[13px] font-medium text-slate-700">

@@ -54,13 +54,6 @@ function RewardRow({item}: RewardRowProps) {
   );
 }
 
-interface BalanceCardProps {
-  icon: string;
-  label: string;
-  value: string | number;
-  action: "refresh" | "plus";
-  tone: "silver" | "diamond";
-}
 type RewardCardProps = {
   title: string;
   value: number | string;
@@ -109,22 +102,7 @@ export default function RewardsPage() {
         </span>
       </div>
 
-      <div className="flex gap-3">
-        {/* <BalanceCard
-          icon="ph:diamond-fill"
-          label="Silver Earned"
-          value="23,879"
-          action="refresh"
-          tone="silver"
-        />
-
-        <BalanceCard
-          icon="ph:diamond-fill"
-          label="Diamond Earned"
-          value="290"
-          action="plus"
-          tone="diamond"
-        /> */}
+      <div className="flex gap-3 flex-col">
         <RewardCard
           title="Silver Earned"
           value="23,879"
