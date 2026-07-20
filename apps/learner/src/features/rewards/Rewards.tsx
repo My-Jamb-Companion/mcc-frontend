@@ -11,7 +11,7 @@ export default function Rewards() {
   const [tab, setTab] = useState("goals");
 
   return (
-    <section>
+    <section className="max-md:px-4 pb-20">
       <BannerCarousel />
       <div className="w-full mx-auto max-w-[900px] ">
         <TopNav active={tab} onChange={setTab} />
@@ -36,14 +36,14 @@ function TopNav({
     {key: "rewards", label: "Rewards", icon: "ri:trophy-fill"},
   ];
   return (
-    <div className="flex justify-center gap-6 py-4 mb-7">
+    <div className="flex justify-center gap-6 py-4 mb-7 max-md:overflow-x-auto max-md:pl-30">
       {items.map(({key, label, icon}) => {
         const isActive = active === key;
         return (
           <button
             key={key}
             onClick={() => onChange(key)}
-            className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs md:text-sm font-medium transition-colors text-nowrap ${
               isActive
                 ? "border border-muted/30"
                 : "text-gray-400 hover:text-gray-600"

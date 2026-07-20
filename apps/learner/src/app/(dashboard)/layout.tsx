@@ -32,12 +32,13 @@ export default function DashboardLayout({
   }
 
   const isClassroom = pathname.includes("/classroom");
+  const isMobile = window.innerWidth < 768;
   return (
     <RoleLayout allowedRoles={["student"]}>
       <div className="flex flex-col h-screen scrollbar-hide">
         <Header open={sideNav} setOpen={setSideNav} />
 
-        {isClassroom ? (
+        {isClassroom && !isMobile ? (
           <section className="flex-1 overflow-y-scroll">{children}</section>
         ) : (
           <div

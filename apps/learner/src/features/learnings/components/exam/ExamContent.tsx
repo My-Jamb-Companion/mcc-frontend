@@ -1,30 +1,10 @@
 import {useState} from "react";
 import {Icon} from "@mcc/ui";
 import {usePathname, useRouter} from "next/navigation";
-import {ExamDetail} from "@/src/features/constants/demoExams";
+import type {ExamDetail, ExamLesson, ExamUnit, ExamSubject} from "@/src/features/constants/demoExams";
 import {useExam} from "./context/ExamContext";
 
-interface Lesson {
-  id: string;
-  title: string;
-  icon: string;
-}
-
-interface Unit {
-  id: string;
-  title: string;
-  totalLessons: number;
-  status: "resume" | "start";
-  lessons: Lesson[];
-}
-
-interface Subject {
-  id: string;
-  name: string;
-  units: Unit[];
-}
-
-function UnitCard({unit, subject}: {unit: Unit; subject: string}) {
+function UnitCard({unit, subject}: {unit: ExamUnit; subject: string}) {
   const router = useRouter();
   const pathname = usePathname();
   const {
@@ -80,7 +60,7 @@ function UnitCard({unit, subject}: {unit: Unit; subject: string}) {
         )}
 
         <div className="flex flex-col pl-[15px] pt-1">
-          {visibleLessons.map((lesson, index) => (
+          {visibleLessons.map((lesson: ExamLesson, index) => (
             <div
               key={lesson.id}
               className="relative flex items-center gap-3 py-2"
@@ -113,7 +93,7 @@ function UnitCard({unit, subject}: {unit: Unit; subject: string}) {
     </div>
   );
 }
-function SubjectSection({subject}: {subject: Subject}) {
+function SubjectSection({subject}: {subject: ExamSubject}) {
   const [isOpen, setIsOpen] = useState(subject.id === "" ? false : true);
 
   return (
@@ -136,7 +116,15 @@ function SubjectSection({subject}: {subject: Subject}) {
       </button>
 
       {isOpen && subject.units.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8 pb-8 pt-2">
+        <div
+          className={`grid grid-cols-1 gap-x-10 gap-y-8 pb-8 pt-2 ${
+            subject.units.length === 1
+              ? "md:grid-cols-1"
+              : subject.units.length === 2
+                ? "md:grid-cols-2"
+                : "md:grid-cols-3"
+          }`}
+        >
           {subject.units.map((unit) => (
             <UnitCard key={unit.id} unit={unit} subject={subject.name} />
           ))}

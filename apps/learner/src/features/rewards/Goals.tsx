@@ -3,11 +3,12 @@ import {Coins} from "lucide-react";
 
 export default function GoalsProgress() {
   return (
-    <div className="mx-auto max-w-5xl space-y-8 bg-white p-8">
+    <div className="mx-auto max-w-5xl space-y-8 bg-white p-8 max-md:p-0 max-md:pt-5">
       {/* Hero */}
       <GoalsProgressCard />
 
       {/* Weekly */}
+      <MonthlyGoalCardPreview />
 
       {/* Monthly Progress */}
       <GoalsSummary />
@@ -103,14 +104,16 @@ function GoalsProgressCard() {
 function GoalsSummary() {
   return (
     <section className="space-y-5">
-      <h2 className="text-xl font-semibold text-gray-900">
+      <h2 className="md:text-xl font-semibold text-gray-900">
         Daily & Weekly Goals Summary
       </h2>
 
-      <div className="rounded-[28px] border border-gray-200 bg-white p-8 shadow-lg shadow-gray-200/60">
+      <div className="rounded-[28px] border border-muted/40 bg-white p-8 shadow-lg shadow-gray-200/60 max-md:px-4 max-md:py-6">
         {/* Weekly Goal */}
         <div>
-          <h3 className="text-xl font-semibold text-gray-900">Weekly Goal</h3>
+          <h3 className="md:text-xl font-semibold text-gray-900">
+            Weekly Goal
+          </h3>
 
           <p className="text-sm text-gray-500">
             Pass 8 practice test this week
@@ -120,7 +123,7 @@ function GoalsSummary() {
           <WeeklyGoalCalendar />
 
           {/* Streak */}
-          <div className="mt-6 flex items-center gap-3 rounded-xl bg-violet-50 px-4 py-3 text-sm font-semibold">
+          <div className="mt-6 flex items-center gap-3 rounded-xl bg-violet-50 px-4 py-3 text-sm max-md:text-xs font-semibold">
             <Icon
               icon="solar:bolt-bold"
               className="text-violet-600"
@@ -135,7 +138,7 @@ function GoalsSummary() {
 
         {/* Daily Goal */}
         <div className="mt-10 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-gray-900">
+          <h3 className="md:text-lg font-bold text-gray-900">
             05 Feb | Daily Goal
           </h3>
 
@@ -146,7 +149,7 @@ function GoalsSummary() {
         </div>
 
         {/* Achievement */}
-        <div className="mt-6 rounded-full bg-[#1d1d1f] py-4 text-center text-sm font-medium text-white shadow-lg">
+        <div className="mt-6 rounded-full bg-[#1d1d1f] py-4 text-center text-sm max-md:text-xs font-medium text-white shadow-lg">
           Congratulations, Daily Goal Achieved!
         </div>
 
@@ -187,30 +190,90 @@ function GoalsSummary() {
 }
 function WeeklyGoalCalendar() {
   return (
-    <div className="flex items-center gap-2 overflow-x-auto mt-6">
-      {days.map((day) => (
-        <button
-          key={day.date}
-          className={`flex h-10 overflow-hidden rounded-xl transition-all ${day.status === "completed" ? "bg-primary" : day.status === "current" ? "bg-primary/10" : "bg-white border-transparent"}`}
-        >
-          <div
-            className={`flex w-8 items-center justify-center text-[11px] font-medium text-gray-500 ${day.status === "completed" ? "text-white" : day.status === "current" ? "text-black" : "text-gray-500"}`}
-          >
-            {day.day}
-          </div>
-          <div
-            className={`flex w-10 items-center justify-center text-sm font-bold m-1 rounded-lg  ${
+    <div className="mt-6 overflow-x-auto">
+      <div className="flex w-max items-center gap-2">
+        {days.map((day) => (
+          <button
+            key={day.date}
+            className={`flex h-10 shrink-0 rounded-xl transition-all ${
               day.status === "completed"
-                ? "bg-white"
+                ? "bg-primary"
                 : day.status === "current"
-                  ? "m-1 rounded-lg bg-violet-600 text-white"
-                  : "bg-white"
+                  ? "bg-primary/10"
+                  : "bg-white border-transparent"
             }`}
           >
-            {day.date}
-          </div>
+            <div
+              className={`flex w-8 items-center justify-center text-[11px] font-medium ${
+                day.status === "completed"
+                  ? "text-white"
+                  : day.status === "current"
+                    ? "text-black"
+                    : "text-gray-500"
+              }`}
+            >
+              {day.day}
+            </div>
+
+            <div
+              className={`flex w-10 items-center justify-center text-sm font-bold m-1 rounded-lg ${
+                day.status === "completed"
+                  ? "bg-white"
+                  : day.status === "current"
+                    ? "bg-violet-600 text-white"
+                    : "bg-white"
+              }`}
+            >
+              {day.date}
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+function MonthlyGoalCardPreview() {
+  const current = 4800;
+  const target = 10000;
+  const percent = Math.round((current / target) * 100);
+
+  return (
+    <div className="mx-auto max-w-5xl">
+      <div className="flex items-center justify-between">
+        <h3 className="md:text-lg font-bold text-gray-900">Goal Progress</h3>
+        <button
+          type="button"
+          className="text-sm font-medium text-subtle hover:text-gray-600"
+        >
+          View History
         </button>
-      ))}
+      </div>
+
+      <div className="mt-3 rounded-2xl border border-muted/30 shadow-sm p-6">
+        <div className="flex items-center justify-between gap-6">
+          <h4 className="md:text-xl font-bold text-gray-900">Monthly Goal</h4>
+          <div className="h-1.5 w-48 shrink-0 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-primary"
+              style={{width: `${percent}%`}}
+            />
+          </div>
+        </div>
+
+        <p className="mt-1 text-sm text-subtle">
+          Complete 10,000 points in April.
+        </p>
+
+        <div className="mt-5 flex items-end justify-between">
+          <p className="text-2xl font-bold text-gray-900">
+            {current.toLocaleString()}
+            <span className="text-sm font-medium text-subtle">
+              /{target.toLocaleString()} points
+            </span>
+          </p>
+          <p className="text-sm font-bold text-gray-700">{percent}%</p>
+        </div>
+      </div>
     </div>
   );
 }

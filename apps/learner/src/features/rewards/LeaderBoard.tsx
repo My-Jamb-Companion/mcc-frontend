@@ -29,7 +29,7 @@ const rankings = [
 
 export default function Leaderboard() {
   return (
-    <div className="mx-auto max-w-6xl bg-white p-8">
+    <div className="mx-auto max-w-6xl bg-white p-8 max-md:p-0">
       {/* Heading */}
       <h2 className="font-semibold text-gray-800">My Ranking.</h2>
 
@@ -39,7 +39,7 @@ export default function Leaderboard() {
       <div className="flex items-center">
         {/* Avatar */}
         <div className="">
-          <div className="flex h-40 w-40 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
+          <div className="flex w-[136px] h-[136px] md:h-40 md:w-40 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
             <img
               src="https://api.dicebear.com/7.x/adventurer/svg?seed=Bright"
               className="h-full w-full object-cover"
@@ -48,7 +48,7 @@ export default function Leaderboard() {
           </div>
         </div>
 
-        <div className="relative flex w-full items-center justify-between h-[112px] bg-[#121A22] px-4 pr-7 py-5  rounded-r-3xl">
+        <div className="relative flex w-full items-center justify-between h-[95px] md:h-[112px] bg-[#121A22] px-4 pr-7 py-5  rounded-r-3xl">
           <div>
             <p className="text-xs uppercase  text-gray-400">1st Position</p>
 
@@ -137,7 +137,7 @@ export default function Leaderboard() {
                 className="h-12 w-12 rounded-full bg-indigo-500"
               />
 
-              <span className="text-lg font-semibold text-gray-800">
+              <span className="md:text-lg font-semibold text-gray-800">
                 {user.name}
               </span>
             </div>
