@@ -28,7 +28,7 @@ export default function AccountSettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-8">
+    <div className="pb-10">
       <div className="">
         <div className="relative h-36 overflow-hidden bg-linear-to-r from-[#ede9fe] via-[#f4f1ff] to-[#fafafa]">
           <div className="absolute left-40 top-0 h-40 w-40 rounded-full bg-purple-300/20 blur-3xl" />
