@@ -137,7 +137,7 @@ export default function SubjectSelector({
             return (
               <div key={subject.id} className="relative">
                 {!showOnlySelected && (
-                  <div className="w-fit z-10 rounded-t-lg ml-auto mr-6 bg-gradient-to-r from-fuchsia-600 to-violet-600 px-3 py-1 shadow-sm">
+                  <div className="w-fit z-10 rounded-t-lg ml-auto mr-6 bg-primary-gradient px-3 py-1 shadow-sm">
                     <span className="text-[11px] font-medium text-white whitespace-nowrap">
                       {subject.opening}
                     </span>
@@ -189,7 +189,7 @@ export default function SubjectSelector({
                   {subject.isEnrolled ? (
                     <button
                       onClick={onAccess}
-                      className="flex items-center gap-3 border border-muted/30 rounded-full px-2.5 py-1.5 font-medium cursor-pointer shadow-sm"
+                      className="flex items-center gap-3 border border-muted/30 rounded-full max-md:text-xs px-2 md:px-2.5 md:py-1.5 py-1 font-medium cursor-pointer shadow-sm"
                     >
                       <span>Access</span>
                       <Icon icon="grommet-icons:next" size={12} />

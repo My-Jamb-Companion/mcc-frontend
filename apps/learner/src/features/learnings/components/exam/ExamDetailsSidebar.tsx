@@ -73,8 +73,6 @@ export default function ExamDetailsSidebar({
   currency = "$",
   lessons,
   difficulty,
-  // tags,
-  extraTagsCount = 0,
   stats,
   features,
   onEnroll,
@@ -84,7 +82,6 @@ export default function ExamDetailsSidebar({
   isEnrollDisabled = false,
   hasUnpaidSelection = false,
 }: ExamDetailsSidebarProps) {
-  // const visibleTags = tags.slice(0, 2);
   const items = featureItems(stats, features);
 
   const handlePrimaryAction = () => {
@@ -125,22 +122,6 @@ export default function ExamDetailsSidebar({
           </div>
         </div>
       </div>
-
-      {/* {tags.length > 0 && (
-        <div className="flex items-center gap-2 flex-wrap">
-          {visibleTags.map((tag) => (
-            <span
-              key={tag}
-              className="text-xs font-medium border border-muted/40 rounded-lg px-3 py-1"
-            >
-              {tag}
-            </span>
-          ))}
-          {extraTagsCount > 0 && (
-            <span className="text-xs text-subtle">+{extraTagsCount}</span>
-          )}
-        </div>
-      )} */}
 
       <ul className="flex flex-col gap-3">
         {items.map((item) => (
