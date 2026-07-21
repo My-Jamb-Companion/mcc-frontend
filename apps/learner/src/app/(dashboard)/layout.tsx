@@ -32,6 +32,7 @@ export default function DashboardLayout({
   }
 
   const isClassroom = pathname.includes("/classroom");
+  const isAccount = pathname.includes("/account");
   const isMobile = window.innerWidth < 768;
   return (
     <RoleLayout allowedRoles={["student"]}>
@@ -40,6 +41,16 @@ export default function DashboardLayout({
 
         {isClassroom && !isMobile ? (
           <section className="flex-1 overflow-y-scroll">{children}</section>
+        ) : isAccount ? (
+          <div
+            className="grid max-sm:grid-cols-1 h-full relative overflow-hidden"
+            style={{gridTemplateColumns: "auto 1fr"}}
+          >
+            <SideNav open={sideNav} setOpen={setSideNav} />
+            <div className="flex flex-col w-full overflow-y-auto col-start-2 max-sm:pl-0  scrollbar-hide">
+              {children}
+            </div>
+          </div>
         ) : (
           <div
             className="grid max-sm:grid-cols-1 h-full relative md:pr-12 md:px-4 overflow-hidden"
