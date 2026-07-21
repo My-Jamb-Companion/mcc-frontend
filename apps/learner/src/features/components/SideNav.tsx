@@ -5,6 +5,7 @@ import Link from "next/link";
 import {useEffect, useState} from "react";
 import {sideBarLinks} from "../dashboard/constants/NavLinks";
 import {usePathname} from "next/navigation";
+import Image from "next/image";
 
 export default function SideNav({
   open,
@@ -163,11 +164,12 @@ export default function SideNav({
           href={"/account"}
           className="px-2 py-2.5 rounded-2xl bg-[#222225] flex items-center gap-2 w-full dark:border dark:border-muted/40 dark:shadow-md"
         >
-          <div className="w-full max-w-10 max-sm:w-15! h-10 rounded-full border-2 border-white overflow-hidden  bg-[#B190B6]">
-            <img
+          <div className="relative w-full max-w-10 max-sm:w-15! h-10 rounded-full border-2 border-white overflow-hidden  bg-[#B190B6]">
+            <Image
               src="/assets/images/profile.png"
               alt="profile image"
-              className="w-full h-full"
+              fill
+              className="object-cover"
             />
           </div>
 
