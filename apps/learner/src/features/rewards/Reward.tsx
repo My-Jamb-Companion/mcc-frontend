@@ -102,7 +102,7 @@ export default function RewardsPage() {
         </span>
       </div>
 
-      <div className="flex gap-3 flex-col">
+      <div className="flex gap-3 max-md:flex-col">
         <RewardCard
           title="Silver Earned"
           value="23,879"
