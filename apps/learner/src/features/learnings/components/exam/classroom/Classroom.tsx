@@ -7,6 +7,7 @@ import {redirect} from "next/navigation";
 import {useState} from "react";
 import ClassroomUnitsPath, {SubLessonNode, UnitList} from "./ClassroomPath";
 import UnitDetailView from "./UnitDetails";
+import Link from "next/link";
 
 export default function Classroom() {
   const {activeClassroomExam, activeClassroomSubject, activeClassroomUnit} =
@@ -150,11 +151,19 @@ function ClassRoomHeader({
     <section className="relative bg-primary-gradient sm:px-8 sm:py-10 px-4 py-5 text-white">
       <div className="flex flex-col gap-5 max-sm:gap-2">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-medium max-sm:text-xs">Course </p>
+          <Link
+            href={"/learnings/exams"}
+            className="text-sm font-medium max-sm:text-xs"
+          >
+            Course
+          </Link>
           <Icon icon="iconoir:slash" color="black" size={14} />
-          <p className="text-sm font-medium max-sm:text-xs uppercase">
+          <Link
+            href={`/learnings/exams/${examName}`}
+            className="text-sm font-medium max-sm:text-xs uppercase"
+          >
             {examName}
-          </p>
+          </Link>
           <Icon icon="iconoir:slash" color="black" size={14} />
           <p
             onClick={() => {

@@ -65,8 +65,8 @@ export default function ClassroomPlayerTabs({
       </div>
 
       {/* Tabs */}
-      <div className="px-5 pt-4">
-        <div className="inline-flex rounded-full bg-gray-100 p-1">
+      <div className="md:px-5 pt-4 overflow-x-auto">
+        <div className="inline-flex md:rounded-full bg-gray-100 p-1">
           {[
             ...(isMobile
               ? [{id: "course-content", label: "Course Content"}]
@@ -78,7 +78,7 @@ export default function ClassroomPlayerTabs({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as Tab)}
-              className={`rounded-full px-4 py-1.5 text-sm transition ${
+              className={`rounded-full px-4 py-1.5 text-sm transition text-nowrap ${
                 activeTab === tab.id
                   ? "bg-white shadow font-medium text-gray-900"
                   : "text-gray-500 hover:text-black"
