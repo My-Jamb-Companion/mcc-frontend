@@ -159,7 +159,10 @@ export default function SideNav({
           </div>
         </div>
 
-        <div className="px-2 py-2.5 rounded-2xl bg-[#222225] flex items-center gap-2 w-full dark:border dark:border-muted/40 dark:shadow-md">
+        <Link
+          href={"/account"}
+          className="px-2 py-2.5 rounded-2xl bg-[#222225] flex items-center gap-2 w-full dark:border dark:border-muted/40 dark:shadow-md"
+        >
           <div className="w-full max-w-10 max-sm:w-15! h-10 rounded-full border-2 border-white overflow-hidden  bg-[#B190B6]">
             <img
               src="/assets/images/profile.png"
@@ -192,7 +195,7 @@ export default function SideNav({
 
             <Icon icon="ci:caret-down-sm" size={24} color="white" />
           </div>
-        </div>
+        </Link>
       </motion.div>
     </>
   );
