@@ -1,9 +1,9 @@
 "use client";
 
+import SideNav from "@/src/components/SideNav";
 import {useAuth} from "@mcc/features";
 import {useRouter} from "next/navigation";
 import {useEffect} from "react";
-// import { LoadingState } from "@mcc/ui";
 
 export default function DashboardLayout({
   children,
@@ -21,5 +21,19 @@ export default function DashboardLayout({
 
   // if (!isAuthenticated) return null;
 
-  return <>{children}</>;
+  return (
+    <section className="flex flex-col h-screen scrollbar-hide">
+      <div
+        className="grid max-sm:grid-cols-1 h-full relative overflow-hidden"
+        style={{gridTemplateColumns: "auto 1fr"}}
+      >
+        <SideNav />
+        <div className="flex flex-col w-full overflow-y-auto col-start-2 max-sm:pl-0 scrollbar-hide p-2">
+          <div className="bg-white border border-muted/20 rounded-3xl h-full">
+            {children}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }
