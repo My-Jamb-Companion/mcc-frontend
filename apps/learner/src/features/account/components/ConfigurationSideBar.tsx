@@ -1,4 +1,4 @@
-import {Icon} from "@iconify/react";
+import {Icon} from "@mcc/ui";
 
 export function ConfigurationsSidebar() {
   return (
@@ -6,8 +6,7 @@ export function ConfigurationsSidebar() {
       <div className="flex items-start gap-3 px-1">
         <Icon
           icon="mdi:bell-outline"
-          width={18}
-          height={18}
+          size={18}
           className="mt-0.5 text-gray-900"
         />
         <div>
