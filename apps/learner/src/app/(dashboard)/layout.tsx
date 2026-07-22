@@ -35,9 +35,9 @@ export default function DashboardLayout({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  if (!hydrated || !isAuthenticated || (user && !user.is_onboarded)) {
-    return null;
-  }
+  // if (!hydrated || !isAuthenticated || (user && !user.is_onboarded)) {
+  //   return null;
+  // }
 
   const isClassroom = pathname.includes("/classroom");
   const isAccount = pathname.includes("/account");
