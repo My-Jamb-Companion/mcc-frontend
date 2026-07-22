@@ -27,9 +27,9 @@ export default function DashboardLayout({
     }
   }, [hydrated, isAuthenticated, user, router]);
 
-  if (!hydrated || !isAuthenticated || (user && !user.is_onboarded)) {
-    return null;
-  }
+  // if (!hydrated || !isAuthenticated || (user && !user.is_onboarded)) {
+  //   return null;
+  // }
 
   const isClassroom = pathname.includes("/classroom");
   const isAccount = pathname.includes("/account");

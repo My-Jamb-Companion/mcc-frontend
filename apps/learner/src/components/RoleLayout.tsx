@@ -11,7 +11,7 @@ export const RoleLayout = ({
   const {user} = useAuth();
 
   if (!user || !allowedRoles.includes(user.role)) {
-    return <div className="p-4">Unauthorized</div>;
+    // return <div className="p-4">Unauthorized</div>;
   }
 
   return <>{children}</>;
