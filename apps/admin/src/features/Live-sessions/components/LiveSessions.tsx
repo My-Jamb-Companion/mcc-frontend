@@ -1,9 +1,9 @@
 "use client";
 
 import {useState} from "react";
-import {FormInputs} from "@mcc/features";
 import StatsSummary from "./StatsSummary";
 import SessionCallsList from "./SessionCallList";
+import FormInputs from "@/src/components/FormInput";
 
 export default function LiveSessions() {
   const [duration, setDuration] = useState("last month");
@@ -16,7 +16,7 @@ export default function LiveSessions() {
           <p className="text-xl font-semibold">Overview</p>
 
           <FormInputs
-            className="w-[126px]! border-muted/30!"
+            className="w-full! max-w-[140px]! border-muted/30!"
             type={"select"}
             label=""
             value={duration}

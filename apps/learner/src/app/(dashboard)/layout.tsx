@@ -7,6 +7,7 @@ import {useEffect, useState} from "react";
 import Header from "@/src/features/dashboard/components/header/Header";
 import SideNav from "@/src/features/components/SideNav";
 import Help from "@/src/features/dashboard/components/Help";
+import {useIsMobile} from "@/src/features/hooks/isMobile";
 
 export default function DashboardLayout({
   children,
@@ -33,7 +34,7 @@ export default function DashboardLayout({
 
   const isClassroom = pathname.includes("/classroom");
   const isAccount = pathname.includes("/account");
-  const isMobile = window.innerWidth < 768;
+  const isMobile = useIsMobile();
   return (
     <RoleLayout allowedRoles={["student"]}>
       <div className="flex flex-col h-screen scrollbar-hide">

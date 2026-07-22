@@ -2,6 +2,7 @@
 
 import {useEffect, useRef, useState} from "react";
 import {Icon} from "@mcc/ui";
+import RescheduleClass from "./ResheduleSession";
 
 type CallStatus = "completed" | "upcoming";
 type ActionVariant = "replay" | "share" | "countdown";
@@ -219,8 +220,23 @@ function RowMenu({
     </div>
   );
 }
+type CallRowProps = {
+  call: CallRowData;
+  onReplay?: (call: CallRowData) => void;
+  onShare?: (call: CallRowData) => void;
+  onMessage?: (call: CallRowData) => void;
+  onReschedule?: (call: CallRowData) => void;
+  onCancel?: (call: CallRowData) => void;
+};
 
-function CallRow({call}: {call: CallRowData}) {
+function CallRow({
+  call,
+  onReplay,
+  onShare,
+  onMessage,
+  onReschedule,
+  onCancel,
+}: CallRowProps) {
   return (
     <div className="flex items-center justify-between py-4 gap-4">
       <div className="flex items-center gap-4 min-w-0">
@@ -257,6 +273,7 @@ function CallRow({call}: {call: CallRowData}) {
         {call.action === "replay" && (
           <button
             type="button"
+            onClick={() => onReplay?.(call)}
             className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 transition-colors"
           >
             <Icon icon="mdi:play" size={14} />
@@ -264,20 +281,44 @@ function CallRow({call}: {call: CallRowData}) {
           </button>
         )}
         {call.action === "share" && (
-          <OutlinePillButton icon="mdi:link-variant" label="Share link" />
+          <OutlinePillButton
+            icon="mdi:link-variant"
+            label="Share link"
+            onClick={() => onShare?.(call)}
+          />
         )}
         {call.action === "countdown" && (
           <CountdownButton seconds={call.countdownSeconds ?? 0} />
         )}
 
-        <OutlinePillButton icon="mdi:email-outline" label="message" />
-        <RowMenu />
+        <OutlinePillButton
+          icon="mdi:email-outline"
+          label="message"
+          onClick={() => onMessage?.(call)}
+        />
+        <RowMenu
+          onReschedule={() => onReschedule?.(call)}
+          onCancel={() => onCancel?.(call)}
+        />
       </div>
     </div>
   );
 }
 
-export default function SessionCallsList() {
+export default function SessionCallsList({
+  onReplay,
+  onShare,
+  onMessage,
+  onReschedule,
+  onCancel,
+}: SessionCallsListProps) {
+  const [rescheduleCall, setRescheduleCall] = useState<CallRowData | null>(
+    null,
+  );
+  const [cancelCall, setCancelCall] = useState<CallRowData | null>(null);
+  const [shareCall, setShareCall] = useState<CallRowData | null>(null);
+  const [messageCall, setMessageCall] = useState<CallRowData | null>(null);
+  const [replayCall, setReplayCall] = useState<CallRowData | null>(null);
   return (
     <div className="w-full bg-white pt-10">
       <h2 className="text-base font-semibold text-gray-900">
@@ -290,10 +331,44 @@ export default function SessionCallsList() {
       </p>
 
       <div className="mt-4 divide-y divide-gray-100">
-        {CALLS.map((call) => (
-          <CallRow key={call.id} call={call} />
-        ))}
+        {CALLS.map((call) => {
+          return (
+            <>
+              <CallRow
+                key={call.id}
+                call={call}
+                onReplay={onReplay}
+                onShare={onShare}
+                onMessage={onMessage}
+                onReschedule={(call) => setRescheduleCall(call)}
+                onCancel={onCancel}
+              />
+            </>
+          );
+        })}
       </div>
+      <RescheduleClass
+        open={!!rescheduleCall}
+        onCancel={() => setRescheduleCall(null)}
+        onConfirm={(selection) => {
+          onReschedule?.(rescheduleCall!, selection);
+          setRescheduleCall(null);
+        }}
+      />
     </div>
   );
 }
+
+type SessionCallsListProps = {
+  onReplay?: (call: CallRowData) => void;
+  onShare?: (call: CallRowData) => void;
+  onMessage?: (call: CallRowData) => void;
+  onCancel?: (call: CallRowData) => void;
+  onReschedule?: (
+    call: CallRowData,
+    selection: {
+      date: string;
+      time: string;
+    },
+  ) => void;
+};

@@ -69,31 +69,27 @@ export default function StatsSummaryRow() {
           const isLast = index === STATS.length - 1;
 
           return (
-            <>
-              <div
-                key={stat.key}
-                className={`px-5 py-5 ${!isLast ? "sm:border-r border-gray-100" : ""}`}
-              >
-                <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-2">
-                  <Icon icon={stat.icon} size={16} className="text-gray-400" />
-                  <span>{stat.label}</span>
-                </div>
+            <div
+              key={stat.key}
+              className={`px-5 py-5 ${!isLast ? "sm:border-r border-gray-100" : ""}`}
+            >
+              <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-2">
+                <Icon icon={stat.icon} size={16} className="text-gray-400" />
+                <span>{stat.label}</span>
+              </div>
 
-                <div className="flex items-center gap-6 flex-wrap ">
-                  <span className="text-4xl font-semibold">{stat.value}</span>
+              <div className="flex items-center gap-6 flex-wrap ">
+                <span className="text-4xl font-semibold">{stat.value}</span>
 
-                  <div className="flex flex-col gap-1.5 text-xs mt-1">
-                    <ChangeBadge change={stat.change} />
-                    <p>
-                      <span className="text-muted">vs </span>
-                      <span className="font-medium">
-                        {stat.comparisonLabel}
-                      </span>
-                    </p>
-                  </div>
+                <div className="flex flex-col gap-1.5 text-xs mt-1">
+                  <ChangeBadge change={stat.change} />
+                  <p>
+                    <span className="text-muted">vs </span>
+                    <span className="font-medium">{stat.comparisonLabel}</span>
+                  </p>
                 </div>
               </div>
-            </>
+            </div>
           );
         })}
       </div>
