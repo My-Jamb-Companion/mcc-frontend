@@ -1,7 +1,12 @@
 import {useState} from "react";
 import {Icon} from "@mcc/ui";
 import {usePathname, useRouter} from "next/navigation";
-import type {ExamDetail, ExamLesson, ExamUnit, ExamSubject} from "@/src/features/constants/demoExams";
+import type {
+  ExamDetail,
+  ExamLesson,
+  ExamUnit,
+  ExamSubject,
+} from "@/src/features/constants/demoExams";
 import {useExam} from "./context/ExamContext";
 
 function UnitCard({unit, subject}: {unit: ExamUnit; subject: string}) {

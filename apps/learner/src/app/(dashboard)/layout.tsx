@@ -36,7 +36,7 @@ export default function DashboardLayout({
   }, []);
 
   if (!hydrated || !isAuthenticated || (user && !user.is_onboarded)) {
-    // return null;
+    return null;
   }
 
   const isClassroom = pathname.includes("/classroom");
