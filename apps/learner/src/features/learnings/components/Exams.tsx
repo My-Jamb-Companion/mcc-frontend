@@ -52,7 +52,7 @@ export default function Exams() {
             <ExamCard
               key={i}
               exam={exam}
-              onEnroll={(enroll) => console.log(enroll)}
+              // onEnroll={(enroll) => console.log(enroll)}
             />
           ))}
         </ScrollRow>
