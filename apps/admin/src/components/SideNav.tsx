@@ -34,7 +34,7 @@ export default function SideNav() {
       className="flex max-sm:hidden w-full max-w-[280px] h-full"
     >
       <div className="w-[60px] flex flex-col items-center border-r border-muted/20 px-2 pb-5">
-        <div className="w-full flex flex-col items-center justify-center mb-4 py-3.5">
+        <div className="w-full flex flex-col items-center justify-center mb-4 py-4.5">
           <h2 className="text-lg font-bagel text-primary">MCC</h2>
         </div>
 
@@ -82,7 +82,7 @@ export default function SideNav() {
         }}
         className="overflow-hidden"
       >
-        <div className="flex items-center justify-between px-3 py-3.5 border-b border-muted/30">
+        <div className="flex items-center justify-between px-3 py-4.5 border-b border-muted/30">
           <AnimatePresence mode="wait">
             {open && (
               <motion.h3
@@ -141,7 +141,7 @@ export default function SideNav() {
               transition={{
                 duration: 0.15,
               }}
-              className="flex justify-center py-10 px-4"
+              className="flex justify-center py-6 px-4"
             >
               <nav className="w-full py-2">
                 <ul className="flex flex-col">
