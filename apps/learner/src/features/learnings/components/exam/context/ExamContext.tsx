@@ -50,7 +50,7 @@ export function ExamProvider({children, examSlug}: ExamProviderProps) {
   const subjects = useMemo(() => {
     const exam = examDetails.find((e) => e.slug === resolvedSlug);
     if (!exam) {
-      console.warn(`ExamProvider: no exam found for slug "${resolvedSlug}"`);
+      // console.warn(`ExamProvider: no exam found for slug "${resolvedSlug}"`);
     }
     return exam?.subjects ?? [];
   }, [resolvedSlug]);

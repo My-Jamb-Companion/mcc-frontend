@@ -1,6 +1,6 @@
 import {Icon} from "@mcc/ui";
 import React, {useState, useRef, useEffect, useCallback} from "react";
-import {useExam} from "../context/ExamContext";
+import Image from "next/image";
 
 const LINE_HEIGHT = 36;
 
@@ -237,9 +237,10 @@ ${body}`;
                     key={i}
                     className="relative rounded-lg overflow-hidden border border-neutral-200"
                   >
-                    <img
+                    <Image
                       src={src}
-                      alt=""
+                      alt={`image-${i}`}
+                      fill
                       className="w-full h-24 object-cover"
                     />
                     <button

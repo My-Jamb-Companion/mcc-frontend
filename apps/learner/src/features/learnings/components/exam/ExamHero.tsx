@@ -1,4 +1,5 @@
 import {Icon} from "@mcc/ui";
+import Image from "next/image";
 
 type ExamHeroProps = {
   mainImage: string;
@@ -10,7 +11,6 @@ type ExamHeroProps = {
 
 export default function ExamHero({
   mainImage,
-  instructorImage,
   rating,
   totalRatings,
   onPlay,
@@ -21,10 +21,11 @@ export default function ExamHero({
   return (
     <div className="relative w-full rounded-2xl overflow-visible">
       {/* Main Image */}
-      <div className="w-full aspect-video rounded-2xl overflow-hidden bg-amber-800">
-        <img
+      <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-amber-800">
+        <Image
           src={mainImage}
           alt="Course preview"
+          fill
           className="w-full h-full object-cover"
         />
       </div>
@@ -64,15 +65,6 @@ export default function ExamHero({
           {totalRatings} ratings
         </span>
       </div>
-
-      {/* Instructor Thumbnail — bottom left, overflows outside image */}
-      {/* <div className="absolute -bottom-6 left-4 w-20 h-20 rounded-2xl overflow-hidden border-[3px] border-white shadow-md">
-        <img
-          src={instructorImage}
-          alt="Instructor"
-          className="w-full h-full object-cover"
-        />
-      </div> */}
     </div>
   );
 }

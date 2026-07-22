@@ -1,7 +1,5 @@
 "use client";
 
-import {useState} from "react";
-import {Icon} from "@mcc/ui";
 import SubjectSelector from "./SelectSubject";
 import {ExamSubject} from "@/src/features/constants/demoExams";
 import {useExam} from "./context/ExamContext"; // 1. Import your custom hook
@@ -24,34 +22,34 @@ type ExamInfoProps = {
   subjects: ExamSubject[];
 };
 
-function AccordionItem({item}: {item: CurriculumItem}) {
-  const [isOpen, setIsOpen] = useState(false);
+// function AccordionItem({item}: {item: CurriculumItem}) {
+//   const [isOpen, setIsOpen] = useState(false);
 
-  return (
-    <div className="py-4 border-b border-muted/20 last:border-none">
-      <button
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full flex items-center justify-between text-left"
-      >
-        <span className="text-sm font-semibold">{item.title}</span>
-        <Icon icon={isOpen ? "ri:close-line" : "ri:add-line"} size={18} />
-      </button>
+//   return (
+//     <div className="py-4 border-b border-muted/20 last:border-none">
+//       <button
+//         onClick={() => setIsOpen((prev) => !prev)}
+//         className="w-full flex items-center justify-between text-left"
+//       >
+//         <span className="text-sm font-semibold">{item.title}</span>
+//         <Icon icon={isOpen ? "ri:close-line" : "ri:add-line"} size={18} />
+//       </button>
 
-      {isOpen && (item.description || item.lessons?.length) && (
-        <div className="mt-2 flex flex-col gap-1">
-          {item.description && (
-            <p className="text-sm text-subtle">{item.description}</p>
-          )}
-          {item.lessons?.map((lesson, i) => (
-            <p key={i} className="text-sm text-subtle">
-              {lesson}
-            </p>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+//       {isOpen && (item.description || item.lessons?.length) && (
+//         <div className="mt-2 flex flex-col gap-1">
+//           {item.description && (
+//             <p className="text-sm text-subtle">{item.description}</p>
+//           )}
+//           {item.lessons?.map((lesson, i) => (
+//             <p key={i} className="text-sm text-subtle">
+//               {lesson}
+//             </p>
+//           ))}
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
 
 export default function ExamInfo({
   instructor,

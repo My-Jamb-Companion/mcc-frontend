@@ -1,7 +1,12 @@
 import {useState} from "react";
-import {Icon} from "@iconify/react";
+import {Icon} from "@mcc/ui";
 import {usePathname, useRouter} from "next/navigation";
-import type {ExamDetail, ExamLesson, ExamUnit, ExamSubject} from "@/src/features/constants/demoExams";
+import type {
+  ExamDetail,
+  ExamLesson,
+  ExamUnit,
+  ExamSubject,
+} from "@/src/features/constants/demoExams";
 import {useExam} from "./context/ExamContext";
 
 function UnitCard({unit, subject}: {unit: ExamUnit; subject: string}) {
@@ -47,7 +52,7 @@ function UnitCard({unit, subject}: {unit: ExamUnit; subject: string}) {
             className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg pl-4 pr-3 py-2 transition-colors"
           >
             Resume learning
-            <Icon icon="solar:alt-arrow-right-linear" width={14} />
+            <Icon icon="solar:alt-arrow-right-linear" size={14} />
           </button>
         ) : (
           <button
@@ -55,7 +60,7 @@ function UnitCard({unit, subject}: {unit: ExamUnit; subject: string}) {
             className="flex items-center gap-1.5 border border-muted/30 hover:bg-muted/5 text-foreground text-sm font-medium rounded-lg pl-4 pr-3 py-2 transition-colors"
           >
             Start learning
-            <Icon icon="solar:alt-arrow-right-linear" width={14} />
+            <Icon icon="solar:alt-arrow-right-linear" size={14} />
           </button>
         )}
 
@@ -69,7 +74,7 @@ function UnitCard({unit, subject}: {unit: ExamUnit; subject: string}) {
                 <span className="absolute left-[15px] top-[34px] w-px h-[calc(100%-10px)] bg-muted/25" />
               )}
               <span className="relative z-10 flex items-center justify-center w-8 h-8 rounded-lg bg-sky-500 shrink-0">
-                <Icon icon={lesson.icon} className="text-white" width={14} />
+                <Icon icon={lesson.icon} className="text-white" size={14} />
               </span>
               <span className="text-sm text-foreground">{lesson.title}</span>
             </div>
@@ -84,7 +89,7 @@ function UnitCard({unit, subject}: {unit: ExamUnit; subject: string}) {
             {showAll ? "Show less" : "Show more"}
             <Icon
               icon="solar:alt-arrow-down-linear"
-              width={12}
+              size={12}
               className={`transition-transform ${showAll ? "rotate-180" : ""}`}
             />
           </button>
@@ -104,7 +109,7 @@ function SubjectSection({subject}: {subject: ExamSubject}) {
       >
         <Icon
           icon="solar:alt-arrow-down-linear"
-          width={16}
+          size={16}
           className={`text-foreground transition-transform ${
             isOpen ? "" : "-rotate-90"
           }`}
