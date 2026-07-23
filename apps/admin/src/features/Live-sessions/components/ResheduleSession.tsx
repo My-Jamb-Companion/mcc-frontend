@@ -1,9 +1,7 @@
 "use client";
 
 import {useMemo, useRef, useState} from "react";
-import {Icon} from "@iconify/react";
-// import {ModalRef} from "@mcc/ui";
-import {PopUpModal, PopUpModalRef} from "@/src/components/PopUpModal";
+import {Icon, Modal, ModalRef} from "@mcc/ui";
 
 type DayOption = {
   key: string; // ISO date string, used as the value
@@ -56,24 +54,14 @@ export default function RescheduleClass({
   const [selectedDay, setSelectedDay] = useState<string>(days[0]?.key ?? "");
   const [selectedTime, setSelectedTime] = useState<string>("09:00 AM");
 
-  const modalRef = useRef<PopUpModalRef>(null);
+  const modalRef = useRef<ModalRef>(null);
   return (
-    <PopUpModal
-      open={open}
-      ref={modalRef}
-      maxWidth=" max-w-[550px] "
-      onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          onCancel?.();
-        }
-      }}
-    >
+    <Modal open={open} ref={modalRef} maxWidth=" max-w-[550px] ">
       <div className="w-full">
         <div className="w-11 h-11 flex items-center justify-center rounded-2xl bg-gray-100">
           <Icon
             icon="mdi:calendar-clock-outline"
-            width={22}
-            height={22}
+            size={22}
             className="text-gray-800"
           />
         </div>
@@ -90,59 +78,31 @@ export default function RescheduleClass({
             {days.map((day) => {
               const isSelected = day.key === selectedDay;
               return (
-                <>
-                  {/* <button
-                    key={day.key}
-                    type="button"
-                    onClick={() => setSelectedDay(day.key)}
-                    className={`flex flex-col items-center gap-1 w-12 py-2 rounded-2xl transition-all ${
-                      isSelected
-                        ? "bg-violet-50 ring-1 ring-violet-200"
-                        : "bg-transparent"
+                <button
+                  key={day.date}
+                  onClick={() => setSelectedDay(day.key)}
+                  className={`flex h-10 shrink-0 rounded-xl transition-all focus:ring-2 focus:ring-primary focus:border-0 focus:outline-0 ${
+                    isSelected
+                      ? "bg-primary"
+                      : "bg-white border-transparent ring-2 ring-gray-100"
+                  }`}
+                >
+                  <div
+                    className={`flex w-8 items-center justify-center text-[11px] font-medium ${
+                      isSelected ? "text-white" : "text-gray-500"
                     }`}
                   >
-                    <span
-                      className={`text-[11px] font-medium ${isSelected ? "text-violet-600" : "text-gray-400"}`}
-                    >
-                      {day.dayLabel}
-                    </span>
-                    <span
-                      className={`flex w-9 h-8 items-center justify-center text-sm font-bold rounded-lg ${
-                        isSelected
-                          ? "bg-violet-600 text-white"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {String(day.date).padStart(2, "0")}
-                    </span>
-                  </button> */}
+                    {day.dayLabel}
+                  </div>
 
-                  <button
-                    key={day.date}
-                    onClick={() => setSelectedDay(day.key)}
-                    className={`flex h-10 shrink-0 rounded-xl transition-all focus:ring-2 focus:ring-primary focus:border-0 focus:outline-0 ${
-                      isSelected
-                        ? "bg-primary"
-                        : "bg-white border-transparent ring-2 ring-gray-100"
+                  <div
+                    className={`flex w-10 items-center justify-center text-sm font-bold m-1 rounded-lg ${
+                      isSelected ? "bg-white" : "bg-muted/20"
                     }`}
                   >
-                    <div
-                      className={`flex w-8 items-center justify-center text-[11px] font-medium ${
-                        isSelected ? "text-white" : "text-gray-500"
-                      }`}
-                    >
-                      {day.dayLabel}
-                    </div>
-
-                    <div
-                      className={`flex w-10 items-center justify-center text-sm font-bold m-1 rounded-lg ${
-                        isSelected ? "bg-white" : "bg-muted/20"
-                      }`}
-                    >
-                      {day.date}
-                    </div>
-                  </button>
-                </>
+                    {day.date}
+                  </div>
+                </button>
               );
             })}
           </div>
@@ -171,8 +131,7 @@ export default function RescheduleClass({
                       {isSelected && (
                         <Icon
                           icon="mdi:check"
-                          width={14}
-                          height={14}
+                          size={14}
                           className="text-violet-600"
                         />
                       )}
@@ -202,6 +161,6 @@ export default function RescheduleClass({
           </button>
         </div>
       </div>
-    </PopUpModal>
+    </Modal>
   );
 }

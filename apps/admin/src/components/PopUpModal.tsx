@@ -12,7 +12,7 @@ import {
 import {createPortal} from "react-dom";
 import {Icon} from "@mcc/ui";
 
-export type PopUpModalRef = {
+export type ModalRef = {
   openDialog: () => void;
   closeDialog: () => void;
 };
@@ -34,7 +34,7 @@ type ModalProps = {
   onClose?: () => void;
 };
 
-export const PopUpModal = forwardRef<PopUpModalRef, ModalProps>(
+export const Modal = forwardRef<ModalRef, ModalProps>(
   (
     {
       trigger,
@@ -221,4 +221,4 @@ export const PopUpModal = forwardRef<PopUpModalRef, ModalProps>(
   },
 );
 
-PopUpModal.displayName = "PopUpModal";
+Modal.displayName = "Modal";

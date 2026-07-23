@@ -13,7 +13,7 @@ const STATS: Stat[] = [
   {
     key: "live-calls",
     label: "Live Calls",
-    icon: "mdi:message-text-outline",
+    icon: "material-symbols:video-chat-outline",
     value: "1,255",
     change: -34.9,
     comparisonLabel: "prev month",
@@ -37,8 +37,8 @@ const STATS: Stat[] = [
   {
     key: "revenue-gen",
     label: "Revenue Gen.",
-    icon: "mdi:receipt-text-outline",
-    value: "₦925k",
+    icon: "ri:wallet-line",
+    value: "925k",
     change: 34.9,
     comparisonLabel: "last month",
   },
@@ -73,13 +73,18 @@ export default function StatsSummaryRow() {
               key={stat.key}
               className={`px-5 py-5 ${!isLast ? "sm:border-r border-gray-100" : ""}`}
             >
-              <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-2">
-                <Icon icon={stat.icon} size={16} className="text-gray-400" />
+              <div className="flex items-center gap-1.5 text-xs mb-2">
+                <Icon icon={stat.icon} size={16} />
                 <span>{stat.label}</span>
               </div>
 
               <div className="flex items-center gap-6 flex-wrap ">
-                <span className="text-4xl font-semibold">{stat.value}</span>
+                <span className="text-4xl font-semibold">
+                  {stat.key === "revenue-gen" && (
+                    <sup className="text-lg text-muted/70">$</sup>
+                  )}
+                  {stat.value}
+                </span>
 
                 <div className="flex flex-col gap-1.5 text-xs mt-1">
                   <ChangeBadge change={stat.change} />

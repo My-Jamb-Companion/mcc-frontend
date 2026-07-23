@@ -3,7 +3,8 @@
 import {useState} from "react";
 import StatsSummary from "./StatsSummary";
 import SessionCallsList from "./SessionCallList";
-import FormInputs from "@/src/components/FormInput";
+import {FormInputs} from "@mcc/features";
+// import FormInputs from "@/src/components/FormInput";
 
 export default function LiveSessions() {
   const [duration, setDuration] = useState("last month");
