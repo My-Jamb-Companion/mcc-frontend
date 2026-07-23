@@ -3,6 +3,9 @@
 import {useEffect, useRef, useState} from "react";
 import {Icon} from "@mcc/ui";
 import RescheduleClass from "./ResheduleSession";
+import CancelClass from "@/src/components/Modals/CancelClass";
+import ShareSessionLink from "@/src/components/Modals/ShareLink";
+import SendMessage from "@/src/components/Modals/SendMessage";
 
 type CallStatus = "completed" | "upcoming";
 type ActionVariant = "replay" | "share" | "countdown";
@@ -135,7 +138,7 @@ function OutlinePillButton({
       onClick={onClick}
       className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-200 text-sm font-medium text-gray-800 hover:bg-gray-50 transition-colors"
     >
-      <Icon icon={icon} size={15} />
+      <Icon icon={icon} size={15} className="text-muted/70" />
       {label}
     </button>
   );
@@ -154,7 +157,7 @@ function CountdownButton({seconds}: {seconds: number}) {
 
   return (
     <span className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-200 text-sm font-medium text-gray-800 tabular-nums">
-      <Icon icon="mdi:clock-outline" size={15} />
+      <Icon icon="mdi:clock-outline" size={15} className="text-muted/70" />
       {formatCountdown(remaining)}
     </span>
   );
@@ -282,7 +285,7 @@ function CallRow({
         )}
         {call.action === "share" && (
           <OutlinePillButton
-            icon="mdi:link-variant"
+            icon="ep:link"
             label="Share link"
             onClick={() => onShare?.(call)}
           />
@@ -292,7 +295,7 @@ function CallRow({
         )}
 
         <OutlinePillButton
-          icon="mdi:email-outline"
+          icon="iconoir:send-mail"
           label="message"
           onClick={() => onMessage?.(call)}
         />
@@ -318,7 +321,7 @@ export default function SessionCallsList({
   const [cancelCall, setCancelCall] = useState<CallRowData | null>(null);
   const [shareCall, setShareCall] = useState<CallRowData | null>(null);
   const [messageCall, setMessageCall] = useState<CallRowData | null>(null);
-  const [replayCall, setReplayCall] = useState<CallRowData | null>(null);
+
   return (
     <div className="w-full bg-white pt-10">
       <h2 className="text-base font-semibold text-gray-900">
@@ -331,28 +334,52 @@ export default function SessionCallsList({
       </p>
 
       <div className="mt-4 divide-y divide-gray-100">
-        {CALLS.map((call) => {
-          return (
-            <>
-              <CallRow
-                key={call.id}
-                call={call}
-                onReplay={onReplay}
-                onShare={onShare}
-                onMessage={onMessage}
-                onReschedule={(call) => setRescheduleCall(call)}
-                onCancel={onCancel}
-              />
-            </>
-          );
-        })}
+        {CALLS.map((call) => (
+          <CallRow
+            key={call.id}
+            call={call}
+            onReplay={onReplay}
+            onShare={(call) => setShareCall(call)}
+            onMessage={(call) => setMessageCall(call)}
+            onReschedule={(call) => setRescheduleCall(call)}
+            onCancel={(call) => setCancelCall(call)}
+          />
+        ))}
       </div>
+
       <RescheduleClass
         open={!!rescheduleCall}
         onCancel={() => setRescheduleCall(null)}
         onConfirm={(selection) => {
           onReschedule?.(rescheduleCall!, selection);
           setRescheduleCall(null);
+        }}
+      />
+
+      <CancelClass
+        open={!!cancelCall}
+        onKeepClass={() => setCancelCall(null)}
+        onConfirmCancel={() => {
+          onCancel?.(cancelCall!);
+          setCancelCall(null);
+        }}
+      />
+
+      <ShareSessionLink
+        open={!!shareCall}
+        onCancel={() => setShareCall(null)}
+        onSendLink={() => {
+          onShare?.(shareCall!);
+          setShareCall(null);
+        }}
+      />
+
+      <SendMessage
+        open={!!messageCall}
+        onClose={() => setMessageCall(null)}
+        onSend={() => {
+          onMessage?.(messageCall!);
+          setMessageCall(null);
         }}
       />
     </div>
