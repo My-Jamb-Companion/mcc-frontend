@@ -34,7 +34,7 @@ export default function DashboardLayout({
             <div className="shrink-0">
               <BreadcrumbsTopNav />
             </div>
-            <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pt-10">
+            <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pt-10 pb-4.5">
               {children}
             </div>
           </div>
