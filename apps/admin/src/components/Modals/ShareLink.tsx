@@ -4,13 +4,13 @@ import {useMemo, useState} from "react";
 import {Icon} from "@iconify/react";
 import {Modal} from "@mcc/ui";
 
-type Recipient = {
+export type Recipient = {
   id: string;
   name: string;
   role: "Student" | "Teacher";
 };
 
-const SAMPLE_RECIPIENTS: Recipient[] = [
+export const SAMPLE_RECIPIENTS: Recipient[] = [
   {id: "1", name: "Emmanuel Okafor", role: "Student"},
   {id: "2", name: "Misturah Bello", role: "Student"},
   {id: "3", name: "Mo Abiodun", role: "Teacher"},

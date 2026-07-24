@@ -10,7 +10,7 @@ import SendMessage from "@/src/components/Modals/SendMessage";
 type CallStatus = "completed" | "upcoming";
 type ActionVariant = "replay" | "share" | "countdown";
 
-type CallRowData = {
+export type CallRowData = {
   id: string;
   studentName: string;
   hostName: string;

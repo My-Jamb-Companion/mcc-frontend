@@ -1,13 +1,15 @@
-import {motion} from "@mcc/ui";
+import {Icon, motion} from "@mcc/ui";
 
 export default function TabbedButton({
   active,
   onChange,
   tabs,
+  iconClassName,
 }: {
   active: string;
   onChange: (key: string) => void;
-  tabs: {key: string; label: string}[];
+  iconClassName?: string;
+  tabs: {key: string; label: string; icon?: string}[];
 }) {
   return (
     <div className="inline-flex rounded-full bg-gray-100 p-1">
@@ -19,12 +21,12 @@ export default function TabbedButton({
             key={t.key}
             type="button"
             onClick={() => onChange(t.key)}
-            className="relative rounded-full px-4 py-1.5 text-sm font-semibold focus:ring-2 ring-primary/50 focus:ring-primary/30 outline-0"
+            className="relative flex items-center gap-1 rounded-full px-4 py-1.5 text-sm font-semibold focus:ring-2 ring-primary/50 focus:ring-primary/30 outline-0"
           >
             {isActive && (
               <motion.div
                 layoutId="active-tab"
-                className="absolute inset-0 rounded-full border border-muted/30 bg-white shadow-sm"
+                className="absolute inset-0 flex items-center gap-1 rounded-full border border-muted/30 bg-white shadow-sm"
                 transition={{
                   type: "spring",
                   stiffness: 500,
@@ -32,7 +34,17 @@ export default function TabbedButton({
                 }}
               />
             )}
-
+            {t.icon && (
+              <Icon
+                icon={String(t.icon)}
+                size={16}
+                className={
+                  isActive
+                    ? "text-muted z-10"
+                    : "text-muted/40" + " " + iconClassName
+                }
+              />
+            )}
             <motion.span
               animate={{
                 color: isActive ? "#111827" : "#9CA3AF",
