@@ -1,9 +1,10 @@
 "use client";
-import FormInputs from "@/src/components/FormInput";
+// import FormInputs from "@/src/components/FormInput";
 import TabbedButton from "@/src/components/TabbedButton";
 import {Button, Icon} from "@mcc/ui";
 import {useState} from "react";
 import StudioTable, {studiodata} from "./StudioTable";
+import {FormInputs} from "@mcc/features";
 
 export default function StudioAnalysis() {
   const [active, setActive] = useState<string>("student");
