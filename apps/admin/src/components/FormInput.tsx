@@ -248,7 +248,7 @@ export function CustomSelect({
               duration: 0.25,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="bg-white dark:bg-zinc-800 border border-hint/30  rounded-lg overflow-hidden shadow-lg absolute left-0 top-full mt-2 w-full z-10"
+            className="bg-white dark:bg-zinc-800 border border-hint/30  rounded-lg overflow-hidden shadow-lg absolute left-0 top-full mt-2 w-full z-20"
           >
             {options?.map((opt) => (
               <li
@@ -275,7 +275,7 @@ export function CustomSelect({
               duration: 0.25,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="bg-white dark:bg-zinc-800 border border-hint/30 rounded-lg shadow-lg absolute left-0 top-full mt-2 w-72 z-10 p-3"
+            className="bg-white dark:bg-zinc-800 border border-hint/30 rounded-lg shadow-lg absolute left-0 top-full mt-2 w-72 z-20 p-3"
           >
             <div className="flex items-center justify-between mb-2 px-1">
               <button
