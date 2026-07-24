@@ -3,13 +3,15 @@
 import {AnimatePresence, Button, Icon, motion} from "@mcc/ui";
 import Image from "next/image";
 import Link from "next/link";
+import {usePathname} from "next/navigation";
 import {useState} from "react";
 
 export default function SideNav() {
   const [routeNav, setRouteNav] = useState("dashboard");
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set(["programs"]));
-  const [active, setActive] = useState<string>("exam-program");
+
+  const pathname = usePathname();
 
   const toggle = (key: string) => {
     setExpanded((prev) => {
@@ -146,35 +148,43 @@ export default function SideNav() {
               <nav className="w-full py-2">
                 <ul className="flex flex-col">
                   {navs.navAccordions.map((item) => {
-                    const isExpanded = expanded.has(item.key);
+                    const hasActiveChild = item.children?.some(
+                      (child) => pathname === child.href,
+                    );
+
+                    const isExpanded = expanded.has(item.key) || hasActiveChild;
+                    const isItemActive = pathname === item.href;
 
                     return (
                       <motion.li
                         layout
                         key={item.key}
                         transition={{
-                          layout: {
-                            duration: 0.25,
-                          },
+                          layout: {duration: 0.25},
                         }}
                       >
-                        <div
-                          className={`w-full flex items-center justify-between px-2 py-3 text-[15px] transition-colors ${
-                            active === item.key
-                              ? "text-white font-medium rounded-md bg-black"
-                              : "text-gray-800"
-                          }`}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActive(item.key);
-                              if (item.expandable) toggle(item.key);
-                            }}
-                            className="flex-1 text-left text-sm font-medium transition-colors"
-                          >
-                            {item.label}
-                          </button>
+                        <div className="flex items-center justify-between px-2 py-3 rounded-md">
+                          {item.expandable ? (
+                            <button
+                              type="button"
+                              onClick={() => toggle(item.key)}
+                              className="flex-1 text-left text-sm font-medium text-gray-800 py-2"
+                            >
+                              {item.label}
+                            </button>
+                          ) : (
+                            <Link
+                              href={item.href!}
+                              className={`flex-1 rounded-md px-2 py-2 text-sm font-medium transition-colors ${
+                                isItemActive
+                                  ? "bg-black text-white"
+                                  : "text-gray-800 hover:bg-gray-100"
+                              }`}
+                            >
+                              {item.label}
+                            </Link>
+                          )}
+
                           {item.expandable && (
                             <button
                               type="button"
@@ -183,12 +193,8 @@ export default function SideNav() {
                               aria-label={isExpanded ? "Collapse" : "Expand"}
                             >
                               <motion.div
-                                animate={{
-                                  rotate: isExpanded ? 180 : 0,
-                                }}
-                                transition={{
-                                  duration: 0.2,
-                                }}
+                                animate={{rotate: isExpanded ? 180 : 0}}
+                                transition={{duration: 0.2}}
                               >
                                 <Icon
                                   icon="mingcute:down-line"
@@ -203,51 +209,32 @@ export default function SideNav() {
                         <AnimatePresence initial={false}>
                           {item.expandable && item.children && isExpanded && (
                             <motion.ul
-                              initial={{
-                                height: 0,
-                                opacity: 0,
-                              }}
-                              animate={{
-                                height: "auto",
-                                opacity: 1,
-                              }}
-                              exit={{
-                                height: 0,
-                                opacity: 0,
-                              }}
-                              transition={{
-                                duration: 0.25,
-                              }}
+                              initial={{height: 0, opacity: 0}}
+                              animate={{height: "auto", opacity: 1}}
+                              exit={{height: 0, opacity: 0}}
+                              transition={{duration: 0.25}}
                               className="overflow-hidden flex flex-col gap-1 pb-2 w-[90%] ml-auto"
                             >
                               {item.children.map((child) => {
-                                const isActive = active === child.key;
+                                const isChildActive = pathname === child.href;
+
                                 return (
                                   <motion.li
                                     key={child.key}
-                                    initial={{
-                                      opacity: 0,
-                                      x: -8,
-                                    }}
-                                    animate={{
-                                      opacity: 1,
-                                      x: 0,
-                                    }}
-                                    transition={{
-                                      duration: 0.2,
-                                    }}
+                                    initial={{opacity: 0, x: -8}}
+                                    animate={{opacity: 1, x: 0}}
+                                    transition={{duration: 0.2}}
                                   >
-                                    <button
-                                      type="button"
-                                      onClick={() => setActive(child.key)}
-                                      className={`w-full text-left px-4 py-2.5 rounded-md text-sm font-medium transition-colors ${
-                                        isActive
-                                          ? "bg-black text-white font-medium"
+                                    <Link
+                                      href={child.href}
+                                      className={`block w-full rounded-md px-4 py-2.5 text-sm font-medium transition-colors ${
+                                        isChildActive
+                                          ? "bg-black text-white"
                                           : "text-gray-700 hover:bg-gray-100"
                                       }`}
                                     >
                                       {child.label}
-                                    </button>
+                                    </Link>
                                   </motion.li>
                                 );
                               })}
@@ -287,20 +274,36 @@ const navs = {
     {icon: "solar:settings-broken", label: "profile", href: "/admin/profile"},
   ],
   navAccordions: [
-    {label: "Performance Overview", key: "performance"},
-    {label: "Live sessions", key: "live-sessions"},
-    {label: "AI studio analysis", key: "ai-studio"},
+    {
+      label: "Performance Overview",
+      key: "performance",
+      href: "/dashboard/performance",
+    },
+    {
+      label: "Live sessions",
+      key: "live-sessions",
+      href: "/dashboard/live-sessions",
+    },
+    {
+      label: "AI studio analysis",
+      key: "ai-studio",
+      href: "/dashboard/ai-studio",
+    },
+    {label: "Teachers", key: "teachers", href: "/dashboard/teachers"},
     {
       label: "Programs",
       key: "programs",
       expandable: true,
       children: [
-        {label: "Exam program", key: "exam-program"},
-        {label: "Courses", key: "courses"},
+        {
+          label: "Exam program",
+          key: "exam-program",
+          href: "/dashboard/exam-program",
+        },
+        {label: "Courses", key: "courses", href: "/dashboard/courses"},
       ],
     },
     {label: "Students", key: "students", expandable: true, children: []},
-    {label: "Teachers", key: "teachers"},
     {label: "More", key: "more", expandable: true, children: []},
   ],
 };
