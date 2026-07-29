@@ -1,5 +1,5 @@
-// import {Button, Icon} from "@mcc/ui";
 "use client";
+
 import {Button} from "@/src/components/Buttons";
 import TabbedButton from "@/src/components/TabbedButton";
 import {FormInputs} from "@mcc/features";
@@ -11,6 +11,7 @@ import ShareSessionLink from "@/src/components/Modals/ShareLink";
 import {ProgramListRowData} from "./ProgramRow";
 import CreateExamProgram from "./CreateExam";
 import EditExamProgram from "./EditExam";
+import {useRouter} from "next/navigation";
 
 export default function ExamProgram() {
   const [active, setActive] = useState("published");
@@ -23,6 +24,7 @@ export default function ExamProgram() {
     null,
   );
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const filteredPrograms = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -121,6 +123,7 @@ export default function ExamProgram() {
           </AnimatePresence>
         </div>
       </div>
+
       <div className="flex flex-col h-full border border-muted/20 rounded-2xl px-6 py-8 ">
         <div className="flex items-center gap-3 justify-between">
           <div className="flex items-center gap-3 ">
@@ -155,6 +158,12 @@ export default function ExamProgram() {
         <div className="min-h-0 flex-1 flex items-center justify-center pt-10 overflow-y-auto">
           <ProgramList
             program={filteredPrograms || []}
+            onOpen={(program) => {
+              console.log(program);
+              router.push(
+                `/dashboard/exam-program/${program.examType}?id=${program.id}`,
+              );
+            }}
             onShareLink={(id) => {
               const target = filteredPrograms?.find((p) => p.id === id);
               if (target) setShareTarget(target);
@@ -178,6 +187,7 @@ export default function ExamProgram() {
           </Button>
         </div>
       </div>
+
       <ShareSessionLink
         key={shareTarget?.link}
         open={shareTarget !== null}
@@ -206,7 +216,6 @@ export default function ExamProgram() {
           setEditExam(null);
         }}
       />
-      ;
     </section>
   );
 }

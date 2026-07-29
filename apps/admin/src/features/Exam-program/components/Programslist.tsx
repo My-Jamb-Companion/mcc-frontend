@@ -4,7 +4,7 @@ import {NoProgram} from "./EmptyProgram";
 interface ProgramListProps {
   program: ProgramListRowData[];
   onShareLink?: (id: string) => void;
-  onOpen?: (id: string) => void;
+  onOpen?: (program: ProgramListRowData) => void;
   onEditProgram?: (id: string) => void;
   onPublishProgram?: (id: string) => void;
   onMessageTeacher?: (id: string) => void;
@@ -33,9 +33,9 @@ export function ProgramList({
           key={item.id}
           program={item}
           onShareLink={() => onShareLink?.(item.id)}
-          onOpen={() => onOpen?.(item.id)}
+          onOpen={() => onOpen?.(item)}
           menuHandlers={{
-            onOpenProgram: () => onOpen?.(item.id),
+            onOpenProgram: () => onOpen?.(item),
             onEditProgram: () => onEditProgram?.(item.id),
             onPublishProgram: () => onPublishProgram?.(item.id),
             onMessageTeacher: () => onMessageTeacher?.(item.id),

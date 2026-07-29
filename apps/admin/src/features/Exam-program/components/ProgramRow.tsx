@@ -42,7 +42,7 @@ interface MenuItemConfig {
 interface ProgramListRowProps {
   program: ProgramListRowData;
   onShareLink?: () => void;
-  onOpen?: () => void;
+  onOpen?: (program: ProgramListRowData) => void;
   menuHandlers?: ProgramOptionsMenuProps;
 }
 
@@ -166,7 +166,7 @@ export function ProgramListRow({
       <Button
         type="button"
         variant="outline"
-        onClick={onOpen}
+        onClick={() => onOpen?.(program)}
         className="px-3! border-muted/40! shadow-sm! h-[36px]"
         leftIcon={
           <Icon
