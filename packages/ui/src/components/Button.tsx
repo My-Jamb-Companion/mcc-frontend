@@ -33,7 +33,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
   width?: Width;
 
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
 
   radius?: Radius;
 
