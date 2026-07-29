@@ -3,6 +3,7 @@ import {ProgramListRowData} from "../components/ProgramRow";
 export const dummyPrograms: ProgramListRowData[] = [
   {
     id: "prog_1",
+    examType: "utme",
     logoUrl: "https://picsum.photos/seed/utme/56",
     teacherName: "Matthew James",
     rating: "4.7",
@@ -19,6 +20,7 @@ export const dummyPrograms: ProgramListRowData[] = [
   },
   {
     id: "prog_2",
+    examType: "waec",
     logoUrl: "https://picsum.photos/seed/waec1/56",
     teacherName: "Anna Williams",
     rating: "4.7",
@@ -34,6 +36,7 @@ export const dummyPrograms: ProgramListRowData[] = [
   },
   {
     id: "prog_3",
+    examType: "waec",
     logoUrl: "https://picsum.photos/seed/waec2/56",
     teacherName: "Becky Gray",
     rating: "4.7",
@@ -49,6 +52,7 @@ export const dummyPrograms: ProgramListRowData[] = [
   },
   {
     id: "prog_4",
+    examType: "waec",
     // no logoUrl on purpose, to test the fallback icon state
     teacherName: "Jason Thompson",
     rating: "4.7",
@@ -64,6 +68,7 @@ export const dummyPrograms: ProgramListRowData[] = [
   },
   {
     id: "prog_5",
+    examType: "waec",
     logoUrl: "https://picsum.photos/seed/waec4/56",
     teacherName: "Conner Gates",
     rating: "4.7",
@@ -79,6 +84,7 @@ export const dummyPrograms: ProgramListRowData[] = [
   },
   {
     id: "prog_6",
+    examType: "waec",
     logoUrl: "https://picsum.photos/seed/waec5/56",
     teacherName: "Ben Woods",
     rating: "4.7",
