@@ -13,9 +13,9 @@ export interface ProgramListRowData {
   tags: string[];
   extraTagsCount?: number;
   status: "live" | "draft";
-  price: string;
-  originalPrice?: string;
-  perSubjectPrice?: string;
+  price: number;
+  originalPrice?: number;
+  perSubjectPrice?: number;
   currency: string;
   link: string;
 }
