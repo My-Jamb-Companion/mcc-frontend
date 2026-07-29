@@ -9,12 +9,16 @@ import {ProgramList} from "./Programslist";
 import {dummyPrograms} from "../constants/dummyData";
 import ShareSessionLink from "@/src/components/Modals/ShareLink";
 import {ProgramListRowData} from "./ProgramRow";
+import CreateExamProgram from "./CreateExam";
+import EditExamProgram from "./EditExam";
 
 export default function ExamProgram() {
   const [active, setActive] = useState("published");
   const [teachers, setTeachers] = useState<TeacherOption[]>([]);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const [openCreateExam, setOpenCreateExam] = useState(false);
+  const [editExam, setEditExam] = useState<ProgramListRowData | null>(null);
   const [shareTarget, setShareTarget] = useState<ProgramListRowData | null>(
     null,
   );
@@ -98,6 +102,9 @@ export default function ExamProgram() {
                     type="button"
                     onClick={() => {
                       // item.onClick?.();
+                      if (item.label === "Exam program") {
+                        setOpenCreateExam(true);
+                      }
                       setOpen(false);
                     }}
                     className={`flex w-full items-center gap-4 rounded-lg px-2 py-2.5 text-left text-base transition-colors hover:bg-zinc-50 text-subtle`}
@@ -114,7 +121,6 @@ export default function ExamProgram() {
           </AnimatePresence>
         </div>
       </div>
-
       <div className="flex flex-col h-full border border-muted/20 rounded-2xl px-6 py-8 ">
         <div className="flex items-center gap-3 justify-between">
           <div className="flex items-center gap-3 ">
@@ -153,6 +159,10 @@ export default function ExamProgram() {
               const target = filteredPrograms?.find((p) => p.id === id);
               if (target) setShareTarget(target);
             }}
+            onEditProgram={(id) => {
+              const target = filteredPrograms?.find((p) => p.id === id);
+              if (target) setEditExam(target);
+            }}
           />
         </div>
 
@@ -168,8 +178,8 @@ export default function ExamProgram() {
           </Button>
         </div>
       </div>
-
       <ShareSessionLink
+        key={shareTarget?.link}
         open={shareTarget !== null}
         link={shareTarget?.link}
         onCancel={() => setShareTarget(null)}
@@ -178,6 +188,25 @@ export default function ExamProgram() {
           setShareTarget(null);
         }}
       />
+      <CreateExamProgram
+        open={openCreateExam}
+        onClose={() => setOpenCreateExam(false)}
+        onCreate={(payload) => {
+          console.log(payload);
+          setOpenCreateExam(false);
+        }}
+      />
+      <EditExamProgram
+        key={editExam?.id}
+        open={editExam !== null}
+        exam={editExam}
+        onClose={() => setEditExam(null)}
+        onEdit={(payload) => {
+          console.log(payload);
+          setEditExam(null);
+        }}
+      />
+      ;
     </section>
   );
 }
