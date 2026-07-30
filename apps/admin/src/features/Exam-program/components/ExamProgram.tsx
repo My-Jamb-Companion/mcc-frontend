@@ -105,7 +105,8 @@ export default function ExamProgram() {
                     onClick={() => {
                       // item.onClick?.();
                       if (item.label === "Exam program") {
-                        setOpenCreateExam(true);
+                        // setOpenCreateExam(true);
+                        router.push("/dashboard/exam-program/create-program");
                       }
                       setOpen(false);
                     }}

@@ -35,6 +35,7 @@ const FormInputs = ({
           id={id}
           placeholder={placeholder}
           className={inputClass}
+          {...(inputProps as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
           {...registration}
         />
       );
@@ -75,7 +76,7 @@ const FormInputs = ({
         type={resolvedType}
         placeholder={placeholder}
         className={inputClass}
-        {...inputProps}
+        {...(inputProps as React.InputHTMLAttributes<HTMLInputElement>)}
         {...registration}
       />
     );
@@ -152,7 +153,9 @@ type inputProps = {
   isPassword?: boolean;
   value?: string;
   onChange?: (value: string) => void;
-  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
+  inputProps?:
+    | React.InputHTMLAttributes<HTMLInputElement>
+    | React.TextareaHTMLAttributes<HTMLTextAreaElement>;
   selectRadius?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "full";
   selectClassName?: string;
 };
