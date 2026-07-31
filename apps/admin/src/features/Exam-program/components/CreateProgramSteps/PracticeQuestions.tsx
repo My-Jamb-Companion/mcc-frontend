@@ -152,6 +152,7 @@ function QuestionCard({
             <FormInputs
               type="select"
               selectRadius="full"
+              selectClassName="shadow-sm border-muted/30! py-2!"
               options={[
                 {label: "Single choice", value: "single"},
                 {label: "Multiple choice", value: "multiple"},
@@ -166,7 +167,8 @@ function QuestionCard({
               type="button"
               variant="ghost"
               onClick={onCopy}
-              className="p-0! w-fit! text-muted/50 hover:text-muted transition-colors"
+              size={"fit"}
+              className="hover:bg-transparent text-muted/50 hover:text-muted"
               title="Copy JSON data"
             >
               <Icon icon="lucide:copy" size={20} />
@@ -175,7 +177,8 @@ function QuestionCard({
               type="button"
               variant="ghost"
               onClick={onDelete}
-              className="p-0! w-fit! text-red-400 hover:text-red-500 transition-colors"
+              size={"fit"}
+              className="text-red-400 hover:text-red-500 hover:bg-transparent "
               title="Delete question"
             >
               <Icon icon="lucide:trash-2" size={20} />
@@ -193,7 +196,7 @@ function QuestionCard({
                 updateField("question", e.target.value),
             }}
             placeholder="Write your question here..."
-            inputClassName="rounded-2xl px-4 h-14"
+            inputClassName="rounded-xl px-4 h-14"
           />
 
           <FormInputs
@@ -204,7 +207,7 @@ function QuestionCard({
                 updateField("description", e.target.value),
             }}
             placeholder="Description (Optional)"
-            inputClassName="resize-none rounded-2xl p-4 mb-2 text-sm min-h-[4.5rem]"
+            inputClassName="resize-none rounded-xl p-4 mb-2 text-sm min-h-[4.5rem]"
           />
 
           {/* Options */}
