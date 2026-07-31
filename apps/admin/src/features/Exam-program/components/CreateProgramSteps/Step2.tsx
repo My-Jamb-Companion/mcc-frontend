@@ -3,9 +3,9 @@ import {Icon} from "@mcc/ui";
 import {useFormContext} from "@mcc/features";
 import PracticeQuestions, {
   CreatPracticeQuestionType,
-} from "./CreateProgramSteps/PracticeQuestions";
-import Step2Sidebar from "./CreateProgramSteps/Step2SideBar";
-import LessonsCreate, {FileRow} from "./CreateProgramSteps/LessonsCreate";
+} from "./PracticeQuestions";
+import Step2Sidebar from "./Step2SideBar";
+import LessonsCreate, {FileRow} from "./LessonsCreate";
 
 type Leaf = {
   id: string;
@@ -120,14 +120,14 @@ function getActiveContext(topics: Topic[], leafId: string) {
 export default function ContentStep({
   onNext,
   onBack,
+  exam,
+  subject,
 }: {
   onNext?: () => void;
   onBack?: () => void;
+  exam: string;
+  subject: string;
 }) {
-  // The topic/module/question tree stays local-shaped (same drag-and-drop
-  // mutation functions as before) but reads from and writes to the shared
-  // wizard form's `content.topics` field, so it's included when the whole
-  // form is submitted from CreateExamProgram.tsx.
   const {watch, setValue} = useFormContext<ContentFormValues>();
   const topics = watch("content.topics") ?? [];
   function setTopics(newTopics: Topic[]) {
@@ -292,7 +292,9 @@ export default function ContentStep({
             <>
               <div className="flex items-center justify-between">
                 <h1 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-                  JAMB / Mathematics /
+                  <span className="uppercase">
+                    {exam} / {subject} /
+                  </span>
                   {isRenamingTopic ? (
                     <div className="flex items-center">
                       <InlineRename

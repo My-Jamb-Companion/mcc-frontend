@@ -9,7 +9,7 @@ import {
   FormProvider,
   useFormContext,
 } from "@mcc/features";
-import ContentStep, {type Topic} from "./Step2";
+import ContentStep, {type Topic} from "./CreateProgramSteps/Step2";
 
 type Step = "details" | "content" | "upload";
 
@@ -33,7 +33,7 @@ const EXAM_OPTIONS = [
   {label: "NECO", value: "neco"},
 ];
 const SUBJECT_OPTIONS = [
-  {label: "Mathematics", value: "math"},
+  {label: "Mathematics", value: "mathematics"},
   {label: "English", value: "english"},
   {label: "Physics", value: "physics"},
 ];
@@ -461,10 +461,25 @@ function Step1({onNext}: {onNext: () => void}) {
 
 // STEP 2
 
-function Step2({onNext, onBack}: {onNext: () => void; onBack: () => void}) {
+function Step2({
+  onNext,
+  onBack,
+  exam,
+  subject,
+}: {
+  onNext: () => void;
+  onBack: () => void;
+  exam: string;
+  subject: string;
+}) {
   return (
     <div className="mt-5 h-full rounded-xl border border-muted/20 p-6">
-      <ContentStep onNext={onNext} onBack={onBack} />
+      <ContentStep
+        onNext={onNext}
+        onBack={onBack}
+        exam={exam}
+        subject={subject}
+      />
     </div>
   );
 }
@@ -582,7 +597,14 @@ export default function CreateExamProgramForm() {
 
         {/* Steps */}
         {activeStep === "details" && <Step1 onNext={goNext} />}
-        {activeStep === "content" && <Step2 onNext={goNext} onBack={goBack} />}
+        {activeStep === "content" && (
+          <Step2
+            onNext={goNext}
+            onBack={goBack}
+            exam={methods.getValues("exam")}
+            subject={methods.getValues("subject")}
+          />
+        )}
         {activeStep === "upload" && <Step3 onBack={goBack} />}
       </div>
     </FormProvider>
