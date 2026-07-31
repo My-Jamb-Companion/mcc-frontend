@@ -93,6 +93,13 @@ export function InlineRename({
 
 // ROOT EXPORT
 
+// At least one full topic -> sub-topic -> module chain must exist before
+// content is considered usable (a module with zero leaves still counts,
+// since leaves are pre-seeded whenever a module is created).
+export function hasCompleteContent(topics: Topic[]) {
+  return topics.some((t) => t.subTopics.some((s) => s.modules.length > 0));
+}
+
 function getActiveContext(topics: Topic[], leafId: string) {
   for (const topic of topics) {
     for (const sub of topic.subTopics) {
@@ -443,7 +450,12 @@ export default function ContentStep({
             <Button type="button" variant="outline">
               Save as draft
             </Button>
-            <Button type="button" onClick={onNext} className="text-nowrap">
+            <Button
+              type="button"
+              disabled={!hasCompleteContent(topics)}
+              onClick={onNext}
+              className="text-nowrap"
+            >
               Save & continue
             </Button>
           </div>

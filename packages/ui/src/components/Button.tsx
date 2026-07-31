@@ -12,7 +12,7 @@ const buttonVariants = cva(
     "transition-all duration-200 ease-out",
     "focus-visible:outline-none",
     "focus-visible:ring-2 focus-visible:ring-btn-primary/30",
-    "disabled:pointer-events-none disabled:opacity-60",
+    "disabled:pointer-events-none disable:cursor-not-allowed disabled:opacity-40",
     "active:scale-[0.98]",
     "transistions-all duration-300",
   ].join(" "),
