@@ -549,7 +549,7 @@ export default function CreateExamProgramForm() {
             Create exam program
           </h1>
 
-          {/* Step indicators â€” read-only; navigation is via footer buttons */}
+          {/* Step indicators read-only; navigation is via footer buttons */}
           <div className="flex items-center gap-2">
             {STEPS.map((step, i) => (
               <div key={step.id} className="flex items-center gap-2">
@@ -585,11 +585,13 @@ export default function CreateExamProgramForm() {
               type="button"
               variant="outline"
               className="text-nowrap"
+              shadow={"sm"}
+              size={"sm"}
               leftIcon={<Icon icon="lucide:eye" size={16} />}
             >
               View as a student
             </Button>
-            <Button type="button" variant="secondary">
+            <Button type="button" variant="secondary" size={"sm"}>
               Publish
             </Button>
           </div>

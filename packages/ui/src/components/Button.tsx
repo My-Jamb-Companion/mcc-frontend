@@ -73,6 +73,14 @@ const buttonVariants = cva(
 
         fit: "w-fit",
       },
+
+      shadow: {
+        sm: "shadow-sm",
+        md: "shadow-md",
+        lg: "shadow-lg",
+        xl: "shadow-xl",
+        none: "shadow-none",
+      },
     },
 
     defaultVariants: {
@@ -83,6 +91,8 @@ const buttonVariants = cva(
       radius: "full",
 
       width: "fit",
+
+      shadow: "none",
     },
   },
 );
@@ -115,6 +125,8 @@ export function Button({
 
   width,
 
+  shadow,
+
   loading = false,
 
   loadingText = "Loading...",
@@ -145,6 +157,7 @@ export function Button({
           size,
           radius,
           width,
+          shadow,
         }),
         className,
       )}

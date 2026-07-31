@@ -333,6 +333,8 @@ export default function ContentStep({
                 <Button
                   type="button"
                   variant="outline"
+                  shadow={"sm"}
+                  size={"sm"}
                   leftIcon={<Icon icon="lucide:settings" size={16} />}
                 >
                   Settings
