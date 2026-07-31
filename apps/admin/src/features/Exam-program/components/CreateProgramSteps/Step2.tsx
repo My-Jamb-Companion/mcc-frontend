@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from "react";
-import {Icon} from "@mcc/ui";
+import {Button, Icon} from "@mcc/ui";
 import {useFormContext} from "@mcc/features";
 import PracticeQuestions, {
   CreatPracticeQuestionType,
@@ -330,13 +330,13 @@ export default function ContentStep({
                     </>
                   )}
                 </h1>
-                <button
+                <Button
                   type="button"
-                  className="flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  variant="outline"
+                  leftIcon={<Icon icon="lucide:settings" size={16} />}
                 >
-                  <Icon icon="lucide:settings" size={16} />
                   Settings
-                </button>
+                </Button>
               </div>
 
               {activeContext?.subTopic && (
@@ -402,11 +402,6 @@ export default function ContentStep({
                   <span className="text-sm text-gray-400">
                     / {activeContext?.label || "Content"}
                   </span>
-                  <Icon
-                    icon="lucide:refresh-cw"
-                    size={12}
-                    className="text-gray-300"
-                  />
                 </div>
               )}
 
@@ -424,11 +419,6 @@ export default function ContentStep({
                 <PracticeQuestions
                   questions={activeQuestions}
                   onChange={setLeafQuestions}
-                  //   contextLabel={
-                  //     activeContext?.module?.label ||
-                  //     activeContext?.subTopic?.label ||
-                  //     ""
-                  //   }
                 />
               )}
             </>
@@ -438,34 +428,22 @@ export default function ContentStep({
         {/* Footer */}
         <div className="flex items-center justify-between border-t border-gray-100 px-8 py-4">
           <div className="flex items-center gap-4">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={onBack}
               className="text-sm font-medium text-gray-600 hover:text-gray-900"
             >
               Back
-            </button>
-            <button
-              type="button"
-              className="text-sm font-medium text-gray-600 hover:text-gray-900"
-            >
-              Cancel
-            </button>
+            </Button>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              className="rounded-full border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50"
-            >
+            <Button type="button" variant="outline">
               Save as draft
-            </button>
-            <button
-              type="button"
-              onClick={onNext}
-              className="rounded-full bg-violet-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-violet-700"
-            >
+            </Button>
+            <Button type="button" onClick={onNext} className="text-nowrap">
               Save & continue
-            </button>
+            </Button>
           </div>
         </div>
       </div>

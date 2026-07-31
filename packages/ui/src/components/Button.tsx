@@ -1,68 +1,131 @@
 "use client";
 
-import {ButtonHTMLAttributes, ReactNode} from "react";
+import * as React from "react";
+import {cva, type VariantProps} from "class-variance-authority";
+import {cn} from "../lib/cn";
 
-type Variant =
-  | "primary"
-  | "secondary"
-  | "disabled"
-  | "outline"
-  | "ghost"
-  | "danger"
-  | "success";
+const buttonVariants = cva(
+  [
+    "inline-flex items-center justify-center gap-2",
+    "whitespace-nowrap select-none",
+    "font-medium",
+    "transition-all duration-200 ease-out",
+    "focus-visible:outline-none",
+    "focus-visible:ring-2 focus-visible:ring-btn-primary/30",
+    "disabled:pointer-events-none disabled:opacity-60",
+    "active:scale-[0.98]",
+    "transistions-all duration-300",
+  ].join(" "),
+  {
+    variants: {
+      variant: {
+        primary: "bg-btn-primary text-white hover:opacity-90 active:opacity-80",
 
-type Size = "sm" | "md" | "lg" | "icon";
+        secondary: "bg-muted/20 text-subtle/50 hover:bg-muted/30",
 
-type Width = "full" | "fit" | "auto";
+        outline: "border border-muted/40 bg-transparent hover:bg-muted/10",
 
-type Radius = "sm" | "md" | "lg" | "full";
+        ghost: "bg-transparent hover:bg-muted/20 text-subtle",
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children?: ReactNode;
+        danger: "bg-danger text-white hover:bg-red-600",
 
+        dangerOutline:
+          "bg-red-50 text-danger hover:bg-danger hover:text-white border border-danger",
+
+        success: "bg-green-600 text-white hover:bg-green-700",
+
+        successOutline:
+          "bg-green-50 text-success hover:bg-success hover:text-white border border-success",
+      },
+
+      size: {
+        fit: "h-auto w-fit",
+
+        xs: "h-8 px-3 text-xs",
+
+        sm: "h-9 px-4 text-sm",
+
+        md: "h-11 px-5 text-sm",
+
+        lg: "h-12 px-6 text-base",
+
+        xl: "h-14 px-7 text-lg",
+
+        icon: "size-11",
+      },
+
+      radius: {
+        none: "rounded-none",
+
+        sm: "rounded-md",
+
+        md: "rounded-xl",
+
+        lg: "rounded-2xl",
+
+        xl: "rounded-3xl",
+
+        full: "rounded-full",
+      },
+
+      width: {
+        full: "w-full",
+
+        fit: "w-fit",
+      },
+    },
+
+    defaultVariants: {
+      variant: "primary",
+
+      size: "md",
+
+      radius: "full",
+
+      width: "fit",
+    },
+  },
+);
+
+export interface ButtonProps
+  extends
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
   loading?: boolean;
 
-  loader?: ReactNode;
+  loadingText?: string;
 
-  leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
+  loader?: React.ReactNode;
 
-  variant?: Variant;
+  leftIcon?: React.ReactNode;
 
-  size?: Size;
-
-  width?: Width;
-
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
-
-  radius?: Radius;
-
-  fullWidth?: boolean;
+  rightIcon?: React.ReactNode;
 }
 
 export function Button({
   children,
 
+  className,
+
+  variant,
+
+  size,
+
+  radius,
+
+  width,
+
   loading = false,
+
+  loadingText = "Loading...",
 
   loader,
 
-  disabled,
-
   leftIcon,
+
   rightIcon,
 
-  variant = "primary",
-
-  size = "md",
-
-  width = "full",
-
-  radius = "full",
-
-  onClick,
-
-  className = "",
+  disabled,
 
   type = "button",
 
@@ -70,82 +133,42 @@ export function Button({
 }: ButtonProps) {
   const isDisabled = disabled || loading;
 
-  // ─────────────────────────────────────────────
-  // VARIANTS
-  // ─────────────────────────────────────────────
-  const variants: Record<Variant, string> = {
-    primary: " bg-btn-primary text-white hover:opacity-90",
-
-    secondary: " bg-muted/30 text-foreground/60 hover:bg-muted/10",
-
-    disabled:
-      " bg-[#27272A]/15! text-hint border border-muted/30 cursor-not-allowed!",
-
-    outline: " border border-muted/30  text-foreground hover:bg-muted/10",
-
-    ghost: " bg-transparent text-foreground hover:bg-muted/10",
-
-    danger: " bg-danger text-white hover:bg-red-600",
-
-    success: " bg-green-500 text-white hover:bg-green-600",
-  };
-
-  // ─────────────────────────────────────────────
-  // SIZES
-  // ─────────────────────────────────────────────
-  const sizes: Record<Size, string> = {
-    sm: "px-3 py-2 text-sm",
-
-    md: "px-4 py-2.5 text-sm",
-
-    lg: "px-5 py-3 text-base",
-
-    icon: "size-10 flex items-center justify-center",
-  };
-
-  // ─────────────────────────────────────────────
-  // WIDTHS
-  // ─────────────────────────────────────────────
-  const widths: Record<Width, string> = {
-    full: "w-full",
-
-    fit: "w-fit",
-
-    auto: "w-auto",
-  };
-
-  // ─────────────────────────────────────────────
-  // RADIUS
-  // ─────────────────────────────────────────────
-  const radiuses: Record<Radius, string> = {
-    sm: "rounded-md",
-
-    md: "rounded-xl",
-
-    lg: "rounded-2xl",
-
-    full: "rounded-full",
-  };
-
   return (
     <button
       type={type}
       disabled={isDisabled}
-      onClick={onClick}
-      className={`
-        inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 active:scale-[0.98]  outine-0 focus:outline focus:outline-primary  ${variants[variant]} ${sizes[size]} ${widths[width]} ${radiuses[radius]}
-
-        ${isDisabled ? "cursor-not-allowed" : "cursor-pointer"}
-
-        ${className}
-      `}
+      aria-disabled={isDisabled}
+      aria-busy={loading}
+      className={cn(
+        buttonVariants({
+          variant,
+          size,
+          radius,
+          width,
+        }),
+        className,
+      )}
       {...props}
     >
       {!loading && leftIcon}
 
-      {loading ? loader || "Loading..." : children}
+      {loading ? (
+        <>
+          {loader ?? (
+            <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          )}
+
+          {loadingText}
+        </>
+      ) : (
+        children
+      )}
 
       {!loading && rightIcon}
     </button>
   );
 }
+
+Button.displayName = "Button";
+
+export {buttonVariants};

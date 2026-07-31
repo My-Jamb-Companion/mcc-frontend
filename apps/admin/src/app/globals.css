@@ -7,7 +7,7 @@
   --primary: #6b26ff;
   --btn-primary: #6717de;
   --muted: #6f6f77;
-  --danger: #d42422;
+  --danger: oklch(63.443% 0.25103 28.021);
   --success: #25d366;
   --hint: rgba(39, 39, 42, 0.3);
   --primary-gradient: linear-gradient(91deg, #6b26ff -13.46%, #b40d9b 100%);
