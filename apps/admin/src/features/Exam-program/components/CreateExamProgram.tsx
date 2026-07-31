@@ -589,7 +589,7 @@ export default function CreateExamProgramForm() {
             >
               View as a student
             </Button>
-            <Button type="button" variant="secondary" disabled>
+            <Button type="button" variant="secondary">
               Publish
             </Button>
           </div>

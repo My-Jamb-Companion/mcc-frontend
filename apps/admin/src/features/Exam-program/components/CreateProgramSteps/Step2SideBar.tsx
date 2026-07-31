@@ -563,7 +563,7 @@ export default function Step2Sidebar({
 
       {/* Add topic footer */}
       <div className="rounded-b-2xl border-t border-gray-100 bg-muted/10 p-3">
-        <Button type="button" variant="ghost" onClick={addTopic}>
+        <Button type="button" variant="ghost" width={"full"} onClick={addTopic}>
           <Icon icon="lucide:plus-circle" size={16} />
           Add topic
         </Button>
