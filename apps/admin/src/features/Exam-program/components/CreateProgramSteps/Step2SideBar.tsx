@@ -1,6 +1,6 @@
 import {Icon, Button} from "@mcc/ui";
 import {useState, useRef, useEffect} from "react";
-import {Topic, InlineRename, uid, MakeModule, SubTopic} from "../Step2";
+import {Topic, InlineRename, uid, MakeModule, SubTopic} from "./Step2";
 
 export default function Step2Sidebar({
   topics,

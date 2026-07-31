@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from "react";
 import {Icon} from "@mcc/ui";
-import {InlineRename} from "../Step2";
+import {InlineRename} from "./Step2";
 
 export type FileRow = {
   id: string;
