@@ -1,16 +1,16 @@
 import {Icon, Button} from "@mcc/ui";
 import {useState, useRef, useEffect} from "react";
-import {InlineRename, MakeModule, Topic, uid} from "./Step2";
+import {InlineRename, MakeModule, ModuleContent, Topic, uid} from "./Step2";
 
 export default function Step2Sidebar({
   topics,
-  selectedLeaf,
-  onSelectLeaf,
+  selectedContentId,
+  onSelectContent,
   onTopicsChange,
 }: {
   topics: Topic[];
-  selectedLeaf: string;
-  onSelectLeaf: (id: string) => void;
+  selectedContentId: string;
+  onSelectContent: (id: string) => void;
   onTopicsChange: (topics: Topic[]) => void;
 }) {
   // Which node's ⋮ menu is open
@@ -22,9 +22,9 @@ export default function Step2Sidebar({
     Record<string, boolean>
   >({});
   // Which quizzes are collapsed
-  const [collapsedQuizzes, setCollapsedQuizzes] = useState<
-    Record<string, boolean>
-  >({});
+  //   const [collapsedQuizzes, setCollapsedQuizzes] = useState<
+  //     Record<string, boolean>
+  //   >({});
 
   // Close menus when clicking outside
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -85,12 +85,12 @@ export default function Step2Sidebar({
     setRenamingId(null);
   }
 
-  function addQuiz(topicId: string) {
-    onTopicsChange(
-      topics.map((t) => (t.id === topicId ? {...t, hasQuiz: true} : t)),
-    );
-    setMenuOpenFor(null);
-  }
+  //   function addQuiz(topicId: string) {
+  //     onTopicsChange(
+  //       topics.map((t) => (t.id === topicId ? {...t, hasQuiz: true} : t)),
+  //     );
+  //     setMenuOpenFor(null);
+  //   }
 
   function toggleModule(id: string) {
     setCollapsedModules((prev) => ({...prev, [id]: !prev[id]}));
@@ -106,14 +106,54 @@ export default function Step2Sidebar({
     );
   }
 
-  function toggleQuiz(id: string) {
-    setCollapsedQuizzes((prev) => ({...prev, [id]: !prev[id]}));
-  }
+  //   function toggleQuiz(id: string) {
+  //     setCollapsedQuizzes((prev) => ({...prev, [id]: !prev[id]}));
+  //   }
 
-  function deleteQuiz(topicId: string) {
+  //   function deleteQuiz(topicId: string) {
+  //     onTopicsChange(
+  //       topics.map((t) => (t.id === topicId ? {...t, hasQuiz: false} : t)),
+  //     );
+  //   }
+
+  function addQuiz(topicId: string) {
+    const topic = topics.find((t) => t.id === topicId);
+
+    if (!topic || topic.modules.length === 0) return;
+
+    const quiz: ModuleContent = {
+      id: uid(),
+      type: "quiz",
+      title: "Quiz",
+      quiz: {
+        id: uid(),
+        questions: [],
+        settings: {
+          timer: 0,
+          passingScore: 0,
+        },
+      },
+    };
+
     onTopicsChange(
-      topics.map((t) => (t.id === topicId ? {...t, hasQuiz: false} : t)),
+      topics.map((topic) =>
+        topic.id !== topicId
+          ? topic
+          : {
+              ...topic,
+              modules: topic.modules.map((module) =>
+                module.id !== topic.modules[0].id
+                  ? module
+                  : {
+                      ...module,
+                      content: [...module.content, quiz],
+                    },
+              ),
+            },
+      ),
     );
+
+    setMenuOpenFor(null);
   }
 
   // We compose a unique string key for each ⋮ so we can tell which one is open
@@ -211,13 +251,13 @@ export default function Step2Sidebar({
                         label="Add module"
                         onClick={() => addModule(topic.id)}
                       />
-                      {!topic.hasQuiz && (
-                        <MenuItem
-                          icon="lucide:list-checks"
-                          label="Add quiz"
-                          onClick={() => addQuiz(topic.id)}
-                        />
-                      )}
+                      {/* {!topic.hasQuiz && ( */}
+                      <MenuItem
+                        icon="lucide:list-checks"
+                        label="Add quiz"
+                        onClick={() => addQuiz(topic.id)}
+                      />
+                      {/* )} */}
                       <MenuItem
                         icon="lucide:pencil"
                         label="Rename topic"
@@ -301,24 +341,37 @@ export default function Step2Sidebar({
                         )}
                       </div>
 
-                      {/* Module leaves */}
+                      {/* Module */}
                       {!collapsed &&
-                        mod.leaves.map((leaf) => (
+                        mod.content.map((item) => (
                           <button
-                            key={leaf.id}
+                            key={item.id}
                             type="button"
-                            onClick={() => onSelectLeaf(leaf.id)}
+                            onClick={() => onSelectContent(item.id)}
                             style={{paddingLeft: "36px"}}
                             className={`flex w-full items-center justify-between py-1.5 pr-2 text-left text-sm transition-colors ${
-                              selectedLeaf === leaf.id
+                              selectedContentId === item.id
                                 ? "bg-gray-100 text-gray-900"
                                 : "text-gray-500 hover:bg-gray-50"
                             }`}
                           >
-                            <span>{leaf.label}</span>
-                            {leaf.count !== undefined && (
-                              <span className="rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
-                                {leaf.count}
+                            <span>{item.title}</span>
+
+                            {item.type === "lesson" && (
+                              <span className="rounded-md bg-gray-100 px-1.5 py-0.5 text-xs">
+                                {item.lessons.length}
+                              </span>
+                            )}
+
+                            {item.type === "practice" && (
+                              <span className="rounded-md bg-gray-100 px-1.5 py-0.5 text-xs">
+                                {item.practices.length}
+                              </span>
+                            )}
+
+                            {item.type === "quiz" && (
+                              <span className="rounded-md bg-gray-100 px-1.5 py-0.5 text-xs">
+                                {item.quiz.questions.length}
                               </span>
                             )}
                           </button>
@@ -328,7 +381,7 @@ export default function Step2Sidebar({
                 })}
 
                 {/* Quiz row (if added) — now directly under the topic */}
-                {topic.hasQuiz && (
+                {/* {topic.hasQuiz && (
                   <div key={`${topic.id}-quiz`}>
                     <div
                       className="group flex items-center gap-1 py-1.5 pr-2"
@@ -373,7 +426,7 @@ export default function Step2Sidebar({
                       </button>
                     )}
                   </div>
-                )}
+                )} */}
               </div>
             );
           })}
@@ -424,13 +477,27 @@ function makeModule(): MakeModule {
   return {
     id: uid(),
     label: "",
-    leaves: [
-      {id: uid(), label: "Lectures", type: "lectures", count: 0},
-      {id: uid(), label: "Practice", type: "practice", count: 0},
+    content: [
+      {
+        id: uid(),
+        type: "lesson",
+        title: "Lessons",
+        lessons: [],
+      },
+      {
+        id: uid(),
+        type: "practice",
+        title: "Practice",
+        practices: [],
+      },
     ],
   };
 }
 
 function makeTopic(): Topic {
-  return {id: uid(), label: "", modules: [], hasQuiz: false};
+  return {
+    id: uid(),
+    label: "",
+    modules: [],
+  };
 }
