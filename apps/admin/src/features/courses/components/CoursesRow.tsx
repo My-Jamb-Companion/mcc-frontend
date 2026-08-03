@@ -4,7 +4,7 @@ import {useEffect, useRef, useState} from "react";
 
 export interface CourseListRowData {
   id: string;
-  examType: "utme" | "waec" | "neco" | "gce" | "internal";
+  courseName: string;
   logoUrl?: string;
   teacherName: string;
   rating: string;
@@ -15,7 +15,7 @@ export interface CourseListRowData {
   status: "live" | "draft";
   price: number;
   originalPrice?: number;
-  perSubjectPrice?: number;
+  modulePrice?: number;
   currency: string;
   link: string;
 }
@@ -138,11 +138,11 @@ export function CourseListRow({
             </span>
           )}
         </div>
-        {course.perSubjectPrice && (
+        {course.modulePrice && (
           <p className="text-xs">
             (<sup className="text-muted">{course.currency}</sup>
-            <span>{course.perSubjectPrice}</span>
-            <span className="text-black"> price per subject</span>)
+            <span>{course.modulePrice}</span>
+            <span className="text-black"> price per module</span>)
           </p>
         )}
       </div>

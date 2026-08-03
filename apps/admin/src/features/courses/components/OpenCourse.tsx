@@ -27,7 +27,7 @@ export default function OpenCourse() {
 
       <div className="flex flex-col h-full border border-muted/20 rounded-2xl px-6 py-8 flex-1 ">
         <div className="flex items-center justify-between gap-4">
-          <p className="text-2xl font-semibold">Program Overview</p>
+          <p className="text-2xl font-semibold">Course Overview</p>
           <div className="grid grid-cols-2 w-full max-w-75 gap-2">
             <FormInputs
               type="select"

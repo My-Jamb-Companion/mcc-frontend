@@ -15,8 +15,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
     // Scope validation to this step's fields only, so an untouched Step2/3
     // field never blocks moving off Step1.
     const valid = await trigger([
-      "exam",
-      "subject",
+      "courseName",
       "category",
       "instructor",
       "price",
@@ -27,60 +26,28 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
     ]);
     if (valid) onNext();
   }
-
+  console.log(isValid, errors);
   return (
     <div className="mt-5 rounded-xl border border-muted/20 p-6">
       <div className="flex flex-col gap-6">
         {/* Row 1 â€” Exam & Subject */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <Controller
-            name="exam"
-            control={control}
-            rules={{required: "Please select an exam"}}
-            render={({field}) => (
-              <FormInputs
-                type="select"
-                label="Select Exam"
-                placeholder="Select exam"
-                selectRadius="xl"
-                selectClassName="py-4"
-                options={EXAM_OPTIONS}
-                value={field.value}
-                onChange={field.onChange}
-                errors={errors.exam}
-                icon={
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-xs">
-                    ðŸŒ±
-                  </span>
-                }
-              />
-            )}
-          />
-
-          <Controller
-            name="subject"
-            control={control}
-            rules={{required: "Please select a subject"}}
-            render={({field}) => (
-              <FormInputs
-                type="select"
-                label="Subject / Sub group"
-                placeholder="Select subject"
-                selectRadius="xl"
-                selectClassName="py-4"
-                options={SUBJECT_OPTIONS}
-                value={field.value}
-                onChange={field.onChange}
-                errors={errors.subject}
-                icon={
-                  <Icon
-                    icon="lucide:book-open"
-                    size={16}
-                    className="text-gray-400"
-                  />
-                }
-              />
-            )}
+        <div className="py-10 px-7 bg-primary rounded-2xl">
+          <FormInputs
+            type="text"
+            placeholder="Course name"
+            inputClassName="!text-2xl placeholder:text-white text-white"
+            registration={register("courseName", {
+              required: "Course name is required",
+              minLength: {
+                value: 3,
+                message: "Course name must be at least 3 characters",
+              },
+              maxLength: {
+                value: 100,
+                message: "Course name must be at most 100 characters",
+              },
+            })}
+            errors={errors.courseName}
           />
         </div>
 
@@ -269,7 +236,12 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
           <Button type="button" variant={"outline"}>
             Save as draft
           </Button>
-          <Button type="button" onClick={handleNext} disabled={!isValid}>
+          <Button
+            type="button"
+            variant={isValid ? "primary" : "secondary"}
+            onClick={handleNext}
+            // disabled={!isValid}
+          >
             Save &amp; continue
           </Button>
         </div>
@@ -394,16 +366,6 @@ const LEVELS = [
 ] as const;
 
 // Placeholder option lists â€” replace with real data when ready
-const EXAM_OPTIONS = [
-  {label: "JAMB", value: "jamb"},
-  {label: "WAEC", value: "waec"},
-  {label: "NECO", value: "neco"},
-];
-const SUBJECT_OPTIONS = [
-  {label: "Mathematics", value: "mathematics"},
-  {label: "English", value: "english"},
-  {label: "Physics", value: "physics"},
-];
 const CATEGORY_OPTIONS = [
   {label: "Science", value: "science"},
   {label: "Arts", value: "arts"},

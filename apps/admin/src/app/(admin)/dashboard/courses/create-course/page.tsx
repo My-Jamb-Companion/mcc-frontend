@@ -1,5 +1,5 @@
-import React from "react";
+import CreateCourseForm from "@/src/features/courses/components/CreateCourse";
 
 export default function page() {
-  return <div>page</div>;
+  return <CreateCourseForm />;
 }

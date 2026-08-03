@@ -23,7 +23,7 @@ export default function Courses() {
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const filteredPrograms = useMemo(() => {
+  const filteredCourses = useMemo(() => {
     const query = search.trim().toLowerCase();
 
     return dummyCourses.filter((item) => {
@@ -106,19 +106,19 @@ export default function Courses() {
 
         <div className="min-h-0 flex-1 flex items-center justify-center pt-10 overflow-y-auto">
           <CourseList
-            course={filteredPrograms || []}
+            course={filteredCourses || []}
             onOpen={(course) => {
               console.log(course);
               router.push(
-                `/dashboard/courses/${course.examType}?id=${course.id}`,
+                `/dashboard/courses/${course.courseName}?id=${course.id}`,
               );
             }}
             onShareLink={(id) => {
-              const target = filteredPrograms?.find((p) => p.id === id);
+              const target = filteredCourses?.find((p) => p.id === id);
               if (target) setShareTarget(target);
             }}
             onEditCourse={(id) => {
-              const target = filteredPrograms?.find((p) => p.id === id);
+              const target = filteredCourses?.find((p) => p.id === id);
               if (target) setEditExam(target);
             }}
           />
@@ -147,25 +147,6 @@ export default function Courses() {
           setShareTarget(null);
         }}
       />
-
-      {/* <CreateExamProgram
-        open={openCreateExam}
-        onClose={() => setOpenCreateExam(false)}
-        onCreate={(payload) => {
-          console.log(payload);
-          setOpenCreateExam(false);
-        }}
-      />
-      <EditExamProgram
-        key={editExam?.id}
-        open={editExam !== null}
-        exam={editExam}
-        onClose={() => setEditExam(null)}
-        onEdit={(payload) => {
-          console.log(payload);
-          setEditExam(null);
-        }}
-      /> */}
     </section>
   );
 }

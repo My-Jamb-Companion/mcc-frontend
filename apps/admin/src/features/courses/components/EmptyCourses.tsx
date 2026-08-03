@@ -1,7 +1,9 @@
 import {Icon} from "@mcc/ui";
 import {Button} from "@/src/components/Buttons";
+import {useRouter} from "next/navigation";
 
 export function NoCourses() {
+  const router = useRouter();
   return (
     <div className="flex flex-col items-center justify-center h-full max-w-[400px]">
       <div className="relative border flex flex-col items-center justify-center rounded-2xl border-muted/10 px-12 pb-12 pt-25">
@@ -258,18 +260,19 @@ export function NoCourses() {
         </div>
 
         <div className="flex flex-col items-center justify-center gap-3 mt-5">
-          <p className="font-semibold">Your exam program list is empty</p>
+          <p className="font-semibold">Your course list is empty</p>
           <p className="text-muted text-sm text-center">
-            Start building the first exam program for your students by clicking
-            the button below
+            Start building the first course for your students by clicking the
+            button below
           </p>
 
           <Button
             width="fit"
-            className="p-2! mt-5!"
+            className="mt-5"
             leftIcon={<Icon icon="line-md:plus" />}
+            onClick={() => router.push("/dashboard/courses/create-course")}
           >
-            <p>Create Program</p>
+            <p>Create Course</p>
           </Button>
         </div>
       </div>
