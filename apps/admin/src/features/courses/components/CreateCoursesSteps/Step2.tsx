@@ -131,13 +131,11 @@ function getActiveContext(topics: Topic[], leafId: string) {
 export default function ContentStep({
   onNext,
   onBack,
-  exam,
-  subject,
+  courseName,
 }: {
   onNext?: () => void;
   onBack?: () => void;
-  exam: string;
-  subject: string;
+  courseName: string;
 }) {
   const {watch, setValue} = useFormContext<ContentFormValues>();
   const topics = watch("content.topics") ?? [];
@@ -303,9 +301,7 @@ export default function ContentStep({
             <>
               <div className="flex items-center justify-between">
                 <h1 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-                  <span className="uppercase">
-                    {exam} / {subject} /
-                  </span>
+                  <span className="uppercase">{courseName} /</span>
                   {isRenamingTopic ? (
                     <div className="flex items-center">
                       <InlineRename

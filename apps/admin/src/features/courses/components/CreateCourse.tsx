@@ -31,8 +31,7 @@ export const LEVELS = [
 // FORM TYPES
 
 type Step1Values = {
-  exam: string;
-  subject: string;
+  courseName: string;
   category: string;
   instructor: string;
   price: string;
@@ -63,22 +62,15 @@ function Step1({onNext}: {onNext: () => void}) {
 function Step2({
   onNext,
   onBack,
-  exam,
-  subject,
+  courseName,
 }: {
   onNext: () => void;
   onBack: () => void;
-  exam: string;
-  subject: string;
+  courseName: string;
 }) {
   return (
     <div className="mt-5 h-full rounded-xl border border-muted/20 p-6">
-      <ContentStep
-        onNext={onNext}
-        onBack={onBack}
-        exam={exam}
-        subject={subject}
-      />
+      <ContentStep onNext={onNext} onBack={onBack} courseName={courseName} />
     </div>
   );
 }
@@ -123,8 +115,7 @@ export default function CreateCourseForm() {
   const methods = useForm<CoursesFormValues>({
     mode: "onChange",
     defaultValues: {
-      exam: "",
-      subject: "",
+      courseName: "",
       category: "",
       instructor: "",
       price: "",
@@ -234,14 +225,12 @@ export default function CreateCourseForm() {
           <Step2
             onNext={goNext}
             onBack={goBack}
-            exam={methods.getValues("exam")}
-            subject={methods.getValues("subject")}
+            courseName={methods.watch("courseName")}
           />
         )}
         {activeStep === "upload" && (
           <Step3
-            exam={methods.getValues("exam")}
-            subject={methods.getValues("subject")}
+            courseName={methods.watch("courseName")}
             onBack={goBack}
             isPublished={isPublished}
           />
