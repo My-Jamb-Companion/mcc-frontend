@@ -4,6 +4,7 @@ import {useFormContext} from "@mcc/features";
 import Step2Sidebar from "./Step2SideBar";
 import PracticeQuestions, {CreatPracticeQuestionType} from "./CreatePractice";
 import LessonsCreate, {FileRow} from "./CreateLessons";
+// import ContentReorderPanel from "./ContentReorderPanel";
 
 export type PracticeSet = {
   id: string;
@@ -11,20 +12,43 @@ export type PracticeSet = {
   questions: CreatPracticeQuestionType[];
 };
 
-type Leaf = {
+export type LessonContent = {
   id: string;
-  label: string;
-  type: "lectures" | "practice" | "quiz" | "test";
-  count?: number;
-  lessons?: FileRow[];
-  practices?: PracticeSet[];
+  type: "lesson";
+  title: string;
+  lessons: FileRow[];
 };
+
+type Quiz = {
+  id: string;
+  questions: CreatPracticeQuestionType[];
+  settings: {
+    timer?: number;
+    passingScore?: number;
+  };
+};
+
+export type PracticeContent = {
+  id: string;
+  type: "practice";
+  title: string;
+  practices: PracticeSet[];
+};
+
+export type QuizContent = {
+  id: string;
+  type: "quiz";
+  title: string;
+  quiz: Quiz;
+};
+
+export type ModuleContent = LessonContent | PracticeContent | QuizContent;
 
 export type MakeModule = {
   id: string;
   label: string;
   description?: string;
-  leaves: Leaf[];
+  content: ModuleContent[];
 };
 
 export type Topic = {
@@ -32,7 +56,6 @@ export type Topic = {
   label: string;
   description?: string;
   modules: MakeModule[];
-  hasQuiz?: boolean;
 };
 
 export type ContentFormValues = {
@@ -88,6 +111,11 @@ export function InlineRename({
     />
   );
 }
+
+// PRACTICE MANAGER
+// A leaf of type "practice" now holds a list of named practice sets instead
+// of one flat questions array. This wraps the existing PracticeQuestions
+// editor (unchanged) and adds the create/select/rename layer on top.
 
 function PracticeManager({
   practices,
@@ -233,28 +261,30 @@ function PracticeManager({
 
 // ROOT EXPORT
 
+// At least one topic -> module chain must exist before content is
+// considered usable (a module with zero leaves still counts, since leaves
+// are pre-seeded whenever a module is created).
 export function hasCompleteContent(topics: Topic[]) {
   return topics.some((t) => t.modules.length > 0);
 }
 
-function getActiveContext(topics: Topic[], leafId: string) {
+function getActiveContext(topics: Topic[], contentId: string) {
   for (const topic of topics) {
-    if (leafId === `${topic.id}-quiz`) {
-      return {topic, type: "quiz" as const, label: "Quiz exercises"};
-    }
     for (const mod of topic.modules) {
-      const leaf = mod.leaves.find((l) => l.id === leafId);
-      if (leaf) {
+      const content = mod.content.find((item) => item.id === contentId);
+
+      if (content) {
         return {
           topic,
           module: mod,
-          leaf,
-          type: leaf.type,
-          label: leaf.label,
+          content,
+          type: content.type,
+          label: content.title,
         };
       }
     }
   }
+
   return null;
 }
 
@@ -273,16 +303,28 @@ export default function ContentStep({
     setValue("content.topics", newTopics, {shouldDirty: true});
   }
 
-  const [selectedLeaf, setSelectedLeaf] = useState("");
+  const [selectedContentId, setSelectedContentId] = useState("");
   const [isRenamingTopic, setIsRenamingTopic] = useState(false);
+  const [isReorderOpen, setIsReorderOpen] = useState(false);
+
+  function updateTopic(updated: Topic) {
+    setTopics(topics.map((t) => (t.id === updated.id ? updated : t)));
+  }
 
   // Description state
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [descriptionDraft, setDescriptionDraft] = useState("");
 
-  const activeContext = getActiveContext(topics, selectedLeaf);
-  const activeFiles = activeContext?.leaf?.lessons || [];
-  const activePractices = activeContext?.leaf?.practices || [];
+  const activeContext = getActiveContext(topics, selectedContentId);
+  const activeFiles =
+    activeContext?.content.type === "lesson"
+      ? activeContext.content.lessons
+      : [];
+
+  const activePractices =
+    activeContext?.content.type === "practice"
+      ? activeContext.content.practices
+      : [];
 
   function handleRenameTopic(id: string, newLabel: string) {
     setTopics(topics.map((t) => (t.id === id ? {...t, label: newLabel} : t)));
@@ -309,83 +351,73 @@ export default function ContentStep({
     setIsEditingDescription(false);
   }
 
-  // ── File Logic ──
-
-  function setLeafFiles(newFiles: FileRow[]) {
-    if (!activeContext) return;
-    const {topic, module, leaf} = activeContext;
-    if (module && leaf) {
-      setTopics(
-        topics.map((t) =>
-          t.id === topic.id
-            ? {
-                ...t,
-                modules: t.modules.map((m) =>
-                  m.id === module.id
-                    ? {
-                        ...m,
-                        leaves: m.leaves.map((l) =>
-                          l.id === leaf.id
-                            ? {
-                                ...l,
-                                lessons: newFiles,
-                                count: newFiles.length,
-                              }
-                            : l,
-                        ),
-                      }
-                    : m,
-                ),
-              }
-            : t,
-        ),
-      );
-    }
+  function updateModuleContent(
+    topicId: string,
+    moduleId: string,
+    contentId: string,
+    updater: (content: ModuleContent) => ModuleContent,
+  ) {
+    setTopics(
+      topics.map((topic) =>
+        topic.id !== topicId
+          ? topic
+          : {
+              ...topic,
+              modules: topic.modules.map((module) =>
+                module.id !== moduleId
+                  ? module
+                  : {
+                      ...module,
+                      content: module.content.map((item) =>
+                        item.id !== contentId ? item : updater(item),
+                      ),
+                    },
+              ),
+            },
+      ),
+    );
   }
 
-  // ── Practice Logic ──
-  // count on the leaf now reflects number of practice sets, not raw
-  // question count — flip to a question-count sum here if you'd rather
-  // the sidebar badge reflect total questions across all practices
-
-  function setLeafPractices(newPractices: PracticeSet[]) {
+  function setLessonFiles(files: FileRow[]) {
     if (!activeContext) return;
-    const {topic, module, leaf} = activeContext;
-    if (module && leaf) {
-      setTopics(
-        topics.map((t) =>
-          t.id === topic.id
-            ? {
-                ...t,
-                modules: t.modules.map((m) =>
-                  m.id === module.id
-                    ? {
-                        ...m,
-                        leaves: m.leaves.map((l) =>
-                          l.id === leaf.id
-                            ? {
-                                ...l,
-                                practices: newPractices,
-                                count: newPractices.length,
-                              }
-                            : l,
-                        ),
-                      }
-                    : m,
-                ),
-              }
-            : t,
-        ),
-      );
-    }
+
+    updateModuleContent(
+      activeContext.topic.id,
+      activeContext.module.id,
+      activeContext.content.id,
+      (content) =>
+        content.type === "lesson"
+          ? {
+              ...content,
+              lessons: files,
+            }
+          : content,
+    );
+  }
+
+  function setPractices(practices: PracticeSet[]) {
+    if (!activeContext) return;
+
+    updateModuleContent(
+      activeContext.topic.id,
+      activeContext.module.id,
+      activeContext.content.id,
+      (content) =>
+        content.type === "practice"
+          ? {
+              ...content,
+              practices,
+            }
+          : content,
+    );
   }
 
   return (
     <div className="flex h-full gap-0">
       <Step2Sidebar
         topics={topics}
-        selectedLeaf={selectedLeaf}
-        onSelectLeaf={setSelectedLeaf}
+        selectedContentId={selectedContentId}
+        onSelectContent={setSelectedContentId}
         onTopicsChange={setTopics}
       />
 
@@ -447,15 +479,28 @@ export default function ContentStep({
                     </>
                   )}
                 </h1>
-                <Button
-                  type="button"
-                  variant="outline"
-                  shadow={"sm"}
-                  size={"sm"}
-                  leftIcon={<Icon icon="lucide:settings" size={16} />}
-                >
-                  Settings
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    shadow={"sm"}
+                    size={"sm"}
+                    disabled={!activeContext?.topic}
+                    onClick={() => setIsReorderOpen(true)}
+                    leftIcon={<Icon icon="lucide:arrow-up-down" size={16} />}
+                  >
+                    Reorder
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    shadow={"sm"}
+                    size={"sm"}
+                    leftIcon={<Icon icon="lucide:settings" size={16} />}
+                  >
+                    Settings
+                  </Button>
+                </div>
               </div>
 
               {activeContext?.topic && (
@@ -524,20 +569,17 @@ export default function ContentStep({
                 </div>
               )}
 
-              {activeContext?.leaf?.type === "lectures" && (
+              {activeContext?.content.type === "lesson" && (
                 <LessonsCreate
                   files={activeFiles}
-                  onFilesChange={setLeafFiles}
-                  addLabel={
-                    activeContext?.leaf?.label?.toLowerCase() || "content"
-                  }
+                  onFilesChange={setLessonFiles}
                 />
               )}
 
-              {activeContext?.leaf?.type === "practice" && (
+              {activeContext?.content.type === "practice" && (
                 <PracticeManager
                   practices={activePractices}
-                  onChange={setLeafPractices}
+                  onChange={setPractices}
                 />
               )}
             </>
@@ -571,6 +613,15 @@ export default function ContentStep({
           </div>
         </div>
       </div>
+
+      {isReorderOpen && activeContext?.topic && (
+        <></>
+        // <ContentReorderPanel
+        //   topic={activeContext.topic}
+        //   onClose={() => setIsReorderOpen(false)}
+        //   onTopicChange={updateTopic}
+        // />
+      )}
     </div>
   );
 }
