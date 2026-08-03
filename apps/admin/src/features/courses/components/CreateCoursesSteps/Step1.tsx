@@ -12,8 +12,6 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
   } = useFormContext<CoursesFormValues>();
 
   async function handleNext() {
-    // Scope validation to this step's fields only, so an untouched Step2/3
-    // field never blocks moving off Step1.
     const valid = await trigger([
       "courseName",
       "category",
@@ -26,7 +24,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
     ]);
     if (valid) onNext();
   }
-  console.log(isValid, errors);
+
   return (
     <div className="mt-5 rounded-xl border border-muted/20 p-6">
       <div className="flex flex-col gap-6">
