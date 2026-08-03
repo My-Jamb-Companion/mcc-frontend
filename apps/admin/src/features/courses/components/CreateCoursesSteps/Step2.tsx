@@ -4,12 +4,12 @@ import {useFormContext} from "@mcc/features";
 import Step2Sidebar from "./Step2SideBar";
 import PracticeQuestions, {CreatPracticeQuestionType} from "./CreatePractice";
 import LessonsCreate, {FileRow} from "./CreateLessons";
-// import { FileRow } from "@/src/features/Exam-program/components/CreateProgramSteps/LessonsCreate";
-// import PracticeQuestions, {
-//   CreatPracticeQuestionType,
-// } from "./PracticeQuestions";
-// import Step2Sidebar from "./Step2SideBar";
-// import LessonsCreate, {FileRow} from "./LessonsCreate";
+
+export type PracticeSet = {
+  id: string;
+  name: string;
+  questions: CreatPracticeQuestionType[];
+};
 
 type Leaf = {
   id: string;
@@ -17,7 +17,7 @@ type Leaf = {
   type: "lectures" | "practice" | "quiz" | "test";
   count?: number;
   lessons?: FileRow[];
-  questions?: CreatPracticeQuestionType[];
+  practices?: PracticeSet[];
 };
 
 export type MakeModule = {
@@ -27,18 +27,12 @@ export type MakeModule = {
   leaves: Leaf[];
 };
 
-export type SubTopic = {
+export type Topic = {
   id: string;
   label: string;
   description?: string;
   modules: MakeModule[];
   hasQuiz?: boolean;
-};
-
-export type Topic = {
-  id: string;
-  label: string;
-  subTopics: SubTopic[];
 };
 
 export type ContentFormValues = {
@@ -95,33 +89,169 @@ export function InlineRename({
   );
 }
 
+function PracticeManager({
+  practices,
+  onChange,
+}: {
+  practices: PracticeSet[];
+  onChange: (practices: PracticeSet[]) => void;
+}) {
+  const [selectedPracticeId, setSelectedPracticeId] = useState<string | null>(
+    practices[0]?.id ?? null,
+  );
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+
+  function addPractice() {
+    const p: PracticeSet = {id: uid(), name: "", questions: []};
+    onChange([...practices, p]);
+    setSelectedPracticeId(p.id);
+    setRenamingId(p.id);
+  }
+
+  function renamePractice(id: string, name: string) {
+    onChange(practices.map((p) => (p.id === id ? {...p, name} : p)));
+    setRenamingId(null);
+  }
+
+  function deletePractice(id: string) {
+    onChange(practices.filter((p) => p.id !== id));
+    setSelectedPracticeId((current) => (current === id ? null : current));
+  }
+
+  function setPracticeQuestions(
+    id: string,
+    questions: CreatPracticeQuestionType[],
+  ) {
+    onChange(practices.map((p) => (p.id === id ? {...p, questions} : p)));
+  }
+
+  const selectedPractice =
+    practices.find((p) => p.id === selectedPracticeId) ?? null;
+
+  return (
+    <div className="mt-6 flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-semibold text-gray-900">Practices</p>
+        <Button
+          type="button"
+          variant="outline"
+          shadow={"sm"}
+          size={"sm"}
+          onClick={addPractice}
+          leftIcon={<Icon icon="lucide:plus" size={14} />}
+        >
+          Add practice
+        </Button>
+      </div>
+
+      {practices.length === 0 ? (
+        <p className="text-sm text-gray-400">
+          No practices yet. Click &ldquo;Add practice&rdquo; to create one.
+        </p>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {practices.map((p) => {
+            const isSelected = p.id === selectedPracticeId;
+            const isRenaming = renamingId === p.id;
+
+            if (isRenaming) {
+              return (
+                <div key={p.id} className="w-40">
+                  <InlineRename
+                    value={p.name}
+                    placeholder="Practice name"
+                    onCommit={(v) => renamePractice(p.id, v)}
+                    onCancel={() => setRenamingId(null)}
+                  />
+                </div>
+              );
+            }
+
+            return (
+              <div
+                key={p.id}
+                className={`group flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors ${
+                  isSelected
+                    ? "border-violet-500 bg-violet-50 text-violet-700"
+                    : "border-gray-200 text-gray-600 hover:border-gray-300"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => setSelectedPracticeId(p.id)}
+                  className="flex items-center gap-1.5"
+                >
+                  <span>{p.name || "Untitled practice"}</span>
+                  <span className="text-xs text-gray-400">
+                    ({p.questions.length})
+                  </span>
+                </button>
+                <span className="hidden items-center gap-1 group-hover:flex">
+                  <button
+                    type="button"
+                    onClick={() => setRenamingId(p.id)}
+                    aria-label="Rename practice"
+                  >
+                    <Icon
+                      icon="lucide:pencil"
+                      size={11}
+                      className="text-gray-400"
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deletePractice(p.id)}
+                    aria-label="Delete practice"
+                  >
+                    <Icon
+                      icon="lucide:trash-2"
+                      size={11}
+                      className="text-red-400"
+                    />
+                  </button>
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {selectedPractice && (
+        <div className="mt-2 border-t border-gray-100 pt-4">
+          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">
+            Questions in {selectedPractice.name || "this practice"}
+          </p>
+          <PracticeQuestions
+            questions={selectedPractice.questions}
+            onChange={(qs) => setPracticeQuestions(selectedPractice.id, qs)}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ROOT EXPORT
 
-// At least one full topic -> sub-topic -> module chain must exist before
-// content is considered usable (a module with zero leaves still counts,
-// since leaves are pre-seeded whenever a module is created).
 export function hasCompleteContent(topics: Topic[]) {
-  return topics.some((t) => t.subTopics.some((s) => s.modules.length > 0));
+  return topics.some((t) => t.modules.length > 0);
 }
 
 function getActiveContext(topics: Topic[], leafId: string) {
   for (const topic of topics) {
-    for (const sub of topic.subTopics) {
-      if (leafId === `${sub.id}-quiz`) {
-        return {topic, subTopic: sub, type: "quiz", label: "Quiz exercises"};
-      }
-      for (const mod of sub.modules) {
-        const leaf = mod.leaves.find((l) => l.id === leafId);
-        if (leaf) {
-          return {
-            topic,
-            subTopic: sub,
-            module: mod,
-            leaf,
-            type: leaf.type,
-            label: leaf.label,
-          };
-        }
+    if (leafId === `${topic.id}-quiz`) {
+      return {topic, type: "quiz" as const, label: "Quiz exercises"};
+    }
+    for (const mod of topic.modules) {
+      const leaf = mod.leaves.find((l) => l.id === leafId);
+      if (leaf) {
+        return {
+          topic,
+          module: mod,
+          leaf,
+          type: leaf.type,
+          label: leaf.label,
+        };
       }
     }
   }
@@ -152,15 +282,16 @@ export default function ContentStep({
 
   const activeContext = getActiveContext(topics, selectedLeaf);
   const activeFiles = activeContext?.leaf?.lessons || [];
-  const activeQuestions = activeContext?.leaf?.questions || [];
+  const activePractices = activeContext?.leaf?.practices || [];
 
   function handleRenameTopic(id: string, newLabel: string) {
     setTopics(topics.map((t) => (t.id === id ? {...t, label: newLabel} : t)));
   }
 
   // ── Description Logic ──
+  // description lives on the topic itself, since sub-topics are gone
 
-  const activeDesc = activeContext?.subTopic?.description ?? "";
+  const activeDesc = activeContext?.topic?.description ?? "";
 
   function startEditingDescription() {
     setDescriptionDraft(activeDesc);
@@ -168,23 +299,11 @@ export default function ContentStep({
   }
 
   function handleSaveDescription() {
-    if (!activeContext) return;
-    const {topic, subTopic} = activeContext;
+    if (!activeContext?.topic) return;
+    const {topic} = activeContext;
     setTopics(
       topics.map((t) =>
-        t.id === topic.id
-          ? {
-              ...t,
-              subTopics: t.subTopics.map((s) =>
-                s.id === subTopic.id
-                  ? {
-                      ...s,
-                      description: descriptionDraft,
-                    }
-                  : s,
-              ),
-            }
-          : t,
+        t.id === topic.id ? {...t, description: descriptionDraft} : t,
       ),
     );
     setIsEditingDescription(false);
@@ -194,35 +313,28 @@ export default function ContentStep({
 
   function setLeafFiles(newFiles: FileRow[]) {
     if (!activeContext) return;
-    const {topic, subTopic, module, leaf, type} = activeContext;
+    const {topic, module, leaf} = activeContext;
     if (module && leaf) {
       setTopics(
         topics.map((t) =>
           t.id === topic.id
             ? {
                 ...t,
-                subTopics: t.subTopics.map((s) =>
-                  s.id === subTopic.id
+                modules: t.modules.map((m) =>
+                  m.id === module.id
                     ? {
-                        ...s,
-                        modules: s.modules.map((m) =>
-                          m.id === module.id
+                        ...m,
+                        leaves: m.leaves.map((l) =>
+                          l.id === leaf.id
                             ? {
-                                ...m,
-                                leaves: m.leaves.map((l) =>
-                                  l.id === leaf.id
-                                    ? {
-                                        ...l,
-                                        lessons: newFiles,
-                                        count: newFiles.length,
-                                      }
-                                    : l,
-                                ),
+                                ...l,
+                                lessons: newFiles,
+                                count: newFiles.length,
                               }
-                            : m,
+                            : l,
                         ),
                       }
-                    : s,
+                    : m,
                 ),
               }
             : t,
@@ -231,37 +343,35 @@ export default function ContentStep({
     }
   }
 
-  function setLeafQuestions(newQuestions: CreatPracticeQuestionType[]) {
+  // ── Practice Logic ──
+  // count on the leaf now reflects number of practice sets, not raw
+  // question count — flip to a question-count sum here if you'd rather
+  // the sidebar badge reflect total questions across all practices
+
+  function setLeafPractices(newPractices: PracticeSet[]) {
     if (!activeContext) return;
-    const {topic, subTopic, module, leaf} = activeContext;
+    const {topic, module, leaf} = activeContext;
     if (module && leaf) {
       setTopics(
         topics.map((t) =>
           t.id === topic.id
             ? {
                 ...t,
-                subTopics: t.subTopics.map((s) =>
-                  s.id === subTopic.id
+                modules: t.modules.map((m) =>
+                  m.id === module.id
                     ? {
-                        ...s,
-                        modules: s.modules.map((m) =>
-                          m.id === module.id
+                        ...m,
+                        leaves: m.leaves.map((l) =>
+                          l.id === leaf.id
                             ? {
-                                ...m,
-                                leaves: m.leaves.map((l) =>
-                                  l.id === leaf.id
-                                    ? {
-                                        ...l,
-                                        questions: newQuestions,
-                                        count: newQuestions.length,
-                                      }
-                                    : l,
-                                ),
+                                ...l,
+                                practices: newPractices,
+                                count: newPractices.length,
                               }
-                            : m,
+                            : l,
                         ),
                       }
-                    : s,
+                    : m,
                 ),
               }
             : t,
@@ -294,7 +404,7 @@ export default function ContentStep({
                 Add a topic to get started
               </p>
               <p className="text-xs text-gray-400">
-                Use the sidebar to create topics and sub-topics
+                Use the sidebar to create topics and modules
               </p>
             </div>
           ) : (
@@ -348,11 +458,11 @@ export default function ContentStep({
                 </Button>
               </div>
 
-              {activeContext?.subTopic && (
+              {activeContext?.topic && (
                 <div className="mt-5">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-semibold">
-                      About {activeContext?.subTopic?.label || "sub-topic"}
+                      About {activeContext.topic.label || "topic"}
                     </p>
                     {!isEditingDescription && (
                       <button
@@ -425,9 +535,9 @@ export default function ContentStep({
               )}
 
               {activeContext?.leaf?.type === "practice" && (
-                <PracticeQuestions
-                  questions={activeQuestions}
-                  onChange={setLeafQuestions}
+                <PracticeManager
+                  practices={activePractices}
+                  onChange={setLeafPractices}
                 />
               )}
             </>

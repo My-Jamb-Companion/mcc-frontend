@@ -16,12 +16,10 @@ export function hasCompleteUpload(upload: {
 }
 
 export default function PromotionalCoverUpload({
-  exam,
-  subject,
+  courseName,
   isPublished,
 }: {
-  exam: string;
-  subject: string;
+  courseName: string;
   isPublished: boolean;
 }) {
   const {watch, setValue} = useFormContext<CoursesFormValues>();
@@ -49,9 +47,7 @@ export default function PromotionalCoverUpload({
         <section className="h-full">
           <div>
             <h1 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-              <span className="uppercase">
-                {exam} / {subject}
-              </span>
+              <span className="uppercase">{courseName}</span>
             </h1>
           </div>
 

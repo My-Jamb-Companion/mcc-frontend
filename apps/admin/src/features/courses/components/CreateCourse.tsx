@@ -79,20 +79,17 @@ function Step2({
 
 function Step3({
   onBack,
-  exam,
-  subject,
+  courseName,
   isPublished,
 }: {
   onBack: () => void;
-  exam: string;
-  subject: string;
+  courseName: string;
   isPublished: boolean;
 }) {
   return (
     <div className="flex flex-col h-full mt-5 rounded-xl border border-muted/20 p-6">
       <PromotionalCoverUpload
-        exam={exam}
-        subject={subject}
+        courseName={courseName}
         isPublished={isPublished}
       />
 
