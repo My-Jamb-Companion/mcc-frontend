@@ -65,14 +65,8 @@ function FileRowItem({
         <Icon icon="lucide:grip-vertical" size={16} />
       </span>
       <span className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100">
-        {file.previewUrl ? (
-          <img
-            src={file.previewUrl}
-            alt="preview"
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <Icon icon="lucide:image" size={16} className="text-gray-400" />
+        {file.previewUrl && (
+          <Icon icon="lucide:play" size={16} className="text-gray-400" />
         )}
       </span>
       <div className="relative z-10 min-w-0 flex-1">
@@ -246,7 +240,7 @@ export default function LessonsCreate({
         className="hidden"
         onChange={handleFileChange}
         multiple
-        accept="video/*,image/*"
+        accept="video/*"
       />
 
       <button
