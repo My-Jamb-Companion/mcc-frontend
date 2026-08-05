@@ -1,6 +1,38 @@
 import {Icon, Button} from "@mcc/ui";
 import {useState, useRef, useEffect} from "react";
-import {InlineRename, MakeModule, ModuleContent, Topic, uid} from "./Step2";
+import {
+  InlineRename,
+  MakeModule,
+  QuizModuleContent,
+  Topic,
+  lessonsViewId,
+  practiceViewId,
+  uid,
+} from "./Step2";
+
+const QUIZ_ICON = "lucide:help-circle";
+
+function makeQuiz(title = ""): QuizModuleContent {
+  return {
+    id: uid(),
+    type: "quiz",
+    title,
+    questions: [],
+    settings: {},
+  };
+}
+
+function makeModule(): MakeModule {
+  return {
+    id: uid(),
+    label: "",
+    content: [],
+  };
+}
+
+function makeTopic(): Topic {
+  return {id: uid(), label: "", modules: []};
+}
 
 export default function Step2Sidebar({
   topics,
@@ -13,20 +45,17 @@ export default function Step2Sidebar({
   onSelectContent: (id: string) => void;
   onTopicsChange: (topics: Topic[]) => void;
 }) {
-  // Which node's ⋮ menu is open
+  // Which node's ⋮ menu is open — keyed as "topic:<id>" or "module:<topicId>:<modId>"
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
-  // Which node is being renamed
+  // Which topic or module is being renamed
   const [renamingId, setRenamingId] = useState<string | null>(null);
+  // Which content item is showing a delete confirmation
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   // Which modules are collapsed
   const [collapsedModules, setCollapsedModules] = useState<
     Record<string, boolean>
   >({});
-  // Which quizzes are collapsed
-  //   const [collapsedQuizzes, setCollapsedQuizzes] = useState<
-  //     Record<string, boolean>
-  //   >({});
 
-  // Close menus when clicking outside
   const sidebarRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -41,6 +70,8 @@ export default function Step2Sidebar({
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [menuOpenFor]);
+
+  // ── Topic ──
 
   function addTopic() {
     const t = makeTopic();
@@ -58,6 +89,8 @@ export default function Step2Sidebar({
     setMenuOpenFor(null);
   }
 
+  // ── Module ──
+
   function addModule(topicId: string) {
     const mod = makeModule();
     onTopicsChange(
@@ -69,14 +102,14 @@ export default function Step2Sidebar({
     setRenamingId(mod.id);
   }
 
-  function renameModule(topicId: string, modId: string, label: string) {
+  function renameModule(topicId: string, moduleId: string, label: string) {
     onTopicsChange(
       topics.map((t) =>
         t.id === topicId
           ? {
               ...t,
               modules: t.modules.map((m) =>
-                m.id === modId ? {...m, label} : m,
+                m.id === moduleId ? {...m, label} : m,
               ),
             }
           : t,
@@ -85,80 +118,61 @@ export default function Step2Sidebar({
     setRenamingId(null);
   }
 
-  //   function addQuiz(topicId: string) {
-  //     onTopicsChange(
-  //       topics.map((t) => (t.id === topicId ? {...t, hasQuiz: true} : t)),
-  //     );
-  //     setMenuOpenFor(null);
-  //   }
-
-  function toggleModule(id: string) {
-    setCollapsedModules((prev) => ({...prev, [id]: !prev[id]}));
-  }
-
-  function deleteModule(topicId: string, modId: string) {
+  function deleteModule(topicId: string, moduleId: string) {
     onTopicsChange(
       topics.map((t) =>
         t.id === topicId
-          ? {...t, modules: t.modules.filter((m) => m.id !== modId)}
+          ? {...t, modules: t.modules.filter((m) => m.id !== moduleId)}
           : t,
       ),
     );
   }
 
-  //   function toggleQuiz(id: string) {
-  //     setCollapsedQuizzes((prev) => ({...prev, [id]: !prev[id]}));
-  //   }
+  function toggleModule(id: string) {
+    setCollapsedModules((prev) => ({...prev, [id]: !prev[id]}));
+  }
 
-  //   function deleteQuiz(topicId: string) {
-  //     onTopicsChange(
-  //       topics.map((t) => (t.id === topicId ? {...t, hasQuiz: false} : t)),
-  //     );
-  //   }
+  // ── Content (quizzes — lessons/practice come from their own editors) ──
 
-  function addQuiz(topicId: string) {
-    const topic = topics.find((t) => t.id === topicId);
-
-    if (!topic || topic.modules.length === 0) return;
-
-    const quiz: ModuleContent = {
-      id: uid(),
-      type: "quiz",
-      title: "Quiz",
-      quiz: {
-        id: uid(),
-        questions: [],
-        settings: {
-          timer: 0,
-          passingScore: 0,
-        },
-      },
-    };
-
+  function addQuiz(topicId: string, moduleId: string) {
+    const item = makeQuiz();
     onTopicsChange(
-      topics.map((topic) =>
-        topic.id !== topicId
-          ? topic
-          : {
-              ...topic,
-              modules: topic.modules.map((module) =>
-                module.id !== topic.modules[0].id
-                  ? module
-                  : {
-                      ...module,
-                      content: [...module.content, quiz],
-                    },
+      topics.map((t) =>
+        t.id === topicId
+          ? {
+              ...t,
+              modules: t.modules.map((m) =>
+                m.id === moduleId ? {...m, content: [...m.content, item]} : m,
               ),
-            },
+            }
+          : t,
       ),
     );
-
     setMenuOpenFor(null);
   }
 
-  // We compose a unique string key for each ⋮ so we can tell which one is open
+  function deleteContent(topicId: string, moduleId: string, contentId: string) {
+    onTopicsChange(
+      topics.map((t) =>
+        t.id === topicId
+          ? {
+              ...t,
+              modules: t.modules.map((m) =>
+                m.id === moduleId
+                  ? {...m, content: m.content.filter((c) => c.id !== contentId)}
+                  : m,
+              ),
+            }
+          : t,
+      ),
+    );
+    setConfirmDeleteId(null);
+    if (selectedContentId === contentId) onSelectContent("");
+  }
+
   const menuKey = {
     topic: (id: string) => `topic:${id}`,
+    module: (topicId: string, modId: string) => `module:${topicId}:${modId}`,
   };
 
   return (
@@ -166,7 +180,6 @@ export default function Step2Sidebar({
       ref={sidebarRef}
       className="flex w-72 shrink-0 flex-col rounded-2xl border border-muted/30"
     >
-      {/* Scrollable tree */}
       <div className="flex flex-1 flex-col overflow-hidden rounded-t-2xl bg-gray-50/60">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-4">
@@ -215,7 +228,6 @@ export default function Step2Sidebar({
                             </span>
                           )}
                         </span>
-                        {/* Edit pencil */}
                         <button
                           type="button"
                           onClick={() => setRenamingId(topic.id)}
@@ -228,7 +240,6 @@ export default function Step2Sidebar({
                     )}
                   </div>
 
-                  {/* ⋮ options */}
                   {!isRenamingTopic && (
                     <button
                       type="button"
@@ -243,7 +254,6 @@ export default function Step2Sidebar({
                     </button>
                   )}
 
-                  {/* Topic dropdown menu */}
                   {menuOpenFor === topicMenuKey && (
                     <div className="absolute right-0 top-8 z-30 w-52 rounded-xl border border-gray-100 bg-white p-1.5 shadow-lg">
                       <MenuItem
@@ -251,13 +261,6 @@ export default function Step2Sidebar({
                         label="Add module"
                         onClick={() => addModule(topic.id)}
                       />
-                      {/* {!topic.hasQuiz && ( */}
-                      <MenuItem
-                        icon="lucide:list-checks"
-                        label="Add quiz"
-                        onClick={() => addQuiz(topic.id)}
-                      />
-                      {/* )} */}
                       <MenuItem
                         icon="lucide:pencil"
                         label="Rename topic"
@@ -277,15 +280,15 @@ export default function Step2Sidebar({
                   )}
                 </div>
 
-                {/* Modules — now directly under the topic */}
+                {/* ── Modules ── */}
                 {topic.modules.map((mod) => {
-                  const collapsed = collapsedModules[mod.id];
+                  const moduleMenuKeyStr = menuKey.module(topic.id, mod.id);
                   const isRenamingMod = renamingId === mod.id;
-
+                  const collapsed = collapsedModules[mod.id];
                   return (
                     <div key={mod.id}>
                       <div
-                        className="group flex items-center gap-1 py-1.5 pr-2"
+                        className="group relative flex items-center gap-1 py-1.5 pr-2"
                         style={{paddingLeft: "20px"}}
                       >
                         <button
@@ -331,102 +334,207 @@ export default function Step2Sidebar({
                         </div>
 
                         {!isRenamingMod && (
-                          <button
-                            type="button"
-                            onClick={() => deleteModule(topic.id, mod.id)}
-                            className="shrink-0 rounded p-1 text-gray-300 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
-                          >
-                            <Icon icon="lucide:trash-2" size={13} />
-                          </button>
+                          <>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setMenuOpenFor((m) =>
+                                  m === moduleMenuKeyStr
+                                    ? null
+                                    : moduleMenuKeyStr,
+                                )
+                              }
+                              className="shrink-0 rounded p-1 text-gray-400 hover:bg-gray-100"
+                            >
+                              <Icon icon="proicons:more" size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteModule(topic.id, mod.id)}
+                              className="shrink-0 rounded p-1 text-gray-300 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
+                            >
+                              <Icon icon="lucide:trash-2" size={13} />
+                            </button>
+                          </>
+                        )}
+
+                        {menuOpenFor === moduleMenuKeyStr && (
+                          <div className="absolute right-0 top-8 z-30 w-52 rounded-xl border border-gray-100 bg-white p-1.5 shadow-lg">
+                            <MenuItem
+                              icon="lucide:help-circle"
+                              label="Add quiz"
+                              onClick={() => addQuiz(topic.id, mod.id)}
+                            />
+                            <div className="my-1 border-t border-gray-100" />
+                            <MenuItem
+                              icon="lucide:pencil"
+                              label="Rename module"
+                              onClick={() => {
+                                setMenuOpenFor(null);
+                                setRenamingId(mod.id);
+                              }}
+                            />
+                          </div>
                         )}
                       </div>
 
-                      {/* Module */}
+                      {(() => {
+                        // Lessons/Practice are aggregate views over this
+                        // module's flattened content, not a single stored
+                        // item — clicking just navigates to that view via a
+                        // synthetic id; it never creates anything.
+                        const lessonCount = mod.content.filter(
+                          (c) => c.type === "lesson",
+                        ).length;
+                        const practiceCount = mod.content.filter(
+                          (c) => c.type === "practice",
+                        ).length;
+                        const lessonsSelected =
+                          selectedContentId === lessonsViewId(mod.id);
+                        const practiceSelected =
+                          selectedContentId === practiceViewId(mod.id);
+
+                        return (
+                          <div style={{paddingLeft: "20px"}}>
+                            <div
+                              role="button"
+                              className={`group flex cursor-pointer items-center gap-1.5 py-1.5 pr-2 transition-colors ${
+                                lessonsSelected ? "text-gray-900" : ""
+                              }`}
+                              onClick={() =>
+                                onSelectContent(lessonsViewId(mod.id))
+                              }
+                            >
+                              <span className="shrink-0 text-gray-400">
+                                <Icon icon="lucide:play-circle" size={14} />
+                              </span>
+                              <div className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5">
+                                <span className="truncate text-sm text-gray-500">
+                                  Lessons
+                                </span>
+                                <span className="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
+                                  {lessonCount}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div
+                              role="button"
+                              className={`group flex cursor-pointer items-center gap-1.5 py-1.5 pr-2 transition-colors ${
+                                practiceSelected ? "text-gray-900" : ""
+                              }`}
+                              onClick={() =>
+                                onSelectContent(practiceViewId(mod.id))
+                              }
+                            >
+                              <span className="shrink-0 text-gray-400">
+                                <Icon icon="lucide:list-checks" size={14} />
+                              </span>
+                              <div className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5">
+                                <span className="truncate text-sm text-gray-500">
+                                  Practice
+                                </span>
+                                <span className="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
+                                  {practiceCount}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* Quizzes — lessons/practice are pinned above, not listed here */}
                       {!collapsed &&
-                        mod.content.map((item) => (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() => onSelectContent(item.id)}
-                            style={{paddingLeft: "36px"}}
-                            className={`flex w-full items-center justify-between py-1.5 pr-2 text-left text-sm transition-colors ${
-                              selectedContentId === item.id
-                                ? "bg-gray-100 text-gray-900"
-                                : "text-gray-500 hover:bg-gray-50"
-                            }`}
-                          >
-                            <span>{item.title}</span>
+                        mod.content
+                          .filter(
+                            (item): item is QuizModuleContent =>
+                              item.type === "quiz",
+                          )
+                          .map((item) => {
+                            const isConfirming = confirmDeleteId === item.id;
+                            const isSelected = selectedContentId === item.id;
 
-                            {item.type === "lesson" && (
-                              <span className="rounded-md bg-gray-100 px-1.5 py-0.5 text-xs">
-                                {item.lessons.length}
-                              </span>
-                            )}
+                            return (
+                              <div
+                                key={item.id}
+                                style={{paddingLeft: "36px"}}
+                                className="group flex items-center gap-1.5 py-1.5 pr-2 transition-colors"
+                              >
+                                {isConfirming ? (
+                                  <div className="flex w-full items-center justify-between gap-2">
+                                    <span className="truncate text-xs text-gray-600">
+                                      Delete {item.title || "this item"}?
+                                    </span>
+                                    <div className="flex shrink-0 items-center gap-1.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => setConfirmDeleteId(null)}
+                                        className="rounded px-1.5 py-0.5 text-xs font-medium text-gray-500 hover:bg-gray-100"
+                                      >
+                                        Cancel
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          deleteContent(
+                                            topic.id,
+                                            mod.id,
+                                            item.id,
+                                          )
+                                        }
+                                        className="rounded bg-red-500 px-1.5 py-0.5 text-xs font-medium text-white hover:bg-red-600"
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <span className="shrink-0 text-gray-400">
+                                      <Icon icon={QUIZ_ICON} size={14} />
+                                    </span>
 
-                            {item.type === "practice" && (
-                              <span className="rounded-md bg-gray-100 px-1.5 py-0.5 text-xs">
-                                {item.practices.length}
-                              </span>
-                            )}
+                                    <button
+                                      type="button"
+                                      onClick={() => onSelectContent(item.id)}
+                                      className={`flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5 text-left text-sm transition-colors ${
+                                        isSelected
+                                          ? "bg-gray-100 text-gray-900"
+                                          : "text-gray-500 hover:bg-gray-50"
+                                      }`}
+                                    >
+                                      <span className="truncate">
+                                        {item.title || (
+                                          <span className="italic text-gray-400">
+                                            Untitled quiz
+                                          </span>
+                                        )}
+                                      </span>
+                                      <span className="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
+                                        {item.questions.length}
+                                      </span>
+                                    </button>
 
-                            {item.type === "quiz" && (
-                              <span className="rounded-md bg-gray-100 px-1.5 py-0.5 text-xs">
-                                {item.quiz.questions.length}
-                              </span>
-                            )}
-                          </button>
-                        ))}
+                                    <span className="hidden shrink-0 items-center gap-0.5 group-hover:flex">
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          setConfirmDeleteId(item.id)
+                                        }
+                                        className="rounded p-1 text-gray-300 hover:text-red-500"
+                                        aria-label={`Delete ${item.title || "quiz"}`}
+                                      >
+                                        <Icon icon="lucide:trash-2" size={11} />
+                                      </button>
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })}
                     </div>
                   );
                 })}
-
-                {/* Quiz row (if added) — now directly under the topic */}
-                {/* {topic.hasQuiz && (
-                  <div key={`${topic.id}-quiz`}>
-                    <div
-                      className="group flex items-center gap-1 py-1.5 pr-2"
-                      style={{paddingLeft: "20px"}}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => toggleQuiz(topic.id)}
-                        className="flex items-center gap-1 text-gray-400"
-                      >
-                        <Icon
-                          icon="lucide:chevron-down"
-                          size={13}
-                          className={`transition-transform ${collapsedQuizzes[topic.id] ? "-rotate-90" : ""}`}
-                        />
-                      </button>
-                      <div className="min-w-0 flex-1">
-                        <span className="truncate text-sm font-medium text-gray-700">
-                          Quiz
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => deleteQuiz(topic.id)}
-                        className="shrink-0 rounded p-1 text-gray-300 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
-                      >
-                        <Icon icon="lucide:trash-2" size={13} />
-                      </button>
-                    </div>
-                    {!collapsedQuizzes[topic.id] && (
-                      <button
-                        type="button"
-                        onClick={() => onSelectLeaf(`${topic.id}-quiz`)}
-                        style={{paddingLeft: "36px"}}
-                        className={`flex w-full items-center justify-between py-1.5 pr-2 text-left text-sm transition-colors ${
-                          selectedLeaf === `${topic.id}-quiz`
-                            ? "bg-gray-100 text-gray-900"
-                            : "text-gray-500 hover:bg-gray-50"
-                        }`}
-                      >
-                        <span>Quiz exercises</span>
-                      </button>
-                    )}
-                  </div>
-                )} */}
               </div>
             );
           })}
@@ -471,33 +579,4 @@ function MenuItem({
       {label}
     </button>
   );
-}
-
-function makeModule(): MakeModule {
-  return {
-    id: uid(),
-    label: "",
-    content: [
-      {
-        id: uid(),
-        type: "lesson",
-        title: "Lessons",
-        lessons: [],
-      },
-      {
-        id: uid(),
-        type: "practice",
-        title: "Practice",
-        practices: [],
-      },
-    ],
-  };
-}
-
-function makeTopic(): Topic {
-  return {
-    id: uid(),
-    label: "",
-    modules: [],
-  };
 }

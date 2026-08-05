@@ -4,6 +4,7 @@ import {useFormContext} from "@mcc/features";
 import Step2Sidebar from "./Step2SideBar";
 import PracticeQuestions, {CreatPracticeQuestionType} from "./CreatePractice";
 import LessonsCreate, {FileRow} from "./CreateLessons";
+import ContentReorderPanel from "./ContentReorder";
 // import ContentReorderPanel from "./ContentReorderPanel";
 
 export type PracticeSet = {
@@ -12,15 +13,18 @@ export type PracticeSet = {
   questions: CreatPracticeQuestionType[];
 };
 
-export type LessonContent = {
-  id: string;
-  type: "lesson";
-  title: string;
-  lessons: FileRow[];
-};
+// A lesson entry in a module's content IS the file itself.
+export type LessonModuleContent = FileRow & {type: "lesson"};
 
-type Quiz = {
+// A practice entry in a module's content IS the named practice set itself.
+export type PracticeModuleContent = PracticeSet & {type: "practice"};
+
+// A quiz entry in a module's content IS the quiz itself (no separate
+// wrapper id/title — this object's own id/title are what's used).
+export type QuizModuleContent = {
   id: string;
+  type: "quiz";
+  title: string;
   questions: CreatPracticeQuestionType[];
   settings: {
     timer?: number;
@@ -28,21 +32,10 @@ type Quiz = {
   };
 };
 
-export type PracticeContent = {
-  id: string;
-  type: "practice";
-  title: string;
-  practices: PracticeSet[];
-};
-
-export type QuizContent = {
-  id: string;
-  type: "quiz";
-  title: string;
-  quiz: Quiz;
-};
-
-export type ModuleContent = LessonContent | PracticeContent | QuizContent;
+export type ModuleContent =
+  | LessonModuleContent
+  | PracticeModuleContent
+  | QuizModuleContent;
 
 export type MakeModule = {
   id: string;
@@ -268,18 +261,54 @@ export function hasCompleteContent(topics: Topic[]) {
   return topics.some((t) => t.modules.length > 0);
 }
 
-function getActiveContext(topics: Topic[], contentId: string) {
+// Lessons/Practice are aggregate views over a module's flattened content —
+// there's no single stored item to select anymore, so they're addressed by
+// a synthetic id built from the module id. Quizzes remain individually
+// selectable by their own real id.
+export function lessonsViewId(moduleId: string) {
+  return `lessons:${moduleId}`;
+}
+export function practiceViewId(moduleId: string) {
+  return `practice:${moduleId}`;
+}
+
+function getActiveContext(topics: Topic[], selection: string) {
   for (const topic of topics) {
     for (const mod of topic.modules) {
-      const content = mod.content.find((item) => item.id === contentId);
-
-      if (content) {
+      if (selection === lessonsViewId(mod.id)) {
         return {
           topic,
           module: mod,
-          content,
-          type: content.type,
-          label: content.title,
+          type: "lesson" as const,
+          label: "Lessons",
+          files: mod.content.filter(
+            (c): c is LessonModuleContent => c.type === "lesson",
+          ),
+        };
+      }
+
+      if (selection === practiceViewId(mod.id)) {
+        return {
+          topic,
+          module: mod,
+          type: "practice" as const,
+          label: "Practice",
+          practices: mod.content.filter(
+            (c): c is PracticeModuleContent => c.type === "practice",
+          ),
+        };
+      }
+
+      const quiz = mod.content.find(
+        (c): c is QuizModuleContent => c.type === "quiz" && c.id === selection,
+      );
+      if (quiz) {
+        return {
+          topic,
+          module: mod,
+          type: "quiz" as const,
+          label: quiz.title,
+          quiz,
         };
       }
     }
@@ -307,9 +336,9 @@ export default function ContentStep({
   const [isRenamingTopic, setIsRenamingTopic] = useState(false);
   const [isReorderOpen, setIsReorderOpen] = useState(false);
 
-  function updateTopic(updated: Topic) {
-    setTopics(topics.map((t) => (t.id === updated.id ? updated : t)));
-  }
+  // function updateTopic(updated: Topic) {
+  //   setTopics(topics.map((t) => (t.id === updated.id ? updated : t)));
+  // }
 
   // Description state
   const [isEditingDescription, setIsEditingDescription] = useState(false);
@@ -317,14 +346,10 @@ export default function ContentStep({
 
   const activeContext = getActiveContext(topics, selectedContentId);
   const activeFiles =
-    activeContext?.content.type === "lesson"
-      ? activeContext.content.lessons
-      : [];
+    activeContext?.type === "lesson" ? activeContext.files : [];
 
   const activePractices =
-    activeContext?.content.type === "practice"
-      ? activeContext.content.practices
-      : [];
+    activeContext?.type === "practice" ? activeContext.practices : [];
 
   function handleRenameTopic(id: string, newLabel: string) {
     setTopics(topics.map((t) => (t.id === id ? {...t, label: newLabel} : t)));
@@ -351,11 +376,15 @@ export default function ContentStep({
     setIsEditingDescription(false);
   }
 
-  function updateModuleContent(
+  // Lessons/Practice editors hand back their full next list at once, so
+  // this swaps out every entry of that type in the module's flattened
+  // content and leaves everything else (other lessons/practice/quizzes)
+  // untouched.
+  function replaceContentByType<T extends ModuleContent["type"]>(
     topicId: string,
     moduleId: string,
-    contentId: string,
-    updater: (content: ModuleContent) => ModuleContent,
+    type: T,
+    nextItems: Extract<ModuleContent, {type: T}>[],
   ) {
     setTopics(
       topics.map((topic) =>
@@ -368,9 +397,10 @@ export default function ContentStep({
                   ? module
                   : {
                       ...module,
-                      content: module.content.map((item) =>
-                        item.id !== contentId ? item : updater(item),
-                      ),
+                      content: [
+                        ...module.content.filter((item) => item.type !== type),
+                        ...nextItems,
+                      ],
                     },
               ),
             },
@@ -379,36 +409,42 @@ export default function ContentStep({
   }
 
   function setLessonFiles(files: FileRow[]) {
-    if (!activeContext) return;
+    if (!activeContext || activeContext.type !== "lesson") return;
 
-    updateModuleContent(
+    replaceContentByType(
       activeContext.topic.id,
       activeContext.module.id,
-      activeContext.content.id,
-      (content) =>
-        content.type === "lesson"
-          ? {
-              ...content,
-              lessons: files,
-            }
-          : content,
+      "lesson",
+      files.map((f) => ({...f, type: "lesson" as const})),
     );
   }
 
   function setPractices(practices: PracticeSet[]) {
-    if (!activeContext) return;
+    if (!activeContext || activeContext.type !== "practice") return;
 
-    updateModuleContent(
+    replaceContentByType(
       activeContext.topic.id,
       activeContext.module.id,
-      activeContext.content.id,
-      (content) =>
-        content.type === "practice"
-          ? {
-              ...content,
-              practices,
-            }
-          : content,
+      "practice",
+      practices.map((p) => ({...p, type: "practice" as const})),
+    );
+  }
+
+  function updateModule(updatedModule: MakeModule) {
+    if (!activeContext?.topic) return;
+    const topic = activeContext.topic;
+
+    setTopics(
+      topics.map((t) =>
+        t.id !== topic.id
+          ? t
+          : {
+              ...t,
+              modules: t.modules.map((m) =>
+                m.id === updatedModule.id ? updatedModule : m,
+              ),
+            },
+      ),
     );
   }
 
@@ -485,7 +521,7 @@ export default function ContentStep({
                     variant="outline"
                     shadow={"sm"}
                     size={"sm"}
-                    disabled={!activeContext?.topic}
+                    disabled={!activeContext?.module}
                     onClick={() => setIsReorderOpen(true)}
                     leftIcon={<Icon icon="lucide:arrow-up-down" size={16} />}
                   >
@@ -569,14 +605,14 @@ export default function ContentStep({
                 </div>
               )}
 
-              {activeContext?.content.type === "lesson" && (
+              {activeContext?.type === "lesson" && (
                 <LessonsCreate
                   files={activeFiles}
                   onFilesChange={setLessonFiles}
                 />
               )}
 
-              {activeContext?.content.type === "practice" && (
+              {activeContext?.type === "practice" && (
                 <PracticeManager
                   practices={activePractices}
                   onChange={setPractices}
@@ -604,9 +640,10 @@ export default function ContentStep({
             </Button>
             <Button
               type="button"
+              variant={hasCompleteContent(topics) ? "primary" : "secondary"}
               disabled={!hasCompleteContent(topics)}
               onClick={onNext}
-              className="text-nowrap"
+              className={!hasCompleteContent(topics) ? "text-muted/60" : ""}
             >
               Save & continue
             </Button>
@@ -615,12 +652,11 @@ export default function ContentStep({
       </div>
 
       {isReorderOpen && activeContext?.topic && (
-        <></>
-        // <ContentReorderPanel
-        //   topic={activeContext.topic}
-        //   onClose={() => setIsReorderOpen(false)}
-        //   onTopicChange={updateTopic}
-        // />
+        <ContentReorderPanel
+          module={activeContext.module}
+          onClose={() => setIsReorderOpen(false)}
+          onModuleChange={updateModule}
+        />
       )}
     </div>
   );

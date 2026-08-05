@@ -137,11 +137,11 @@ export default function CreateCourseForm() {
   const isUploadComplete = hasCompleteUpload(upload);
   const canPublish = isDetailsComplete && isContentComplete && isUploadComplete;
   const [isPublished, setIsPublished] = useState(false);
+  const [prevviewView, setPreviewView] = useState(false);
 
   function handlePublish() {
     if (!canPublish) return;
     confettiCelebrate(undefined, 1000, 300);
-    console.log(methods.getValues());
     setIsPublished(true);
   }
 
@@ -196,11 +196,13 @@ export default function CreateCourseForm() {
           <div className="flex items-center gap-3">
             <Button
               type="button"
-              variant="outline"
-              className="text-nowrap"
+              variant={!canPublish ? "secondary" : "outline"}
+              className={!canPublish ? "text-muted/60" : ""}
               shadow={"sm"}
               size={"sm"}
               leftIcon={<Icon icon="lucide:eye" size={16} />}
+              disabled={!canPublish}
+              onClick={() => setPreviewView(true)}
             >
               View as a student
             </Button>
@@ -209,6 +211,7 @@ export default function CreateCourseForm() {
               variant={canPublish ? "primary" : "secondary"}
               size={"sm"}
               disabled={!canPublish}
+              className={!canPublish ? "text-muted/60" : ""}
               onClick={handlePublish}
             >
               Publish
@@ -216,22 +219,24 @@ export default function CreateCourseForm() {
           </div>
         </div>
 
-        {/* Steps */}
-        {activeStep === "details" && <Step1 onNext={goNext} />}
-        {activeStep === "content" && (
-          <Step2
-            onNext={goNext}
-            onBack={goBack}
-            courseName={methods.watch("courseName")}
-          />
-        )}
-        {activeStep === "upload" && (
-          <Step3
-            courseName={methods.watch("courseName")}
-            onBack={goBack}
-            isPublished={isPublished}
-          />
-        )}
+        <>
+          {/* Steps */}
+          {activeStep === "details" && <Step1 onNext={goNext} />}
+          {activeStep === "content" && (
+            <Step2
+              onNext={goNext}
+              onBack={goBack}
+              courseName={methods.watch("courseName")}
+            />
+          )}
+          {activeStep === "upload" && (
+            <Step3
+              courseName={methods.watch("courseName")}
+              onBack={goBack}
+              isPublished={isPublished}
+            />
+          )}
+        </>
       </div>
     </FormProvider>
   );

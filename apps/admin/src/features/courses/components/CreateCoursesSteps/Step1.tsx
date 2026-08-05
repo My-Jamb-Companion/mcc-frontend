@@ -238,7 +238,8 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
             type="button"
             variant={isValid ? "primary" : "secondary"}
             onClick={handleNext}
-            // disabled={!isValid}
+            className={!isValid ? "text-muted/60" : ""}
+            disabled={!isValid}
           >
             Save &amp; continue
           </Button>
