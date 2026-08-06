@@ -17,6 +17,8 @@ const FormInputs = ({
   value,
   onChange,
   inputProps,
+  selectRadius = "lg",
+  selectClassName,
 }: inputProps) => {
   const [show, setShow] = useState(false);
   const id = registration?.name;
@@ -45,6 +47,24 @@ const FormInputs = ({
           placeholder={placeholder}
           onChange={onChange}
           error={errors?.message}
+          icon={typeof icon === "string" ? icon : undefined}
+          selectRadius={selectRadius}
+          className={selectClassName}
+        />
+      );
+    }
+
+    if (type === "date") {
+      return (
+        <CustomSelect
+          mode="date"
+          value={value}
+          placeholder={placeholder}
+          onChange={onChange}
+          error={errors?.message}
+          icon={typeof icon === "string" ? icon : undefined}
+          selectRadius={selectRadius}
+          className={selectClassName}
         />
       );
     }
@@ -63,11 +83,13 @@ const FormInputs = ({
 
   return (
     <div className={`flex flex-col gap-2 w-full ${className}`}>
-      <label htmlFor={id} className="text-start text-sm">
-        {label}
-      </label>
+      {label && (
+        <label htmlFor={id} className="text-start text-sm">
+          {label}
+        </label>
+      )}
       <div className="relative">
-        {icon && (
+        {icon && type !== "select" && (
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
             {icon}
           </div>
@@ -109,7 +131,7 @@ const Err = ({message}: {message?: string}) => {
 export default FormInputs;
 
 type inputProps = {
-  label: string;
+  label?: string;
   errors?: FieldError;
   className?: string;
   inputClassName?: string;
@@ -121,12 +143,16 @@ type inputProps = {
     | "number"
     | "tel"
     | "textarea"
-    | "select";
+    | "select"
+    | "date";
   options?: {label: string; value: string}[];
   placeholder?: string;
-  icon?: React.ReactNode;
+  /** Rendered icon element for text/password/etc. fields, or an Iconify icon name string for "select" fields */
+  icon?: React.ReactNode | string;
   isPassword?: boolean;
   value?: string;
   onChange?: (value: string) => void;
   inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
+  selectRadius?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "full";
+  selectClassName?: string;
 };
