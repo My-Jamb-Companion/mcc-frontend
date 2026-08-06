@@ -192,7 +192,7 @@ export default function ContentStep({
 
   function setLeafFiles(newFiles: FileRow[]) {
     if (!activeContext) return;
-    const {topic, subTopic, module, leaf, type} = activeContext;
+    const {topic, subTopic, module, leaf} = activeContext;
     if (module && leaf) {
       setTopics(
         topics.map((t) =>

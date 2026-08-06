@@ -153,7 +153,6 @@ export default function CreateExamProgramForm() {
   function handlePublish() {
     if (!canPublish) return;
     confettiCelebrate(undefined, 1000, 300);
-    console.log(methods.getValues());
     setIsPublished(true);
   }
 

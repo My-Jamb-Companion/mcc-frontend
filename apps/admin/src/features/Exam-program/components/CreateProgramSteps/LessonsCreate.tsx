@@ -194,7 +194,7 @@ export default function LessonsCreate({
     return () => clearTimeout(timer);
   }, [uploadsProgress]);
 
-  function handleDrop(e: React.DragEvent) {
+  function handleDrop(_e: React.DragEvent) {
     if (
       dragItemIndex !== null &&
       dragOverItemIndex !== null &&
