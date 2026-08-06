@@ -7,6 +7,7 @@ import {useEffect, useState} from "react";
 import Header from "@/src/features/dashboard/components/header/Header";
 import SideNav from "@/src/features/components/SideNav";
 import Help from "@/src/features/dashboard/components/Help";
+import {useIsMobile} from "@/src/features/hooks/isMobile";
 
 export default function DashboardLayout({
   children,
@@ -15,9 +16,9 @@ export default function DashboardLayout({
 }) {
   const {isAuthenticated, hydrated, user} = useAuth();
   const [sideNav, setSideNav] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!hydrated) return;
@@ -28,16 +29,9 @@ export default function DashboardLayout({
     }
   }, [hydrated, isAuthenticated, user, router]);
 
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  if (!hydrated || !isAuthenticated || (user && !user.is_onboarded)) {
-    return null;
-  }
+  // if (!hydrated || !isAuthenticated || (user && !user.is_onboarded)) {
+  //   return null;
+  // }
 
   const isClassroom = pathname.includes("/classroom");
   const isAccount = pathname.includes("/account");
