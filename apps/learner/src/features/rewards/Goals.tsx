@@ -3,7 +3,7 @@ import {Coins} from "lucide-react";
 
 export default function GoalsProgress() {
   return (
-    <div className="mx-auto max-w-5xl space-y-8 bg-white p-8 max-md:p-0 max-md:pt-5">
+    <div className="mx-auto max-w-5xl space-y-8 p-8 max-md:p-0 max-md:pt-5">
       {/* Hero */}
       <GoalsProgressCard />
 
@@ -108,7 +108,7 @@ function GoalsSummary() {
         Daily & Weekly Goals Summary
       </h2>
 
-      <div className="rounded-[28px] border border-muted/40 bg-white p-8 shadow-lg shadow-gray-200/60 max-md:px-4 max-md:py-6">
+      <div className="rounded-[28px] border border-muted/40  p-8 shadow-lg shadow-gray-200/60 max-md:px-4 max-md:py-6">
         {/* Weekly Goal */}
         <div>
           <h3 className="md:text-xl font-semibold text-gray-900">

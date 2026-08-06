@@ -1,5 +1,5 @@
 "use client";
-import React, {useState} from "react";
+import {useState} from "react";
 
 import Leaderboard from "./LeaderBoard";
 import GoalsProgressPage from "./Goals";
@@ -11,7 +11,7 @@ export default function Rewards() {
   const [tab, setTab] = useState("goals");
 
   return (
-    <section className="max-md:px-4 pb-20">
+    <section className="max-md:px-4 pb-20 pt-10">
       <BannerCarousel />
       <div className="w-full mx-auto max-w-[900px] ">
         <TopNav active={tab} onChange={setTab} />

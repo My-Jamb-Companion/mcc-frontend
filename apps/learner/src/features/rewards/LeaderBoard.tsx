@@ -29,7 +29,7 @@ const rankings = [
 
 export default function Leaderboard() {
   return (
-    <div className="mx-auto max-w-6xl bg-white p-8 max-md:p-0">
+    <div className="mx-auto max-w-6xl  p-8 max-md:p-0">
       {/* Heading */}
       <h2 className="font-semibold text-gray-800">My Ranking.</h2>
 
