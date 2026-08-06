@@ -1,5 +1,5 @@
-"use client"
-import { useAuth } from "@mcc/features";
+"use client";
+import {useAuth} from "@mcc/features";
 
 export const RoleLayout = ({
   allowedRoles,
@@ -8,7 +8,7 @@ export const RoleLayout = ({
   allowedRoles: string[];
   children: React.ReactNode;
 }) => {
-  const { user } = useAuth();
+  const {user} = useAuth();
 
   if (!user || !allowedRoles.includes(user.role)) {
     return <div className="p-4">Unauthorized</div>;

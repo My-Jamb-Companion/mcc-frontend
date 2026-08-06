@@ -7,6 +7,7 @@ interface VideoPlayerProps {
   src: string | undefined;
   poster?: string;
   onEnded?: () => void;
+  onTimeUpdate?: (currentTime: number) => void;
 }
 
 function formatTime(seconds: number) {
@@ -15,11 +16,17 @@ function formatTime(seconds: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-export default function CoursePlayer({src, poster, onEnded}: VideoPlayerProps) {
+export default function CoursePlayer({
+  src,
+  poster,
+  onEnded,
+  onTimeUpdate: onTimeUpdateProp,
+}: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hideControlsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSentTime = useRef<number>(-1);
 
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -63,7 +70,16 @@ export default function CoursePlayer({src, poster, onEnded}: VideoPlayerProps) {
   // ── video event handlers ──────────────────────────────────────────
   const onTimeUpdate = () => {
     if (!videoRef.current || seeking) return;
-    setCurrentTime(videoRef.current.currentTime);
+    const time = videoRef.current.currentTime;
+    setCurrentTime(time);
+
+    if (onTimeUpdateProp) {
+      const currentSecond = Math.floor(time);
+      if (lastSentTime.current !== currentSecond) {
+        lastSentTime.current = currentSecond;
+        onTimeUpdateProp(currentSecond);
+      }
+    }
   };
 
   const onLoadedMetadata = () => {

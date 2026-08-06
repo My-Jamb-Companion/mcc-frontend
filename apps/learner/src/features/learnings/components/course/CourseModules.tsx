@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {Icon, Button} from "@mcc/ui";
+import {Icon, motion, AnimatePresence} from "@mcc/ui";
 import {
   useLessonsDuration,
   useLevelProgress,
@@ -37,72 +37,25 @@ const lessonIconMap: Record<LessonType, {icon: string; className: string}> = {
 
 export default function CoursePlayModules({
   levels,
-  onClose,
   setActiveLessonSrc,
   activeLesson = null,
 }: CourseContentSidebarProps) {
-  const [activeTab, setActiveTab] = useState<"course" | "ai">("course");
-
   return (
-    <div className="w-full min-w-fit max-w-120 max-sm:w-full pt-6 px-1 flex flex-col rounded-xl overflow-hidden bg-background">
-      <div className="flex gap-2 justify-between py-2">
-        <div className="flex gap-2">
-          {(["course", "ai"] as const).map((tab) => (
-            <Button
-              key={tab}
-              variant={activeTab === tab ? "outline" : "ghost"}
-              onClick={() => setActiveTab(tab)}
-              width="fit"
-              className={`text-nowrap py-1!  ${activeTab == tab ? "" : "opacity-60"}`}
-            >
-              <p className="flex items-center gap-2">
-                {tab === "ai" && <Icon icon={"mingcute:ai-fill"} size={14} />}
-                <span>
-                  {tab === "course" ? "Course content" : "AI assistant"}
-                </span>
-              </p>
-            </Button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-1 px-2.5">
-          <button
-            type="button"
-            aria-label="Bookmark"
-            className="p-1.5 rounded text-subtle hover:bg-muted/10 transition-colors"
-          >
-            <Icon icon="ri:sidebar-unfold-line" size={15} />
-          </button>
-          <button
-            type="button"
-            aria-label="Close"
-            onClick={onClose}
-            className="p-1.5 rounded text-subtle hover:bg-muted/10 transition-colors"
-          >
-            <Icon icon="ph:x" size={15} />
-          </button>
-        </div>
-      </div>
-
-      {activeTab === "course" && (
-        <div className="overflow-y-auto">
-          {levels.map((level) => (
-            <LevelSection
-              key={level.title}
-              level={level}
-              activeLesson={activeLesson}
-              setActiveLessonSrc={setActiveLessonSrc}
-            />
-          ))}
-        </div>
-      )}
-
-      {activeTab === "ai" && (
-        <div className="flex flex-col items-center justify-center gap-2 py-10 text-subtle text-[13px]">
-          <Icon icon="ph:sparkle" size={32} />
-          <p>{"AI assistant panel"}</p>
-        </div>
-      )}
+    <div>
+      {levels.map((level, index) => (
+        <motion.div
+          key={level.title}
+          initial={{opacity: 0, y: 12}}
+          animate={{opacity: 1, y: 0}}
+          transition={{delay: index * 0.08, duration: 0.3}}
+        >
+          <LevelSection
+            level={level}
+            activeLesson={activeLesson}
+            setActiveLessonSrc={setActiveLessonSrc}
+          />
+        </motion.div>
+      ))}
     </div>
   );
 }
@@ -216,7 +169,9 @@ function ModuleAccordion({
 
         {hasLessons && (
           <div className="flex items-center gap-2">
-            <p className="text-subtle text-xs">{moduleDuration.formatted}</p>
+            <p className="text-subtle text-xs text-nowrap">
+              {moduleDuration.formatted}
+            </p>
             <Icon
               icon="ph:caret-down"
               size={14}
@@ -226,46 +181,60 @@ function ModuleAccordion({
         )}
       </button>
 
-      {hasLessons && open && (
-        <div className="pl-4 pt-6 pb-4 flex flex-col gap-4">
-          {module.lessons!.map((lesson) => {
-            const key = lesson.id;
-            const isActive = activeLesson === key;
-            const iconConfig = lessonIconMap[lesson.type];
+      <AnimatePresence initial={false}>
+        {hasLessons && open && (
+          <motion.div
+            key="lessons"
+            initial={{height: 0, opacity: 0}}
+            animate={{height: "auto", opacity: 1}}
+            exit={{height: 0, opacity: 0}}
+            transition={{duration: 0.25, ease: "easeInOut"}}
+            className="overflow-hidden"
+          >
+            <div className="pl-4 pt-6 pb-4 flex flex-col gap-4">
+              {module.lessons!.map((lesson, i) => {
+                const key = lesson.id;
+                const isActive = activeLesson === key;
+                const iconConfig = lessonIconMap[lesson.type];
 
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => {
-                  setActiveLessonSrc(lesson);
-                }}
-                className={`flex gap-2.5 w-full pl-1 pr-3.5 text-left hover:bg-muted/5 transition-colors ${
-                  isActive ? "border-l-primary  border-l-3" : "border-l-0"
-                }`}
-              >
-                <div
-                  className={`flex items-center justify-center size-5.5 rounded shrink-0 text-[13px] ${iconConfig.className}`}
-                >
-                  <Icon icon={iconConfig.icon} size={16} />
-                </div>
-                <div className="min-w-0">
-                  <p
-                    className={`text-sm truncate ${
-                      isActive ? "text-primary" : "text-subtle"
+                return (
+                  <motion.button
+                    key={key}
+                    type="button"
+                    initial={{opacity: 0, x: -8}}
+                    animate={{opacity: 1, x: 0}}
+                    transition={{delay: i * 0.04, duration: 0.2}}
+                    onClick={() => {
+                      setActiveLessonSrc(lesson);
+                    }}
+                    className={`flex gap-2.5 w-full pl-1 pr-3.5 text-left hover:bg-muted/5 transition-colors ${
+                      isActive ? "border-l-primary  border-l-3" : "border-l-0"
                     }`}
                   >
-                    {lesson.title}
-                  </p>
-                  <p className="text-sm mt-0.5 text-muted">
-                    {formatDuration(lesson.duration)}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      )}
+                    <div
+                      className={`flex items-center justify-center size-5.5 rounded shrink-0 text-[13px] ${iconConfig.className}`}
+                    >
+                      <Icon icon={iconConfig.icon} size={16} />
+                    </div>
+                    <div className="min-w-0">
+                      <p
+                        className={`text-sm truncate ${
+                          isActive ? "text-primary" : "text-subtle"
+                        }`}
+                      >
+                        {lesson.title}
+                      </p>
+                      <p className="text-sm mt-0.5 text-muted">
+                        {formatDuration(lesson.duration)}
+                      </p>
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

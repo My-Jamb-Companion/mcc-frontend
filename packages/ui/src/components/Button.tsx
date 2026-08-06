@@ -5,6 +5,7 @@ import {ButtonHTMLAttributes, ReactNode} from "react";
 type Variant =
   | "primary"
   | "secondary"
+  | "disabled"
   | "outline"
   | "ghost"
   | "danger"
@@ -76,6 +77,9 @@ export function Button({
     primary: " bg-btn-primary text-white hover:opacity-90",
 
     secondary: " bg-muted/30 text-foreground/60 hover:bg-muted/10",
+
+    disabled:
+      " bg-[#27272A]/15! text-hint border border-muted/30 cursor-not-allowed!",
 
     outline: " border border-muted/30  text-foreground hover:bg-muted/10",
 

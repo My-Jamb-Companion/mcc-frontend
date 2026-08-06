@@ -38,7 +38,7 @@ export default function DashboardLayout({
           style={{gridTemplateColumns: "auto 1fr"}}
         >
           <SideNav open={sideNav} setOpen={setSideNav} />
-          <div className="overflow-y-auto col-start-2 pl-30 max-sm:pl-0 scrollbar-hide">
+          <div className="flex flex-col w-full overflow-y-auto col-start-2 pl-30 max-sm:pl-0 max-w-[2500px] mx-auto scrollbar-hide">
             {children}
           </div>
         </div>
