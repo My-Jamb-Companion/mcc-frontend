@@ -71,7 +71,6 @@ export default function BuyExam({exam}: {exam: ExamDetail}) {
             onEnroll={() =>
               router.push(`/learnings/exams/${exam.slug}/payment`)
             }
-            // 1. Toggle the value to true instead of navigating away
             onAccess={() => {
               if (setViewEnrolledCourse) {
                 setViewEnrolledCourse(true);

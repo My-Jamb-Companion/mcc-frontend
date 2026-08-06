@@ -3,18 +3,17 @@
 import {Icon} from "@mcc/ui";
 import {useState} from "react";
 
-type Tab = "about" | "transcript" | "conversation";
-
-interface TranscriptItem {
-  time: string;
-  text: string;
-}
+type Tab = "course-content" | "about" | "transcript" | "conversation";
 
 interface VideoTabsProps {
   description: string;
-  transcript: TranscriptItem[];
+  transcript: {
+    time: string;
+    text: string;
+  }[];
   magicOpen: boolean;
   setMagicOpen: (open: boolean) => void;
+  mobileContent?: React.ReactNode;
 }
 
 export default function ClassroomPlayerTabs({
@@ -22,31 +21,36 @@ export default function ClassroomPlayerTabs({
   transcript,
   magicOpen,
   setMagicOpen,
+  mobileContent,
 }: VideoTabsProps) {
-  const [activeTab, setActiveTab] = useState<Tab>("about");
+  const isMobile = window.innerWidth < 768;
+
+  const [activeTab, setActiveTab] = useState<Tab>(
+    isMobile ? "course-content" : "about",
+  );
 
   return (
     <div className="flex flex-col pt-6 bg-white">
       {/* Top Actions */}
-      <div className="rounded-full p-5 border border-muted/30 ">
+      <div className="rounded-full p-5 border border-muted/30 max-sm:p-2 ">
         <div className="flex items-center justify-between ">
           <button
             onClick={() => setMagicOpen(!magicOpen)}
-            className={`flex items-center gap-2 rounded-full  px-5 py-3 text-sm font-medium  cursor-pointer ${!magicOpen ? "bg-primary-gradient text-white" : "border border-muted/30"}`}
+            className={`flex items-center gap-2 rounded-full md:px-5 md:py-3 max-md:p-3 text-sm font-medium  cursor-pointer ${!magicOpen ? "bg-primary-gradient text-white" : "border border-muted/30"}`}
           >
             <Icon
               icon={magicOpen ? "line-md:close" : "ri:quill-pen-line"}
               size={20}
             />
-            <span>
+            <span className="max-md:hidden">
               {magicOpen ? "Close MagicNote" : " Use your magic note"}
             </span>
           </button>
 
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 rounded-full border border-muted/30 text-muted px-4 py-2 text-sm hover:bg-gray-50">
+            <button className="flex items-center gap-2 rounded-full border border-muted/30 text-muted md:px-4 md:py-2 max-md:p-2 text-sm hover:bg-gray-50">
               <Icon icon="ri:voiceprint-fill" size={18} />
-              Ask me a question
+              <span className="max-md:hidden">Ask me a question</span>
             </button>
 
             <button className="flex h-10 w-10 items-center justify-center rounded-full border border-muted/30 text-muted hover:bg-gray-50">
@@ -61,9 +65,12 @@ export default function ClassroomPlayerTabs({
       </div>
 
       {/* Tabs */}
-      <div className="px-5 pt-4 ">
-        <div className="inline-flex rounded-full bg-gray-100 p-1">
+      <div className="md:px-5 pt-4 overflow-x-auto">
+        <div className="inline-flex md:rounded-full bg-gray-100 p-1">
           {[
+            ...(isMobile
+              ? [{id: "course-content", label: "Course Content"}]
+              : []),
             {id: "about", label: "About"},
             {id: "transcript", label: "Transcript"},
             {id: "conversation", label: "Conversations"},
@@ -71,7 +78,7 @@ export default function ClassroomPlayerTabs({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as Tab)}
-              className={`rounded-full px-4 py-1.5 text-sm transition ${
+              className={`rounded-full px-4 py-1.5 text-sm transition text-nowrap ${
                 activeTab === tab.id
                   ? "bg-white shadow font-medium text-gray-900"
                   : "text-gray-500 hover:text-black"
@@ -85,6 +92,8 @@ export default function ClassroomPlayerTabs({
 
       {/* Content */}
       <div className="overflow-y-auto px-5 py-5">
+        {activeTab === "course-content" && mobileContent}
+
         {activeTab === "about" && (
           <p className="text-sm leading-7 text-gray-600 whitespace-pre-line">
             {description}

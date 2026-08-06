@@ -39,14 +39,6 @@ export function ClassroomPlayerSidebar({
   activeTopicTitle,
   activeIndex,
 }: ClassroomPlayerSidebarProps) {
-  const toggleTopic = (topicId: string) => {
-    setOpenTopics((previous) =>
-      previous.includes(topicId)
-        ? previous.filter((id) => id !== topicId)
-        : [...previous, topicId],
-    );
-  };
-
   return (
     <aside className="relative flex h-full flex-col border-r border-gray-200">
       {/* Header */}
@@ -112,86 +104,118 @@ export function ClassroomPlayerSidebar({
       </div>
 
       {/* Lessons */}
-      <div className="flex-1 overflow-y-auto pt-5">
-        {lessons.map((lesson) => {
-          if (lesson.type === "topic") {
-            const open = openTopics.includes(lesson.id);
 
-            const topicActive = lesson.learnItems?.some(
-              (item) => item.id === activeLessonId,
-            );
+      <PlayerLessonList
+        lessons={lessons}
+        activeLessonId={activeLessonId}
+        setActiveLessonId={setActiveLessonId}
+        openTopics={openTopics}
+        setOpenTopics={setOpenTopics}
+      />
+    </aside>
+  );
+}
 
-            return (
-              <div
-                key={lesson.id}
-                className="border-b border-muted/30 first:border-t"
-              >
-                <button
-                  onClick={() => toggleTopic(lesson.id)}
-                  className={`flex w-full items-center justify-between px-4 py-3 ${
-                    topicActive ? "bg-violet-50" : "hover:bg-gray-50"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon icon="mdi:folder-outline" size={16} />
+interface LessonListProps {
+  lessons: SubLessonNode[];
+  activeLessonId: string | null;
+  setActiveLessonId: (id: string) => void;
+  openTopics: string[];
+  setOpenTopics: React.Dispatch<React.SetStateAction<string[]>>;
+}
 
-                    <span className="text-sm font-medium">{lesson.title}</span>
-                  </div>
+export function PlayerLessonList({
+  lessons,
+  activeLessonId,
+  setActiveLessonId,
+  openTopics,
+  setOpenTopics,
+}: LessonListProps) {
+  const toggleTopic = (topicId: string) => {
+    setOpenTopics((previous) =>
+      previous.includes(topicId)
+        ? previous.filter((id) => id !== topicId)
+        : [...previous, topicId],
+    );
+  };
 
-                  <Icon
-                    icon={open ? "mdi:chevron-down" : "mdi:chevron-right"}
-                    size={18}
-                  />
-                </button>
+  return (
+    <div className="flex-1 overflow-y-auto pt-5">
+      {lessons.map((lesson) => {
+        if (lesson.type === "topic") {
+          const open = openTopics.includes(lesson.id);
 
-                {open &&
-                  lesson.learnItems?.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => setActiveLessonId(item.id)}
-                      className={`relative flex h-11 w-full items-center gap-3 pl-10 pr-4 ${
-                        activeLessonId === item.id
-                          ? "bg-violet-50 text-violet-700"
-                          : "hover:bg-gray-50"
-                      }`}
-                    >
-                      {activeLessonId === item.id && (
-                        <div className="absolute left-0 top-0 h-full w-1 bg-violet-600" />
-                      )}
-
-                      <Icon icon="mdi:play-circle-outline" size={16} />
-
-                      <span className="truncate text-sm">{item.title}</span>
-                    </button>
-                  ))}
-              </div>
-            );
-          }
+          const topicActive = lesson.learnItems?.some(
+            (item) => item.id === activeLessonId,
+          );
 
           return (
-            <button
+            <div
               key={lesson.id}
-              onClick={() => setActiveLessonId(lesson.id)}
-              className={`relative flex w-full items-center gap-3 border-b border-muted/30 px-4 py-3 ${
-                activeLessonId === lesson.id
-                  ? "bg-violet-50"
-                  : "hover:bg-gray-50"
-              }`}
+              className="border-b border-muted/30 first:border-t"
             >
-              <Icon
-                icon={
-                  lesson.type === "quiz" || lesson.type === "test"
-                    ? "tdesign:pen-ball"
-                    : "mdi:play-circle-outline"
-                }
-                size={15}
-              />
+              <button
+                onClick={() => toggleTopic(lesson.id)}
+                className={`flex w-full items-center justify-between px-4 py-3 ${
+                  topicActive ? "bg-violet-50" : "hover:bg-gray-50"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon icon="mdi:folder-outline" size={16} />
+                  <span className="text-sm font-medium">{lesson.title}</span>
+                </div>
 
-              <span className="truncate text-sm">{lesson.title}</span>
-            </button>
+                <Icon
+                  icon={open ? "mdi:chevron-down" : "mdi:chevron-right"}
+                  size={18}
+                />
+              </button>
+
+              {open &&
+                lesson.learnItems?.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveLessonId(item.id)}
+                    className={`relative flex h-11 w-full items-center gap-3 pl-10 pr-4 ${
+                      activeLessonId === item.id
+                        ? "bg-violet-50 text-violet-700"
+                        : "hover:bg-gray-50"
+                    }`}
+                  >
+                    {activeLessonId === item.id && (
+                      <div className="absolute left-0 top-0 h-full w-1 bg-violet-600" />
+                    )}
+
+                    <Icon icon="mdi:play-circle-outline" size={16} />
+
+                    <span className="truncate text-sm">{item.title}</span>
+                  </button>
+                ))}
+            </div>
           );
-        })}
-      </div>
-    </aside>
+        }
+
+        return (
+          <button
+            key={lesson.id}
+            onClick={() => setActiveLessonId(lesson.id)}
+            className={`relative flex w-full items-center gap-3 border-b border-muted/30 px-4 py-3 ${
+              activeLessonId === lesson.id ? "bg-violet-50" : "hover:bg-gray-50"
+            }`}
+          >
+            <Icon
+              icon={
+                lesson.type === "quiz" || lesson.type === "test"
+                  ? "tdesign:pen-ball"
+                  : "mdi:play-circle-outline"
+              }
+              size={15}
+            />
+
+            <span className="truncate text-sm">{lesson.title}</span>
+          </button>
+        );
+      })}
+    </div>
   );
 }

@@ -1878,7 +1878,7 @@ export const examDetails: ExamDetail[] = [
     price: 3100,
     originalPrice: 4500,
     pricePerModule: 86.11,
-    currency: "â‚¦",
+    currency: "₦",
     isEnrolled: false,
 
     rating: 4.9,

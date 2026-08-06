@@ -26,7 +26,6 @@ export default function ClassroomPlayer() {
 
   const [navOpen, setNavOpen] = useState(true);
   const [magicOpen, setMagicOpen] = useState(false);
-  const [openTopics, setOpenTopics] = useState<string[]>([]);
 
   const lessonId = searchParams.get("lesson");
   const subLessonId = searchParams.get("subLesson");
@@ -36,6 +35,25 @@ export default function ClassroomPlayer() {
   );
 
   const subLessons = activeLesson?.subLessons ?? [];
+
+  const derivedOpenTopics = useMemo<string[]>(() => {
+    if (!subLessonId) return [];
+    const topic = subLessons.find(
+      (lesson) =>
+        lesson.type === "topic" &&
+        lesson.learnItems?.some((item) => item.id === subLessonId),
+    );
+    return topic ? [topic.id] : [];
+  }, [subLessonId, subLessons]);
+
+  const [manuallyOpenTopics, setManuallyOpenTopics] = useState<string[]>([]);
+
+  const openTopics = useMemo<string[]>(
+    () => Array.from(new Set([...derivedOpenTopics, ...manuallyOpenTopics])),
+    [derivedOpenTopics, manuallyOpenTopics],
+  );
+
+  const setOpenTopics = setManuallyOpenTopics;
 
   const navigateSubLesson = (id: string) => {
     const params = new URLSearchParams(searchParams);
@@ -61,19 +79,7 @@ export default function ClassroomPlayer() {
     }
   }, [subLessonId, subLessons, searchParams, router]);
 
-  useEffect(() => {
-    if (!subLessonId) return;
 
-    const topic = subLessons.find(
-      (lesson) =>
-        lesson.type === "topic" &&
-        lesson.learnItems?.some((item) => item.id === subLessonId),
-    );
-
-    if (!topic) return;
-
-    setOpenTopics([topic.id]);
-  }, [subLessonId, subLessons]);
 
   const navigationItems = useMemo<NavigationItem[]>(() => {
     return subLessons.flatMap<NavigationItem>((lesson) => {
@@ -132,11 +138,19 @@ export default function ClassroomPlayer() {
       navigateSubLesson(nextItem.id);
     }
   };
+
+  const toggleTopic = (topicId: string) => {
+    setManuallyOpenTopics((previous) =>
+      previous.includes(topicId)
+        ? previous.filter((id) => id !== topicId)
+        : [...previous, topicId],
+    );
+  };
   return (
     <section className="flex h-full flex-col gap-6  p-4">
-      <div className="flex flex-1 gap-6 ">
+      <div className="flex flex-1 gap-6 max-sm:flex-col ">
         <div
-          className={`relative shrink-0 transition-all duration-300 ease-in-out ${
+          className={`relative shrink-0 transition-all duration-300 ease-in-out max-md:hidden ${
             navOpen ? "w-[300px]" : "w-0"
           }`}
         >
@@ -173,7 +187,7 @@ export default function ClassroomPlayer() {
         </div>
 
         <div className="min-w-0 flex-1">
-          <section className="relative bg-primary-gradient px-8 py-10 text-white">
+          <div className="relative bg-primary-gradient px-8 py-10 text-white max-md:hidden">
             <div className="flex flex-col gap-5 items-center">
               <h4 className="text-2xl font-bold">
                 {activeNavigationItem?.title ?? "Select a lesson"}
@@ -190,7 +204,71 @@ export default function ClassroomPlayer() {
               alt="Classroom header svg"
               className="absolute right-5 bottom-0"
             />
-          </section>
+          </div>
+
+          <div className="pb-3 md:hidden">
+            <div className="px-4 py-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-sky-500">
+                  <Icon
+                    icon="mdi:book-open-page-variant"
+                    className="text-white"
+                    size={16}
+                  />
+                </div>
+
+                <span className="truncate text-[15px] font-medium text-gray-900">
+                  {activeClassroomUnit.title}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-start">
+              <button
+                disabled={!canGoPrevious}
+                onClick={goPrevious}
+                className={`p-1 ${
+                  canGoPrevious
+                    ? "text-gray-500 hover:text-gray-700"
+                    : "cursor-not-allowed text-gray-300"
+                }`}
+              >
+                <Icon icon="mdi:chevron-left" size={20} />
+              </button>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <span>{activeClassroomSubject}</span>
+                  <Icon icon="mdi:chevron-right" size={12} />
+                  <span>Classroom</span>
+                </div>
+
+                {activeNavigationItem?.parentTopicTitle && (
+                  <p className="mt-2 truncate text-xs text-gray-500">
+                    Unit {activeIndex + 1}:{" "}
+                    {activeNavigationItem.parentTopicTitle}
+                  </p>
+                )}
+
+                <p className="truncate text-[13px] font-medium text-gray-900">
+                  Lesson {activeIndex + 1}:{" "}
+                  {activeNavigationItem?.title ?? "Select a lesson"}
+                </p>
+              </div>
+
+              <button
+                disabled={!canGoNext}
+                onClick={goNext}
+                className={`p-1 ${
+                  canGoNext
+                    ? "text-gray-500 hover:text-gray-700"
+                    : "cursor-not-allowed text-gray-300"
+                }`}
+              >
+                <Icon icon="mdi:chevron-right" size={20} />
+              </button>
+            </div>
+          </div>
 
           {magicOpen ? (
             <MagicNote topic={activeNavigationItem?.title || ""} />
@@ -206,6 +284,99 @@ export default function ClassroomPlayer() {
           <ClassroomPlayerTabs
             magicOpen={magicOpen}
             setMagicOpen={setMagicOpen}
+            mobileContent={
+              <>
+                <div className="flex-1 overflow-y-auto pt-5">
+                  {subLessons.map((lesson) => {
+                    if (lesson.type === "topic") {
+                      const open = openTopics.includes(lesson.id);
+
+                      const topicActive = lesson.learnItems?.some(
+                        (item) => item.id === subLessonId,
+                      );
+
+                      return (
+                        <div
+                          key={lesson.id}
+                          className="border-b border-muted/30 first:border-t"
+                        >
+                          <button
+                            onClick={() => toggleTopic(lesson.id)}
+                            className={`flex w-full items-center justify-between px-4 py-3 ${
+                              topicActive ? "bg-violet-50" : "hover:bg-gray-50"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <Icon icon="mdi:folder-outline" size={16} />
+
+                              <span className="text-sm font-medium">
+                                {lesson.title}
+                              </span>
+                            </div>
+
+                            <Icon
+                              icon={
+                                open ? "mdi:chevron-down" : "mdi:chevron-right"
+                              }
+                              size={18}
+                            />
+                          </button>
+
+                          {open &&
+                            lesson.learnItems?.map((item) => (
+                              <button
+                                key={item.id}
+                                onClick={() => navigateSubLesson(item.id)}
+                                className={`relative flex h-11 w-full items-center gap-3 pl-10 pr-4 ${
+                                  subLessonId === item.id
+                                    ? "bg-violet-50 text-violet-700"
+                                    : "hover:bg-gray-50"
+                                }`}
+                              >
+                                {subLessonId === item.id && (
+                                  <div className="absolute left-0 top-0 h-full w-1 bg-violet-600" />
+                                )}
+
+                                <Icon
+                                  icon="mdi:play-circle-outline"
+                                  size={16}
+                                />
+
+                                <span className="truncate text-sm">
+                                  {item.title}
+                                </span>
+                              </button>
+                            ))}
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <button
+                        key={lesson.id}
+                        onClick={() => navigateSubLesson(lesson.id)}
+                        className={`relative flex w-full items-center gap-3 border-b border-muted/30 px-4 py-3 ${
+                          subLessonId === lesson.id
+                            ? "bg-violet-50"
+                            : "hover:bg-gray-50"
+                        }`}
+                      >
+                        <Icon
+                          icon={
+                            lesson.type === "quiz" || lesson.type === "test"
+                              ? "tdesign:pen-ball"
+                              : "mdi:play-circle-outline"
+                          }
+                          size={15}
+                        />
+
+                        <span className="truncate text-sm">{lesson.title}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            }
             description={`Where did the word "Algebra" and its underlying ideas come from?
 
 Algebra, a key branch of mathematics, has a rich history. The term comes from the Arabic word meaning restoration or completion...
