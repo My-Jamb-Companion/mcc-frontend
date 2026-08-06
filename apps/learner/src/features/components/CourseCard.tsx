@@ -4,7 +4,7 @@ export interface CourseCardProps {
   image: string;
   instructor?: string;
   rating?: number;
-  reviewCount?: string;
+  reviewCount?: number;
   title: string;
   tags?: string[];
   price?: number;

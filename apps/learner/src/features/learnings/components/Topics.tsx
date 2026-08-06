@@ -9,7 +9,7 @@ import {demoStats} from "../constants/demoHeaderStats";
 export default function Topics() {
   const {id} = useParams();
   return (
-    <section className="py-6">
+    <section className="py-6 px-4">
       <LearningsHeader
         stats={demoStats}
         title={String(id).replaceAll("-", " ")}
@@ -45,7 +45,7 @@ export default function Topics() {
                 image="/assets/images/tower.jpg"
                 instructor="Brooke Graser"
                 rating={4.7}
-                reviewCount="5.2k"
+                reviewCount={28942}
                 title="Intro to Procreate: Illustration on the iPad (UPDATED)"
                 tags={[
                   "Procreate",

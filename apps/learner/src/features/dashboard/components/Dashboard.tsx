@@ -42,7 +42,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="col-start-2 max-sm:col-start-1 pt-6">
+    <div className="col-start-2 max-sm:col-start-1 pt-6 px-4">
       <div className="flex items-center gap-3">
         <div className="rounded-full h-14 w-14 bg-[#B190B6] overflow-hidden">
           <img

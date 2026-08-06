@@ -14,7 +14,7 @@ export default function CoursePayment() {
   if (!course) return null;
 
   return (
-    <section>
+    <section className="px-4">
       <nav className="flex items-center gap-1 text-sm py-8">
         <Link href="/learnings" className="text-subtle hover:underline">
           Course
@@ -24,14 +24,16 @@ export default function CoursePayment() {
 
         <Link
           href={`/learnings/course/${id}`}
-          className="text-subtle hover:underline"
+          className="text-subtle hover:underline text-nowrap truncate"
         >
           {course.title}
         </Link>
 
         <>
           <span className="text-subtle">/</span>
-          <span className="text-muted/50 cursor-default">Payment Details</span>
+          <span className="text-muted/50 cursor-default text-nowrap truncate">
+            Payment Details
+          </span>
         </>
       </nav>
 

@@ -218,8 +218,8 @@ export default function PaymentDetails({price}: {price: number}) {
       >
         <Button
           type="submit"
-          variant={isFormComplete ? "primary" : "secondary"}
-          className="mt-2 overflow-hidden relative"
+          variant={isFormComplete ? "primary" : "ghost"}
+          className="mt-2 overflow-hidden relative border border-muted/40"
         >
           <motion.div
             initial={{x: "-100%"}}

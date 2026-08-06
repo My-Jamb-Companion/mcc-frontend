@@ -194,7 +194,7 @@ export default function CoursePlayer({
   return (
     <div
       ref={containerRef}
-      className="relative w-full rounded-2xl overflow-hidden bg-black shadow-2xl select-none"
+      className="relative w-full md:rounded-2xl overflow-hidden bg-black shadow-2xl select-none"
       onMouseMove={resetHideTimer}
       onMouseLeave={() => playing && setControlsVisible(false)}
       onClick={() => showVolume && setShowVolume(false)}

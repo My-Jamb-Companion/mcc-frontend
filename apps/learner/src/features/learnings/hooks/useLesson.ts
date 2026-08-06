@@ -1,68 +1,96 @@
 import {useMemo} from "react";
-import {Lessons, CourseModule, CourseDetail} from "@/src/features/constants/demoCourses";
+import {
+  Lessons,
+  CourseModule,
+  CourseDetail,
+} from "@/src/features/constants/demoCourses";
 
 /**
- * Calculate the progress percentage of a module from its lessons.
+ * Only count lessons that contribute to course progress.
+ * Practice/exam lessons are excluded.
+ */
+const isTrackableLesson = (lesson: Lessons) => {
+  return lesson.type === "video" || lesson.type === "doc";
+};
+
+/**
+ * Calculate progress percentage of a module.
  *
- * For each lesson:
- *  - If `completed` is true → count the full `duration` as watched.
- *  - Otherwise → use `currentTime` (capped at `duration` to avoid overflow).
+ * Video/doc lessons:
+ * - completed => full duration
+ * - incomplete => currentTime progress
  *
- * @returns A percentage (0 – 100), rounded to the nearest integer.
+ * Practice/exam:
+ * - ignored
  */
 export function calculateModuleProgress(lessons: Lessons[]): number {
-  if (!lessons.length) return 0;
+  const trackableLessons = lessons.filter(isTrackableLesson);
 
-  const totalDuration = lessons.reduce((sum, l) => sum + l.duration, 0);
-  if (totalDuration === 0) return 0;
+  if (!trackableLessons.length) return 0;
 
-  const totalWatched = lessons.reduce((sum, l) => {
-    const watched = l.completed
-      ? l.duration
-      : Math.min(l.currentTime, l.duration);
+  const totalDuration = trackableLessons.reduce(
+    (sum, lesson) => sum + (lesson.duration ?? 0),
+    0,
+  );
+
+  if (!totalDuration) return 0;
+
+  const watchedDuration = trackableLessons.reduce((sum, lesson) => {
+    const duration = lesson.duration ?? 0;
+
+    const watched = lesson.completed
+      ? duration
+      : Math.min(lesson.currentTime ?? 0, duration);
+
     return sum + watched;
   }, 0);
 
-  return Math.round((totalWatched / totalDuration) * 100);
+  return Math.round((watchedDuration / totalDuration) * 100);
 }
 
 /**
- * Calculate the overall progress of a level by flattening all lessons
- * across every module and computing a single weighted percentage.
+ * Calculate level progress
  */
 export function calculateLevelProgress(modules: CourseModule[]): number {
-  const allLessons = modules.flatMap((m) => m.lessons || []);
-  return calculateModuleProgress(allLessons);
+  const lessons = modules.flatMap((module) => module.lessons ?? []);
+
+  return calculateModuleProgress(lessons);
 }
 
 /**
- * React hook wrapper around `calculateModuleProgress`.
- * Memoises the result so it only recalculates when the lessons array changes.
+ * Module progress hook
  */
-export function useModuleProgress(lessons: Lessons[]): number {
+export function useModuleProgress(lessons: Lessons[]) {
   return useMemo(() => calculateModuleProgress(lessons), [lessons]);
 }
 
 /**
- * React hook that computes the overall progress of a level
- * from all lessons across all its modules.
+ * Level progress hook
  */
-export function useLevelProgress(modules: CourseModule[]): number {
+export function useLevelProgress(modules: CourseModule[]) {
   return useMemo(() => calculateLevelProgress(modules), [modules]);
 }
 
 export const formatDuration = (seconds: number) => {
   const mins = Math.floor(seconds / 60);
+
   const secs = Math.floor(seconds % 60);
+
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 };
 
+/**
+ * Total lesson duration
+ *
+ * Ignores:
+ * - practice
+ * - exams
+ */
 export function useLessonsDuration(lessons: Lessons[]) {
   return useMemo(() => {
-    const totalSeconds = lessons.reduce(
-      (acc, lesson) => acc + lesson.duration,
-      0,
-    );
+    const totalSeconds = lessons
+      .filter(isTrackableLesson)
+      .reduce((acc, lesson) => acc + (lesson.duration ?? 0), 0);
 
     const hours = Math.floor(totalSeconds / 3600);
 
@@ -72,7 +100,9 @@ export function useLessonsDuration(lessons: Lessons[]) {
 
     return {
       hours,
+
       minutes,
+
       seconds,
 
       formatted: hours > 0 ? `${hours}hr ${minutes}min` : `${minutes}min`,
@@ -80,17 +110,21 @@ export function useLessonsDuration(lessons: Lessons[]) {
   }, [lessons]);
 }
 
+/**
+ * Flatten every lesson in course
+ */
+export function useAllLessons(course: CourseDetail) {
+  return useMemo(() => {
+    const allLessons: Lessons[] = [];
 
-export function useAllLessons(course:CourseDetail){
-  return useMemo(()=>{
-    const allLessons:Lessons[] = []
-    course.curriculums.forEach((level)=>{
-      level.modules.forEach((module)=>{
-        module.lessons?.forEach((lesson)=>{
-          allLessons.push(lesson)
-        })
-      })
-    })
-    return allLessons
-  },[course])
+    course.curriculums.forEach((level) => {
+      level.modules.forEach((module) => {
+        module.lessons?.forEach((lesson) => {
+          allLessons.push(lesson);
+        });
+      });
+    });
+
+    return allLessons;
+  }, [course]);
 }

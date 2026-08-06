@@ -8,6 +8,7 @@
   --btn-primary: #6717de;
   --muted: #6f6f77;
   --danger: #d42422;
+  --success: #25d366;
   --hint: rgba(39, 39, 42, 0.3);
   --primary-gradient: linear-gradient(91deg, #6b26ff -13.46%, #b40d9b 100%);
 }
@@ -19,6 +20,7 @@
   --color-primary: var(--primary);
   --color-btn-primary: var(--btn-primary);
   --color-danger: var(--danger);
+  --color-success: var(--success);
   --color-muted: var(--muted);
   --color-hint: var(--hint);
   --font-sans: var(--font-inter);

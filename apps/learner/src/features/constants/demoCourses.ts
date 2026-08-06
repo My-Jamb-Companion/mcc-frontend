@@ -124,16 +124,55 @@ const getRandomSrc = () =>
 // Types
 // ---------------------------------------------------------------------------
 
-export type LessonType = "video" | "doc";
+export type LessonType = "video" | "doc" | "practice" | "exam" | "exercise";
 
 export interface Lessons {
   id: string;
   title: string;
-  duration: number; // Duration in seconds
-  src: string;
+  duration?: number; // Duration in seconds
+  src?: string;
   type: LessonType;
   completed: boolean;
-  currentTime: number;
+  currentTime?: number;
+
+  practice?: {
+    questions: {
+      id: string;
+      question: string;
+      answers: string[];
+      correctAnswer: string;
+      explanation: string;
+    }[];
+  };
+
+  exercise?: {
+    passingScore: number;
+    maxAttempts: number;
+    attempts: number;
+    score: number;
+    passed: boolean;
+    questions: {
+      id: string;
+      question: string;
+      answers: string[];
+      hint: string;
+      correctAnswer: string;
+    }[];
+  };
+
+  exam?: {
+    passingScore: number;
+    maxAttempts: number;
+    attempts: number;
+    score: number;
+    passed: boolean;
+    questions: {
+      id: string;
+      question: string;
+      answers: string[];
+      correctAnswer: string;
+    }[];
+  };
 }
 
 export interface CourseModule {
@@ -345,6 +384,87 @@ export const courseDetails: CourseDetail[] = [
                 currentTime: 127,
               },
               {
+                id: "Quick practice",
+                title: "Quick Practice",
+                type: "practice",
+                completed: false,
+                practice: {
+                  questions: [
+                    {
+                      id: "p1",
+                      question:
+                        "Who developed the Pilates exercise method in the early 20th century?",
+                      answers: [
+                        "Joseph Pilates",
+                        "Josephine Pilates",
+                        "Gregor Pilates",
+                        "Kevin Pilates",
+                      ],
+                      correctAnswer: "Joseph Pilates",
+                      explanation:
+                        "The method was created by German physical trainer Joseph Pilates, who originally called it 'Contrology' to emphasize the mind's control over muscles.",
+                    },
+                    {
+                      id: "p2",
+                      question:
+                        "Which of the following is considered one of the six fundamental principles of Pilates?",
+                      answers: [
+                        "Centering",
+                        "Hyperflexion",
+                        "Velocity",
+                        "Gravitational flow",
+                      ],
+                      correctAnswer: "Centering",
+                      explanation:
+                        "Centering is a core principle of Pilates, focusing on the 'powerhouse' (the muscles of the abdomen, lower back, and hips) as the energetic center of the body.",
+                    },
+                    {
+                      id: "p3",
+                      question:
+                        "What is the primary purpose of using the Pilates Reformer machine?",
+                      answers: [
+                        "To track cardiovascular heart rate zones",
+                        "To provide adjustable resistance using springs",
+                        "To automate stretching without user effort",
+                        "To provide adjustable resistance using springs",
+                      ],
+                      correctAnswer:
+                        "To provide adjustable resistance using springs",
+                      explanation:
+                        "The Reformer uses a system of springs and pulleys to provide variable resistance, which helps build core strength, flexibility, and muscular endurance.",
+                    },
+                    {
+                      id: "p4",
+                      question:
+                        "How is breathing typically coordinated during Pilates exercises?",
+                      answers: [
+                        "Holding the breath during the most difficult movement",
+                        "Exhaling on the exertion or effort phase",
+                        "Inhaling on the exertion or effort phase",
+                        "Breathing 5 seconds in and 5 seconds out",
+                      ],
+                      correctAnswer: "Exhaling on the exertion or effort phase",
+                      explanation:
+                        "In Pilates, you generally inhale to prepare and exhale during the exertion or most challenging part of the movement to engage deep core muscles.",
+                    },
+                    {
+                      id: "p5",
+                      question:
+                        "Which Pilates exercise involves sitting tall, twisting the torso, and reaching toward the opposite pinky toe?",
+                      answers: [
+                        "The Hundred",
+                        "The Saw",
+                        "The Swan Dive",
+                        "The Roll Up",
+                      ],
+                      correctAnswer: "The Saw",
+                      explanation:
+                        "The Saw is a classic mat exercise that targets spinal rotation, hamstring flexibility, and core control as you stretch toward the opposite foot.",
+                    },
+                  ],
+                },
+              },
+              {
                 id: "Breathing Fundamentals",
                 title: "Breathing Fundamentals",
                 duration: 690,
@@ -379,6 +499,73 @@ export const courseDetails: CourseDetail[] = [
                 type: "doc",
                 completed: false,
                 currentTime: 127,
+              },
+
+              {
+                id: "Module Exercise",
+                title: "Module Exercise",
+                type: "exercise",
+                completed: false,
+                exercise: {
+                  passingScore: 70,
+                  maxAttempts: 3,
+                  attempts: 0,
+                  score: 0,
+                  passed: false,
+                  questions: [
+                    {
+                      id: "exam-1",
+                      question: "A good instructor should?",
+                      answers: [
+                        "Adapt exercises to clients",
+                        "Ignore needs",
+                        "Use one method only",
+                        "Avoid feedback",
+                      ],
+                      correctAnswer: "Adapt exercises to clients",
+                      hint: "Think about putting the client's individual needs, abilities, and goals first rather than using the same approach for everyone.",
+                    },
+
+                    {
+                      id: "exam-2",
+                      question: "Client assessment helps create?",
+                      answers: [
+                        "Safe programs",
+                        "Random workouts",
+                        "Competition",
+                        "Pressure",
+                      ],
+                      correctAnswer: "Safe programs",
+                      hint: "An assessment is performed before training begins to ensure the exercise plan is appropriate and minimizes the risk of injury.",
+                    },
+
+                    {
+                      id: "exam-3",
+                      question: "Effective coaching requires?",
+                      answers: [
+                        "Clear communication",
+                        "Silence",
+                        "Confusion",
+                        "No feedback",
+                      ],
+                      correctAnswer: "Clear communication",
+                      hint: "A coach should make instructions easy to understand and encourage two-way interaction with clients.",
+                    },
+
+                    {
+                      id: "exam-4",
+                      question: "A personal brand helps build?",
+                      answers: [
+                        "Trust and recognition",
+                        "Confusion",
+                        "Avoidance",
+                        "Isolation",
+                      ],
+                      correctAnswer: "Trust and recognition",
+                      hint: "Consider what makes clients remember you and feel confident choosing your services over others.",
+                    },
+                  ],
+                },
               },
             ],
           },
@@ -961,6 +1148,313 @@ export const courseDetails: CourseDetail[] = [
                 type: "doc",
                 completed: false,
                 currentTime: 0,
+              },
+              {
+                id: "final-certification-exam",
+                title: "Final Certification Exam",
+                type: "exam",
+                completed: false,
+
+                exam: {
+                  passingScore: 70,
+                  maxAttempts: 3,
+                  attempts: 0,
+                  score: 0,
+                  passed: false,
+
+                  questions: [
+                    {
+                      id: "exam-1",
+                      question: "Who created Pilates?",
+                      answers: [
+                        "Joseph Pilates",
+                        "Bruce Lee",
+                        "Arnold Schwarzenegger",
+                        "Yoga Masters",
+                      ],
+                      correctAnswer: "Joseph Pilates",
+                    },
+
+                    {
+                      id: "exam-2",
+                      question: "The original name of Pilates was?",
+                      answers: [
+                        "Contrology",
+                        "Body Training",
+                        "Core System",
+                        "Movement Flow",
+                      ],
+                      correctAnswer: "Contrology",
+                    },
+
+                    {
+                      id: "exam-3",
+                      question: "A major Pilates principle is?",
+                      answers: ["Control", "Speed", "Competition", "Force"],
+                      correctAnswer: "Control",
+                    },
+
+                    {
+                      id: "exam-4",
+                      question: "Neutral spine refers to?",
+                      answers: [
+                        "Natural spinal alignment",
+                        "Flat back only",
+                        "Rounded spine",
+                        "Locked posture",
+                      ],
+                      correctAnswer: "Natural spinal alignment",
+                    },
+
+                    {
+                      id: "exam-5",
+                      question: "The Pilates powerhouse refers to?",
+                      answers: ["Core muscles", "Arms", "Feet", "Neck"],
+                      correctAnswer: "Core muscles",
+                    },
+
+                    {
+                      id: "exam-6",
+                      question: "Breathing during Pilates supports?",
+                      answers: [
+                        "Control and concentration",
+                        "Speed",
+                        "Maximum force",
+                        "Fatigue",
+                      ],
+                      correctAnswer: "Control and concentration",
+                    },
+
+                    {
+                      id: "exam-7",
+                      question: "Good posture improves?",
+                      answers: [
+                        "Movement efficiency",
+                        "Height",
+                        "Body weight",
+                        "Speed",
+                      ],
+                      correctAnswer: "Movement efficiency",
+                    },
+
+                    {
+                      id: "exam-8",
+                      question: "Warm-ups prepare the body by?",
+                      answers: [
+                        "Improving readiness for movement",
+                        "Creating fatigue",
+                        "Reducing mobility",
+                        "Stopping exercise",
+                      ],
+                      correctAnswer: "Improving readiness for movement",
+                    },
+
+                    {
+                      id: "exam-9",
+                      question: "Pilates movements should be performed with?",
+                      answers: [
+                        "Precision and control",
+                        "Maximum speed",
+                        "Random effort",
+                        "Heavy force",
+                      ],
+                      correctAnswer: "Precision and control",
+                    },
+
+                    {
+                      id: "exam-10",
+                      question: "Core stability helps with?",
+                      answers: [
+                        "Balance and control",
+                        "Only arm strength",
+                        "Only flexibility",
+                        "Only endurance",
+                      ],
+                      correctAnswer: "Balance and control",
+                    },
+
+                    {
+                      id: "exam-11",
+                      question: "Mobility focuses on?",
+                      answers: [
+                        "Joint movement",
+                        "Muscle size",
+                        "Body weight",
+                        "Speed",
+                      ],
+                      correctAnswer: "Joint movement",
+                    },
+
+                    {
+                      id: "exam-12",
+                      question: "Foam rolling supports?",
+                      answers: [
+                        "Recovery",
+                        "Maximum strength",
+                        "Competition",
+                        "Speed",
+                      ],
+                      correctAnswer: "Recovery",
+                    },
+
+                    {
+                      id: "exam-13",
+                      question: "A Pilates sequence should be?",
+                      answers: [
+                        "Controlled and connected",
+                        "Random",
+                        "Chaotic",
+                        "Unplanned",
+                      ],
+                      correctAnswer: "Controlled and connected",
+                    },
+
+                    {
+                      id: "exam-14",
+                      question: "Advanced movements require?",
+                      answers: [
+                        "Progression and control",
+                        "Immediate difficulty",
+                        "No instruction",
+                        "Maximum force",
+                      ],
+                      correctAnswer: "Progression and control",
+                    },
+
+                    {
+                      id: "exam-15",
+                      question: "Injury prevention requires?",
+                      answers: [
+                        "Proper technique",
+                        "More speed",
+                        "Ignoring pain",
+                        "Less awareness",
+                      ],
+                      correctAnswer: "Proper technique",
+                    },
+
+                    // {
+                    //   id: "exam-16",
+                    //   question: "A good instructor should?",
+                    //   answers: [
+                    //     "Adapt exercises to clients",
+                    //     "Ignore needs",
+                    //     "Use one method only",
+                    //     "Avoid feedback",
+                    //   ],
+                    //   correctAnswer: "Adapt exercises to clients",
+                    // },
+
+                    // {
+                    //   id: "exam-17",
+                    //   question: "Client assessment helps create?",
+                    //   answers: [
+                    //     "Safe programs",
+                    //     "Random workouts",
+                    //     "Competition",
+                    //     "Pressure",
+                    //   ],
+                    //   correctAnswer: "Safe programs",
+                    // },
+
+                    // {
+                    //   id: "exam-18",
+                    //   question: "Effective coaching requires?",
+                    //   answers: [
+                    //     "Clear communication",
+                    //     "Silence",
+                    //     "Confusion",
+                    //     "No feedback",
+                    //   ],
+                    //   correctAnswer: "Clear communication",
+                    // },
+
+                    // {
+                    //   id: "exam-19",
+                    //   question: "A personal brand helps build?",
+                    //   answers: [
+                    //     "Trust and recognition",
+                    //     "Confusion",
+                    //     "Avoidance",
+                    //     "Isolation",
+                    //   ],
+                    //   correctAnswer: "Trust and recognition",
+                    // },
+
+                    // {
+                    //   id: "exam-20",
+                    //   question: "Career growth requires?",
+                    //   answers: [
+                    //     "Continuous learning",
+                    //     "Stopping education",
+                    //     "Avoiding practice",
+                    //     "Reducing skills",
+                    //   ],
+                    //   correctAnswer: "Continuous learning",
+                    // },
+
+                    // {
+                    //   id: "exam-21",
+                    //   question: "Professional instructors prioritize?",
+                    //   answers: [
+                    //     "Client safety",
+                    //     "Competition",
+                    //     "Speed",
+                    //     "Difficulty",
+                    //   ],
+                    //   correctAnswer: "Client safety",
+                    // },
+
+                    // {
+                    //   id: "exam-22",
+                    //   question: "A successful Pilates class should provide?",
+                    //   answers: [
+                    //     "Value and guidance",
+                    //     "Pressure",
+                    //     "Confusion",
+                    //     "Random exercises",
+                    //   ],
+                    //   correctAnswer: "Value and guidance",
+                    // },
+
+                    // {
+                    //   id: "exam-23",
+                    //   question: "Mastery comes from?",
+                    //   answers: [
+                    //     "Practice and understanding",
+                    //     "Speed",
+                    //     "Strength only",
+                    //     "Flexibility only",
+                    //   ],
+                    //   correctAnswer: "Practice and understanding",
+                    // },
+
+                    // {
+                    //   id: "exam-24",
+                    //   question: "Certification demonstrates?",
+                    //   answers: [
+                    //     "Knowledge and competency",
+                    //     "Only popularity",
+                    //     "Only strength",
+                    //     "Only experience",
+                    //   ],
+                    //   correctAnswer: "Knowledge and competency",
+                    // },
+
+                    // {
+                    //   id: "exam-25",
+                    //   question:
+                    //     "A professional Pilates instructor should always maintain?",
+                    //   answers: [
+                    //     "Safety, control, and professionalism",
+                    //     "Competition",
+                    //     "Maximum intensity",
+                    //     "Random methods",
+                    //   ],
+                    //   correctAnswer: "Safety, control, and professionalism",
+                    // },
+                  ],
+                },
               },
             ],
           },

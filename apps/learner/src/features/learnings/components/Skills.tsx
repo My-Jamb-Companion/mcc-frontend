@@ -8,7 +8,7 @@ import LearningsHeader from "./LearningsHeader";
 
 export default function Skills() {
   return (
-    <section className="py-6">
+    <section className="py-6 px-4">
       <LearningsHeader
         stats={demoStats}
         title={"Acquire high value skills"}
@@ -44,7 +44,7 @@ export default function Skills() {
                 image="/assets/images/tower.jpg"
                 instructor="Brooke Graser"
                 rating={4.7}
-                reviewCount="5.2k"
+                reviewCount={5298}
                 title="Intro to Procreate: Illustration on the iPad (UPDATED)"
                 tags={[
                   "Procreate",

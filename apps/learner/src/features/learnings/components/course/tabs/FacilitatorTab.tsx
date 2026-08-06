@@ -62,7 +62,7 @@ export default function FacilitatorTab({
   };
 
   return (
-    <section className="w-full max-w-[75%] font-sans">
+    <section className="w-full md:max-w-[75%] font-sans">
       {/* Heading */}
       <h2 className="text-3xl font-bold text-gray-900 mb-1">
         Ask your instructor.

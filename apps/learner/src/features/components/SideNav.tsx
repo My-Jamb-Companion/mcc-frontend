@@ -52,7 +52,7 @@ export default function SideNav({
             stiffness: 400,
           },
         }}
-        className={`pl-3 max-sm:px-4 max-sm:pt-6 flex flex-col pb-5 h-full absolute left-0 top-0 ${open ? "w-55" : "w-fit"}
+        className={`pl-3 max-sm:px-4 max-sm:pt-6 flex flex-col pb-5 h-full absolute left-0 top-0 ${open ? "w-55" : "w-[80px]"}
       max-sm:bg-white max-sm:w-full z-20`}
         onMouseEnter={() => !isMobile && setHovering(true)}
         onMouseLeave={() => !isMobile && setHovering(false)}
@@ -170,7 +170,7 @@ export default function SideNav({
 
           <div
             className={`flex items-center justify-between ${
-              open ? "w-full" : "w-fit"
+              open ? "w-full" : "w-[12px]"
             }`}
           >
             <AnimatePresence>
