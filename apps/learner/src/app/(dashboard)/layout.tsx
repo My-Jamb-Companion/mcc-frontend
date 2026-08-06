@@ -15,6 +15,7 @@ export default function DashboardLayout({
 }) {
   const {isAuthenticated, hydrated, user} = useAuth();
   const [sideNav, setSideNav] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -27,12 +28,18 @@ export default function DashboardLayout({
     }
   }, [hydrated, isAuthenticated, user, router]);
 
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   if (!hydrated || !isAuthenticated || (user && !user.is_onboarded)) {
     // return null;
   }
 
   const isClassroom = pathname.includes("/classroom");
-  const isMobile = window.innerWidth < 768;
   return (
     <RoleLayout allowedRoles={["student"]}>
       <div className="flex flex-col h-screen scrollbar-hide">

@@ -59,7 +59,6 @@ export default function ClassroomSidebar({
               key={unit.id}
               onClick={() => {
                 setIsHeaderActive(false);
-                console.log(unit.id);
                 setSelectedLessonId(unit.id);
               }}
               className={`flex items-center justify-between gap-3 py-3.5 px-4 border-b border-slate-100 last:border-b-0 border-l-4 cursor-pointer transition-all duration-200 ${
