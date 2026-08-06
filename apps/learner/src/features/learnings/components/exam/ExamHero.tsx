@@ -10,7 +10,7 @@ type ExamHeroProps = {
 
 export default function ExamHero({
   mainImage,
-  instructorImage,
+  instructorImage: _instructorImage,
   rating,
   totalRatings,
   onPlay,

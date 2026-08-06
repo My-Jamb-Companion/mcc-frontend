@@ -74,7 +74,7 @@ export default function ExamDetailsSidebar({
   lessons,
   difficulty,
   // tags,
-  extraTagsCount = 0,
+  extraTagsCount: _extraTagsCount = 0,
   stats,
   features,
   onEnroll,

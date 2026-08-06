@@ -122,7 +122,7 @@ function ClassRoomHeader({
   unit,
   isHeaderActive,
   unitTitle,
-  masteryPoints,
+  masteryPoints: _masteryPoints,
   subLessons,
 }: {
   examName: string;

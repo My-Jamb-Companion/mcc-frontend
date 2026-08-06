@@ -24,6 +24,9 @@ type ExamInfoProps = {
   subjects: ExamSubject[];
 };
 
+// Currently unused: the "Course table of contents" block below is disabled.
+// Kept in place so it's ready to wire back up when that section returns.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function AccordionItem({item}: {item: CurriculumItem}) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -55,10 +58,10 @@ function AccordionItem({item}: {item: CurriculumItem}) {
 
 export default function ExamInfo({
   instructor,
-  slug,
+  slug: _slug,
   title,
   description,
-  curriculum,
+  curriculum: _curriculum,
   isPaying = false,
   currency = "$",
   subjects,

@@ -1,6 +1,5 @@
 import {Icon} from "@mcc/ui";
 import React, {useState, useRef, useEffect, useCallback} from "react";
-import {useExam} from "../context/ExamContext";
 
 const LINE_HEIGHT = 36;
 

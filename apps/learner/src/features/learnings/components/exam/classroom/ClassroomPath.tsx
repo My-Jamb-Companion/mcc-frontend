@@ -3,7 +3,6 @@ import {Icon} from "@mcc/ui";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useState} from "react";
-import {useExam} from "../context/ExamContext";
 
 // Same course data, now each lesson (unit) carries a `subLessons` list.
 // Each subLesson is either a regular practice node, a quiz checkpoint
