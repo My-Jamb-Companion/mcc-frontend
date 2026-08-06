@@ -1,7 +1,10 @@
+"use client";
+
 import {Icon} from "@mcc/ui";
 import {ExamsProps} from "../constants/ExamCards";
+import Link from "next/link";
 
-export default function ExamCard({exam, onEnroll}: ExamsProps) {
+export default function ExamCard({exam}: ExamsProps) {
   return (
     <div className="relative shrink-0 w-48 rounded-2xl bg-white p-4 flex flex-col gap-3 overflow-hidden">
       <div className="flex items-center gap-2 z-10">
@@ -32,12 +35,13 @@ export default function ExamCard({exam, onEnroll}: ExamsProps) {
         <span className="text-xs text-gray-400">({exam.priceLabel})</span>
       </div>
 
-      <button
-        onClick={() => onEnroll?.(exam.id)}
-        className="z-10 w-full rounded-xl border border-gray-200 py-2 text-xs font-semibold text-[#1a2332] hover:bg-gray-50 transition-colors cursor-pointer"
+      <Link
+        // onClick={() => onEnroll?.(exam.id)}
+        href={`/learnings/exams/${exam.id}`}
+        className="flex justify-center items-center z-10 w-full rounded-xl border border-gray-200 py-2 text-xs font-semibold text-[#1a2332] hover:bg-gray-50 transition-colors cursor-pointer"
       >
         Enroll Now
-      </button>
+      </Link>
     </div>
   );
 }

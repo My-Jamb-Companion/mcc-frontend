@@ -34,7 +34,13 @@ const item: Variants = {
   },
 };
 
-export default function PaymentDetails({price}: {price: number}) {
+export default function PaymentDetails({
+  price,
+  currency = "$",
+}: {
+  price: number;
+  currency?: string;
+}) {
   const {
     register,
     handleSubmit,
@@ -178,16 +184,22 @@ export default function PaymentDetails({price}: {price: number}) {
         >
           <p className="text-subtle">Subtotal</p>
 
-          <p className="font-medium">$75.95</p>
+          <p className="font-medium">
+            {currency}
+            {(price / 1.075).toFixed(2)}
+          </p>
         </motion.div>
 
         <motion.div
           whileHover={{x: 2}}
           className="flex items-center justify-between text-sm"
         >
-          <p className="text-subtle">VAT</p>
+          <p className="text-subtle">VAT (7.5%)</p>
 
-          <p className="font-medium">$525.05</p>
+          <p className="font-medium">
+            {currency}
+            {(price - price / 1.075).toFixed(2)}
+          </p>
         </motion.div>
 
         <motion.div
@@ -202,7 +214,8 @@ export default function PaymentDetails({price}: {price: number}) {
             animate={{scale: 1, opacity: 1}}
             className="text-2xl font-semibold"
           >
-            ${price.toFixed(2)}
+            {currency}
+            {price.toFixed(2)}
           </motion.p>
         </motion.div>
       </motion.div>
