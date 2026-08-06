@@ -1,7 +1,6 @@
 "use client";
 
-import {Icon} from "@iconify/react";
-import {Modal} from "@mcc/ui";
+import {Icon, Modal} from "@mcc/ui";
 
 export default function CancelClass({
   open,
@@ -18,8 +17,7 @@ export default function CancelClass({
         <div className="w-11 h-11 flex items-center justify-center rounded-2xl bg-gray-100">
           <Icon
             icon="mdi:calendar-remove-outline"
-            width={22}
-            height={22}
+            size={22}
             className="text-gray-800"
           />
         </div>

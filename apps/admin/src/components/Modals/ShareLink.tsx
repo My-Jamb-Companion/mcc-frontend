@@ -1,8 +1,7 @@
 "use client";
 
 import {useMemo, useState} from "react";
-import {Icon} from "@iconify/react";
-import {Modal} from "@mcc/ui";
+import {Icon, Modal} from "@mcc/ui";
 
 type Recipient = {
   id: string;
@@ -47,8 +46,7 @@ function RecipientSelect({
         </span>
         <Icon
           icon="mdi:chevron-down"
-          width={16}
-          height={16}
+          size={16}
           className={`text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
