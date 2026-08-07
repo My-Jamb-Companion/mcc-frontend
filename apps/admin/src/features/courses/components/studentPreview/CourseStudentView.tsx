@@ -16,6 +16,7 @@ import {
   Option,
 } from "../../types/types";
 import {useAllModuleContents} from "../../hooks/useLesson";
+import CourseExercise from "./CourseExcercise";
 
 export interface CourseStudentViewProps {
   course: CoursesFormValues & Partial<AdditionalCourseTypes>;
@@ -123,7 +124,7 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
                   exit={{opacity: 0, scale: 0.98}}
                   transition={{duration: 0.25}}
                 >
-                  <CoursePractice
+                  <CourseExercise
                     questions={
                       activeContent.questions?.map(
                         (q: CreatPracticeQuestionType) => {
@@ -145,7 +146,7 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
                         },
                       ) || []
                     }
-                    onDone={handleContentEnded}
+                    onComplete={handleContentEnded}
                   />
                 </motion.div>
               )}
@@ -161,6 +162,7 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
                   <CourseTestFlow
                     questions={activeContent.questions || []}
                     onCertificateReady={handleContentEnded}
+                    timer={activeContent.settings.timer}
                   />
                 </motion.div>
               )}

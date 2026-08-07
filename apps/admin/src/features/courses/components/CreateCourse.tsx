@@ -77,7 +77,7 @@ function Step3({
 // ROOT FORM SHELL
 
 export default function CreateCourseForm() {
-  const [activeStep, setActiveStep] = useState<Step>("details");
+  const [activeStep, setActiveStep] = useState<Step>("content");
 
   const methods = useForm<CoursesFormValues>({
     mode: "onChange",

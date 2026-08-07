@@ -7,12 +7,17 @@ export function calculateExamScore(
   answers: {
     id: string;
     question: string;
-    answer: string;
-    correctAnswer: string;
+    answer: string | string[];
+    correctAnswer: string | string[];
   }[],
 ) {
   const correctCount = answers.reduce((total, item) => {
-    return item.answer === item.correctAnswer ? total + 1 : total;
+    const normA = Array.isArray(item.answer) ? [...item.answer].sort() : [item.answer];
+    const normB = Array.isArray(item.correctAnswer) ? [...item.correctAnswer].sort() : [item.correctAnswer];
+    const isCorrect =
+      normA.length === normB.length &&
+      normA.every((val, idx) => val === normB[idx]);
+    return isCorrect ? total + 1 : total;
   }, 0);
 
   return correctCount;
