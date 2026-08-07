@@ -1,12 +1,9 @@
 "use client";
 
 import CoursePlayer from "./CoursePlayer";
-import {useState, useCallback} from "react";
+import {useState} from "react";
 import {Button, Icon, motion, AnimatePresence} from "@mcc/ui";
-import {useRouter, usePathname, useSearchParams} from "next/navigation";
-import CommunityTab from "./tabs/CommunityTab";
-import NotesTab from "./tabs/NotesTab";
-import FacilitatorTab from "./tabs/FacilitatorTab";
+import {useSearchParams} from "next/navigation";
 import {CoursePractice} from "./CoursePractice";
 import CourseTestFlow from "./CourseExamFlow";
 import CoursePlayModules from "./CourseModules";
@@ -25,8 +22,6 @@ export interface CourseStudentViewProps {
 }
 
 export default function CourseStudentView({course}: CourseStudentViewProps) {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const tabQuery = searchParams.get("tab");
@@ -41,16 +36,7 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
   const [activeContent, setActiveContent] = useState<ModuleContent | null>(
     allContents[0] || null,
   );
-  const [currentVideoTime, setCurrentVideoTime] = useState(0);
-
-  const handleTabChange = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
-      router.push(pathname + "?" + params.toString(), {scroll: false});
-    },
-    [searchParams, pathname, router],
-  );
+  const [, setCurrentVideoTime] = useState(0);
 
   const handleContentEnded = () => {
     if (!activeContent) return;
@@ -151,12 +137,11 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
               {tabs.map((tab) => (
                 <Button
                   key={tab}
-                  variant={activeTab === tab ? "outline" : "ghost"}
+                  variant={activeTab === tab ? "outline" : "secondary"}
                   size="sm"
                   disabled={tab === "ai"}
-                  className={`capitalize text-nowrap ${activeTab === tab ? "font-bold text-black" : "text-muted"}`}
+                  className={`capitalize text-nowrap ${activeTab === tab ? "font-bold text-black" : "text-muted"} ${tab !== "content" && "cursor-not-allowed"}`}
                   width="fit"
-                  onClick={() => handleTabChange("tab", tab)}
                 >
                   <span className="flex items-center gap-2">
                     {tab === "ai" && (
@@ -207,16 +192,6 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
                   instructorRole={course?.instructorRole || "N/A"}
                 />
               )}
-              {activeTab === "community" && <CommunityTab />}
-              {activeTab === "notes" && (
-                <NotesTab currentTimestamp={currentVideoTime} />
-              )}
-              {activeTab === "facilitator" && (
-                <FacilitatorTab
-                  courseDescription={course.description}
-                  currentTime={currentVideoTime}
-                />
-              )}
             </motion.div>
           </AnimatePresence>
         </motion.div>
@@ -249,7 +224,7 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
                   {(["course", "ai"] as const).map((tab) => (
                     <Button
                       key={tab}
-                      variant={sidePanel === tab ? "outline" : "ghost"}
+                      variant={sidePanel === tab ? "outline" : "secondary"}
                       width="fit"
                       className={`text-nowrap py-1! ${
                         sidePanel == tab ? "" : "opacity-60"
