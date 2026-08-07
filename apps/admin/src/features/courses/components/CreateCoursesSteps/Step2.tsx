@@ -19,7 +19,6 @@ import {
   QuizModuleContent,
   Topic,
 } from "../../types/types";
-// import ContentReorderPanel from "./ContentReorderPanel";
 
 // HELPERS
 
@@ -69,10 +68,7 @@ export function InlineRename({
   );
 }
 
-// PRACTICE MANAGER
-// A leaf of type "practice" now holds a list of named practice sets instead
-// of one flat questions array. This wraps the existing PracticeQuestions
-// editor (unchanged) and adds the create/select/rename layer on top.
+// MANAGERS
 
 function PracticeManager({
   practices,
@@ -216,7 +212,6 @@ function PracticeManager({
   );
 }
 
-// QUIZ MANAGER
 function QuizManager({
   quizzes,
   onChange,
@@ -376,20 +371,6 @@ function QuizManager({
       {selectedQuiz && (
         <div className="mt-2 border-t border-gray-100 pt-4">
           <div className="mb-4 grid gap-4 md:grid-cols-2">
-            {/* <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-gray-700">
-                Quiz title
-              </span>
-              <input
-                value={selectedQuiz.title}
-                onChange={(event) =>
-                  updateQuizTitle(selectedQuiz.id, event.target.value)
-                }
-                placeholder="Enter quiz title"
-                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-400"
-              />
-            </label> */}
-
             <FormInputs
               label="Quizzz title"
               value={selectedQuiz.title}
@@ -458,7 +439,6 @@ function QuizManager({
   );
 }
 
-// EXERCISE MANAGER
 function ExerciseManager({
   exercises,
   onChange,
@@ -601,19 +581,10 @@ function ExerciseManager({
   );
 }
 
-// ROOT EXPORT
-
-// At least one topic -> module chain must exist before content is
-// considered usable (a module with zero leaves still counts, since leaves
-// are pre-seeded whenever a module is created).
 export function hasCompleteContent(topics: Topic[]) {
   return topics.some((t) => t.modules.length > 0);
 }
 
-// Lessons/Practice are aggregate views over a module's flattened content —
-// there's no single stored item to select anymore, so they're addressed by
-// a synthetic id built from the module id. Quizzes remain individually
-// selectable by their own real id.
 export function lessonsViewId(moduleId: string) {
   return `lessons:${moduleId}`;
 }
@@ -684,6 +655,7 @@ function getActiveContext(topics: Topic[], selection: string) {
   return null;
 }
 
+// main export
 export default function ContentStep({
   onNext,
   onBack,
@@ -693,12 +665,12 @@ export default function ContentStep({
   onBack?: () => void;
   courseName: string;
 }) {
-  const {watch, setValue} = useFormContext<ContentFormValues>();
+  const {watch, setValue, getValues} = useFormContext<ContentFormValues>();
   const topics = watch("content.topics") ?? [];
   function setTopics(newTopics: Topic[]) {
     setValue("content.topics", newTopics, {shouldDirty: true});
   }
-
+  console.log(getValues());
   const [selectedContentId, setSelectedContentId] = useState("");
   const [isRenamingTopic, setIsRenamingTopic] = useState(false);
   const [isReorderOpen, setIsReorderOpen] = useState(false);

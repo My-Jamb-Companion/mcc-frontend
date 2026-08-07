@@ -8,15 +8,16 @@ interface Question {
   id: string;
   question: string;
   answers: string[];
-  correctAnswer: string;
-  hint?: string;
+  correctAnswer: string | string[];
+  multiSelect?: boolean;
+  explanation?: string;
 }
 
 export interface SubmittedAnswer {
   id: string;
   question: string;
-  answer: string;
-  correctAnswer: string;
+  answer: string | string[];
+  correctAnswer: string | string[];
   tries: number;
 }
 
@@ -48,6 +49,26 @@ function createInitialAttemptState(): QuestionAttemptState {
   };
 }
 
+function areAnswersEqual(
+  a: string | string[] | undefined,
+  b: string | string[] | undefined,
+): boolean {
+  if (!a || !b) return false;
+  const normA = Array.isArray(a) ? [...a].sort() : [a];
+  const normB = Array.isArray(b) ? [...b].sort() : [b];
+  if (normA.length !== normB.length) return false;
+  return normA.every((val, index) => val === normB[index]);
+}
+
+function isOptionInAnswer(
+  option: string,
+  answer: string | string[] | undefined,
+): boolean {
+  if (!answer) return false;
+  if (Array.isArray(answer)) return answer.includes(option);
+  return answer === option;
+}
+
 export default function CourseExercise({
   questions = [],
   onComplete,
@@ -72,6 +93,10 @@ export default function CourseExercise({
 
   const currentQuestion = randomizedQuestions[currentIndex];
 
+  const isMulti =
+    currentQuestion?.multiSelect ||
+    Array.isArray(currentQuestion?.correctAnswer);
+
   const currentSubmittedAnswer = answers.find(
     (item) => item.id === currentQuestion?.id,
   );
@@ -81,21 +106,35 @@ export default function CourseExercise({
   const isLastQuestion = currentIndex === questions.length - 1;
 
   const isFinalTryUsed = attemptState.tries >= MAX_TRIES;
-  const showRetryPopover = attemptState.isChecked && !attemptState.isCorrect;
 
-  const handleSelectOption = (answer: string) => {
+  const handleSelectOption = (answerOption: string) => {
     if (attemptState.locked) return;
     if (attemptState.isChecked) return;
 
     setAnswers((prev) => {
       const exists = prev.find((item) => item.id === currentQuestion.id);
+      let updatedAnswer: string | string[];
+
+      if (isMulti) {
+        const currentArr = Array.isArray(exists?.answer)
+          ? (exists?.answer as string[])
+          : exists?.answer
+            ? [exists.answer as string]
+            : [];
+
+        updatedAnswer = currentArr.includes(answerOption)
+          ? currentArr.filter((a) => a !== answerOption)
+          : [...currentArr, answerOption];
+      } else {
+        updatedAnswer = answerOption;
+      }
 
       if (exists) {
         return prev.map((item) =>
           item.id === currentQuestion.id
             ? {
                 ...item,
-                answer,
+                answer: updatedAnswer,
               }
             : item,
         );
@@ -106,7 +145,7 @@ export default function CourseExercise({
         {
           id: currentQuestion.id,
           question: currentQuestion.question,
-          answer,
+          answer: updatedAnswer,
           correctAnswer: currentQuestion.correctAnswer,
           tries: attemptState.tries,
         },
@@ -117,7 +156,10 @@ export default function CourseExercise({
   const handleCheck = () => {
     if (!selectedAnswer || attemptState.isChecked) return;
 
-    const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+    const isCorrect = areAnswersEqual(
+      selectedAnswer,
+      currentQuestion.correctAnswer,
+    );
     const nextTries = attemptState.tries + 1;
 
     setAttemptState((prev) => ({
@@ -194,8 +236,12 @@ export default function CourseExercise({
         ? "next"
         : "try-again";
 
+  const hasSelectedAny = Array.isArray(selectedAnswer)
+    ? selectedAnswer.length > 0
+    : !!selectedAnswer;
+
   const nextButtonDisabled =
-    nextButtonState === "check" ? !selectedAnswer : false;
+    nextButtonState === "check" ? !hasSelectedAny : false;
 
   const handlePrimaryAction = () => {
     if (nextButtonState === "check") {
@@ -234,11 +280,17 @@ export default function CourseExercise({
               const isReviewCorrect =
                 isReviewMode &&
                 reviewAnswer &&
-                reviewAnswer.answer === reviewAnswer.correctAnswer;
+                areAnswersEqual(
+                  reviewAnswer.answer,
+                  reviewAnswer.correctAnswer,
+                );
               const isReviewWrong =
                 isReviewMode &&
                 reviewAnswer &&
-                reviewAnswer.answer !== reviewAnswer.correctAnswer;
+                !areAnswersEqual(
+                  reviewAnswer.answer,
+                  reviewAnswer.correctAnswer,
+                );
 
               return (
                 <span
@@ -270,27 +322,43 @@ export default function CourseExercise({
       <div className="px-8 py-8 max-sm:px-4">
         <h3 className="text-base font-bold text-gray-900 dark:text-white">
           {currentQuestion.question}
+          {isMulti && (
+            <span className="ml-2 text-xs font-normal text-gray-400">
+              (Select multiple)
+            </span>
+          )}
         </h3>
 
         <div className="mt-6 flex flex-col gap-3">
           {currentQuestion.answers.map((answer, index) => {
-            const isSelected = selectedAnswer === answer;
-            const isCorrectAnswer = answer === currentQuestion.correctAnswer;
+            const isSelected = isOptionInAnswer(answer, selectedAnswer);
+            const isCorrectOption = isOptionInAnswer(
+              answer,
+              currentQuestion.correctAnswer,
+            );
             const isRevealed = isReviewMode || attemptState.locked;
             const isWrongSelected =
-              isRevealed && isSelected && !isCorrectAnswer;
+              isRevealed && isSelected && !isCorrectOption;
+
+            const isTryAgainState =
+              attemptState.isChecked &&
+              !attemptState.isCorrect &&
+              !attemptState.locked;
 
             let optionStyle =
               "border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200";
 
             if (isRevealed) {
-              if (isCorrectAnswer) {
+              if (isCorrectOption) {
                 optionStyle =
                   "border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400";
               } else if (isWrongSelected) {
                 optionStyle =
                   "border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400";
               }
+            } else if (isTryAgainState && isSelected) {
+              optionStyle =
+                "border-amber-500 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400";
             } else if (isSelected) {
               optionStyle =
                 "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
@@ -315,16 +383,18 @@ export default function CourseExercise({
                 <span
                   className={`
                     flex h-8 w-8 items-center justify-center
-                    rounded-full border text-sm font-semibold
+                    ${isMulti ? "rounded-md" : "rounded-full"} border text-sm font-semibold
 
                     ${
-                      isRevealed && isCorrectAnswer
+                      isRevealed && isCorrectOption
                         ? "border-success bg-success text-white"
                         : isRevealed && isWrongSelected
                           ? "border-danger bg-danger text-white"
-                          : isSelected
-                            ? "border-blue-600 bg-blue-600 text-white"
-                            : "border-gray-300 dark:border-gray-500 dark:text-gray-300"
+                          : isTryAgainState && isSelected
+                            ? "border-amber-500 bg-amber-500 text-white"
+                            : isSelected
+                              ? "border-blue-600 bg-blue-600 text-white"
+                              : "border-gray-300 dark:border-gray-500 dark:text-gray-300"
                     }
                   `}
                 >
@@ -371,49 +441,6 @@ export default function CourseExercise({
       ) : (
         <div className="relative flex justify-end gap-3 rounded-b-2xl bg-gray-100 dark:bg-gray-900 px-8 py-5">
           <AnimatePresence>
-            {showRetryPopover && (
-              <motion.div
-                initial={{
-                  opacity: 0,
-                  y: 12,
-                  scale: 0.95,
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                  scale: 1,
-                }}
-                exit={{
-                  opacity: 0,
-                  y: 12,
-                  scale: 0.95,
-                }}
-                transition={{
-                  duration: 0.25,
-                }}
-                className="absolute top-0 right-5 translate-y-[-140%] flex items-center justify-center gap-2 p-2 rounded-2xl border-2 bg-[#222225]"
-              >
-                <div className="text-left">
-                  <p className="text-sm font-semibold">Not quite yet..</p>
-                  <p className="text-xs">
-                    {isFinalTryUsed
-                      ? "Here's the correct answer."
-                      : "Give it another try."}
-                  </p>
-                </div>
-
-                {!isFinalTryUsed && (
-                  <button
-                    type="button"
-                    onClick={handleTryAgain}
-                    className="rounded-full bg-muted/60 p-1"
-                  >
-                    <Icon icon="mdi:refresh" className="h-4 w-4" />
-                  </button>
-                )}
-              </motion.div>
-            )}
-
             {attemptState.hintShown && (
               <motion.div
                 initial={{
@@ -434,7 +461,7 @@ export default function CourseExercise({
                 transition={{
                   duration: 0.25,
                 }}
-                className="absolute top-0 left-5 translate-y-[-140%] rounded-2xl border-2 bg-[#222225] p-3 shadow-xl"
+                className="absolute top-0 left-5 translate-y-[-140%] rounded-2xl border-2 bg-white p-3 shadow-xl"
               >
                 <button
                   type="button"
@@ -456,7 +483,7 @@ export default function CourseExercise({
                   <p className="text-sm font-semibold">Hint</p>
 
                   <p className="text-xs mt-1">
-                    {currentQuestion.hint ??
+                    {currentQuestion.explanation ??
                       "No hint available for this question."}
                   </p>
                 </div>
@@ -475,14 +502,25 @@ export default function CourseExercise({
             Hint
           </button>
 
-          <button
+          <motion.button
             type="button"
             onClick={handlePrimaryAction}
             disabled={nextButtonDisabled}
-            className={`flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 active:scale-95 transition-all ${nextButtonDisabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+            whileHover={{scale: 1.03, y: -2}}
+            whileTap={{scale: 0.96}}
+            className={`flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-all ${
+              nextButtonState === "try-again"
+                ? "bg-amber-500 hover:bg-amber-600"
+                : "bg-blue-600 hover:bg-blue-700"
+            } ${nextButtonDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
           >
             {nextButtonState === "check" && "Check"}
-            {nextButtonState === "try-again" && "Try again"}
+            {nextButtonState === "try-again" && (
+              <>
+                <Icon icon="stash:arrow-retry" className="h-4 w-4" />
+                Try again
+              </>
+            )}
             {nextButtonState === "next" && (
               <>
                 {isLastQuestion ? "Submit" : "Next question"}
@@ -491,7 +529,7 @@ export default function CourseExercise({
                 )}
               </>
             )}
-          </button>
+          </motion.button>
         </div>
       )}
     </div>

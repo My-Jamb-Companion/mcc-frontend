@@ -33,6 +33,11 @@ function getContentIcon(item: ModuleContent): {
         icon: "material-symbols:quiz-outline",
         className: "text-orange-500",
       };
+    case "exercise":
+      return {
+        icon: "ph:clock",
+        className: "text-blue-500",
+      };
     case "quiz":
       return {icon: "mdi:certificate-outline", className: "text-green-500"};
     default:
@@ -46,6 +51,8 @@ function contentLabel(item: ModuleContent): string {
       return item.title || "Untitled Lesson";
     case "practice":
       return item.name || "Untitled Practice";
+    case "exercise":
+      return item.name || "Untitled Exercise";
     case "quiz":
       return item.title || "Untitled Quiz";
     default:
@@ -249,6 +256,10 @@ function ModuleAccordion({
                       )}
                       {item.type === "practice" && (
                         <p className="text-xs text-orange-500">Practice Quiz</p>
+                      )}
+
+                      {item.type === "exercise" && (
+                        <p className="text-xs text-blue-500">Exercise</p>
                       )}
 
                       {item.type === "quiz" && (

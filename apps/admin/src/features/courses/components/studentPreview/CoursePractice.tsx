@@ -780,10 +780,6 @@ const buttonVariants: Variants = {
   }),
 };
 
-//
-//
-//
-
 const containerVariants: Variants = {
   hidden: {},
   visible: {

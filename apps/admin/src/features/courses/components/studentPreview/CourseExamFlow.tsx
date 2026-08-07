@@ -1,11 +1,11 @@
 "use client";
 
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import CourseCompletion from "./CourseTestComplete";
-import CourseExam from "./CourseExam";
+import CourseExam, {Question, SubmittedAnswer} from "./CourseExam";
 import {motion} from "@mcc/ui";
 import {calculateExamScore} from "../../helper/helper";
-import {CreatPracticeQuestionType} from "../../types/types";
+import {CreatPracticeQuestionType, Option} from "../../types/types";
 
 type FlowStep = "intro" | "quiz" | "completion" | "summary" | "certificate";
 
@@ -17,15 +17,17 @@ interface CourseTestIntroProps {
 }
 
 interface CourseTestFlowProps {
-  questions: CreatPracticeQuestionType[];
+  questions: (CreatPracticeQuestionType | Question)[];
   totalModules?: number;
   pointsPerCorrect?: number;
   diamondsPerCorrect?: number;
   onCertificateReady?: () => void;
+  timer?: number;
 }
 
 export default function CourseTestFlow({
   questions = [],
+  timer,
   totalModules = 10,
   pointsPerCorrect = 25,
   diamondsPerCorrect = 1,
@@ -33,23 +35,33 @@ export default function CourseTestFlow({
 }: CourseTestFlowProps) {
   const [step, setStep] = useState<FlowStep>("intro");
   const [results, setResults] = useState<{
-    answers: {
-      id: string;
-      question: string;
-      answer: string;
-      correctAnswer: string;
-    }[];
+    answers: SubmittedAnswer[];
     correctCount: number;
   } | null>(null);
 
-  const handleQuizComplete = (
-    answers: {
-      id: string;
-      question: string;
-      answer: string;
-      correctAnswer: string;
-    }[],
-  ) => {
+  const formattedQuestions: Question[] = useMemo(() => {
+    return questions.map((q: any) => {
+      if (q.answers && !q.options) {
+        return q as Question;
+      }
+
+      const options = q.options || [];
+      const correctTexts = options
+        .filter((o: Option) => o.isCorrect)
+        .map((o: Option) => o.text);
+      const isMulti = q.type === "multiple";
+
+      return {
+        id: q.id,
+        question: q.question,
+        answers: options.map((o: Option) => o.text),
+        correctAnswer: isMulti ? correctTexts : (correctTexts[0] ?? ""),
+        multiSelect: isMulti,
+      };
+    });
+  }, [questions]);
+  console.log(formattedQuestions);
+  const handleQuizComplete = (answers: SubmittedAnswer[]) => {
     const quizResults = {
       answers,
       correctCount: calculateExamScore(answers),
@@ -67,21 +79,27 @@ export default function CourseTestFlow({
   if (step === "intro") {
     return (
       <CourseTestIntro
-        questionCount={questions.length}
+        questionCount={formattedQuestions.length}
         onStart={() => setStep("quiz")}
+        maxMinutes={timer}
       />
     );
   }
 
   if (step === "quiz") {
-    return <CourseExam questions={questions} onComplete={handleQuizComplete} />;
+    return (
+      <CourseExam
+        questions={formattedQuestions}
+        onComplete={handleQuizComplete}
+      />
+    );
   }
 
   if (step === "summary" && results) {
     return (
       <CourseExam
         reviewMode
-        questions={questions}
+        questions={formattedQuestions}
         submittedAnswers={results.answers}
         endReview={() => setStep("completion")}
       />
