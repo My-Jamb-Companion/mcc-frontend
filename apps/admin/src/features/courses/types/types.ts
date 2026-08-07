@@ -70,10 +70,19 @@ export type QuizModuleContent = {
   };
 };
 
+export type ExerciseSet = {
+  id: string;
+  name: string;
+  questions: CreatPracticeQuestionType[];
+};
+
+export type ExerciseModuleContent = ExerciseSet & {type: "exercise"};
+
 export type ModuleContent =
   | LessonModuleContent
   | PracticeModuleContent
-  | QuizModuleContent;
+  | QuizModuleContent
+  | ExerciseModuleContent;
 
 export type MakeModule = {
   id: string;
