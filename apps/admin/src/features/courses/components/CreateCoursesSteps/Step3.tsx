@@ -1,12 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from "react";
 import {Button, Icon} from "@mcc/ui";
 import {useFormContext} from "@mcc/features";
-import {CoursesFormValues} from "../CreateCourse";
-
-export type UploadedFile = {
-  file: File;
-  previewUrl: string;
-};
+import {CoursesFormValues, UploadedFile} from "../../types/types";
 
 export function hasCompleteUpload(upload: {
   coverImage: UploadedFile | null;
