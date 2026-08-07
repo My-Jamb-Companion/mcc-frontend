@@ -2,60 +2,22 @@ import {useEffect, useRef, useState} from "react";
 import {Button, Icon} from "@mcc/ui";
 import {useFormContext} from "@mcc/features";
 import Step2Sidebar from "./Step2SideBar";
-import PracticeQuestions, {CreatPracticeQuestionType} from "./CreatePractice";
-import LessonsCreate, {FileRow} from "./CreateLessons";
+import PracticeQuestions from "./CreatePractice";
+import LessonsCreate from "./CreateLessons";
 import ContentReorderPanel from "./ContentReorder";
+import {
+  ContentFormValues,
+  CreatPracticeQuestionType,
+  FileRow,
+  LessonModuleContent,
+  MakeModule,
+  ModuleContent,
+  PracticeModuleContent,
+  PracticeSet,
+  QuizModuleContent,
+  Topic,
+} from "../../types/types";
 // import ContentReorderPanel from "./ContentReorderPanel";
-
-export type PracticeSet = {
-  id: string;
-  name: string;
-  questions: CreatPracticeQuestionType[];
-};
-
-// A lesson entry in a module's content IS the file itself.
-export type LessonModuleContent = FileRow & {type: "lesson"};
-
-// A practice entry in a module's content IS the named practice set itself.
-export type PracticeModuleContent = PracticeSet & {type: "practice"};
-
-// A quiz entry in a module's content IS the quiz itself (no separate
-// wrapper id/title — this object's own id/title are what's used).
-export type QuizModuleContent = {
-  id: string;
-  type: "quiz";
-  title: string;
-  questions: CreatPracticeQuestionType[];
-  settings: {
-    timer?: number;
-    passingScore?: number;
-  };
-};
-
-export type ModuleContent =
-  | LessonModuleContent
-  | PracticeModuleContent
-  | QuizModuleContent;
-
-export type MakeModule = {
-  id: string;
-  label: string;
-  description?: string;
-  content: ModuleContent[];
-};
-
-export type Topic = {
-  id: string;
-  label: string;
-  description?: string;
-  modules: MakeModule[];
-};
-
-export type ContentFormValues = {
-  content: {
-    topics: Topic[];
-  };
-};
 
 // HELPERS
 
@@ -336,14 +298,6 @@ export default function ContentStep({
   const [isRenamingTopic, setIsRenamingTopic] = useState(false);
   const [isReorderOpen, setIsReorderOpen] = useState(false);
 
-  // function updateTopic(updated: Topic) {
-  //   setTopics(topics.map((t) => (t.id === updated.id ? updated : t)));
-  // }
-
-  // Description state
-  const [isEditingDescription, setIsEditingDescription] = useState(false);
-  const [descriptionDraft, setDescriptionDraft] = useState("");
-
   const activeContext = getActiveContext(topics, selectedContentId);
   const activeFiles =
     activeContext?.type === "lesson" ? activeContext.files : [];
@@ -355,31 +309,6 @@ export default function ContentStep({
     setTopics(topics.map((t) => (t.id === id ? {...t, label: newLabel} : t)));
   }
 
-  // ── Description Logic ──
-  // description lives on the topic itself, since sub-topics are gone
-
-  const activeDesc = activeContext?.topic?.description ?? "";
-
-  function startEditingDescription() {
-    setDescriptionDraft(activeDesc);
-    setIsEditingDescription(true);
-  }
-
-  function handleSaveDescription() {
-    if (!activeContext?.topic) return;
-    const {topic} = activeContext;
-    setTopics(
-      topics.map((t) =>
-        t.id === topic.id ? {...t, description: descriptionDraft} : t,
-      ),
-    );
-    setIsEditingDescription(false);
-  }
-
-  // Lessons/Practice editors hand back their full next list at once, so
-  // this swaps out every entry of that type in the module's flattened
-  // content and leaves everything else (other lessons/practice/quizzes)
-  // untouched.
   function replaceContentByType<T extends ModuleContent["type"]>(
     topicId: string,
     moduleId: string,
@@ -538,61 +467,6 @@ export default function ContentStep({
                   </Button>
                 </div>
               </div>
-
-              {activeContext?.topic && (
-                <div className="mt-5">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold">
-                      About {activeContext.topic.label || "topic"}
-                    </p>
-                    {!isEditingDescription && (
-                      <button
-                        type="button"
-                        onClick={startEditingDescription}
-                        className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-gray-100"
-                      >
-                        <Icon
-                          icon="lucide:pencil"
-                          size={14}
-                          className="text-gray-400"
-                        />
-                      </button>
-                    )}
-                  </div>
-                  {isEditingDescription ? (
-                    <div className="mt-1.5 flex flex-col gap-2">
-                      <textarea
-                        value={descriptionDraft}
-                        onChange={(e) => setDescriptionDraft(e.target.value)}
-                        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 outline-none focus:border-violet-400 focus:ring-1 focus:ring-violet-400"
-                        rows={3}
-                        placeholder="Add a description..."
-                        autoFocus
-                      />
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={handleSaveDescription}
-                          className="rounded bg-violet-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-violet-700"
-                        >
-                          Save
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setIsEditingDescription(false)}
-                          className="rounded px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="mt-1.5 text-sm leading-relaxed text-gray-500">
-                      {activeDesc || "No description provided."}
-                    </p>
-                  )}
-                </div>
-              )}
 
               {activeContext?.module && (
                 <div className="mt-6 flex items-center gap-2 border-b border-gray-100 pb-4">

@@ -2,21 +2,7 @@ import {FormInputs} from "@mcc/features";
 import {Button, Icon} from "@mcc/ui";
 import {useState} from "react";
 import {uid} from "./Step2";
-
-type Option = {
-  id: string;
-  text: string;
-  isCorrect: boolean;
-};
-
-export type CreatPracticeQuestionType = {
-  id: string;
-  type: "single" | "multiple";
-  question: string;
-  description?: string;
-  options: Option[];
-  explanation?: string;
-};
+import {CreatPracticeQuestionType} from "../../types/types";
 
 function QuestionCard({
   question,

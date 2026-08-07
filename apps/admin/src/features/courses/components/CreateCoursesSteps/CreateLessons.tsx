@@ -1,18 +1,26 @@
 import {useEffect, useRef, useState} from "react";
 import {Icon} from "@mcc/ui";
 import {InlineRename} from "./Step2";
-
-export type FileRow = {
-  id: string;
-  title: string;
-  format: string;
-  size: string;
-  progress?: number;
-  previewUrl?: string;
-};
+import {FileRow} from "../../types/types";
 
 function uid() {
   return Math.random().toString(36).slice(2, 9);
+}
+
+// Helper to extract duration from an uploaded video file
+function getVideoDuration(file: File): Promise<number> {
+  return new Promise((resolve) => {
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.onloadedmetadata = () => {
+      URL.revokeObjectURL(video.src);
+      resolve(Math.round(video.duration));
+    };
+    video.onerror = () => {
+      resolve(0);
+    };
+    video.src = URL.createObjectURL(file);
+  });
 }
 
 // ─────────────────────────────────────────────────────────
@@ -65,7 +73,7 @@ function FileRowItem({
         <Icon icon="lucide:grip-vertical" size={16} />
       </span>
       <span className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100">
-        {file.previewUrl && (
+        {(file.previewUrl || file.src) && (
           <Icon icon="lucide:play" size={16} className="text-gray-400" />
         )}
       </span>
@@ -97,6 +105,9 @@ function FileRowItem({
         )}
         <p className="text-xs text-gray-400">
           {file.format} • {file.size}
+          {file.duration
+            ? ` • ${Math.floor(file.duration / 60)}m ${file.duration % 60}s`
+            : ""}
         </p>
       </div>
       {uploading && (
@@ -124,11 +135,11 @@ export default function LessonsCreate({
   onFilesChange,
   addLabel = "content",
 }: {
-  /** The active leaf's current file list (e.g. activeContext?.leaf?.lessons). */
+  /** The active leaf's current file list. */
   files: FileRow[];
   /** Called with the full next list whenever files are added, removed, renamed, or reordered. */
   onFilesChange: (files: FileRow[]) => void;
-  /** Used for the "Add {addLabel}" button text, e.g. activeContext?.leaf?.label. */
+  /** Used for the "Add {addLabel}" button text. */
   addLabel?: string;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -142,29 +153,38 @@ export default function LessonsCreate({
     null,
   );
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files?.length) return;
-    const newRows: FileRow[] = [];
+
+    const fileList = Array.from(e.target.files);
     const newProgress: Record<string, number> = {...uploadsProgress};
 
-    Array.from(e.target.files).forEach((f) => {
-      const id = uid();
-      newRows.push({
-        id,
-        title: f.name,
-        format: f.name.split(".").pop()?.toUpperCase() || "FILE",
-        size: (f.size / (1024 * 1024)).toFixed(1) + "mb",
-        previewUrl: URL.createObjectURL(f),
-      });
-      newProgress[id] = 0;
-    });
+    const newRows: FileRow[] = await Promise.all(
+      fileList.map(async (f) => {
+        const id = uid();
+        const objectUrl = URL.createObjectURL(f);
+        const duration = await getVideoDuration(f);
+
+        newProgress[id] = 0;
+
+        return {
+          id,
+          title: f.name,
+          format: f.name.split(".").pop()?.toUpperCase() || "FILE",
+          size: (f.size / (1024 * 1024)).toFixed(1) + "mb",
+          previewUrl: objectUrl,
+          src: objectUrl,
+          duration,
+          file: f,
+        };
+      }),
+    );
 
     setUploadsProgress(newProgress);
     onFilesChange([...files, ...newRows]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  // Fake upload progress ticker, same behavior as before extraction.
   useEffect(() => {
     const activeIds = Object.keys(uploadsProgress);
     if (activeIds.length === 0) return;
@@ -188,7 +208,7 @@ export default function LessonsCreate({
     return () => clearTimeout(timer);
   }, [uploadsProgress]);
 
-  function handleDrop(e: React.DragEvent) {
+  function handleDrop() {
     if (
       dragItemIndex !== null &&
       dragOverItemIndex !== null &&
@@ -224,8 +244,8 @@ export default function LessonsCreate({
           index={index}
           onRemove={(id) => onFilesChange(files.filter((x) => x.id !== id))}
           onRename={handleRenameFile}
-          onDragStart={(e, idx) => setDragItemIndex(idx)}
-          onDragEnter={(e, idx) => setDragOverItemIndex(idx)}
+          onDragStart={(_, idx) => setDragItemIndex(idx)}
+          onDragEnter={(_, idx) => setDragOverItemIndex(idx)}
           onDragEnd={() => {
             setDragItemIndex(null);
             setDragOverItemIndex(null);

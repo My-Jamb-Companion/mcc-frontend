@@ -1,25 +1,10 @@
 import {Icon, Button} from "@mcc/ui";
 import {useState, useRef, useEffect} from "react";
-import {
-  InlineRename,
-  MakeModule,
-  QuizModuleContent,
-  Topic,
-  lessonsViewId,
-  practiceViewId,
-  uid,
-} from "./Step2";
+import {InlineRename, lessonsViewId, practiceViewId, uid} from "./Step2";
+import {MakeModule, Topic} from "../../types/types";
 
-const QUIZ_ICON = "lucide:help-circle";
-
-function makeQuiz(title = ""): QuizModuleContent {
-  return {
-    id: uid(),
-    type: "quiz",
-    title,
-    questions: [],
-    settings: {},
-  };
+export function quizViewId(moduleId: string) {
+  return `quiz:${moduleId}`;
 }
 
 function makeModule(): MakeModule {
@@ -49,8 +34,6 @@ export default function Step2Sidebar({
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
   // Which topic or module is being renamed
   const [renamingId, setRenamingId] = useState<string | null>(null);
-  // Which content item is showing a delete confirmation
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   // Which modules are collapsed
   const [collapsedModules, setCollapsedModules] = useState<
     Record<string, boolean>
@@ -130,44 +113,6 @@ export default function Step2Sidebar({
 
   function toggleModule(id: string) {
     setCollapsedModules((prev) => ({...prev, [id]: !prev[id]}));
-  }
-
-  // ── Content (quizzes — lessons/practice come from their own editors) ──
-
-  function addQuiz(topicId: string, moduleId: string) {
-    const item = makeQuiz();
-    onTopicsChange(
-      topics.map((t) =>
-        t.id === topicId
-          ? {
-              ...t,
-              modules: t.modules.map((m) =>
-                m.id === moduleId ? {...m, content: [...m.content, item]} : m,
-              ),
-            }
-          : t,
-      ),
-    );
-    setMenuOpenFor(null);
-  }
-
-  function deleteContent(topicId: string, moduleId: string, contentId: string) {
-    onTopicsChange(
-      topics.map((t) =>
-        t.id === topicId
-          ? {
-              ...t,
-              modules: t.modules.map((m) =>
-                m.id === moduleId
-                  ? {...m, content: m.content.filter((c) => c.id !== contentId)}
-                  : m,
-              ),
-            }
-          : t,
-      ),
-    );
-    setConfirmDeleteId(null);
-    if (selectedContentId === contentId) onSelectContent("");
   }
 
   const menuKey = {
@@ -361,12 +306,6 @@ export default function Step2Sidebar({
                         {menuOpenFor === moduleMenuKeyStr && (
                           <div className="absolute right-0 top-8 z-30 w-52 rounded-xl border border-gray-100 bg-white p-1.5 shadow-lg">
                             <MenuItem
-                              icon="lucide:help-circle"
-                              label="Add quiz"
-                              onClick={() => addQuiz(topic.id, mod.id)}
-                            />
-                            <div className="my-1 border-t border-gray-100" />
-                            <MenuItem
                               icon="lucide:pencil"
                               label="Rename module"
                               onClick={() => {
@@ -378,160 +317,104 @@ export default function Step2Sidebar({
                         )}
                       </div>
 
-                      {(() => {
-                        // Lessons/Practice are aggregate views over this
-                        // module's flattened content, not a single stored
-                        // item — clicking just navigates to that view via a
-                        // synthetic id; it never creates anything.
-                        const lessonCount = mod.content.filter(
-                          (c) => c.type === "lesson",
-                        ).length;
-                        const practiceCount = mod.content.filter(
-                          (c) => c.type === "practice",
-                        ).length;
-                        const lessonsSelected =
-                          selectedContentId === lessonsViewId(mod.id);
-                        const practiceSelected =
-                          selectedContentId === practiceViewId(mod.id);
-
-                        return (
-                          <div style={{paddingLeft: "20px"}}>
-                            <div
-                              role="button"
-                              className={`group flex cursor-pointer items-center gap-1.5 py-1.5 pr-2 transition-colors ${
-                                lessonsSelected ? "text-gray-900" : ""
-                              }`}
-                              onClick={() =>
-                                onSelectContent(lessonsViewId(mod.id))
-                              }
-                            >
-                              <span className="shrink-0 text-gray-400">
-                                <Icon icon="lucide:play-circle" size={14} />
-                              </span>
-                              <div className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5">
-                                <span className="truncate text-sm text-gray-500">
-                                  Lessons
-                                </span>
-                                <span className="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
-                                  {lessonCount}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div
-                              role="button"
-                              className={`group flex cursor-pointer items-center gap-1.5 py-1.5 pr-2 transition-colors ${
-                                practiceSelected ? "text-gray-900" : ""
-                              }`}
-                              onClick={() =>
-                                onSelectContent(practiceViewId(mod.id))
-                              }
-                            >
-                              <span className="shrink-0 text-gray-400">
-                                <Icon icon="lucide:list-checks" size={14} />
-                              </span>
-                              <div className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5">
-                                <span className="truncate text-sm text-gray-500">
-                                  Practice
-                                </span>
-                                <span className="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
-                                  {practiceCount}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })()}
-
-                      {/* Quizzes — lessons/practice are pinned above, not listed here */}
                       {!collapsed &&
-                        mod.content
-                          .filter(
-                            (item): item is QuizModuleContent =>
-                              item.type === "quiz",
-                          )
-                          .map((item) => {
-                            const isConfirming = confirmDeleteId === item.id;
-                            const isSelected = selectedContentId === item.id;
+                        (() => {
+                          const lessonCount = mod.content.filter(
+                            (c) => c.type === "lesson",
+                          ).length;
+                          const practiceCount = mod.content.filter(
+                            (c) => c.type === "practice",
+                          ).length;
+                          const quizCount = mod.content.filter(
+                            (c) => c.type === "quiz",
+                          ).length;
 
-                            return (
+                          const lessonsSelected =
+                            selectedContentId === lessonsViewId(mod.id);
+                          const practiceSelected =
+                            selectedContentId === practiceViewId(mod.id);
+                          const quizSelected =
+                            selectedContentId === quizViewId(mod.id);
+
+                          return (
+                            <div style={{paddingLeft: "20px"}}>
+                              {/* Lessons Container */}
                               <div
-                                key={item.id}
-                                style={{paddingLeft: "36px"}}
-                                className="group flex items-center gap-1.5 py-1.5 pr-2 transition-colors"
+                                role="button"
+                                className={`group flex cursor-pointer items-center gap-1.5 py-1.5 pr-2 transition-colors ${
+                                  lessonsSelected
+                                    ? "text-gray-900 font-semibold"
+                                    : ""
+                                }`}
+                                onClick={() =>
+                                  onSelectContent(lessonsViewId(mod.id))
+                                }
                               >
-                                {isConfirming ? (
-                                  <div className="flex w-full items-center justify-between gap-2">
-                                    <span className="truncate text-xs text-gray-600">
-                                      Delete {item.title || "this item"}?
-                                    </span>
-                                    <div className="flex shrink-0 items-center gap-1.5">
-                                      <button
-                                        type="button"
-                                        onClick={() => setConfirmDeleteId(null)}
-                                        className="rounded px-1.5 py-0.5 text-xs font-medium text-gray-500 hover:bg-gray-100"
-                                      >
-                                        Cancel
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          deleteContent(
-                                            topic.id,
-                                            mod.id,
-                                            item.id,
-                                          )
-                                        }
-                                        className="rounded bg-red-500 px-1.5 py-0.5 text-xs font-medium text-white hover:bg-red-600"
-                                      >
-                                        Delete
-                                      </button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <>
-                                    <span className="shrink-0 text-gray-400">
-                                      <Icon icon={QUIZ_ICON} size={14} />
-                                    </span>
-
-                                    <button
-                                      type="button"
-                                      onClick={() => onSelectContent(item.id)}
-                                      className={`flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5 text-left text-sm transition-colors ${
-                                        isSelected
-                                          ? "bg-gray-100 text-gray-900"
-                                          : "text-gray-500 hover:bg-gray-50"
-                                      }`}
-                                    >
-                                      <span className="truncate">
-                                        {item.title || (
-                                          <span className="italic text-gray-400">
-                                            Untitled quiz
-                                          </span>
-                                        )}
-                                      </span>
-                                      <span className="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
-                                        {item.questions.length}
-                                      </span>
-                                    </button>
-
-                                    <span className="hidden shrink-0 items-center gap-0.5 group-hover:flex">
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          setConfirmDeleteId(item.id)
-                                        }
-                                        className="rounded p-1 text-gray-300 hover:text-red-500"
-                                        aria-label={`Delete ${item.title || "quiz"}`}
-                                      >
-                                        <Icon icon="lucide:trash-2" size={11} />
-                                      </button>
-                                    </span>
-                                  </>
-                                )}
+                                <span className="shrink-0 text-gray-400">
+                                  <Icon icon="lucide:play-circle" size={14} />
+                                </span>
+                                <div className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5">
+                                  <span className="truncate text-sm text-gray-500">
+                                    Lessons
+                                  </span>
+                                  <span className="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
+                                    {lessonCount}
+                                  </span>
+                                </div>
                               </div>
-                            );
-                          })}
+
+                              {/* Practice Container */}
+                              <div
+                                role="button"
+                                className={`group flex cursor-pointer items-center gap-1.5 py-1.5 pr-2 transition-colors ${
+                                  practiceSelected
+                                    ? "text-gray-900 font-semibold"
+                                    : ""
+                                }`}
+                                onClick={() =>
+                                  onSelectContent(practiceViewId(mod.id))
+                                }
+                              >
+                                <span className="shrink-0 text-gray-400">
+                                  <Icon icon="lucide:list-checks" size={14} />
+                                </span>
+                                <div className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5">
+                                  <span className="truncate text-sm text-gray-500">
+                                    Practice
+                                  </span>
+                                  <span className="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
+                                    {practiceCount}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Quiz Container */}
+                              <div
+                                role="button"
+                                className={`group flex cursor-pointer items-center gap-1.5 py-1.5 pr-2 transition-colors ${
+                                  quizSelected
+                                    ? "text-gray-900 font-semibold"
+                                    : ""
+                                }`}
+                                onClick={() =>
+                                  onSelectContent(quizViewId(mod.id))
+                                }
+                              >
+                                <span className="shrink-0 text-gray-400">
+                                  <Icon icon="lucide:help-circle" size={14} />
+                                </span>
+                                <div className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5">
+                                  <span className="truncate text-sm text-gray-500">
+                                    Quiz
+                                  </span>
+                                  <span className="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
+                                    {quizCount}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
                     </div>
                   );
                 })}
