@@ -1,6 +1,6 @@
 import {useRef, useState, useEffect} from "react";
 import {Icon} from "@mcc/ui";
-import {MakeModule, ModuleContent} from "./Step2";
+import {MakeModule, ModuleContent} from "../../types/types";
 
 type ReorderItem = {
   id: string;
@@ -10,9 +10,10 @@ type ReorderItem = {
 };
 
 const ICON_BY_KIND: Record<ReorderItem["kind"], string> = {
-  lesson: "lucide:play-circle",
+  lesson: "lucide:play",
   practice: "lucide:list-checks",
-  quiz: "lucide:help-circle",
+  exercise: "ri:question-line",
+  quiz: "lucide:clock",
 };
 
 function labelFor(item: ModuleContent): string {
@@ -21,6 +22,8 @@ function labelFor(item: ModuleContent): string {
       return item.title || "Untitled lesson";
     case "practice":
       return item.name || "Untitled practice";
+    case "exercise":
+      return item.name || "Untitled exercise";
     case "quiz":
       return item.title || "Untitled quiz";
   }

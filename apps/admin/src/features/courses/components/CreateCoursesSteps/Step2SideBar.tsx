@@ -424,7 +424,7 @@ export default function Step2Sidebar({
                                 }
                               >
                                 <span className="shrink-0 text-gray-400">
-                                  <Icon icon="lucide:dumbbell" size={14} />
+                                  <Icon icon="ri:question-line" size={14} />
                                 </span>
                                 <div className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5">
                                   <span className="truncate text-sm text-gray-500">
@@ -450,7 +450,7 @@ export default function Step2Sidebar({
                                   }
                                 >
                                   <span className="shrink-0 text-gray-400">
-                                    <Icon icon="lucide:help-circle" size={14} />
+                                    <Icon icon="lucide:clock" size={14} />
                                   </span>
                                   <div className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5">
                                     <span className="truncate text-sm text-gray-500">
