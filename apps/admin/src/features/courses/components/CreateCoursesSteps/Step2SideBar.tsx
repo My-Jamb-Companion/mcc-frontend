@@ -1,6 +1,12 @@
 import {Icon, Button} from "@mcc/ui";
 import {useState, useRef, useEffect} from "react";
-import {InlineRename, lessonsViewId, practiceViewId, uid} from "./Step2";
+import {
+  InlineRename,
+  exerciseViewId,
+  lessonsViewId,
+  practiceViewId,
+  uid,
+} from "./Step2";
 import {MakeModule, Topic} from "../../types/types";
 
 export function quizViewId(moduleId: string) {
@@ -30,14 +36,12 @@ export default function Step2Sidebar({
   onSelectContent: (id: string) => void;
   onTopicsChange: (topics: Topic[]) => void;
 }) {
-  // Which node's ⋮ menu is open — keyed as "topic:<id>" or "module:<topicId>:<modId>"
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
-  // Which topic or module is being renamed
   const [renamingId, setRenamingId] = useState<string | null>(null);
-  // Which modules are collapsed
   const [collapsedModules, setCollapsedModules] = useState<
     Record<string, boolean>
   >({});
+  const [quizModules, setQuizModules] = useState<Record<string, boolean>>({});
 
   const sidebarRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -54,7 +58,7 @@ export default function Step2Sidebar({
     return () => document.removeEventListener("mousedown", handler);
   }, [menuOpenFor]);
 
-  // ── Topic ──
+  // ── Topic Handlers ──
 
   function addTopic() {
     const t = makeTopic();
@@ -72,7 +76,7 @@ export default function Step2Sidebar({
     setMenuOpenFor(null);
   }
 
-  // ── Module ──
+  // ── Module Handlers ──
 
   function addModule(topicId: string) {
     const mod = makeModule();
@@ -154,7 +158,7 @@ export default function Step2Sidebar({
 
             return (
               <div key={topic.id} className="mb-1">
-                {/* ── Topic row ── */}
+                {/* ── Topic Row ── */}
                 <div className="group relative flex items-center gap-1 px-2 py-1.5">
                   <div className="min-w-0 flex-1">
                     {isRenamingTopic ? (
@@ -173,6 +177,7 @@ export default function Step2Sidebar({
                             </span>
                           )}
                         </span>
+
                         <button
                           type="button"
                           onClick={() => setRenamingId(topic.id)}
@@ -244,7 +249,9 @@ export default function Step2Sidebar({
                           <Icon
                             icon="lucide:chevron-down"
                             size={13}
-                            className={`transition-transform ${collapsed ? "-rotate-90" : ""}`}
+                            className={`transition-transform ${
+                              collapsed ? "-rotate-90" : ""
+                            }`}
                           />
                         </button>
 
@@ -306,6 +313,17 @@ export default function Step2Sidebar({
                         {menuOpenFor === moduleMenuKeyStr && (
                           <div className="absolute right-0 top-8 z-30 w-52 rounded-xl border border-gray-100 bg-white p-1.5 shadow-lg">
                             <MenuItem
+                              icon="lucide:plus-circle"
+                              label="Add Quiz"
+                              onClick={() => {
+                                setMenuOpenFor(null);
+                                setQuizModules((prev) => ({
+                                  ...prev,
+                                  [mod.id]: true,
+                                }));
+                              }}
+                            />
+                            <MenuItem
                               icon="lucide:pencil"
                               label="Rename module"
                               onClick={() => {
@@ -325,6 +343,9 @@ export default function Step2Sidebar({
                           const practiceCount = mod.content.filter(
                             (c) => c.type === "practice",
                           ).length;
+                          const exerciseCount = mod.content.filter(
+                            (c) => c.type === "exercise",
+                          ).length;
                           const quizCount = mod.content.filter(
                             (c) => c.type === "quiz",
                           ).length;
@@ -333,17 +354,19 @@ export default function Step2Sidebar({
                             selectedContentId === lessonsViewId(mod.id);
                           const practiceSelected =
                             selectedContentId === practiceViewId(mod.id);
+                          const exerciseSelected =
+                            selectedContentId === exerciseViewId(mod.id);
                           const quizSelected =
                             selectedContentId === quizViewId(mod.id);
 
                           return (
                             <div style={{paddingLeft: "20px"}}>
-                              {/* Lessons Container */}
+                              {/* Lessons */}
                               <div
                                 role="button"
                                 className={`group flex cursor-pointer items-center gap-1.5 py-1.5 pr-2 transition-colors ${
                                   lessonsSelected
-                                    ? "text-gray-900 font-semibold"
+                                    ? "font-semibold text-gray-900"
                                     : ""
                                 }`}
                                 onClick={() =>
@@ -363,12 +386,12 @@ export default function Step2Sidebar({
                                 </div>
                               </div>
 
-                              {/* Practice Container */}
+                              {/* Practice */}
                               <div
                                 role="button"
                                 className={`group flex cursor-pointer items-center gap-1.5 py-1.5 pr-2 transition-colors ${
                                   practiceSelected
-                                    ? "text-gray-900 font-semibold"
+                                    ? "font-semibold text-gray-900"
                                     : ""
                                 }`}
                                 onClick={() =>
@@ -388,30 +411,57 @@ export default function Step2Sidebar({
                                 </div>
                               </div>
 
-                              {/* Quiz Container */}
+                              {/* Exercises */}
                               <div
                                 role="button"
                                 className={`group flex cursor-pointer items-center gap-1.5 py-1.5 pr-2 transition-colors ${
-                                  quizSelected
-                                    ? "text-gray-900 font-semibold"
+                                  exerciseSelected
+                                    ? "font-semibold text-gray-900"
                                     : ""
                                 }`}
                                 onClick={() =>
-                                  onSelectContent(quizViewId(mod.id))
+                                  onSelectContent(exerciseViewId(mod.id))
                                 }
                               >
                                 <span className="shrink-0 text-gray-400">
-                                  <Icon icon="lucide:help-circle" size={14} />
+                                  <Icon icon="lucide:dumbbell" size={14} />
                                 </span>
                                 <div className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5">
                                   <span className="truncate text-sm text-gray-500">
-                                    Quiz
+                                    Exercise
                                   </span>
                                   <span className="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
-                                    {quizCount}
+                                    {exerciseCount}
                                   </span>
                                 </div>
                               </div>
+
+                              {/* Quiz */}
+                              {(quizModules[mod.id] || quizCount > 0) && (
+                                <div
+                                  role="button"
+                                  className={`group flex cursor-pointer items-center gap-1.5 py-1.5 pr-2 transition-colors ${
+                                    quizSelected
+                                      ? "font-semibold text-gray-900"
+                                      : ""
+                                  }`}
+                                  onClick={() =>
+                                    onSelectContent(quizViewId(mod.id))
+                                  }
+                                >
+                                  <span className="shrink-0 text-gray-400">
+                                    <Icon icon="lucide:help-circle" size={14} />
+                                  </span>
+                                  <div className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5">
+                                    <span className="truncate text-sm text-gray-500">
+                                      Quiz
+                                    </span>
+                                    <span className="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
+                                      {quizCount}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           );
                         })()}
@@ -424,7 +474,7 @@ export default function Step2Sidebar({
         </div>
       </div>
 
-      {/* Add topic footer */}
+      {/* Footer */}
       <div className="rounded-b-2xl border-t border-gray-100 bg-muted/10 p-3">
         <Button type="button" variant="ghost" width={"full"} onClick={addTopic}>
           <Icon icon="lucide:plus-circle" size={16} />

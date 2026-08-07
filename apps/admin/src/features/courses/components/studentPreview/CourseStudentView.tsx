@@ -115,6 +115,41 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
                 </motion.div>
               )}
 
+              {activeContent?.type === "exercise" && (
+                <motion.div
+                  key={`exercise-${activeContent.id}`}
+                  initial={{opacity: 0, scale: 0.98}}
+                  animate={{opacity: 1, scale: 1}}
+                  exit={{opacity: 0, scale: 0.98}}
+                  transition={{duration: 0.25}}
+                >
+                  <CoursePractice
+                    questions={
+                      activeContent.questions?.map(
+                        (q: CreatPracticeQuestionType) => {
+                          const correctTexts = q.options
+                            .filter((o: Option) => o.isCorrect)
+                            .map((o: Option) => o.text);
+                          const isMulti = q.type === "multiple";
+
+                          return {
+                            id: q.id,
+                            question: q.question,
+                            answers: q.options.map((o: Option) => o.text),
+                            correctAnswer: isMulti
+                              ? correctTexts
+                              : (correctTexts[0] ?? ""),
+                            explanation: q.explanation || "",
+                            multiSelect: isMulti,
+                          };
+                        },
+                      ) || []
+                    }
+                    onDone={handleContentEnded}
+                  />
+                </motion.div>
+              )}
+
               {activeContent?.type === "quiz" && (
                 <motion.div
                   key={`quiz-${activeContent.id}`}
