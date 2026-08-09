@@ -215,18 +215,18 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
                 <OverviewTab
                   title={course.courseName}
                   description={course.description}
-                  rating={course?.rating || 0}
-                  reviewCount={course?.reviewCount || 0}
-                  enrolledStudents={course?.enrolledStudents || 0}
-                  hours={course?.hours || 0}
+                  rating={course?.stats?.rating || 0}
+                  reviewCount={course?.stats?.reviewCount || 0}
+                  enrolledStudents={course?.stats?.enrolledStudents || 0}
+                  hours={course?.stats?.totalHours || 0}
                   lastUpdated={course?.lastUpdated || "N/A"}
                   certificate={course?.certificate || "N/A"}
-                  instructor={course?.instructor || "N/A"}
-                  instructorBio={course?.instructorBio || "N/A"}
-                  instructorAvatar={course?.instructorAvatar || ""}
-                  instructorSocial={course?.instructorSocial || []}
+                  instructor={course?.instructorName || "N/A"}
+                  instructorBio={course?.instructor?.bio || "N/A"}
+                  instructorAvatar={course?.instructor?.avatar || ""}
+                  instructorSocial={course?.instructor?.social || []}
                   availableLanguage={course?.availableLanguage || []}
-                  instructorRole={course?.instructorRole || "N/A"}
+                  instructorRole={course?.instructor?.role || "N/A"}
                 />
               )}
             </motion.div>

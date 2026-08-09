@@ -1,9 +1,15 @@
 import {Controller, FormInputs, useFormContext} from "@mcc/features";
 import {Button, Icon} from "@mcc/ui";
 import {useState} from "react";
-import {CoursesFormValues} from "../CreateCourse";
+import {CoursesFormValues} from "../../types/types";
 
-export default function CreateDetails({onNext}: {onNext: () => void}) {
+export default function CreateDetails({
+  onNext,
+  saveDraft,
+}: {
+  onNext: () => void;
+  saveDraft: () => void;
+}) {
   const {
     register,
     control,
@@ -15,7 +21,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
     const valid = await trigger([
       "courseName",
       "category",
-      "instructor",
+      "instructorName",
       "price",
       "level",
       "description",
@@ -78,7 +84,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
           />
 
           <Controller
-            name="instructor"
+            name="instructorName"
             control={control}
             rules={{required: "Please select an instructor"}}
             render={({field}) => (
@@ -91,7 +97,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
                 options={INSTRUCTOR_OPTIONS}
                 value={field.value}
                 onChange={field.onChange}
-                errors={errors.instructor}
+                errors={errors.instructorName}
                 icon={
                   <Icon
                     icon="lucide:graduation-cap"
@@ -231,7 +237,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
           Cancel
         </button>
         <div className="flex items-center gap-3">
-          <Button type="button" variant={"outline"}>
+          <Button type="button" variant={"outline"} onClick={saveDraft}>
             Save as draft
           </Button>
           <Button

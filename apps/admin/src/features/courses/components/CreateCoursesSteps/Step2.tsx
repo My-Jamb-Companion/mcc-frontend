@@ -660,10 +660,12 @@ export default function ContentStep({
   onNext,
   onBack,
   courseName,
+  onSaveDraft,
 }: {
   onNext?: () => void;
   onBack?: () => void;
   courseName: string;
+  onSaveDraft?: () => void;
 }) {
   const {watch, setValue, getValues} = useFormContext<ContentFormValues>();
   const topics = watch("content.topics") ?? [];
@@ -925,7 +927,7 @@ export default function ContentStep({
             </Button>
           </div>
           <div className="flex items-center gap-3">
-            <Button type="button" variant="outline">
+            <Button type="button" variant="outline" onClick={onSaveDraft}>
               Save as draft
             </Button>
             <Button

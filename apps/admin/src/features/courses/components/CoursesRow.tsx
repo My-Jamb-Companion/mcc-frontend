@@ -1,24 +1,9 @@
 import {Button} from "@/src/components/Buttons";
 import {AnimatePresence, Icon, motion} from "@mcc/ui";
 import {useEffect, useRef, useState} from "react";
+import type {AdditionalCourseTypes, CoursesFormValues} from "../types/types";
 
-export interface CourseListRowData {
-  id: string;
-  courseName: string;
-  logoUrl?: string;
-  teacherName: string;
-  rating: string;
-  reviewCount: string;
-  title: string;
-  tags: string[];
-  extraTagsCount?: number;
-  status: "live" | "draft";
-  price: number;
-  originalPrice?: number;
-  modulePrice?: number;
-  currency: string;
-  link: string;
-}
+export type CourseListRowData = CoursesFormValues & AdditionalCourseTypes;
 
 interface CourseOptionsMenuProps {
   onOpenCourse?: () => void;
@@ -46,11 +31,11 @@ interface CourseListRowProps {
   menuHandlers?: CourseOptionsMenuProps;
 }
 
-const STATUS_STYLES: Record<
+export const STATUS_STYLES: Record<
   CourseListRowData["status"],
   {dot: string; text: string; label: string; bg: string}
 > = {
-  live: {
+  published: {
     dot: "bg-emerald-500",
     text: "text-emerald-600",
     label: "Live",
@@ -75,11 +60,11 @@ export function CourseListRow({
 
   return (
     <div className="flex items-center gap-4 border-b border-zinc-50">
-      {course.logoUrl ? (
+      {course.upload.coverImage?.previewUrl ? (
         <div className="w-[108px] h-[108px] relative rounded-2xl overflow-hidden">
           <img
-            src={course.logoUrl}
-            alt={course.title}
+            src={course.upload.coverImage?.previewUrl}
+            alt={course.courseName}
             className="h-full w-full shrink-0 rounded-xl object-cover"
           />
         </div>
@@ -92,14 +77,14 @@ export function CourseListRow({
       <div className="min-w-0 flex-1 h-full flex flex-col justify-center">
         <div className="flex items-center gap-1.5 text-xs text-zinc-500">
           <Icon icon="ph:user-circle" className="h-3.5 w-3.5" />
-          <span>{course.teacherName}</span>
+          <span>{course.instructorName}</span>
           <Icon icon="ph:star-fill" className="h-3 w-3" />
           <span>
-            {course.rating} ({course.reviewCount})
+            {course?.stats?.rating} ({course?.stats?.reviewCount})
           </span>
         </div>
         <p className="truncate text-sm font-semibold text-subtle pt-2 pb-3">
-          {course.title}
+          {course.courseName}
         </p>
         <div className="flex items-center gap-1.5">
           {visibleTags.map((tag) => (
@@ -110,9 +95,9 @@ export function CourseListRow({
               {tag}
             </span>
           ))}
-          {course.extraTagsCount ? (
+          {course.tags.length > 2 ? (
             <span className="text-xs text-zinc-400">
-              +{course.extraTagsCount}
+              +{course.tags.length - 2}
             </span>
           ) : null}
         </div>
@@ -128,12 +113,12 @@ export function CourseListRow({
       <div className="shrink-0 text-right px-10">
         <div className="flex items-center justify-end gap-2">
           <span className="text-sm font-semibold text-zinc-900">
-            <sup className="text-muted">{course.currency}</sup>
+            <sup className="text-muted">{course.currency || "$"}</sup>
             {course.price}
           </span>
           {course.originalPrice && (
             <span className="text-xs text-muted line-through">
-              <sup className="text-muted">{course.currency}</sup>
+              <sup className="text-muted">{course.currency || "$"}</sup>
               {course.originalPrice}
             </span>
           )}

@@ -10,8 +10,11 @@ import {useRouter} from "next/navigation";
 import {dummyCourses} from "../constants/dummyData";
 import {CourseListRowData} from "./CoursesRow";
 import {CourseList} from "./CourseLists";
+import {useCourseData} from "../hooks/useCourse";
+import {AdditionalCourseTypes, CoursesFormValues} from "../types/types";
 
 export default function Courses() {
+  const {courses, deleteCourse} = useCourseData();
   const [active, setActive] = useState("published");
   const [teachers, setTeachers] = useState<TeacherOption[]>([]);
   const [search, setSearch] = useState("");
@@ -20,26 +23,29 @@ export default function Courses() {
   const [shareTarget, setShareTarget] = useState<CourseListRowData | null>(
     null,
   );
+  console.log(courses);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const filteredCourses = useMemo(() => {
+  const filteredCourses:
+    | (CoursesFormValues & Partial<AdditionalCourseTypes>)[]
+    | null = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    return dummyCourses.filter((item) => {
+    return courses.filter((item) => {
       const matchesStatus =
         active === "published"
-          ? item.status === "live"
+          ? item.status === "published"
           : item.status === "draft";
 
       const matchesSearch =
         query === "" ||
-        item.title.toLowerCase().includes(query) ||
-        item.teacherName.toLowerCase().includes(query);
+        item.courseName.toLowerCase().includes(query) ||
+        item.instructorName.toLowerCase().includes(query);
 
       const matchesTeacher =
         teachers.length === 0 ||
-        teachers.some((t) => t.name === item.teacherName);
+        teachers.some((t) => t.name === item.instructorName);
 
       return matchesStatus && matchesSearch && matchesTeacher;
     });
@@ -48,10 +54,10 @@ export default function Courses() {
   const allTeachers = useMemo<TeacherOption[]>(() => {
     const seen = new Set<string>();
 
-    return dummyCourses.reduce<TeacherOption[]>((acc, item) => {
-      if (!seen.has(item.teacherName)) {
-        seen.add(item.teacherName);
-        acc.push({id: item.teacherName, name: item.teacherName});
+    return courses.reduce<TeacherOption[]>((acc, item) => {
+      if (!seen.has(item.instructorName)) {
+        seen.add(item.instructorName);
+        acc.push({id: item.instructorName, name: item.instructorName});
       }
       return acc;
     }, []);
@@ -108,10 +114,7 @@ export default function Courses() {
           <CourseList
             course={filteredCourses || []}
             onOpen={(course) => {
-              console.log(course);
-              router.push(
-                `/dashboard/courses/${course.courseName}?id=${course.id}`,
-              );
+              router.push(`/dashboard/courses/${course.id}`);
             }}
             onShareLink={(id) => {
               const target = filteredCourses?.find((p) => p.id === id);
@@ -120,6 +123,11 @@ export default function Courses() {
             onEditCourse={(id) => {
               const target = filteredCourses?.find((p) => p.id === id);
               if (target) setEditExam(target);
+            }}
+            // onPublishCourse={}
+            onDeleteCourse={(id) => {
+              console.log(id);
+              deleteCourse(id);
             }}
           />
         </div>
