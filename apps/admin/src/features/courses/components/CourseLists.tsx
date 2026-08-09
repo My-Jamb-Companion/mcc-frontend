@@ -1,8 +1,9 @@
 import {CourseListRow, CourseListRowData} from "./CoursesRow";
 import {NoCourses} from "./EmptyCourses";
+import {AdditionalCourseTypes} from "../types/types";
 
 interface CourseListProps {
-  course: CourseListRowData[];
+  course: (CourseListRowData & Partial<AdditionalCourseTypes>)[];
   onShareLink?: (id: string) => void;
   onOpen?: (course: CourseListRowData) => void;
   onEditCourse?: (id: string) => void;

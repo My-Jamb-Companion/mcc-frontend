@@ -3,7 +3,7 @@
 import {useState} from "react";
 import {Button, confettiCelebrate, Icon} from "@mcc/ui";
 import {useForm, FormProvider} from "@mcc/features";
-import ContentStep, {hasCompleteContent} from "./CreateCoursesSteps/Step2";
+import ContentStep, {hasCompleteContent, uid} from "./CreateCoursesSteps/Step2";
 import CreateDetails from "./CreateCoursesSteps/Step1";
 import PromotionalCoverUpload, {
   hasCompleteUpload,
@@ -11,6 +11,7 @@ import PromotionalCoverUpload, {
 import CourseStudentView from "./studentPreview/CourseStudentView";
 import {calculateTotalHours} from "../helper/helper";
 import {AdditionalCourseTypes, CoursesFormValues, LEVELS} from "../types/types";
+import {useCourseData} from "../hooks/useCourse";
 export {LEVELS};
 
 type Step = "details" | "content" | "upload";
@@ -23,8 +24,14 @@ const STEPS: {id: Step; label: string}[] = [
 
 // STEP 1
 
-function Step1({onNext}: {onNext: () => void}) {
-  return <CreateDetails onNext={onNext} />;
+function Step1({
+  onNext,
+  saveDraft,
+}: {
+  onNext: () => void;
+  saveDraft: () => void;
+}) {
+  return <CreateDetails onNext={onNext} saveDraft={saveDraft} />;
 }
 
 // STEP 2
@@ -33,14 +40,21 @@ function Step2({
   onNext,
   onBack,
   courseName,
+  saveDraft,
 }: {
   onNext: () => void;
   onBack: () => void;
   courseName: string;
+  saveDraft: () => void;
 }) {
   return (
     <div className="mt-5 h-full rounded-xl border border-muted/20 p-6">
-      <ContentStep onNext={onNext} onBack={onBack} courseName={courseName} />
+      <ContentStep
+        onNext={onNext}
+        onBack={onBack}
+        courseName={courseName}
+        onSaveDraft={saveDraft}
+      />
     </div>
   );
 }
@@ -51,10 +65,12 @@ function Step3({
   onBack,
   courseName,
   isPublished,
+  saveDraft,
 }: {
   onBack: () => void;
   courseName: string;
   isPublished: boolean;
+  saveDraft: () => void;
 }) {
   return (
     <div className="flex flex-col h-full mt-5 rounded-xl border border-muted/20 p-6">
@@ -63,13 +79,17 @@ function Step3({
         isPublished={isPublished}
       />
 
-      {!isPublished && (
-        <div className="mt-8 flex items-center justify-between border-t border-gray-100 pt-5">
+      <div className="flex items-center justify-between border-t border-gray-100 pt-5">
+        {!isPublished && (
           <Button type="button" onClick={onBack} variant={"ghost"}>
             Back
           </Button>
-        </div>
-      )}
+        )}
+
+        <Button type="button" variant={"outline"} onClick={saveDraft}>
+          Save as draft
+        </Button>
+      </div>
     </div>
   );
 }
@@ -77,78 +97,186 @@ function Step3({
 // ROOT FORM SHELL
 
 export default function CreateCourseForm() {
-  const [activeStep, setActiveStep] = useState<Step>("content");
+  const [activeStep, setActiveStep] = useState("details");
+
+  const [isPublished, setIsPublished] = useState(false);
+
+  const [previewView, setPreviewView] = useState(false);
+
+  // ─────────────────────────────────────────────
+  // COURSE STORE
+  // ─────────────────────────────────────────────
+
+  const {saveDraft, publish} = useCourseData();
+
+  // ─────────────────────────────────────────────
+  // FORM
+  // ─────────────────────────────────────────────
 
   const methods = useForm<CoursesFormValues>({
     mode: "onChange",
+
     defaultValues: {
+      id: uid(),
+      status: "draft",
+
       courseName: "",
       category: "",
-      instructor: "",
+      instructorName: "",
       price: "",
       level: "all",
       description: "",
+
       learnItems: [],
       tags: [],
-      content: {topics: []},
-      upload: {coverImage: null, promoVideo: null},
+
+      content: {
+        topics: [],
+      },
+
+      upload: {
+        coverImage: null,
+        promoVideo: null,
+      },
     },
   });
 
-  const activeIndex = STEPS.findIndex((s) => s.id === activeStep);
+  // ─────────────────────────────────────────────
+  // FORM DATA
+  // ─────────────────────────────────────────────
+
+  const activeIndex = STEPS.findIndex((step) => step.id === activeStep);
 
   const topics = methods.watch("content.topics") ?? [];
+
   const upload = methods.watch("upload") ?? {
     coverImage: null,
     promoVideo: null,
   };
+
   const isDetailsComplete = methods.formState.isValid;
+
   const isContentComplete = hasCompleteContent(topics);
+
   const isUploadComplete = hasCompleteUpload(upload);
+
   const canPublish = isDetailsComplete && isContentComplete && isUploadComplete;
-  const [isPublished, setIsPublished] = useState(false);
-  const [previewView, setPreviewView] = useState(false);
+
+  // ─────────────────────────────────────────────
+  // BUILD COMPLETE COURSE
+  // ─────────────────────────────────────────────
+
+  function buildCoursePayload(
+    status: "draft" | "published",
+  ): CoursesFormValues {
+    // Get EVERYTHING currently in React Hook Form
+    const rawFormValues = methods.getValues();
+
+    const moduleCount = rawFormValues.content.topics.reduce(
+      (total, topic) => total + topic.modules.length,
+      0,
+    );
+
+    const basePrice = Number(rawFormValues.price || 0);
+    const modulePrice =
+      moduleCount > 0 ? Math.round(basePrice / moduleCount) : 0;
+
+    // Additional metadata
+    const additionalData: AdditionalCourseTypes = {
+      stats: {
+        rating: 0,
+        reviewCount: 0,
+        enrolledStudents: 0,
+        totalHours: calculateTotalHours(rawFormValues.content.topics),
+        practiceTests: 0,
+        additionalResources: 0,
+        downloadableResources: 0,
+      },
+      features: {
+        assignments: false,
+        mobileAndTVAccess: false,
+        fullLifetimeAccess: false,
+        certificateOnCompletion: false,
+      },
+
+      currency: "$",
+
+      modulePrice,
+
+      lastUpdated: new Date().toISOString(),
+
+      availableLanguage: ["English"],
+
+      certificate: "Certificate of Completion",
+    };
+
+    return {
+      ...rawFormValues,
+
+      ...additionalData,
+
+      // This is deliberately set LAST
+      // so the button determines the status.
+      status,
+    };
+  }
+
+  // ─────────────────────────────────────────────
+  // SAVE AS DRAFT
+  // ─────────────────────────────────────────────
+
+  function handleSaveDraft() {
+    const finalPayload = buildCoursePayload("draft");
+
+    const savedCourse = saveDraft(finalPayload);
+
+    // Keep React Hook Form in sync too.
+    methods.reset(savedCourse);
+
+    setIsPublished(false);
+
+    console.log("Draft saved:", savedCourse);
+  }
+
+  // ─────────────────────────────────────────────
+  // PUBLISH
+  // ─────────────────────────────────────────────
 
   function handlePublish() {
     if (!canPublish) return;
 
-    // Gather current form state
-    const rawFormValues = methods.getValues();
+    const finalPayload = buildCoursePayload("published");
 
-    // Compute or inject additional course metadata
-    const additionalData: AdditionalCourseTypes = {
-      rating: 0,
-      enrolledStudents: 0,
-      reviewCount: 0,
-      hours: calculateTotalHours(rawFormValues.content.topics), // Example calculation helper
-      lastUpdated: new Date().toISOString(),
-      availableLanguage: ["English"],
-      certificate: "Certificate of Completion",
-      // Instructor metadata fetched from auth user / profile context
-      instructorBio: "Senior Web Developer and Instructor",
-      instructorRole: "Lead Author",
-    };
+    const publishedCourse = publish(finalPayload);
 
-    const finalPayload: CoursesFormValues = {
-      ...rawFormValues,
-      ...additionalData,
-    };
+    // Keep React Hook Form in sync.
+    methods.reset(publishedCourse);
 
     confettiCelebrate(undefined, 1000, 300);
+
     setIsPublished(true);
 
-    // Send `finalPayload` to your backend API or server action here
-    console.log("Publish Payload:", finalPayload);
+    console.log("Published course:", publishedCourse);
   }
+
+  // ─────────────────────────────────────────────
+  // NAVIGATION
+  // ─────────────────────────────────────────────
 
   function goNext() {
     const next = STEPS[activeIndex + 1];
-    if (next) setActiveStep(next.id);
+
+    if (next) {
+      setActiveStep(next.id);
+    }
   }
 
   function goBack() {
     const prev = STEPS[activeIndex - 1];
-    if (prev) setActiveStep(prev.id);
+
+    if (prev) {
+      setActiveStep(prev.id);
+    }
   }
 
   return (
@@ -247,12 +375,15 @@ export default function CreateCourseForm() {
 
             <>
               {/* Steps */}
-              {activeStep === "details" && <Step1 onNext={goNext} />}
+              {activeStep === "details" && (
+                <Step1 onNext={goNext} saveDraft={handleSaveDraft} />
+              )}
               {activeStep === "content" && (
                 <Step2
                   onNext={goNext}
                   onBack={goBack}
                   courseName={methods.watch("courseName")}
+                  saveDraft={handleSaveDraft}
                 />
               )}
               {activeStep === "upload" && (
@@ -260,6 +391,7 @@ export default function CreateCourseForm() {
                   courseName={methods.watch("courseName")}
                   onBack={goBack}
                   isPublished={isPublished}
+                  saveDraft={handleSaveDraft}
                 />
               )}
             </>

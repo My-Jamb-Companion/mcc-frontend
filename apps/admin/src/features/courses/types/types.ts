@@ -10,9 +10,11 @@ export const LEVELS = [
 export type CourseLevel = (typeof LEVELS)[number]["id"];
 
 export type Step1Values = {
+  id: string;
+  status: string;
   courseName: string;
   category: string;
-  instructor: string;
+  instructorName: string;
   price: string;
   level: CourseLevel;
   description: string;
@@ -31,14 +33,34 @@ export type CoursesFormValues = Step1Values & {
 };
 
 export type AdditionalCourseTypes = {
-  rating?: number;
-  enrolledStudents?: number;
-  reviewCount?: number;
-  hours?: number;
-  instructorBio?: string;
-  instructorAvatar?: string;
-  instructorRole?: string;
-  instructorSocial?: {name: string; link: string}[];
+  stats?: {
+    students?: number;
+    practiceTests?: number;
+    additionalResources?: number;
+    downloadableResources?: number;
+    rating?: number;
+    enrolledStudents?: number;
+    reviewCount?: number;
+    totalHours?: number;
+  };
+  features?: {
+    assignments?: boolean;
+    mobileAndTVAccess?: boolean;
+    fullLifetimeAccess?: boolean;
+    certificateOnCompletion?: boolean;
+  };
+
+  currency?: string;
+  originalPrice?: number;
+  modulePrice?: number;
+  instructor?: {
+    id: string;
+    name: string;
+    bio: string;
+    avatar: string;
+    role: string;
+    social: {name: string; link: string}[];
+  };
   availableLanguage?: string[];
   certificate?: string;
   lastUpdated?: string;
