@@ -6,6 +6,7 @@ import type {AdditionalCourseTypes, CoursesFormValues} from "../types/types";
 export type CourseListRowData = CoursesFormValues & AdditionalCourseTypes;
 
 interface CourseOptionsMenuProps {
+  status?: CourseListRowData["status"];
   onOpenCourse?: () => void;
   onEditCourse?: () => void;
   onPublishCourse?: () => void;
@@ -164,19 +165,20 @@ export function CourseListRow({
         Open
       </Button>
 
-      <CoursesOptionsMenu {...menuHandlers} />
+      <CoursesOptionsMenu status={course.status} {...menuHandlers} />
     </div>
   );
 }
 
 function CoursesOptionsMenu({
+  status,
   onOpenCourse,
   onEditCourse,
   onPublishCourse,
   onMessageTeacher,
-  onViewParentCourse,
+  // onViewParentCourse,
   onDeleteCourse,
-  hideViewParentCourse = false,
+  // hideViewParentCourse = false,
 }: CourseOptionsMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -206,8 +208,9 @@ function CoursesOptionsMenu({
     },
     {
       key: "publish",
-      icon: "ph:cloud",
-      label: "Publish course",
+      icon:
+        status === "draft" ? "ph:cloud" : "material-symbols:cloud-off-outline",
+      label: status === "draft" ? "Publish course" : "Unpublish course",
       onClick: onPublishCourse,
     },
     {
@@ -216,16 +219,16 @@ function CoursesOptionsMenu({
       label: "Message teacher",
       onClick: onMessageTeacher,
     },
-    ...(hideViewParentCourse
-      ? []
-      : [
-          {
-            key: "parent",
-            icon: "ri:guide-line",
-            label: "View parent course",
-            onClick: onViewParentCourse,
-          } as MenuItemConfig,
-        ]),
+    // ...(hideViewParentCourse
+    //   ? []
+    //   : [
+    //       {
+    //         key: "parent",
+    //         icon: "ri:guide-line",
+    //         label: "View parent course",
+    //         onClick: onViewParentCourse,
+    //       } as MenuItemConfig,
+    //     ]),
     {
       key: "delete",
       icon: "ph:trash",

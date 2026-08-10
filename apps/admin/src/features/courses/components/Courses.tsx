@@ -14,7 +14,7 @@ import {useCourseData} from "../hooks/useCourse";
 import {AdditionalCourseTypes, CoursesFormValues} from "../types/types";
 
 export default function Courses() {
-  const {courses, deleteCourse} = useCourseData();
+  const {courses, publish, saveDraft, deleteCourse} = useCourseData();
   const [active, setActive] = useState("published");
   const [teachers, setTeachers] = useState<TeacherOption[]>([]);
   const [search, setSearch] = useState("");
@@ -23,7 +23,7 @@ export default function Courses() {
   const [shareTarget, setShareTarget] = useState<CourseListRowData | null>(
     null,
   );
-  console.log(courses);
+
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -114,19 +114,29 @@ export default function Courses() {
           <CourseList
             course={filteredCourses || []}
             onOpen={(course) => {
-              router.push(`/dashboard/courses/${course.id}`);
+              router.push(`/dashboard/courses?id=${course.id}`);
             }}
             onShareLink={(id) => {
-              const target = filteredCourses?.find((p) => p.id === id);
+              const target = courses?.find((p) => p.id === id);
               if (target) setShareTarget(target);
             }}
             onEditCourse={(id) => {
-              const target = filteredCourses?.find((p) => p.id === id);
-              if (target) setEditExam(target);
+              const course = courses.find((i) => i.id === id);
+              if (course)
+                router.push(`/dashboard/courses/edit-course?id=${id}`);
             }}
-            // onPublishCourse={}
-            onDeleteCourse={(id) => {
+            onPublishCourse={(id) => {
+              const course = courses.find((i) => i.id === id);
+              if (course && course.status === "draft") {
+                publish(course);
+              } else if (course && course.status === "published") {
+                saveDraft(course);
+              }
+            }}
+            onMessageTeacher={(id) => {
               console.log(id);
+            }}
+            onDeleteCourse={(id) => {
               deleteCourse(id);
             }}
           />
@@ -146,12 +156,13 @@ export default function Courses() {
       </div>
 
       <ShareSessionLink
-        key={shareTarget?.link}
+        key={shareTarget?.id}
         open={shareTarget !== null}
-        link={shareTarget?.link}
+        // link={`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/courses/${shareTarget?.id}`}
+        link={`/dashboard/courses/${shareTarget?.id}`}
         onCancel={() => setShareTarget(null)}
         onSendLink={({recipient, link}) => {
-          // call your actual "send link to recipient" API here
+          console.log(recipient, link);
           setShareTarget(null);
         }}
       />

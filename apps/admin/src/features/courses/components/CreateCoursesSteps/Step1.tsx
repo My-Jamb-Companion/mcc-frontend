@@ -2,6 +2,7 @@ import {Controller, FormInputs, useFormContext} from "@mcc/features";
 import {Button, Icon} from "@mcc/ui";
 import {useState} from "react";
 import {CoursesFormValues} from "../../types/types";
+import {useRouter} from "next/navigation";
 
 export default function CreateDetails({
   onNext,
@@ -30,6 +31,7 @@ export default function CreateDetails({
     ]);
     if (valid) onNext();
   }
+  const router = useRouter();
 
   return (
     <div className="mt-5 rounded-xl border border-muted/20 p-6">
@@ -233,6 +235,7 @@ export default function CreateDetails({
         <button
           type="button"
           className="text-sm font-medium text-gray-600 hover:text-gray-900"
+          onClick={() => router.push(`/dashboard/courses`)}
         >
           Cancel
         </button>
