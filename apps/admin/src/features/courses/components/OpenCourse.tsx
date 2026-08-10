@@ -2,7 +2,7 @@
 import {useRouter} from "next/navigation";
 import {Button, Icon} from "@mcc/ui";
 import {FormInputs} from "@mcc/features";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import StatsSummaryRow from "@/src/components/StatsSummary";
 import CourseSideDetail from "./CourseSideDetails";
 import CourseInfo from "./CourseInfo";
@@ -60,59 +60,19 @@ export default function OpenCourse({id}: {id: string}) {
 
         <hr className="border-muted/20 my-10" />
 
-        <div className="flex items-center gap-3 ml-auto">
-          <span
-            className={`flex shrink-0 items-center gap-1.5 text-sm font-medium border rounded-md px-2 bg-${status.bg} ${status.text}`}
-          >
-            <span className={`h-2 w-2 rounded-full ${status.dot}`} />
-            {status.label}
-          </span>
-
-          <Button
-            variant="outline"
-            leftIcon={<Icon icon="ri:edit-circle-line" size={18} />}
-            onClick={() =>
-              router.push(`/dashboard/courses/edit-course?id=${id}`)
-            }
-          >
-            Edit Course
-          </Button>
-          <Button
-            leftIcon={
-              <Icon
-                icon={
-                  item?.status === "published"
-                    ? "material-symbols:cloud-off-outline"
-                    : "material-symbols:cloud-outline"
-                }
-                size={18}
-              />
-            }
-            variant="outline"
-            className="text-nowrap"
-            onClick={() => {
-              if (item && item.status === "published") saveDraft(item);
-
-              if (item && item.status === "draft") publish(item);
-            }}
-          >
-            {item?.status === "published"
-              ? "Unpublish course"
-              : "Publish course"}
-          </Button>
-        </div>
-
         <div className="grid grid-cols-[1.5fr_1fr] gap-5 justify-between ">
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-6 ">
             <Hero
               rating={item?.stats?.rating || 0}
               totalRatings={item?.stats?.reviewCount || 0}
-              mainImage={item?.upload?.coverImage?.previewUrl || ""}
-              instructorImage={item?.instructor?.avatar || ""}
+              // mainImage={item?.upload?.coverImage?.previewUrl || ""}
+              promoVideoSrc={item?.upload?.promoVideo?.previewUrl || ""}
+              poster={item?.upload?.coverImage?.previewUrl || ""}
+              instructorAvatar={item?.instructor?.avatar || ""}
               onPlay={() => {}}
             />
 
-            <div>
+            <div className="mt-8">
               <CourseInfo
                 instructor={item?.instructorName}
                 title={item?.courseName}
@@ -121,7 +81,48 @@ export default function OpenCourse({id}: {id: string}) {
               />
             </div>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-5">
+            <div className="flex items-center gap-3 ml-auto">
+              <span
+                className={`flex shrink-0 items-center gap-1.5 text-sm font-medium border rounded-md px-2 bg-${status.bg} ${status.text}`}
+              >
+                <span className={`h-2 w-2 rounded-full ${status.dot}`} />
+                {status.label}
+              </span>
+
+              <Button
+                variant="outline"
+                leftIcon={<Icon icon="ri:edit-circle-line" size={18} />}
+                onClick={() =>
+                  router.push(`/dashboard/courses/edit-course?id=${id}`)
+                }
+              >
+                Edit Course
+              </Button>
+              <Button
+                leftIcon={
+                  <Icon
+                    icon={
+                      item?.status === "published"
+                        ? "material-symbols:cloud-off-outline"
+                        : "material-symbols:cloud-outline"
+                    }
+                    size={18}
+                  />
+                }
+                variant="outline"
+                className="text-nowrap"
+                onClick={() => {
+                  if (item && item.status === "published") saveDraft(item);
+
+                  if (item && item.status === "draft") publish(item);
+                }}
+              >
+                {item?.status === "published"
+                  ? "Unpublish course"
+                  : "Publish course"}
+              </Button>
+            </div>
             <CourseSideDetail
               price={Number(item?.price) || 0}
               currency={item?.currency || ""}
@@ -141,71 +142,107 @@ export default function OpenCourse({id}: {id: string}) {
   );
 }
 
-function Hero({mainImage, rating, totalRatings, onPlay}: HeroProps) {
+function Hero({
+  promoVideoSrc,
+  poster,
+  rating,
+  totalRatings,
+  instructorAvatar,
+  onPlay,
+}: HeroProps) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const fullStars = Math.floor(rating);
   const hasHalf = rating % 1 >= 0.5;
 
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+
+    if (isPlaying) {
+      videoRef.current.pause();
+    } else {
+      videoRef.current.play().catch((err) => {
+        console.warn("Video playback error:", err);
+      });
+    }
+
+    if (onPlay) onPlay();
+  };
+
   return (
     <div className="relative w-full rounded-2xl overflow-visible">
-      {/* Main Image */}
       <div className="w-full aspect-video rounded-2xl overflow-hidden bg-amber-800">
-        <img
-          src={mainImage}
-          alt="Course preview"
+        <video
+          ref={videoRef}
+          src={promoVideoSrc}
+          poster={poster}
+          controls={isPlaying}
           className="w-full h-full object-cover"
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onEnded={() => setIsPlaying(false)}
         />
       </div>
 
-      {/* Play Button — top right */}
       <button
-        onClick={onPlay}
-        className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:scale-105 transition-transform duration-200"
+        type="button"
+        onClick={togglePlay}
+        className="absolute top-3 right-3 z-10 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:scale-105 transition-transform duration-200 cursor-pointer"
+        aria-label={isPlaying ? "Pause video" : "Play video"}
       >
-        <Icon icon="solar:play-bold" size={16} color="#000" />
+        <Icon
+          icon={isPlaying ? "solar:pause-bold" : "solar:play-bold"}
+          size={16}
+          color="#000"
+        />
       </button>
 
-      {/* Rating — bottom right, inside image */}
-      <div className="absolute bottom-4 right-4 flex flex-col items-end gap-0.5">
-        <div className="flex items-center gap-1">
-          <span className="text-sm font-bold text-white drop-shadow">
-            {rating}
-          </span>
-          <div className="flex items-center gap-0.5">
-            {Array.from({length: 5}).map((_, i) => (
-              <Icon
-                key={i}
-                icon={
-                  i < fullStars
-                    ? "solar:star-bold"
-                    : hasHalf && i === fullStars
-                      ? "solar:star-half-bold"
-                      : "solar:star-outline"
-                }
-                size={13}
-                color="#f59e0b"
-              />
-            ))}
+      {!isPlaying && (
+        <div className="absolute bottom-4 right-4 flex flex-col items-end gap-0.5 pointer-events-none">
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-bold text-white drop-shadow">
+              {rating}
+            </span>
+            <div className="flex items-center gap-0.5">
+              {Array.from({length: 5}).map((_, i) => (
+                <Icon
+                  key={i}
+                  icon={
+                    i < fullStars
+                      ? "solar:star-bold"
+                      : hasHalf && i === fullStars
+                        ? "solar:star-half-bold"
+                        : "solar:star-outline"
+                  }
+                  size={13}
+                  color="#f59e0b"
+                />
+              ))}
+            </div>
           </div>
+          <span className="text-xs text-white/80 drop-shadow">
+            {totalRatings} ratings
+          </span>
         </div>
-        <span className="text-xs text-white/80 drop-shadow">
-          {totalRatings} ratings
-        </span>
-      </div>
+      )}
 
-      {/* Instructor Thumbnail — bottom left, overflows outside image */}
-      {/* <div className="absolute -bottom-6 left-4 w-20 h-20 rounded-2xl overflow-hidden border-[3px] border-white shadow-md">
-        <img
-          src={instructorImage}
-          alt="Instructor"
-          className="w-full h-full object-cover"
-        />
-      </div> */}
+      {!isPlaying && (
+        <div className="bg-white absolute -bottom-6 left-4 z-10 w-20 h-20 rounded-2xl overflow-hidden border-[3px] border-white shadow-md">
+          <img
+            src={instructorAvatar}
+            alt="Instructor"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
     </div>
   );
 }
 type HeroProps = {
-  mainImage: string;
-  instructorImage: string;
+  promoVideoSrc: string;
+  poster: string;
+  instructorAvatar: string;
   rating: number;
   totalRatings: number;
   onPlay?: () => void;
