@@ -9,6 +9,7 @@ import CourseInfo from "./CourseInfo";
 import {useCourseData} from "../hooks/useCourse";
 import {AdditionalCourseTypes, CoursesFormValues} from "../types/types";
 import {STATUS_STYLES} from "./CoursesRow";
+import Image from "next/image";
 
 export default function OpenCourse({id}: {id: string}) {
   const router = useRouter();
@@ -228,12 +229,15 @@ function Hero({
       )}
 
       {!isPlaying && (
-        <div className="bg-white absolute -bottom-6 left-4 z-10 w-20 h-20 rounded-2xl overflow-hidden border-[3px] border-white shadow-md">
-          <img
-            src={instructorAvatar}
-            alt="Instructor"
-            className="w-full h-full object-cover"
-          />
+        <div className="bg-white absolute -bottom-6 left-4 z-10 w-25 h-25 rounded-2xl overflow-hidden border-[3px] border-white shadow-md">
+          <div className="relative w-full h-full">
+            <Image
+              src={instructorAvatar}
+              alt="Instructor"
+              className="w-full h-full object-cover"
+              fill
+            />
+          </div>
         </div>
       )}
     </div>
