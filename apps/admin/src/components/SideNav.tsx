@@ -168,14 +168,14 @@ export default function SideNav() {
                             <button
                               type="button"
                               onClick={() => toggle(item.key)}
-                              className="flex-1 text-left text-sm font-medium text-gray-800 py-2"
+                              className="flex-1 text-left text-sm font-medium text-gray-800 py-2 text-nowrap"
                             >
                               {item.label}
                             </button>
                           ) : (
                             <Link
                               href={item.href!}
-                              className={`flex-1 rounded-md px-2 py-2 text-sm font-medium transition-colors ${
+                              className={`flex-1 rounded-md px-2 py-2 text-sm font-medium transition-colors text-nowrap ${
                                 isItemActive
                                   ? "bg-black text-white"
                                   : "text-gray-800 hover:bg-gray-100"
@@ -227,7 +227,7 @@ export default function SideNav() {
                                   >
                                     <Link
                                       href={child.href}
-                                      className={`block w-full rounded-md px-4 py-2.5 text-sm font-medium transition-colors ${
+                                      className={`block w-full rounded-md px-4 py-2.5 text-sm font-medium transition-colors text-nowrap ${
                                         isChildActive
                                           ? "bg-black text-white"
                                           : "text-gray-700 hover:bg-gray-100"
@@ -303,7 +303,23 @@ const navs = {
         {label: "Courses", key: "courses", href: "/dashboard/courses"},
       ],
     },
-    {label: "Students", key: "students", expandable: true, children: []},
+    {
+      label: "Students",
+      key: "students",
+      expandable: true,
+      children: [
+        {
+          label: "Active Students",
+          key: "active-students",
+          href: "/dashboard/students/active-students",
+        },
+        {
+          label: "Prospective Students",
+          key: "prospective-students",
+          href: "/dashboard/students/prospective-students",
+        },
+      ],
+    },
     {label: "More", key: "more", expandable: true, children: []},
   ],
 };
