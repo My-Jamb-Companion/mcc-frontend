@@ -135,14 +135,6 @@ export default function Step2Sidebar({
           <span className="text-sm font-medium text-gray-500">
             Create your program
           </span>
-          <span className="flex items-center gap-1 text-gray-400">
-            <button type="button" className="rounded p-1 hover:bg-gray-100">
-              <Icon icon="lucide:undo-2" size={16} />
-            </button>
-            <button type="button" className="rounded p-1 hover:bg-gray-100">
-              <Icon icon="lucide:redo-2" size={16} />
-            </button>
-          </span>
         </div>
 
         <div className="flex-1 overflow-y-auto px-2 pb-2">
