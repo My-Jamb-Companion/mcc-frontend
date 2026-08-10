@@ -2,6 +2,7 @@ import {useCallback, useEffect, useRef, useState} from "react";
 import {Button, Icon} from "@mcc/ui";
 import {useFormContext} from "@mcc/features";
 import {CoursesFormValues, UploadedFile} from "../../types/types";
+import {useRouter} from "next/navigation";
 
 export function hasCompleteUpload(upload: {
   coverImage: UploadedFile | null;
@@ -13,9 +14,11 @@ export function hasCompleteUpload(upload: {
 export default function PromotionalCoverUpload({
   courseName,
   isPublished,
+  isEdit = false,
 }: {
   courseName: string;
   isPublished: boolean;
+  isEdit?: boolean;
 }) {
   const {watch, setValue} = useFormContext<CoursesFormValues>();
 
@@ -36,7 +39,7 @@ export default function PromotionalCoverUpload({
 
   return (
     <>
-      {isPublished ? (
+      {isPublished && !isEdit ? (
         <UploadedSuccess />
       ) : (
         <section className="h-full">
@@ -314,6 +317,7 @@ function UploadDropzone({
   );
 }
 function UploadedSuccess() {
+  const router = useRouter();
   return (
     <section className="h-full">
       <div
@@ -329,11 +333,16 @@ function UploadedSuccess() {
         </div>
 
         <div className="flex flex-col items-center gap-2">
-          <p className="text-sm font-semibold">Video uploaded successfully</p>
+          <p className="text-sm font-semibold">Your edits have been saved</p>
           <p className="text-muted text-xs">
-            Your promo video will be private until you publish them
+            Your changes will be private until you publish them
           </p>
-          <Button type="button" size="sm" className="font-semibold mt-3">
+          <Button
+            type="button"
+            size="sm"
+            className="font-semibold mt-3"
+            onClick={() => router.push("/dashboard/courses")}
+          >
             Proceed to dashboard
           </Button>
         </div>

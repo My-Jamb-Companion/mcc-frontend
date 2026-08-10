@@ -1,5 +1,5 @@
-import Courses from "@/src/features/courses/components/Courses";
+import Course from "@/src/features/courses/components/Course";
 
-export default function coursesPage() {
-  return <Courses />;
+export default function CoursesPage() {
+  return <Course />;
 }

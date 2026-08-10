@@ -7,15 +7,11 @@ import StatsSummaryRow from "@/src/components/StatsSummary";
 import CourseSideDetail from "./CourseSideDetails";
 import CourseInfo from "./CourseInfo";
 import {useCourseData} from "../hooks/useCourse";
-import {useParams} from "next/navigation";
 import {AdditionalCourseTypes, CoursesFormValues} from "../types/types";
 import {STATUS_STYLES} from "./CoursesRow";
 
-export default function OpenCourse() {
-  const params = useParams();
+export default function OpenCourse({id}: {id: string}) {
   const router = useRouter();
-
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const {getCourse, saveDraft, publish} = useCourseData();
   useEffect(() => {
@@ -75,6 +71,9 @@ export default function OpenCourse() {
           <Button
             variant="outline"
             leftIcon={<Icon icon="ri:edit-circle-line" size={18} />}
+            onClick={() =>
+              router.push(`/dashboard/courses/edit-course?id=${id}`)
+            }
           >
             Edit Course
           </Button>
