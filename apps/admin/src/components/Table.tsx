@@ -84,13 +84,13 @@ export default function EnhancedTable<TData extends RowData>({
 
       {totalRows !== 0 && (
         <div className="flex flex-col min-h-0">
-          <div className="overflow-auto h-full  custom-scrollbar">
+          <div className="overflow-auto h-full custom-scrollbar">
             <table className={`${className} w-full text-textPrimary`}>
               <thead className="sticky top-0 z-10 bg-white shadow-xs">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id} className="border-b border-gray-200">
                     {enableSelection && (
-                      <th className="p-4 w-12">
+                      <th className="p-4 w-12 shrink-0">
                         <input
                           type="checkbox"
                           checked={selectedCount === totalRows && totalRows > 0}
@@ -99,47 +99,60 @@ export default function EnhancedTable<TData extends RowData>({
                       </th>
                     )}
 
-                    {headerGroup.headers.map((header) => (
-                      <th
-                        key={header.id}
-                        className="text-left text-xs font-semibold p-4 text-gray-700 uppercase tracking-wider max-w-[300px]"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span>
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                          </span>
+                    {headerGroup.headers.map((header) => {
+                      const canSort = header.column.getCanSort();
+                      const isActions = header.column.id === "actions";
 
-                          {header.column.getCanSort() && (
-                            <button
-                              onClick={header.column.getToggleSortingHandler()}
-                              className="p-1 hover:bg-gray-200 rounded"
-                            >
-                              {header.column.getIsSorted() === "asc" ? (
-                                <ChevronUp
-                                  size={16}
-                                  className="text-blue-600"
-                                />
-                              ) : header.column.getIsSorted() === "desc" ? (
-                                <ChevronDown
-                                  size={16}
-                                  className="text-blue-600"
-                                />
-                              ) : (
-                                <ChevronDown
-                                  size={16}
-                                  className="text-gray-400"
-                                />
+                      return (
+                        <th
+                          key={header.id}
+                          className={`text-xs font-semibold p-4 text-gray-700 uppercase tracking-wider ${
+                            isActions
+                              ? "w-1 text-right whitespace-nowrap"
+                              : "text-left"
+                          }`}
+                        >
+                          <div
+                            className={`flex items-center gap-2 ${
+                              canSort ? "justify-between" : "justify-start"
+                            }`}
+                          >
+                            <span>
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
                               )}
-                            </button>
-                          )}
-                        </div>
-                      </th>
-                    ))}
+                            </span>
 
-                    {enableRowActions && <th className="p-4 w-12" />}
+                            {canSort && (
+                              <button
+                                onClick={header.column.getToggleSortingHandler()}
+                                className="p-1 hover:bg-gray-200 rounded shrink-0"
+                              >
+                                {header.column.getIsSorted() === "asc" ? (
+                                  <ChevronUp
+                                    size={16}
+                                    className="text-blue-600"
+                                  />
+                                ) : header.column.getIsSorted() === "desc" ? (
+                                  <ChevronDown
+                                    size={16}
+                                    className="text-blue-600"
+                                  />
+                                ) : (
+                                  <ChevronDown
+                                    size={16}
+                                    className="text-gray-400"
+                                  />
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        </th>
+                      );
+                    })}
+
+                    {enableRowActions && <th className="p-4 w-12 shrink-0" />}
                   </tr>
                 ))}
               </thead>
@@ -175,17 +188,16 @@ export default function EnhancedTable<TData extends RowData>({
                           </td>
                         )}
 
-                        {row.getVisibleCells().map((cell) => (
-                          <td
-                            key={cell.id}
-                            className="text-sm py-4 px-4 max-w-[300px]"
-                          >
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext(),
-                            )}
-                          </td>
-                        ))}
+                        {row.getVisibleCells().map((cell) => {
+                          return (
+                            <td key={cell.id} className={`text-sm py-4 px-4`}>
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
+                            </td>
+                          );
+                        })}
 
                         {enableRowActions && (
                           <td
