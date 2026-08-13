@@ -100,7 +100,7 @@ export default function ViewActiveStudent({
             animate={{x: 0, opacity: 1}}
             exit={{x: "100%", opacity: 0}}
             transition={{type: "tween", duration: 0.3}}
-            className="fixed top-0 right-0 z-50 h-screen w-full max-w-[600px] bg-white p-6 shadow-2xl overflow-y-auto"
+            className="fixed top-0 right-0 z-50 h-screen w-full max-w-150 bg-white p-6 shadow-2xl overflow-y-auto"
           >
             <div className="flex flex-col gap-6">
               <div className="flex items-center justify-between border-b border-muted/20">

@@ -37,6 +37,8 @@ interface ActiveTableProps {
   onOpenProfile?: (student: Student) => void;
   onMessageStudent?: (student: Student) => void;
   onDisableStudent?: (student: Student) => void;
+  onEnrollStudent?: (student: Student) => void;
+  onAssignCra?: (student: Student) => void;
 }
 
 const STUDENTS: Student[] = [
@@ -371,7 +373,7 @@ function ProgramCell({student}: {student: Student}) {
       <div className="flex items-start gap-2.5">
         <ProgramThumbnail label={primary.thumbnailLabel} />
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-gray-900 truncate max-w-[220px]">
+          <p className="text-sm font-semibold text-gray-900 truncate max-w-55">
             {primary.title}
           </p>
           <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
@@ -434,20 +436,10 @@ function LeaderboardBadge({rank}: {rank: number}) {
   );
 }
 
-function NigeriaFlag() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" className="shrink-0">
-      <circle cx="8" cy="8" r="8" fill="#fff" />
-      <rect x="0" y="0" width="5.34" height="16" fill="#0A7F3F" />
-      <rect x="10.66" y="0" width="5.34" height="16" fill="#0A7F3F" />
-    </svg>
-  );
-}
-
 function LocationCell({location}: {location: string}) {
   return (
     <div className="flex items-center gap-1.5">
-      <NigeriaFlag />
+      <Icon icon="twemoji:flag-nigeria" size={20} />
       <span className="text-sm text-gray-700 whitespace-nowrap">
         {location}
       </span>
@@ -473,6 +465,8 @@ function ActionsMenuPortal({
   onOpenProfile,
   onMessageStudent,
   onDisableStudent,
+  onEnrollStudent,
+  onAssignCra,
 }: {
   student: Student;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
@@ -480,6 +474,8 @@ function ActionsMenuPortal({
   onOpenProfile?: (student: Student) => void;
   onMessageStudent?: (student: Student) => void;
   onDisableStudent?: (student: Student) => void;
+  onEnrollStudent?: (student: Student) => void;
+  onAssignCra?: (student: Student) => void;
 }) {
   const menuRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{top: number; left: number} | null>(
@@ -495,6 +491,13 @@ function ActionsMenuPortal({
       action: onOpenProfile,
     },
     {
+      id: "enroll",
+      label: "Enroll Student",
+      icon: "ri:user-follow-line",
+      danger: false,
+      action: onEnrollStudent,
+    },
+    {
       id: "message",
       label: "Message student",
       icon: "lucide:mail",
@@ -502,9 +505,16 @@ function ActionsMenuPortal({
       action: onMessageStudent,
     },
     {
+      id: "crm",
+      label: "Assign CRA",
+      icon: "ri:user-forbid-line",
+      danger: false,
+      action: onAssignCra,
+    },
+    {
       id: "disable",
       label: "Disable Student",
-      icon: "lucide:user-x",
+      icon: "ri:user-forbid-line",
       danger: true,
       action: onDisableStudent,
     },
@@ -582,11 +592,15 @@ function ActionsCell({
   onOpenProfile,
   onMessageStudent,
   onDisableStudent,
+  onEnrollStudent,
+  onAssignCra,
 }: {
   student: Student;
   onOpenProfile?: (student: Student) => void;
   onMessageStudent?: (student: Student) => void;
   onDisableStudent?: (student: Student) => void;
+  onEnrollStudent?: (student: Student) => void;
+  onAssignCra?: (student: Student) => void;
 }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -611,6 +625,8 @@ function ActionsCell({
           onOpenProfile={onOpenProfile}
           onMessageStudent={onMessageStudent}
           onDisableStudent={onDisableStudent}
+          onEnrollStudent={onEnrollStudent}
+          onAssignCra={onAssignCra}
         />
       )}
     </div>
@@ -621,7 +637,9 @@ const columnHelper = createColumnHelper<Student>();
 
 export default function ActiveTable({
   onOpenProfile,
+  onEnrollStudent,
   onMessageStudent,
+  onAssignCra,
   onDisableStudent,
 }: ActiveTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -679,11 +697,19 @@ export default function ActiveTable({
             onOpenProfile={onOpenProfile}
             onMessageStudent={onMessageStudent}
             onDisableStudent={onDisableStudent}
+            onEnrollStudent={onEnrollStudent}
+            onAssignCra={onAssignCra}
           />
         ),
       }),
     ],
-    [onOpenProfile, onMessageStudent, onDisableStudent],
+    [
+      onOpenProfile,
+      onMessageStudent,
+      onDisableStudent,
+      onEnrollStudent,
+      onAssignCra,
+    ],
   );
 
   const table = useReactTable({

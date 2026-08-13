@@ -24,7 +24,7 @@ interface MethodCourse {
 
 type Method = MethodBadge | MethodCourse;
 
-interface Student {
+export interface ProspectiveStudent {
   id: string;
   name: string;
   email: string;
@@ -33,7 +33,15 @@ interface Student {
   method: Method;
 }
 
-const STUDENTS: Student[] = [
+interface ProspectiveStudentsTableProps {
+  onOpenProfile?: (student: ProspectiveStudent) => void;
+  onOnboardStudent?: (student: ProspectiveStudent) => void;
+  onMessageStudent?: (student: ProspectiveStudent) => void;
+  onAssignCra?: (student: ProspectiveStudent) => void;
+  onRejectStudent?: (student: ProspectiveStudent) => void;
+}
+
+const STUDENTS: ProspectiveStudent[] = [
   {
     id: "1",
     name: "Bright Mba",
@@ -123,7 +131,7 @@ function colorFor(name: string) {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-function NameCell({student}: {student: Student}) {
+function NameCell({student}: {student: ProspectiveStudent}) {
   return (
     <div className="flex items-center gap-3">
       <div
@@ -156,10 +164,10 @@ function MethodCell({method}: {method: Method}) {
         {method.thumbnailLabel}
       </div>
       <div className="min-w-0">
-        <p className="text-sm font-semibold text-gray-800 truncate max-w-[220px]">
+        <p className="text-sm font-semibold text-gray-800 truncate max-w-55">
           {method.title}
         </p>
-        <p className="text-xs text-gray-500 truncate max-w-[220px]">
+        <p className="text-xs text-gray-500 truncate max-w-55">
           {method.subtitle}
         </p>
       </div>
@@ -167,53 +175,78 @@ function MethodCell({method}: {method: Method}) {
   );
 }
 
-const MENU_ITEMS = [
-  {
-    key: "open-profile",
-    label: "Open profile",
-    icon: "lucide:smile",
-    danger: false,
-  },
-  {
-    key: "onboard",
-    label: "Onboard student",
-    icon: "lucide:user-plus",
-    danger: false,
-  },
-  {
-    key: "message",
-    label: "Message student",
-    icon: "lucide:mail",
-    danger: false,
-  },
-  {
-    key: "assign-cra",
-    label: "Assign CRA",
-    icon: "lucide:git-branch",
-    danger: false,
-  },
-  {key: "reject", label: "Reject Student", icon: "lucide:user-x", danger: true},
-] as const;
+interface MenuItem {
+  id: string;
+  label: string;
+  icon: string;
+  danger: boolean;
+  action?: (student: ProspectiveStudent) => void;
+}
 
 const MENU_WIDTH = 224; // w-56
 const MENU_GAP = 8;
 
-// Renders into document.body via a portal, positioned from the trigger's
-// bounding rect, so it escapes EnhancedTable's `overflow-auto` body wrapper
-// instead of getting clipped by it.
 function ActionsMenuPortal({
+  student,
   triggerRef,
   onClose,
-  onSelect,
+  onOpenProfile,
+  onOnboardStudent,
+  onMessageStudent,
+  onAssignCra,
+  onRejectStudent,
 }: {
-  triggerRef: React.RefObject<HTMLButtonElement>;
+  student: ProspectiveStudent;
+  triggerRef: React.RefObject<HTMLButtonElement | null>;
   onClose: () => void;
-  onSelect: (key: string) => void;
+  onOpenProfile?: (student: ProspectiveStudent) => void;
+  onOnboardStudent?: (student: ProspectiveStudent) => void;
+  onMessageStudent?: (student: ProspectiveStudent) => void;
+  onAssignCra?: (student: ProspectiveStudent) => void;
+  onRejectStudent?: (student: ProspectiveStudent) => void;
 }) {
   const menuRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{top: number; left: number} | null>(
     null,
   );
+
+  const menuItems: MenuItem[] = [
+    {
+      id: "open-profile",
+      label: "Open profile",
+      icon: "lucide:smile",
+      danger: false,
+      action: onOpenProfile,
+    },
+    {
+      id: "onboard",
+      label: "Onboard student",
+      icon: "lucide:user-plus",
+      danger: false,
+      action: onOnboardStudent,
+    },
+    {
+      id: "message",
+      label: "Message student",
+      icon: "lucide:mail",
+      danger: false,
+      action: onMessageStudent,
+    },
+    {
+      id: "assign-cra",
+      label: "Assign CRA",
+      icon: "lucide:git-branch",
+      danger: false,
+      action: onAssignCra,
+    },
+    {
+      id: "reject",
+      label: "Reject Student",
+      icon: "lucide:user-x",
+      danger: true,
+      action: onRejectStudent,
+    },
+  ];
 
   useLayoutEffect(() => {
     function updatePosition() {
@@ -260,11 +293,11 @@ function ActionsMenuPortal({
       style={{top: position.top, left: position.left, width: MENU_WIDTH}}
       className="fixed rounded-xl border border-gray-200 bg-white py-1.5 shadow-lg shadow-gray-200/60 z-50"
     >
-      {MENU_ITEMS.map((item) => (
+      {menuItems.map((item) => (
         <button
-          key={item.key}
+          key={item.id}
           onClick={() => {
-            onSelect(item.key);
+            item.action?.(student);
             onClose();
           }}
           className={`flex w-full items-center gap-2.5 px-3.5 py-2 text-sm text-left transition-colors ${
@@ -284,25 +317,33 @@ function ActionsMenuPortal({
 
 function ActionsCell({
   student,
-  onAction,
+  onOpenProfile,
+  onOnboardStudent,
+  onMessageStudent,
+  onAssignCra,
+  onRejectStudent,
 }: {
-  student: Student;
-  onAction: (key: string, student: Student) => void;
+  student: ProspectiveStudent;
+  onOpenProfile?: (student: ProspectiveStudent) => void;
+  onOnboardStudent?: (student: ProspectiveStudent) => void;
+  onMessageStudent?: (student: ProspectiveStudent) => void;
+  onAssignCra?: (student: ProspectiveStudent) => void;
+  onRejectStudent?: (student: ProspectiveStudent) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   return (
-    <div className="inline-flex items-center justify-end gap-2 shrink-0">
+    <div className="inline-flex items-center justify-end gap-2 shrink-0 w-full">
       <button
-        onClick={() => onAction("open", student)}
+        onClick={() => onOpenProfile?.(student)}
         className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-3.5 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
       >
         <Icon icon="lucide:external-link" size={15} />
         Open
       </button>
       <button
-        onClick={() => onAction("message", student)}
+        onClick={() => onMessageStudent?.(student)}
         className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-3.5 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
       >
         <Icon icon="lucide:mail" size={15} />
@@ -320,23 +361,30 @@ function ActionsCell({
 
       {open && (
         <ActionsMenuPortal
+          student={student}
           triggerRef={triggerRef}
           onClose={() => setOpen(false)}
-          onSelect={(key) => onAction(key, student)}
+          onOpenProfile={onOpenProfile}
+          onOnboardStudent={onOnboardStudent}
+          onMessageStudent={onMessageStudent}
+          onAssignCra={onAssignCra}
+          onRejectStudent={onRejectStudent}
         />
       )}
     </div>
   );
 }
 
-const columnHelper = createColumnHelper<Student>();
+const columnHelper = createColumnHelper<ProspectiveStudent>();
 
-export default function StudentsTable() {
+export default function ProspectiveStudentsTable({
+  onOpenProfile,
+  onOnboardStudent,
+  onMessageStudent,
+  onAssignCra,
+  onRejectStudent,
+}: ProspectiveStudentsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-
-  const handleAction = (key: string, student: Student) => {
-    console.log(key, student.id);
-  };
 
   const columns = useMemo(
     () => [
@@ -360,13 +408,26 @@ export default function StudentsTable() {
       }),
       columnHelper.display({
         id: "actions",
-        header: () => <span className="w-full">Actions</span>,
+        header: () => <span className="block w-full text-right">Actions</span>,
         cell: (info) => (
-          <ActionsCell student={info.row.original} onAction={handleAction} />
+          <ActionsCell
+            student={info.row.original}
+            onOpenProfile={onOpenProfile}
+            onOnboardStudent={onOnboardStudent}
+            onMessageStudent={onMessageStudent}
+            onAssignCra={onAssignCra}
+            onRejectStudent={onRejectStudent}
+          />
         ),
       }),
     ],
-    [],
+    [
+      onOpenProfile,
+      onOnboardStudent,
+      onMessageStudent,
+      onAssignCra,
+      onRejectStudent,
+    ],
   );
 
   const table = useReactTable({
