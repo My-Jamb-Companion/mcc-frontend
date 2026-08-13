@@ -5,6 +5,7 @@ import ActiveTable, {Student} from "./ActiveTable";
 import {FormInputs} from "@mcc/features";
 import {useState} from "react";
 import ViewActiveStudent from "./ViewActiveStudent";
+import CreateStudentModal from "./CreateStudent";
 
 export default function ActiveStudents() {
   const [program, setProgram] = useState("");
@@ -12,6 +13,7 @@ export default function ActiveStudents() {
   const [location, setLocation] = useState("");
   const [search, setSearch] = useState("");
   const [student, setStudent] = useState<Student | null>(null);
+  const [createStudent, setCreateStudent] = useState(false);
 
   const handleOpenProfile = (student: Student) => {
     // Navigate or open modal
@@ -28,6 +30,11 @@ export default function ActiveStudents() {
     // Open confirmation dialog
     console.log("Disabling student ID:", student.id);
   };
+
+  const handleEnrollStudent = (student: Student) => {
+    // Open confirmation dialog
+    console.log("Enrolling student ID:", student.id);
+  };
   return (
     <section className="flex flex-col gap-6 h-full">
       <div className="flex items-center justify-between">
@@ -37,6 +44,7 @@ export default function ActiveStudents() {
             width="fit"
             className="p-2! pr-4!"
             leftIcon={<Icon icon="line-md:plus" />}
+            onClick={() => setCreateStudent(true)}
           >
             <p>Create Student</p>
           </Button>
@@ -110,11 +118,17 @@ export default function ActiveStudents() {
           onOpenProfile={handleOpenProfile}
           onMessageStudent={handleMessageStudent}
           onDisableStudent={handleDisableStudent}
+          onEnrollStudent={handleEnrollStudent}
         />
       </div>
 
       <div>
         <ViewActiveStudent student={student} onClose={() => setStudent(null)} />
+
+        <CreateStudentModal
+          isOpen={createStudent}
+          onClose={() => setCreateStudent(false)}
+        />
       </div>
     </section>
   );

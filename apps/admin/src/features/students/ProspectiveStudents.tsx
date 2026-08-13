@@ -1,16 +1,21 @@
 "use client";
 import {Button} from "@/src/components/Buttons";
 import {Icon} from "@mcc/ui";
-import ProspectiveTable from "./ProspectiveTable";
+import ProspectiveTable, {ProspectiveStudent} from "./ProspectiveTable";
 import {FormInputs} from "@mcc/features";
 import {useState} from "react";
+import CreateStudentModal from "./CreateStudent";
 
 export default function ProspectiveStudents() {
   const [program, setProgram] = useState("");
   const [date, setDate] = useState("");
   const [location, setLocation] = useState("");
   const [search, setSearch] = useState("");
+  const [createStudent, setCreateStudent] = useState(false);
 
+  const handleOpenProfile = (student: ProspectiveStudent) => {
+    console.log(student);
+  };
   return (
     <section className="flex flex-col gap-6 h-full">
       <div className="flex items-center justify-between">
@@ -20,6 +25,7 @@ export default function ProspectiveStudents() {
             width="fit"
             className="p-2! pr-4!"
             leftIcon={<Icon icon="line-md:plus" />}
+            onClick={() => setCreateStudent(true)}
           >
             <p>Create Student</p>
           </Button>
@@ -89,7 +95,12 @@ export default function ProspectiveStudents() {
             />
           </div>
         </div>
-        <ProspectiveTable />
+        <ProspectiveTable onOpenProfile={handleOpenProfile} />
+
+        <CreateStudentModal
+          isOpen={createStudent}
+          onClose={() => setCreateStudent(false)}
+        />
       </div>
     </section>
   );
