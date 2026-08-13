@@ -1,8 +1,7 @@
 "use client";
 
 import {useMemo, useState} from "react";
-import {Icon} from "@iconify/react";
-import {Modal} from "@mcc/ui";
+import {Icon, Modal} from "@mcc/ui";
 
 type Student = {
   id: string;
@@ -46,8 +45,7 @@ function StudentSelect({
         </span>
         <Icon
           icon="mdi:chevron-down"
-          width={16}
-          height={16}
+          size={16}
           className={`text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
@@ -134,8 +132,7 @@ export default function SendMessage({
           <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 shrink-0">
             <Icon
               icon="mdi:email-outline"
-              width={18}
-              height={18}
+              size={18}
               className="text-gray-800"
             />
           </div>
@@ -151,7 +148,7 @@ export default function SendMessage({
                 className="text-gray-500 hover:text-gray-800 transition-colors"
                 aria-label="Back"
               >
-                <Icon icon="mdi:arrow-left" width={18} height={18} />
+                <Icon icon="mdi:arrow-left" size={18} />
               </button>
             ) : (
               <span />
