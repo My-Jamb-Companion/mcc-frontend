@@ -21,6 +21,10 @@ export interface ConfirmModalProps extends Omit<
   onConfirm: () => void;
 
   onCancel?: () => void;
+
+  iconName?: string;
+
+  iconClassName?: string;
 }
 
 const variantStyles: Record<ConfirmVariant, string> = {
@@ -48,6 +52,8 @@ export function ConfirmModal({
   onOpen,
   open,
   maxWidth,
+  iconName,
+  iconClassName,
 }: ConfirmModalProps) {
   const isControlled = open !== undefined;
   const modalRef = useRef<ModalRef>(null);
@@ -73,14 +79,14 @@ export function ConfirmModal({
         icon ? (
           <span className="flex items-center gap-2">
             <Icon
-              icon={String(icon)}
+              icon={iconName || String(icon)}
               size={20}
               className={
                 variant == "danger"
                   ? "text-danger"
                   : variant === "warning"
                     ? "text-yellow-500"
-                    : ""
+                    : iconClassName
               }
             />
             {title}

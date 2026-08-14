@@ -9,29 +9,7 @@ import {
 } from "@tanstack/react-table";
 import {Icon} from "@mcc/ui";
 import EnhancedTable from "@/src/components/Table";
-
-interface MethodBadge {
-  type: "badge";
-  label: string;
-}
-
-interface MethodCourse {
-  type: "course";
-  thumbnailLabel: string;
-  title: string;
-  subtitle: string;
-}
-
-type Method = MethodBadge | MethodCourse;
-
-export interface ProspectiveStudent {
-  id: string;
-  name: string;
-  email: string;
-  dateJoined: string;
-  time: string;
-  method: Method;
-}
+import {Method, ProspectiveStudent} from "../types/types";
 
 interface ProspectiveStudentsTableProps {
   onOpenProfile?: (student: ProspectiveStudent) => void;
@@ -48,6 +26,7 @@ const STUDENTS: ProspectiveStudent[] = [
     email: "bright@gmail.com",
     dateJoined: "05 Apr, 2026",
     time: "8:30 PM",
+    avatar: "",
     method: {type: "badge", label: "Free Exam program"},
   },
   {
@@ -56,6 +35,7 @@ const STUDENTS: ProspectiveStudent[] = [
     email: "bright@gmail.com",
     dateJoined: "05 Apr, 2026",
     time: "8:30 PM",
+    avatar: "",
     method: {
       type: "course",
       thumbnailLabel: "PT",
@@ -69,6 +49,7 @@ const STUDENTS: ProspectiveStudent[] = [
     email: "bright@gmail.com",
     dateJoined: "05 Apr, 2026",
     time: "8:30 PM",
+    avatar: "",
     method: {type: "badge", label: "Free Exam program"},
   },
   {
@@ -77,6 +58,7 @@ const STUDENTS: ProspectiveStudent[] = [
     email: "bright@gmail.com",
     dateJoined: "05 Apr, 2026",
     time: "8:30 PM",
+    avatar: "",
     method: {
       type: "course",
       thumbnailLabel: "W",
@@ -90,6 +72,7 @@ const STUDENTS: ProspectiveStudent[] = [
     email: "bright@gmail.com",
     dateJoined: "05 Apr, 2026",
     time: "8:30 PM",
+    avatar: "",
     method: {type: "badge", label: "Free Exam program"},
   },
   {
@@ -98,6 +81,7 @@ const STUDENTS: ProspectiveStudent[] = [
     email: "bright@gmail.com",
     dateJoined: "05 Apr, 2026",
     time: "8:30 PM",
+    avatar: "",
     method: {
       type: "course",
       thumbnailLabel: "W",
@@ -183,7 +167,7 @@ interface MenuItem {
   action?: (student: ProspectiveStudent) => void;
 }
 
-const MENU_WIDTH = 224; // w-56
+const MENU_WIDTH = 224;
 const MENU_GAP = 8;
 
 function ActionsMenuPortal({
