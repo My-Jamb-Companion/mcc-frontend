@@ -37,9 +37,6 @@ export default function CreateStudentModal({
   isOpen,
   onClose,
 }: CreateStudentModalProps) {
-  // The avatar upload isn't a registered form field (it's a raw <input type="file">
-  // driving a data-URL preview), so it stays in its own bit of local state
-  // instead of going through react-hook-form.
   const [image, setImage] = useState("");
 
   const {
@@ -50,7 +47,6 @@ export default function CreateStudentModal({
     formState: {errors},
   } = useForm<CreateStudentFormValues>({defaultValues: DEFAULT_VALUES});
 
-  // Close on Escape key press
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -73,8 +69,9 @@ export default function CreateStudentModal({
     };
   };
 
-  const onSubmit = (values: CreateStudentFormValues) => {
-    console.log("Form submitted:", {...values, image});
+  const onSubmit = () => {
+    // const onSubmit = (values: CreateStudentFormValues) => {
+    // console.log("Form submitted:", {...values, image});
     reset();
     onClose();
   };
@@ -83,7 +80,6 @@ export default function CreateStudentModal({
     <AnimatePresence>
       {isOpen ? (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{opacity: 0}}
             animate={{opacity: 1}}
@@ -93,7 +89,6 @@ export default function CreateStudentModal({
             className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px]"
           />
 
-          {/* Slide-over Drawer Panel */}
           <motion.section
             initial={{x: "100%", opacity: 0}}
             animate={{x: 0, opacity: 1}}
@@ -102,7 +97,6 @@ export default function CreateStudentModal({
             className="fixed top-0 right-0 z-50 h-screen w-full max-w-150 bg-white p-6 shadow-2xl overflow-y-auto"
           >
             <div className="flex flex-col gap-6">
-              {/* Header */}
               <div className="flex items-center justify-between pb-2 border-b border-muted/20">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Create student
@@ -116,9 +110,7 @@ export default function CreateStudentModal({
                 </button>
               </div>
 
-              {/* Form Content */}
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                {/* Banner with Profile Photo */}
                 <div className="relative w-full h-44 bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 rounded-2xl flex flex-col items-center justify-center overflow-hidden">
                   <div className="absolute -left-6 bottom-2 w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none" />
                   <div className="absolute right-4 top-2 w-32 h-32 bg-purple-400/20 rounded-full blur-2xl pointer-events-none" />
@@ -150,13 +142,11 @@ export default function CreateStudentModal({
                   </button>
                 </div>
 
-                {/* Personal Information */}
                 <div className="space-y-4">
                   <h3 className="text-base font-semibold text-gray-700">
                     Personal Information
                   </h3>
 
-                  {/* Row 1: Full Name, Username, Parent Name */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <FormInputs
                       label="Full name"
@@ -182,7 +172,6 @@ export default function CreateStudentModal({
                     />
                   </div>
 
-                  {/* Row 2: Email & Phone Number */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormInputs
                       type="email"
@@ -202,7 +191,6 @@ export default function CreateStudentModal({
                     />
                   </div>
 
-                  {/* Row 3: Gender Select */}
                   <Controller
                     control={control}
                     name="gender"
@@ -227,13 +215,11 @@ export default function CreateStudentModal({
                   />
                 </div>
 
-                {/* Location Details */}
                 <div className="space-y-4 pt-2">
                   <h3 className="text-base font-semibold text-gray-700">
                     Location Details
                   </h3>
 
-                  {/* Row 1: Country, State, City */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Controller
                       control={control}
@@ -290,7 +276,6 @@ export default function CreateStudentModal({
                     />
                   </div>
 
-                  {/* Row 2: Street Input */}
                   <div>
                     <FormInputs
                       label="Your Street"
@@ -304,7 +289,6 @@ export default function CreateStudentModal({
                   </div>
                 </div>
 
-                {/* Submit Button */}
                 <div className="pt-2">
                   <Button
                     type="submit"

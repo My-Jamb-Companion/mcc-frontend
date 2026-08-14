@@ -26,10 +26,10 @@ export default function ActiveStudents() {
     setStudent(student);
   };
 
-  const handleMessageStudent = (student: Student) => {
-    // Open message modal
-    console.log("Messaging:", student.email);
-  };
+  // const handleMessageStudent = (student: Student) => {
+  //   // Open message modal
+  //   console.log("Messaging:", student.email);
+  // };
 
   const handleDisableStudent = (student: Student) => {
     setConfirmDisable(true);
@@ -121,7 +121,7 @@ export default function ActiveStudents() {
         </div>
         <ActiveTable
           onOpenProfile={handleOpenProfile}
-          onMessageStudent={handleMessageStudent}
+          // onMessageStudent={handleMessageStudent}
           onDisableStudent={handleDisableStudent}
           onEnrollStudent={handleEnrollStudent}
         />
