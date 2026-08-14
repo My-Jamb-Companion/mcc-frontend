@@ -1,4 +1,4 @@
-import {useRef, useState, useEffect} from "react";
+import {useRef, useState, useMemo} from "react";
 import {Icon} from "@mcc/ui";
 import {MakeModule, ModuleContent} from "../../types/types";
 
@@ -69,17 +69,12 @@ export default function ContentReorderPanel({
   onClose: () => void;
   onModuleChange: (module: MakeModule) => void;
 }) {
-  const [items, setItems] = useState<ReorderItem[]>(() => buildItems(module));
+  const items = useMemo(() => buildItems(module), [module]);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setItems(buildItems(module));
-  }, [module]);
-
   function persistOrder(next: ReorderItem[]) {
-    setItems(next);
     onModuleChange(applyItemsToModule(module, next));
   }
 

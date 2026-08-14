@@ -672,7 +672,7 @@ export default function ContentStep({
   function setTopics(newTopics: Topic[]) {
     setValue("content.topics", newTopics, {shouldDirty: true});
   }
-  console.log(getValues());
+
   const [selectedContentId, setSelectedContentId] = useState("");
   const [isRenamingTopic, setIsRenamingTopic] = useState(false);
   const [isReorderOpen, setIsReorderOpen] = useState(false);

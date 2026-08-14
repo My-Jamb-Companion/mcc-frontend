@@ -163,8 +163,9 @@ function Hero({
     if (isPlaying) {
       videoRef.current.pause();
     } else {
-      videoRef.current.play().catch((err) => {
-        console.warn("Video playback error:", err);
+      videoRef.current.play().catch(() => {
+        // console.warn("Video playback error:", err);
+        return;
       });
     }
 

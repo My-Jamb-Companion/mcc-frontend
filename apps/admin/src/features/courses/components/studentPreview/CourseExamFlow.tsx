@@ -40,16 +40,17 @@ export default function CourseTestFlow({
   } | null>(null);
 
   const formattedQuestions: Question[] = useMemo(() => {
-    return questions.map((q: any) => {
-      if (q.answers && !q.options) {
+    return questions.map((q) => {
+      if ("answers" in q && !("options" in q)) {
         return q as Question;
       }
 
-      const options = q.options || [];
+      const practiceQ = q as CreatPracticeQuestionType;
+      const options = practiceQ.options || [];
       const correctTexts = options
         .filter((o: Option) => o.isCorrect)
         .map((o: Option) => o.text);
-      const isMulti = q.type === "multiple";
+      const isMulti = practiceQ.type === "multiple";
 
       return {
         id: q.id,
@@ -60,7 +61,7 @@ export default function CourseTestFlow({
       };
     });
   }, [questions]);
-  console.log(formattedQuestions);
+
   const handleQuizComplete = (answers: SubmittedAnswer[]) => {
     const quizResults = {
       answers,

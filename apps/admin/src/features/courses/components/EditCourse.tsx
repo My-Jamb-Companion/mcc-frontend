@@ -111,7 +111,7 @@ export default function CreateCourseForm() {
   // ─────────────────────────────────────────────
   const {saveDraft, publish, courses} = useCourseData();
 
-  const editItem = courses.find((item) => item.id === editId);
+  // const editItem = courses.find((item) => item.id === editId);
   const [isEdit, setIsEdit] = useState(true);
 
   // ─────────────────────────────────────────────

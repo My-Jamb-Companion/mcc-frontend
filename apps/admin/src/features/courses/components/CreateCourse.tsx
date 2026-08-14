@@ -234,8 +234,6 @@ export default function CreateCourseForm() {
     methods.reset(savedCourse);
 
     setIsPublished(false);
-
-    console.log("Draft saved:", savedCourse);
   }
 
   // ─────────────────────────────────────────────
@@ -255,8 +253,6 @@ export default function CreateCourseForm() {
     confettiCelebrate(undefined, 1000, 300);
 
     setIsPublished(true);
-
-    console.log("Published course:", publishedCourse);
   }
 
   // ─────────────────────────────────────────────

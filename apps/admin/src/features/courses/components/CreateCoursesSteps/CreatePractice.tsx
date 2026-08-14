@@ -37,22 +37,6 @@ function QuestionCard({
     onChange({...question, [field]: value});
   }
 
-  function handleTypeChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const newType = e.target.value as "single" | "multiple";
-    const copy = {...question, type: newType};
-    if (newType === "single") {
-      let found = false;
-      copy.options = copy.options.map((opt) => {
-        if (opt.isCorrect && !found) {
-          found = true;
-          return opt;
-        }
-        return {...opt, isCorrect: false};
-      });
-    }
-    onChange(copy);
-  }
-
   function handleOptionChange(optIndex: number, text: string) {
     const newOptions = [...question.options];
     newOptions[optIndex] = {...newOptions[optIndex], text};
