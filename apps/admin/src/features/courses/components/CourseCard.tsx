@@ -1,6 +1,5 @@
 import {useState} from "react";
-import {motion, AnimatePresence} from "framer-motion";
-import {Button, Icon} from "@mcc/ui";
+import {motion, AnimatePresence, Button, Icon} from "@mcc/ui";
 
 function DiamondIcon({className = ""}: {className?: string}) {
   return (

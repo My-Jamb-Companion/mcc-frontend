@@ -2,7 +2,7 @@ import {FormInputs} from "@mcc/features";
 import {Button, Icon} from "@mcc/ui";
 import {useState} from "react";
 import {uid} from "./Step2";
-import {CreatPracticeQuestionType} from "../../types/types";
+import {CreatPracticeQuestionType} from "@/src/features/courses/types/types";
 
 function QuestionCard({
   question,

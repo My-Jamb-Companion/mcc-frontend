@@ -1,6 +1,6 @@
 import {useRef, useState, useMemo} from "react";
 import {Icon} from "@mcc/ui";
-import {MakeModule, ModuleContent} from "../../types/types";
+import {MakeModule, ModuleContent} from "@/src/features/courses/types/types";
 
 type ReorderItem = {
   id: string;

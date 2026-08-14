@@ -1,7 +1,10 @@
 import {useCallback, useEffect, useRef, useState} from "react";
 import {Button, Icon} from "@mcc/ui";
 import {useFormContext} from "@mcc/features";
-import {CoursesFormValues, UploadedFile} from "../../types/types";
+import {
+  CoursesFormValues,
+  UploadedFile,
+} from "@/src/features/courses/types/types";
 import {useRouter} from "next/navigation";
 
 export function hasCompleteUpload(upload: {

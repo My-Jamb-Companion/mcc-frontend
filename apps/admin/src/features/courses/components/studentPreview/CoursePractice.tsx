@@ -2,12 +2,12 @@
 
 import {useMemo, useState} from "react";
 import {AnimatePresence, motion, Variants, Icon} from "@mcc/ui";
-import {shuffleArray} from "../../helper/helper";
+import {shuffleArray} from "@/src/features/courses/helper/helper";
 import {
   PracticeCardProps,
   QuizResultsProps,
   SubmittedAnswer,
-} from "../../types/types";
+} from "@/src/features/courses/types/types";
 
 function areAnswersEqual(
   a: string | string[] | undefined,

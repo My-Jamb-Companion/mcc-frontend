@@ -18,7 +18,7 @@ import {
   PracticeSet,
   QuizModuleContent,
   Topic,
-} from "../../types/types";
+} from "@/src/features/courses/types/types";
 
 // HELPERS
 

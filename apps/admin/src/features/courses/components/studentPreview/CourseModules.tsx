@@ -2,13 +2,17 @@
 
 import {useState} from "react";
 import {Icon, motion, AnimatePresence} from "@mcc/ui";
-import {MakeModule, ModuleContent, Topic} from "../../types/types";
+import {
+  MakeModule,
+  ModuleContent,
+  Topic,
+} from "@/src/features/courses/types/types";
 import {
   formatDuration,
   useLessonsDuration,
   useLevelProgress,
   useModuleProgress,
-} from "../../hooks/useLesson";
+} from "@/src/features/courses/hooks/useLesson";
 
 interface CourseContentSidebarProps {
   topics: Topic[];
