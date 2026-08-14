@@ -9,29 +9,7 @@ import {
 } from "@tanstack/react-table";
 import {Icon} from "@mcc/ui";
 import EnhancedTable from "@/src/components/Table";
-
-interface Program {
-  id: string;
-  thumbnailLabel: string;
-  title: string;
-  subtitle: string;
-}
-
-type LeaderboardTier = "gold" | "silver" | "bronze" | "standard";
-
-export interface Student {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  programs: Program[];
-  dateJoined: string;
-  dateJoinedTime: string;
-  dateOnboarded: string;
-  dateOnboardedTime: string;
-  rank: number;
-  location: string;
-}
+import {LeaderboardTier, Student} from "../types/types";
 
 interface ActiveTableProps {
   onOpenProfile?: (student: Student) => void;

@@ -2,10 +2,12 @@ import {useEffect, useRef, useState} from "react";
 import {AnimatePresence, motion} from "framer-motion";
 import Image from "next/image";
 import {Button, Icon} from "@mcc/ui";
-import {Student} from "./ActiveTable";
+import {Student, PersonalDetailsProps} from "../types/types";
 
 interface ViewActiveStudentProps {
+  isOpen: boolean;
   student: Student | null;
+  onDisableStudent: (student: Student) => void;
   onClose: () => void;
 }
 
@@ -28,12 +30,7 @@ interface EnrolledProgram {
   showInfoIcon?: boolean;
   attempts: ProgramAttempt[];
 }
-interface PersonalDetailsProps {
-  email?: string;
-  phone?: string;
-  username?: string;
-  location?: string;
-}
+
 interface LeaderboardRankProps {
   rank: number;
   label: string;
@@ -68,23 +65,25 @@ interface Teacher {
 }
 
 export default function ViewActiveStudent({
+  isOpen,
   student,
   onClose,
+  onDisableStudent,
 }: ViewActiveStudentProps) {
   // Optional: Close on Escape key press
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
-    if (student) {
+    if (isOpen) {
       window.addEventListener("keydown", handleKeyDown);
     }
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [student, onClose]);
+  }, [isOpen, onClose]);
 
   return (
     <AnimatePresence>
-      {student ? (
+      {isOpen && student ? (
         <>
           <motion.div
             initial={{opacity: 0}}
@@ -150,7 +149,6 @@ export default function ViewActiveStudent({
                   </div>
                 </div>
 
-                {/* GLASS CARD */}
                 <div className="absolute bottom-2 left-1/2 z-20 w-[96%] -translate-x-1/2 rounded-xl border border-white/20 bg-black/30 p-6 backdrop-blur-xs">
                   <div className="flex items-center justify-between">
                     <div>
@@ -205,7 +203,12 @@ export default function ViewActiveStudent({
                 <ProgramTeachers />
               </div>
 
-              <Button variant={"ghost"} width={"full"} className="text-red-500">
+              <Button
+                variant={"ghost"}
+                width={"full"}
+                className="text-red-500"
+                onClick={() => onDisableStudent(student)}
+              >
                 Disable Student
               </Button>
             </div>
@@ -234,7 +237,6 @@ function PersonalDetails({
       </h2>
 
       <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-8">
-        {/* Email */}
         <div className="flex items-center gap-3">
           <Icon
             icon="lucide:mail"
@@ -246,7 +248,6 @@ function PersonalDetails({
           </span>
         </div>
 
-        {/* Phone with Reveal Toggle */}
         <div className="flex items-center gap-3">
           <Icon
             icon="lucide:phone"
@@ -264,7 +265,6 @@ function PersonalDetails({
           </button>
         </div>
 
-        {/* Username */}
         <div className="flex items-center gap-3">
           <Icon
             icon="lucide:user-check"
@@ -274,7 +274,6 @@ function PersonalDetails({
           <span className="text-sm font-medium text-gray-600">{username}</span>
         </div>
 
-        {/* Location */}
         <div className="flex items-center gap-3">
           <Icon icon="emojione:flag-for-nigeria" />
           <span className="text-sm font-semibold text-gray-800">
@@ -300,7 +299,6 @@ function ProgramOfChoice({
   }) {
     return (
       <div className="relative pl-8">
-        {/* connector line */}
         <div className="absolute left-0 top-0 bottom-0 w-6">
           <div
             className={`absolute left-0 top-0 w-6 h-6 border-l-2 border-b-2 border-gray-200 rounded-bl-xl`}
@@ -659,27 +657,22 @@ function UpcomingSession({
 }: UpcomingSessionProps) {
   return (
     <div className="w-full max-w-xl font-sans text-gray-800">
-      {/* Section Title */}
       <h3 className="text-base font-semibold text-gray-800 mb-4">
         Upcoming session
       </h3>
 
-      {/* Session Card */}
       <div className="relative w-full rounded-2xl border border-gray-200 bg-white p-5 shadow-2xs">
-        {/* Session Tag */}
         <div className="mb-3 inline-block rounded-lg bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
           {sessionTag}
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-4">
-          {/* Left Content */}
           <div className="flex flex-col gap-2">
             <h4 className="text-sm font-bold text-gray-900 truncate max-w-[280px]">
               {courseTitle}
             </h4>
 
             <div className="flex items-center gap-3">
-              {/* Stacked Avatars */}
               <div className="flex -space-x-2 overflow-hidden shrink-0">
                 <div className="inline-block h-8 w-8 rounded-full border-2 border-white bg-rose-200 flex items-center justify-center text-xs font-bold text-rose-700">
                   👨‍🎨
@@ -689,7 +682,6 @@ function UpcomingSession({
                 </div>
               </div>
 
-              {/* Host & Time Details */}
               <div className="min-w-0">
                 <p className="text-xs font-semibold text-gray-800 truncate">
                   {hosts}
@@ -702,9 +694,7 @@ function UpcomingSession({
             </div>
           </div>
 
-          {/* Right Action Pill & Options */}
           <div className="flex items-center gap-2">
-            {/* Countdown / Join Pill */}
             <button
               onClick={onJoinClick}
               className="flex items-center gap-2 rounded-full bg-[#111318] pl-4 pr-1 py-1 text-xs font-medium text-white hover:bg-gray-800 transition-colors"
@@ -715,7 +705,6 @@ function UpcomingSession({
               </div>
             </button>
 
-            {/* Options Menu Button */}
             <button
               onClick={onMoreClick}
               aria-label="More options"
@@ -727,7 +716,6 @@ function UpcomingSession({
         </div>
       </div>
 
-      {/* Calls Taken Footer Counter */}
       <p className="mt-4 text-sm font-semibold text-gray-800">
         Calls taken: <span className="font-bold">{callsTakenCount}</span>
       </p>
@@ -738,16 +726,13 @@ function UpcomingSession({
 function ProgramTeachers({teachers = TEACHERS}: {teachers?: Teacher[]}) {
   return (
     <div className="w-full ">
-      {/* Section Title */}
       <h3 className="text-base font-semibold text-gray-800 mb-6">
         Program Teachers
       </h3>
 
-      {/* Grid Layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
         {teachers.map((teacher) => (
           <div key={teacher.id} className="flex items-center gap-3.5">
-            {/* Avatar with Double Outer Ring Effect */}
             <div className="relative shrink-0 p-0.5 rounded-full border border-gray-200/80 bg-white shadow-2xs">
               <div className="relative h-11 w-11 overflow-hidden rounded-full border border-white bg-gray-100">
                 {teacher.avatarUrl ? (
@@ -765,7 +750,6 @@ function ProgramTeachers({teachers = TEACHERS}: {teachers?: Teacher[]}) {
               </div>
             </div>
 
-            {/* Details */}
             <div className="min-w-0">
               <h4 className="text-sm font-semibold text-gray-900 truncate">
                 {teacher.name}

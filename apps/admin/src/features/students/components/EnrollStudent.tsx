@@ -1,28 +1,7 @@
-import React, {useState, useEffect} from "react";
+import {useState, useEffect} from "react";
 import {motion, AnimatePresence} from "framer-motion";
-
-// Custom Iconify Component signature
-interface IconProps {
-  icon: string;
-  size?: number;
-  className?: string;
-}
-
-const Icon = ({icon, size = 16, className = ""}: IconProps) => (
-  <span className={className} style={{fontSize: `${size}px`}}>
-    {/* Your internal @mcc/ui Iconify renderer */}
-  </span>
-);
-
-interface Student {
-  id?: string;
-  name: string;
-  email: string;
-  phone: string;
-  username: string;
-  location: string;
-  avatar: string;
-}
+import {Icon} from "@mcc/ui";
+import {Student} from "../types/types";
 
 interface ProgramItem {
   id: string;
@@ -39,7 +18,6 @@ interface EnrollStudentModalProps {
   onClose: () => void;
 }
 
-// Sample mock pool for available items to enroll
 const MOCK_AVAILABLE_PROGRAMS: ProgramItem[] = [
   {
     id: "c1",
@@ -107,7 +85,6 @@ export default function EnrollStudentModal({
     MOCK_AVAILABLE_PROGRAMS[4],
   ]);
 
-  // Close on Escape key press
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -120,7 +97,6 @@ export default function EnrollStudentModal({
 
   if (!isOpen || !student) return null;
 
-  // Handlers
   const handleUnenrollCourse = (indexToRemove: number) => {
     setEnrolledCourses((prev) =>
       prev.filter((_, idx) => idx !== indexToRemove),
@@ -141,7 +117,6 @@ export default function EnrollStudentModal({
 
   const activeList = activeTab === "courses" ? enrolledCourses : enrolledExams;
 
-  // Available items for search popover based on active tab
   const availableItems = MOCK_AVAILABLE_PROGRAMS.filter(
     (item) => item.type === (activeTab === "courses" ? "course" : "exam"),
   ).filter((item) =>
@@ -150,9 +125,8 @@ export default function EnrollStudentModal({
 
   return (
     <AnimatePresence>
-      {isOpen ? (
+      {isOpen && student ? (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{opacity: 0}}
             animate={{opacity: 1}}
@@ -162,7 +136,6 @@ export default function EnrollStudentModal({
             className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px]"
           />
 
-          {/* Slide-over Panel */}
           <motion.section
             initial={{x: "100%", opacity: 0}}
             animate={{x: 0, opacity: 1}}
@@ -171,7 +144,6 @@ export default function EnrollStudentModal({
             className="fixed top-0 right-0 z-50 h-screen w-full max-w-[580px] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between"
           >
             <div className="flex flex-col gap-5">
-              {/* Header */}
               <div className="flex items-center justify-between pb-1 border-b border-gray-100">
                 <h2 className="text-base font-semibold text-gray-900">
                   Enroll student
@@ -185,7 +157,6 @@ export default function EnrollStudentModal({
                 </button>
               </div>
 
-              {/* Top Avatar Banner */}
               <div className="relative w-full h-40 bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 rounded-2xl flex flex-col items-center justify-center overflow-hidden">
                 <div className="absolute -left-6 bottom-2 w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none" />
                 <div className="absolute right-4 top-2 w-32 h-32 bg-purple-400/20 rounded-full blur-2xl pointer-events-none" />
@@ -210,14 +181,12 @@ export default function EnrollStudentModal({
                 </button>
               </div>
 
-              {/* Personal Details Section */}
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-gray-700">
                   Personal Details
                 </h3>
 
                 <div className="grid grid-cols-2 gap-y-2.5 text-xs text-gray-600">
-                  {/* Email */}
                   <div className="flex items-center gap-2">
                     <Icon
                       icon="lucide:mail"
@@ -227,7 +196,6 @@ export default function EnrollStudentModal({
                     <span>{student.email || "bright@gmail.com"}</span>
                   </div>
 
-                  {/* Phone with Reveal Toggle */}
                   <div className="flex items-center gap-2">
                     <Icon
                       icon="lucide:phone"
@@ -248,7 +216,6 @@ export default function EnrollStudentModal({
                     </button>
                   </div>
 
-                  {/* Username */}
                   <div className="flex items-center gap-2">
                     <Icon
                       icon="lucide:user"
@@ -258,7 +225,6 @@ export default function EnrollStudentModal({
                     <span>{student.username || "mac"}</span>
                   </div>
 
-                  {/* Location */}
                   <div className="flex items-center gap-2">
                     <Icon icon="circle-flags:ng" size={14} />
                     <span className="font-medium text-gray-700">
@@ -270,13 +236,11 @@ export default function EnrollStudentModal({
 
               <hr className="border-gray-100 my-1" />
 
-              {/* Enrollment List Section */}
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-gray-700">
                   Enrollment List
                 </h3>
 
-                {/* Pill Switcher */}
                 <div className="inline-flex rounded-full bg-gray-100/80 p-1 text-xs">
                   <button
                     type="button"
@@ -308,7 +272,6 @@ export default function EnrollStudentModal({
                   </button>
                 </div>
 
-                {/* Currently Enrolled List */}
                 <div className="space-y-3">
                   {activeList.map((item, index) => (
                     <div
@@ -354,7 +317,6 @@ export default function EnrollStudentModal({
                   ))}
                 </div>
 
-                {/* Search Box / Dropdown Drawer Trigger */}
                 <div className="relative pt-2">
                   {!isSearchOpen ? (
                     <button
@@ -369,14 +331,12 @@ export default function EnrollStudentModal({
                       <Icon icon="lucide:chevron-right" size={14} />
                     </button>
                   ) : (
-                    /* Search Dropdown Drawer (Image 2 style) */
                     <motion.div
                       initial={{opacity: 0, y: -6}}
                       animate={{opacity: 1, y: 0}}
                       exit={{opacity: 0, y: -6}}
                       className="rounded-2xl border border-gray-100 bg-white p-3 shadow-lg space-y-3"
                     >
-                      {/* Search Input */}
                       <div className="relative flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs focus-within:border-purple-500">
                         <Icon
                           icon="lucide:search"
@@ -393,7 +353,6 @@ export default function EnrollStudentModal({
                         />
                       </div>
 
-                      {/* Available Results List */}
                       <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
                         {availableItems.length > 0 ? (
                           availableItems.map((item) => (
@@ -434,7 +393,6 @@ export default function EnrollStudentModal({
                         )}
                       </div>
 
-                      {/* Inline Close Button */}
                       <div className="pt-1 text-center">
                         <button
                           type="button"
@@ -453,7 +411,6 @@ export default function EnrollStudentModal({
               </div>
             </div>
 
-            {/* Bottom Submit Button */}
             <div className="pt-6">
               <button
                 type="button"
