@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import {Icon} from "@mcc/ui";
 import {InlineRename} from "./Step2";
-import {FileRow} from "../../types/types";
+import {FileRow} from "@/src/features/courses/types/types";
 
 function uid() {
   return Math.random().toString(36).slice(2, 9);

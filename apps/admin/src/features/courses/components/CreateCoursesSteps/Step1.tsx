@@ -1,7 +1,7 @@
 import {Controller, FormInputs, useFormContext} from "@mcc/features";
 import {Button, Icon} from "@mcc/ui";
 import {useState} from "react";
-import {CoursesFormValues} from "../../types/types";
+import {CoursesFormValues} from "@/src/features/courses/types/types";
 import {useRouter} from "next/navigation";
 
 export default function CreateDetails({

@@ -28,7 +28,7 @@ export default function GoogleSuccessPage() {
         setAccessToken(access_token);
         const destination = redirect_url
           ? new URL(redirect_url).pathname
-          : (user.is_onboarded ? "/dashboard" : "/onboarding");
+          : "/dashboard";
         router.replace(destination);
       })
       .catch((err) => {

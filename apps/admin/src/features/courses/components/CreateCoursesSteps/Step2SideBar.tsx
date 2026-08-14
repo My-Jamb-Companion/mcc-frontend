@@ -7,7 +7,7 @@ import {
   practiceViewId,
   uid,
 } from "./Step2";
-import {MakeModule, Topic} from "../../types/types";
+import {MakeModule, Topic} from "@/src/features/courses/types/types";
 
 export function quizViewId(moduleId: string) {
   return `quiz:${moduleId}`;

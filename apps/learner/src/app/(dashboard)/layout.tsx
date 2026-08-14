@@ -18,6 +18,7 @@ export default function DashboardLayout({
   const [sideNav, setSideNav] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!hydrated) return;
@@ -34,7 +35,6 @@ export default function DashboardLayout({
 
   const isClassroom = pathname.includes("/classroom");
   const isAccount = pathname.includes("/account");
-  const isMobile = useIsMobile();
   return (
     <RoleLayout allowedRoles={["student"]}>
       <div className="flex flex-col h-screen scrollbar-hide">

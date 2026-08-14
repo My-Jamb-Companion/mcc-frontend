@@ -3,7 +3,7 @@ import {
   ModuleContent,
   LessonModuleContent,
   MakeModule,
-} from "../../types/types";
+} from "@/src/features/courses/types/types";
 
 export function isLessonItem(item: ModuleContent): item is LessonModuleContent {
   return item.type === "lesson";
@@ -40,15 +40,15 @@ export const formatDuration = (seconds: number) => {
 /**
  * Calculate level progress
  */
-export function calculateLevelProgress(modules: ModuleContent[]): number {
-  const lessons = modules.flatMap((module) => module.lessons ?? []);
+export function calculateLevelProgress(modules: MakeModule[]): number {
+  const content = modules.flatMap((module) => module.content ?? []);
 
-  return calculateModuleProgress(lessons);
+  return calculateModuleProgress(content);
 }
 /**
  * Level progress hook
  */
-export function useLevelProgress(modules: ModuleContent[]) {
+export function useLevelProgress(modules: MakeModule[]) {
   return useMemo(() => calculateLevelProgress(modules), [modules]);
 }
 export function useLessonsDuration(content: ModuleContent[]) {

@@ -8,7 +8,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {Folder} from "lucide-react";
 
 export type studiodata = {
   id: number;

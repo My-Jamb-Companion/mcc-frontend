@@ -14,8 +14,8 @@ import {
   CreatPracticeQuestionType,
   ModuleContent,
   Option,
-} from "../../types/types";
-import {useAllModuleContents} from "../../hooks/useLesson";
+} from "@/src/features/courses/types/types";
+import {useAllModuleContents} from "@/src/features/courses/hooks/useLesson";
 import CourseExercise from "./CourseExcercise";
 
 export interface CourseStudentViewProps {

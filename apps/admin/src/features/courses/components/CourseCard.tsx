@@ -1,26 +1,6 @@
 import {useState} from "react";
-import {motion, AnimatePresence} from "framer-motion";
-import {Button, Icon} from "@mcc/ui";
+import {motion, AnimatePresence, Button, Icon} from "@mcc/ui";
 
-// In the MCC monorepo, swap these for @mcc/ui's <Icon icon="..." /> (Iconify).
-function ChevronRightIcon({className = ""}: {className?: string}) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      className={className}
-      aria-hidden="true"
-    >
-      <path
-        d="M9 6l6 6-6 6"
-        stroke="currentColor"
-        strokeWidth={2.2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 function DiamondIcon({className = ""}: {className?: string}) {
   return (
     <svg
@@ -50,7 +30,7 @@ function DiamondIcon({className = ""}: {className?: string}) {
 type Instructor = {
   name: string;
   initials: string;
-  gradient: string; // tailwind gradient classes
+  gradient: string;
 };
 
 type Course = {
@@ -152,11 +132,9 @@ function CourseCardRow({
   const open = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     onView?.(course.id);
-    console.log(course);
   };
   return (
     <div className="relative pt-3">
-      {/* Ribbon badge */}
       <div className="w-fit ml-auto mr-6 rounded-t-lg bg-gradient-to-r from-violet-600 to-fuchsia-500 px-4 py-1.5 text-xs font-semibold text-white shadow-md">
         {monthsLabel(course.monthsOpening)}
       </div>

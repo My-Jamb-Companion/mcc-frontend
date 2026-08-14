@@ -4,8 +4,11 @@ import {useMemo, useState} from "react";
 import CourseCompletion from "./CourseTestComplete";
 import CourseExam, {Question, SubmittedAnswer} from "./CourseExam";
 import {motion} from "@mcc/ui";
-import {calculateExamScore} from "../../helper/helper";
-import {CreatPracticeQuestionType, Option} from "../../types/types";
+import {calculateExamScore} from "@/src/features/courses/helper/helper";
+import {
+  CreatPracticeQuestionType,
+  Option,
+} from "@/src/features/courses/types/types";
 
 type FlowStep = "intro" | "quiz" | "completion" | "summary" | "certificate";
 
@@ -40,16 +43,17 @@ export default function CourseTestFlow({
   } | null>(null);
 
   const formattedQuestions: Question[] = useMemo(() => {
-    return questions.map((q: any) => {
-      if (q.answers && !q.options) {
+    return questions.map((q) => {
+      if ("answers" in q && !("options" in q)) {
         return q as Question;
       }
 
-      const options = q.options || [];
+      const practiceQ = q as CreatPracticeQuestionType;
+      const options = practiceQ.options || [];
       const correctTexts = options
         .filter((o: Option) => o.isCorrect)
         .map((o: Option) => o.text);
-      const isMulti = q.type === "multiple";
+      const isMulti = practiceQ.type === "multiple";
 
       return {
         id: q.id,
@@ -60,7 +64,7 @@ export default function CourseTestFlow({
       };
     });
   }, [questions]);
-  console.log(formattedQuestions);
+
   const handleQuizComplete = (answers: SubmittedAnswer[]) => {
     const quizResults = {
       answers,

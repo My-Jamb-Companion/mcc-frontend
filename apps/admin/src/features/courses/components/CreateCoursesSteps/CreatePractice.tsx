@@ -2,7 +2,7 @@ import {FormInputs} from "@mcc/features";
 import {Button, Icon} from "@mcc/ui";
 import {useState} from "react";
 import {uid} from "./Step2";
-import {CreatPracticeQuestionType} from "../../types/types";
+import {CreatPracticeQuestionType} from "@/src/features/courses/types/types";
 
 function QuestionCard({
   question,
@@ -35,22 +35,6 @@ function QuestionCard({
     value: CreatPracticeQuestionType[K],
   ) {
     onChange({...question, [field]: value});
-  }
-
-  function handleTypeChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const newType = e.target.value as "single" | "multiple";
-    const copy = {...question, type: newType};
-    if (newType === "single") {
-      let found = false;
-      copy.options = copy.options.map((opt) => {
-        if (opt.isCorrect && !found) {
-          found = true;
-          return opt;
-        }
-        return {...opt, isCorrect: false};
-      });
-    }
-    onChange(copy);
   }
 
   function handleOptionChange(optIndex: number, text: string) {
@@ -345,7 +329,7 @@ export default function PracticeQuestions({
     navigator.clipboard.writeText(JSON.stringify(target, null, 2));
   }
 
-  function handleDrop(e: React.DragEvent) {
+  function handleDrop() {
     if (
       dragItemIndex !== null &&
       dragOverItemIndex !== null &&

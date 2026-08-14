@@ -18,7 +18,7 @@ import {
   PracticeSet,
   QuizModuleContent,
   Topic,
-} from "../../types/types";
+} from "@/src/features/courses/types/types";
 
 // HELPERS
 
@@ -667,12 +667,12 @@ export default function ContentStep({
   courseName: string;
   onSaveDraft?: () => void;
 }) {
-  const {watch, setValue, getValues} = useFormContext<ContentFormValues>();
+  const {watch, setValue} = useFormContext<ContentFormValues>();
   const topics = watch("content.topics") ?? [];
   function setTopics(newTopics: Topic[]) {
     setValue("content.topics", newTopics, {shouldDirty: true});
   }
-  console.log(getValues());
+
   const [selectedContentId, setSelectedContentId] = useState("");
   const [isRenamingTopic, setIsRenamingTopic] = useState(false);
   const [isReorderOpen, setIsReorderOpen] = useState(false);

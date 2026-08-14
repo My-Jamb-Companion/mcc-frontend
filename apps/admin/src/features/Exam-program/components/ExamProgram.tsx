@@ -160,7 +160,6 @@ export default function ExamProgram() {
           <ProgramList
             program={filteredPrograms || []}
             onOpen={(program) => {
-              console.log(program);
               router.push(
                 `/dashboard/exam-program/${program.examType}?id=${program.id}`,
               );
@@ -194,7 +193,7 @@ export default function ExamProgram() {
         open={shareTarget !== null}
         link={shareTarget?.link}
         onCancel={() => setShareTarget(null)}
-        onSendLink={({recipient, link}) => {
+        onSendLink={({recipient: _recipient, link: _link}) => {
           // call your actual "send link to recipient" API here
           setShareTarget(null);
         }}
@@ -202,8 +201,7 @@ export default function ExamProgram() {
       <CreateExamProgram
         open={openCreateExam}
         onClose={() => setOpenCreateExam(false)}
-        onCreate={(payload) => {
-          console.log(payload);
+        onCreate={(_payload) => {
           setOpenCreateExam(false);
         }}
       />
@@ -212,8 +210,7 @@ export default function ExamProgram() {
         open={editExam !== null}
         exam={editExam}
         onClose={() => setEditExam(null)}
-        onEdit={(payload) => {
-          console.log(payload);
+        onEdit={(_payload) => {
           setEditExam(null);
         }}
       />

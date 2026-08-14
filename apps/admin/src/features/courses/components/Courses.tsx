@@ -3,11 +3,10 @@
 import {Button} from "@/src/components/Buttons";
 import TabbedButton from "@/src/components/TabbedButton";
 import {FormInputs} from "@mcc/features";
-import {AnimatePresence, motion, Icon} from "@mcc/ui";
+import {Icon} from "@mcc/ui";
 import {useEffect, useMemo, useRef, useState} from "react";
 import ShareSessionLink from "@/src/components/Modals/ShareLink";
 import {useRouter} from "next/navigation";
-import {dummyCourses} from "../constants/dummyData";
 import {CourseListRowData} from "./CoursesRow";
 import {CourseList} from "./CourseLists";
 import {useCourseData} from "../hooks/useCourse";
@@ -18,8 +17,6 @@ export default function Courses() {
   const [active, setActive] = useState("published");
   const [teachers, setTeachers] = useState<TeacherOption[]>([]);
   const [search, setSearch] = useState("");
-  const [openCreateExam, setOpenCreateExam] = useState(false);
-  const [editExam, setEditExam] = useState<CourseListRowData | null>(null);
   const [shareTarget, setShareTarget] = useState<CourseListRowData | null>(
     null,
   );
@@ -133,9 +130,9 @@ export default function Courses() {
                 saveDraft(course);
               }
             }}
-            onMessageTeacher={(id) => {
-              console.log(id);
-            }}
+            // onMessageTeacher={(id) => {
+            //   console.log(id);
+            // }}
             onDeleteCourse={(id) => {
               deleteCourse(id);
             }}
@@ -161,8 +158,9 @@ export default function Courses() {
         // link={`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/courses/${shareTarget?.id}`}
         link={`/dashboard/courses/${shareTarget?.id}`}
         onCancel={() => setShareTarget(null)}
-        onSendLink={({recipient, link}) => {
-          console.log(recipient, link);
+        onSendLink={() => {
+          // onSendLink={({recipient, link}) => {
+
           setShareTarget(null);
         }}
       />
