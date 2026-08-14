@@ -329,7 +329,7 @@ export default function PracticeQuestions({
     navigator.clipboard.writeText(JSON.stringify(target, null, 2));
   }
 
-  function handleDrop(e: React.DragEvent) {
+  function handleDrop() {
     if (
       dragItemIndex !== null &&
       dragOverItemIndex !== null &&

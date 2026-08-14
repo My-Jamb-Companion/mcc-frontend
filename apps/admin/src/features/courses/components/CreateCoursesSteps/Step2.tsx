@@ -667,7 +667,7 @@ export default function ContentStep({
   courseName: string;
   onSaveDraft?: () => void;
 }) {
-  const {watch, setValue, getValues} = useFormContext<ContentFormValues>();
+  const {watch, setValue} = useFormContext<ContentFormValues>();
   const topics = watch("content.topics") ?? [];
   function setTopics(newTopics: Topic[]) {
     setValue("content.topics", newTopics, {shouldDirty: true});
