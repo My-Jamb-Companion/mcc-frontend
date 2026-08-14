@@ -17,13 +17,10 @@ export default function ProspectiveStudents() {
   const [rejectStudent, setRejectStudent] = useState(false);
 
   const handleOpenProfile = (student: ProspectiveStudent) => {
-    console.log(student);
-
     setViewStudent(true);
     setStudent(student);
   };
   const handleRejectStudent = (student: ProspectiveStudent) => {
-    console.log(student);
     setStudent(student);
     setRejectStudent(true);
   };
