@@ -51,25 +51,21 @@ function QuestionCard({
     onChange({...question, [field]: value});
   }
 
-  // Currently unused: the type selector below calls updateField("type", ...)
-  // directly instead. Kept in case the extra "clear other correct answers
-  // when switching to single choice" behavior needs to be wired in later.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function handleTypeChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const newType = e.target.value as "single" | "multiple";
-    const copy = {...question, type: newType};
-    if (newType === "single") {
-      let found = false;
-      copy.options = copy.options.map((opt) => {
-        if (opt.isCorrect && !found) {
-          found = true;
-          return opt;
-        }
-        return {...opt, isCorrect: false};
-      });
-    }
-    onChange(copy);
-  }
+  // function handleTypeChange(e: React.ChangeEvent<HTMLInputElement>) {
+  //   const newType = e.target.value as "single" | "multiple";
+  //   const copy = {...question, type: newType};
+  //   if (newType === "single") {
+  //     let found = false;
+  //     copy.options = copy.options.map((opt) => {
+  //       if (opt.isCorrect && !found) {
+  //         found = true;
+  //         return opt;
+  //       }
+  //       return {...opt, isCorrect: false};
+  //     });
+  //   }
+  //   onChange(copy);
+  // }
 
   function handleOptionChange(optIndex: number, text: string) {
     const newOptions = [...question.options];
