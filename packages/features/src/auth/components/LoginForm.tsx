@@ -1,19 +1,25 @@
-import { useAuth } from "../hooks/useAuth";
+import {useAuth} from "../hooks/useAuth";
 import {FieldError, useForm, FormInputs} from "@mcc/features";
 import LoggingIn from "./LoggingIn";
-import { AnimatePresence, Icon, motion } from "@mcc/ui";
-import { extractApiError } from "@mcc/api";
-import { User } from "@mcc/types";
+import {AnimatePresence, Icon, motion} from "@mcc/ui";
+import {extractApiError} from "@mcc/api";
+import {User} from "@mcc/types";
 
-export const LoginForm = ({ onSuccess }: { onSuccess?: (user: User) => void }) => {
-  const { loginMutation } = useAuth();
-  const { register, formState, handleSubmit } = useForm<LoginFormInputs>();
+export const LoginForm = ({
+  more = true,
+  onSuccess,
+}: {
+  more?: boolean;
+  onSuccess?: (user: User) => void;
+}) => {
+  const {loginMutation} = useAuth();
+  const {register, formState, handleSubmit} = useForm<LoginFormInputs>();
   const errors = formState.errors;
 
   const onSubmit = (data: LoginFormInputs) => {
     loginMutation.mutate(
-      { email: data.email, password: data.password },
-      { onSuccess: (responseData) => onSuccess?.(responseData.user) }
+      {email: data.email, password: data.password},
+      {onSuccess: (responseData) => onSuccess?.(responseData.user)},
     );
   };
 
@@ -76,7 +82,10 @@ export const LoginForm = ({ onSuccess }: { onSuccess?: (user: User) => void }) =
 
               {loginMutation.isError && (
                 <p className="text-red-500 text-sm text-center">
-                  {extractApiError(loginMutation.error, "Invalid email or password")}
+                  {extractApiError(
+                    loginMutation.error,
+                    "Invalid email or password",
+                  )}
                 </p>
               )}
 
@@ -87,33 +96,36 @@ export const LoginForm = ({ onSuccess }: { onSuccess?: (user: User) => void }) =
               >
                 Log in
               </motion.button>
-
-              <div className="flex items-center justify-between gap-3">
-                <a
-                  href="/signup"
-                  className="flex-1 text-sm text-black dark:text-muted flex items-center justify-start gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
-                >
-                  <Icon icon="eva:arrow-back-outline" size={24} />
-                  <span>Back</span>
-                </a>
-                <a
-                  href="/forget-password"
-                  className="flex-1 text-sm text-black dark:text-muted flex items-center justify-end gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
-                >
-                  Forget Password?
-                </a>
-              </div>
+              {more && (
+                <div className="flex items-center justify-between gap-3">
+                  <a
+                    href="/signup"
+                    className="flex-1 text-sm text-black dark:text-muted flex items-center justify-start gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
+                  >
+                    <Icon icon="eva:arrow-back-outline" size={24} />
+                    <span>Back</span>
+                  </a>
+                  <a
+                    href="/forget-password"
+                    className="flex-1 text-sm text-black dark:text-muted flex items-center justify-end gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
+                  >
+                    Forget Password?
+                  </a>
+                </div>
+              )}
             </form>
 
-            <p className="text-sm text-center mt-4 dark:text-muted">
-              Don&apos;t have an account?{" "}
-              <a
-                href="/signup"
-                className="underline cursor-pointer text-black dark:text-white hover:text-primary transition-all duration-300"
-              >
-                Sign Up
-              </a>
-            </p>
+            {more && (
+              <p className="text-sm text-center mt-4 dark:text-muted">
+                Don&apos;t have an account?{" "}
+                <a
+                  href="/signup"
+                  className="underline cursor-pointer text-black dark:text-white hover:text-primary transition-all duration-300"
+                >
+                  Sign Up
+                </a>
+              </p>
+            )}
           </motion.div>
         </motion.div>
       )}
