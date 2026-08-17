@@ -35,6 +35,8 @@ const FormInputs = ({
           id={id}
           placeholder={placeholder}
           className={inputClass}
+          value={value}
+          onChange={(e) => onChange?.(e.target.value)}
           {...(inputProps as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
           {...registration}
         />
@@ -76,6 +78,8 @@ const FormInputs = ({
         type={resolvedType}
         placeholder={placeholder}
         className={inputClass}
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
         {...(inputProps as React.InputHTMLAttributes<HTMLInputElement>)}
         {...registration}
       />
