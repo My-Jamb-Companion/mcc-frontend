@@ -140,7 +140,7 @@ export default function ViewTeacher({
                 />
 
                 <div className="absolute left-1/2 top-[50%] z-10 -translate-x-1/2 -translate-y-1/2">
-                  <div className="relative size-33 overflow-hidden rounded-full border border-white/20 bg-white/10 backdrop-blur-md">
+                  <div className="relative size-42 overflow-hidden rounded-full border border-white/20 bg-white/10 backdrop-blur-md">
                     <img
                       src={teacher.avatar}
                       alt="profile"
@@ -161,28 +161,24 @@ export default function ViewTeacher({
                       </h1>
                     </div>
 
-                    <div className="flex flex-col gap-3 ">
-                      <div className="flex items-center gap-6">
-                        <p className="text-gray-400 text-xs">
-                          Onboarding level
-                        </p>
-                        <p className="text-white text-xs font-medium">94%</p>
+                    <div className="flex  gap-3 ">
+                      <div className="flex items-center gap-1">
+                        <Icon
+                          icon="material-symbols:star-rounded"
+                          className="text-green-500"
+                          size={15}
+                        />
+                        <p className="text-white text-xs ">2.4k (1.4k)</p>
                       </div>
 
-                      <div className="relative flex items-center justify-center h-3">
-                        <div
-                          className="w-full border border-white/50 h-full rounded-xs "
-                          style={{
-                            transform: "skewX(22deg)",
-                          }}
-                        >
-                          <div
-                            className="absolute left-0 z-10 w-[78%] rounded-tr-xs rounded-br-xs bg-white h-full"
-                            style={{
-                              transform: "skewX(1deg)",
-                            }}
-                          />
-                        </div>
+                      <div
+                        className={`relative w-10 h-12 flex items-start justify-center pt-1.5 text-xs font-bold text-purple-200 bg-purple-600`}
+                        style={{
+                          clipPath:
+                            "polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%)",
+                        }}
+                      >
+                        <span className="translate-y-2">#24</span>
                       </div>
                     </div>
                   </div>
@@ -195,8 +191,6 @@ export default function ViewTeacher({
                 <Program />
 
                 <LearningInformation />
-
-                <StudentBadges />
 
                 <UpcomingSession />
 
@@ -286,65 +280,7 @@ function PersonalDetails({
 }
 
 function Program({programs = PROGRAMS}: {programs?: EnrolledProgram[]}) {
-  function AttemptRow({
-    attempt,
-    isLast,
-  }: {
-    attempt: ProgramAttempt;
-    isLast: boolean;
-  }) {
-    return (
-      <div className="relative pl-8">
-        <div className="absolute left-0 top-0 bottom-0 w-6">
-          <div
-            className={`absolute left-0 top-0 w-6 h-6 border-l-2 border-b-2 border-gray-200 rounded-bl-xl`}
-          />
-          {!isLast && (
-            <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-200 ml-0" />
-          )}
-        </div>
-
-        <div
-          className={`flex items-start justify-between gap-4 pb-6 ${!isLast ? "border-b border-gray-100 mb-6" : ""}`}
-        >
-          <div>
-            <p className="text-sm font-semibold">{attempt.label}</p>
-            <p className="text-[11px] text-subtle mt-1">
-              {attempt.date}
-              <span className="text-subtle mx-1">|</span>
-              {attempt.time}
-            </p>
-          </div>
-          <div className="text-right shrink-0">
-            <p className="text-xs text-subtle">
-              <span className="font-semibold ">
-                {attempt.correct}/{attempt.total}
-              </span>{" "}
-              correct <span className="mx-1">•</span>
-              <span className="font-semibold">{attempt.points}</span> points
-            </p>
-            <p className="text-xs font-medium text-subtle mt-1 flex items-center justify-end gap-1">
-              You earned
-              <Icon icon="lucide:gem" size={14} className="text-sky-500" />
-              <span className="font-semibold text-subtle">
-                {attempt.diamonds} Diamonds
-              </span>
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  function ProgramRow({
-    program,
-    defaultExpanded = false,
-  }: {
-    program: EnrolledProgram;
-    defaultExpanded?: boolean;
-  }) {
-    const [expanded, setExpanded] = useState(defaultExpanded);
-
+  function ProgramRow({program}: {program: EnrolledProgram}) {
     return (
       <div>
         <div className="flex items-center justify-between gap-4 py-4">
@@ -370,46 +306,17 @@ function Program({programs = PROGRAMS}: {programs?: EnrolledProgram[]}) {
               </p>
             </div>
           </div>
-
-          <button
-            onClick={() => setExpanded((e) => !e)}
-            className="flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors shrink-0"
-          >
-            {expanded ? "Hide performance" : "See performance"}
-            <Icon
-              icon={expanded ? "lucide:chevron-up" : "lucide:chevron-down"}
-              size={16}
-            />
-          </button>
         </div>
-
-        {expanded && (
-          <div className="pl-1 pb-2">
-            {program.attempts.map((attempt, idx) => (
-              <AttemptRow
-                key={attempt.id}
-                attempt={attempt}
-                isLast={idx === program.attempts.length - 1}
-              />
-            ))}
-          </div>
-        )}
       </div>
     );
   }
 
   return (
     <div className="w-full border-t border-muted/30 mt-6 pt-4">
-      <h2 className="text-sm font-semibold text-subtle mb-2">
-        Program of choice
-      </h2>
+      <h2 className="text-sm font-semibold text-subtle mb-2">Programs</h2>
       <div className="divide-y divide-gray-100">
         {programs.map((program, idx) => (
-          <ProgramRow
-            key={program.id}
-            program={program}
-            defaultExpanded={idx === 0}
-          />
+          <ProgramRow key={program.id} program={program} />
         ))}
       </div>
     </div>
@@ -442,37 +349,6 @@ function LearningInformation() {
               130/300 <span className="text-gray-400 mx-1">•</span> 234 points
             </p>
           </div>
-
-          <div>
-            <p className="text-xs font-semibold text-gray-900 mb-2">
-              Avai. points:
-            </p>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-orange-50/80 border border-orange-200/60 px-3 py-1 text-xs">
-              <span className="text-base">
-                <Icon
-                  icon="mage:coin-b-fill"
-                  className="text-amber-500"
-                  size={20}
-                />
-              </span>
-              <span className="font-bold text-gray-900">8,299</span>
-              <span className="text-gray-500 text-xs">points</span>
-            </div>
-
-            <div className="flex items-center gap-1 text-xs font-medium text-gray-600 mt-4 cursor-pointer hover:text-gray-900">
-              <span>All time</span>
-              <Icon icon="lucide:chevron-down" size={14} />
-              <span className="ml-1 text-base">
-                <Icon
-                  icon="mage:coin-b-fill"
-                  className="text-amber-500"
-                  size={20}
-                />
-              </span>
-              <span className="font-bold text-gray-900 text-xs">23,456</span>
-              <span className="text-gray-500">points</span>
-            </div>
-          </div>
         </div>
 
         <div className="flex flex-col space-y-6">
@@ -492,150 +368,8 @@ function LearningInformation() {
             <p className="text-xs italic text-gray-400 mb-4">
               last updated: 05 Apr, 2026| 8:30 PM
             </p>
-
-            <div className="flex flex-col space-y-3">
-              <RibbonBadge
-                rank={21}
-                label="Worldwide"
-                variant="grey"
-                icon={
-                  <Icon
-                    icon="material-symbols:globe"
-                    size={18}
-                    className="text-gray-700"
-                  />
-                }
-              />
-              <RibbonBadge
-                rank={3}
-                label="Nigeria"
-                variant="teal"
-                icon={<Icon icon="emojione:flag-for-nigeria" />}
-              />
-              <RibbonBadge
-                rank={1}
-                label="Ikeja, LG, NG."
-                variant="purple"
-                icon={
-                  <Icon
-                    icon="mingcute:map-pin-line"
-                    size={18}
-                    className="text-gray-700"
-                  />
-                }
-              />
-            </div>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function StudentBadges() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (direction: "left" | "right") => {
-    if (scrollRef.current) {
-      const scrollAmount = direction === "left" ? -320 : 320;
-      scrollRef.current.scrollBy({left: scrollAmount, behavior: "smooth"});
-    }
-  };
-
-  return (
-    <div className="w-full border-t border-muted/30 mt-6 pt-4">
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-sm font-semibold text-subtle mb-2">
-          Student badges
-        </h2>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => scroll("left")}
-            aria-label="Scroll left"
-            className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors"
-          >
-            <Icon icon="lucide:chevron-left" size={18} />
-          </button>
-          <button
-            onClick={() => scroll("right")}
-            aria-label="Scroll right"
-            className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors"
-          >
-            <Icon icon="lucide:chevron-right" size={18} />
-          </button>
-        </div>
-      </div>
-
-      <div
-        ref={scrollRef}
-        className="flex gap-4 overflow-x-auto scrollbar-none pt-4 pb-2"
-        style={{scrollbarWidth: "none"}}
-      >
-        {BADGES.map((badge) => (
-          <div
-            key={badge.id}
-            className="relative flex-none w-90 rounded-2xl border border-muted/30 bg-white px-4 py-3.5 shadow-2xs"
-          >
-            <div
-              className="absolute -top-3 right-8 w-8 h-12 bg-[#8b5cf6] flex items-start justify-center pt-1.5 text-xs font-bold text-white shadow-sm"
-              style={{
-                clipPath: "polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%)",
-              }}
-            >
-              #{badge.rank}
-            </div>
-
-            <p className="text-[10px] text-subtle mb-2">
-              {badge.date}
-              <span className="mx-1 text-gray-300">|</span>
-              {badge.time}
-            </p>
-
-            <p className="text-xs font-medium leading-snug mb-2">
-              {badge.description}
-            </p>
-
-            <div className="flex items-center gap-4 text-xs font-semibold text-gray-700">
-              <div className="flex items-center gap-1.5">
-                💎
-                <span>{badge.diamonds}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Icon
-                  icon="mage:coin-b-fill"
-                  size={16}
-                  className="text-amber-400"
-                />
-                <span>{badge.coins}</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function RibbonBadge({rank, label, icon, variant}: LeaderboardRankProps) {
-  const BADGE_COLORS = {
-    grey: "bg-[#6c707a]",
-    teal: "bg-[#38bfa1]",
-    purple: "bg-[#8b5cf6]",
-  };
-  return (
-    <div className="flex items-center gap-3">
-      <div
-        className={`w-9 h-11 flex items-start justify-center pt-2 text-xs font-bold text-white shrink-0 drop-shadow-xs ${BADGE_COLORS[variant]}`}
-        style={{
-          clipPath: "polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%)",
-        }}
-      >
-        #{rank}
-      </div>
-
-      <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
-        <span className="shrink-0">{icon}</span>
-        <span>{label}</span>
       </div>
     </div>
   );
@@ -652,7 +386,7 @@ function UpcomingSession({
   onJoinClick,
 }: UpcomingSessionProps) {
   return (
-    <div className="w-full max-w-xl font-sans text-gray-800">
+    <div className="w-full max-w-xl font-sans text-gray-800 my-6">
       <h3 className="text-base font-semibold text-gray-800 mb-4">
         Upcoming session
       </h3>
@@ -723,7 +457,7 @@ function ProgramTeachers({teachers = TEACHERS}: {teachers?: Teachers[]}) {
   return (
     <div className="w-full ">
       <h3 className="text-base font-semibold text-gray-800 mb-6">
-        Program Teachers
+        Teachers under same program
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
@@ -846,37 +580,5 @@ const PROGRAMS: EnrolledProgram[] = [
         diamonds: 5,
       },
     ],
-  },
-];
-const BADGES: BadgeItem[] = [
-  {
-    id: "1",
-    rank: 1,
-    date: "05 Apr, 2026",
-    time: "8:30 PM",
-    description:
-      "You finished top 3 this week and you have earned some reward.",
-    diamonds: 290,
-    coins: 290,
-  },
-  {
-    id: "2",
-    rank: 1,
-    date: "05 Apr, 2026",
-    time: "8:30 PM",
-    description:
-      "You finished top 3 this week and you have earned some reward.",
-    diamonds: 290,
-    coins: 290,
-  },
-  {
-    id: "3",
-    rank: 2,
-    date: "05 Apr, 2026",
-    time: "8:30 PM",
-    description:
-      "You finished top 3 this week and you have earned some reward.",
-    diamonds: 150,
-    coins: 150,
   },
 ];

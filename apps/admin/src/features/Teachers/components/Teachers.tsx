@@ -136,17 +136,6 @@ export default function Teachers() {
           }}
         />
 
-        {/* <CreateStudentModal
-          isOpen={createStudent}
-          onClose={() => setCreateStudent(false)}
-        /> */}
-
-        {/* <EnrollStudentModal
-          student={student}
-          isOpen={enrollStudent}
-          onClose={() => setEnrollStudent(false)}
-        /> */}
-
         <Modal open={confirmDisable} onClose={() => setConfirmDisable(false)}>
           <div className="flex flex-col ">
             <div className="flex flex-col relative">
@@ -160,7 +149,7 @@ export default function Teachers() {
               />
 
               <div className="absolute left-1/2 top-[50%] z-10 -translate-x-1/2 -translate-y-1/2">
-                <div className="relative size-33 overflow-hidden rounded-full border border-white/20 bg-white/10 backdrop-blur-md">
+                <div className="relative size-42 overflow-hidden rounded-full border border-white/20 bg-white/10 backdrop-blur-md">
                   <img
                     src={teacher?.avatar}
                     alt="profile"
@@ -169,7 +158,6 @@ export default function Teachers() {
                 </div>
               </div>
 
-              {/* GLASS CARD */}
               <div className="absolute bottom-2 left-1/2 z-20 w-[96%] -translate-x-1/2 rounded-xl border border-white/20 bg-black/30 p-6 backdrop-blur-xs">
                 <div className="flex items-center justify-between">
                   <div>
@@ -178,30 +166,28 @@ export default function Teachers() {
                     </h1>
                     <h1 className="flex items-center gap-1 text-gray-400 text-xs">
                       <div className="h-1.5 w-1.5  bg-green-500 rounded-full" />
-                      <span>Active teacher</span>
+                      <span>Active student</span>
                     </h1>
                   </div>
 
-                  <div className="flex flex-col gap-3 ">
-                    <div className="flex items-center gap-6">
-                      <p className="text-gray-400 text-xs">Onboarding level</p>
-                      <p className="text-white text-xs font-medium">94%</p>
+                  <div className="flex  gap-3 ">
+                    <div className="flex items-center gap-1">
+                      <Icon
+                        icon="material-symbols:star-rounded"
+                        className="text-green-500"
+                        size={15}
+                      />
+                      <p className="text-white text-xs ">2.4k (1.4k)</p>
                     </div>
 
-                    <div className="relative flex items-center justify-center h-3">
-                      <div
-                        className="w-full border border-white/50 h-full rounded-xs "
-                        style={{
-                          transform: "skewX(22deg)",
-                        }}
-                      >
-                        <div
-                          className="absolute left-0 z-10 w-[78%] rounded-tr-xs rounded-br-xs bg-white h-full"
-                          style={{
-                            transform: "skewX(1deg)",
-                          }}
-                        />
-                      </div>
+                    <div
+                      className={`relative w-10 h-12 flex items-start justify-center pt-1.5 text-xs font-bold text-purple-200 bg-purple-600`}
+                      style={{
+                        clipPath:
+                          "polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%)",
+                      }}
+                    >
+                      <span className="translate-y-2">#24</span>
                     </div>
                   </div>
                 </div>
