@@ -11,7 +11,7 @@ export default function LoginPage() {
       <LoginForm
         more={false}
         onSuccess={() => {
-          router.push("/admin/dashboard");
+          router.push("/dashboard");
         }}
       />
     </div>
