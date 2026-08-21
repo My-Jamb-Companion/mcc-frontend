@@ -5,8 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev:learner": "pnpm --filter learner dev",
-    "dev:admin": "pnpm --filter admin dev",
+    "dev:learner": "pnpm --filter learner dev -p 3000",
+    "dev:admin": "pnpm --filter admin dev -p 3001",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit --pretty false --diagnostics --extendedDiagnostics",
     "build": "turbo run build",
