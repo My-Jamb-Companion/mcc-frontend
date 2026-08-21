@@ -15,8 +15,8 @@ export default function Teachers() {
   const [search, setSearch] = useState("");
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [viewTeacher, setViewTeacher] = useState(false);
-  const [createTeacher, setCreateTeacher] = useState(false);
-  const [enrollTeacher, setEnrollTeacher] = useState(false);
+  const [, setCreateTeacher] = useState(false);
+  const [, setEnrollTeacher] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);
 
   const handleOpenProfile = (teacher: Teacher) => {

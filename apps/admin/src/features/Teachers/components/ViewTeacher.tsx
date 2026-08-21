@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {AnimatePresence, motion} from "framer-motion";
 import Image from "next/image";
 import {Button, Icon} from "@mcc/ui";
@@ -29,22 +29,6 @@ interface EnrolledProgram {
   subtitle: string;
   showInfoIcon?: boolean;
   attempts: ProgramAttempt[];
-}
-
-interface LeaderboardRankProps {
-  rank: number;
-  label: string;
-  icon: React.ReactNode;
-  variant: "grey" | "teal" | "purple";
-}
-interface BadgeItem {
-  id: string;
-  rank: number;
-  date: string;
-  time: string;
-  description: string;
-  diamonds: number;
-  coins: number;
 }
 
 interface UpcomingSessionProps {
