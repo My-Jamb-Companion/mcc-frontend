@@ -299,7 +299,7 @@ function Program({programs = PROGRAMS}: {programs?: EnrolledProgram[]}) {
     <div className="w-full border-t border-muted/30 mt-6 pt-4">
       <h2 className="text-sm font-semibold text-subtle mb-2">Programs</h2>
       <div className="divide-y divide-gray-100">
-        {programs.map((program, idx) => (
+        {programs.map((program) => (
           <ProgramRow key={program.id} program={program} />
         ))}
       </div>
