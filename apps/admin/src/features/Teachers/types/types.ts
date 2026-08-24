@@ -16,11 +16,12 @@ export interface Teacher {
   username?: string;
   programs: Program[];
   dateJoined: string;
-  dateJoinedTime: string;
-  dateOnboarded?: string;
-  dateOnboardedTime?: string;
   rank: number;
-  location: string;
+  rating: string;
+  sessions: {
+    total: number;
+    completed: number;
+  };
 }
 export interface ProspectiveStudent {
   id: string;

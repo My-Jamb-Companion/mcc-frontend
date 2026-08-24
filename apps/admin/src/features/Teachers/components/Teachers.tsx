@@ -34,10 +34,6 @@ export default function Teachers() {
     setTeacher(teacher);
   };
 
-  const handleEnrollTeacher = (teacher: Teacher) => {
-    setTeacher(teacher);
-    setEnrollTeacher(true);
-  };
   return (
     <section className="flex flex-col gap-6 h-full">
       <div className="flex items-center justify-between">
@@ -121,7 +117,7 @@ export default function Teachers() {
           onOpenProfile={handleOpenProfile}
           // onMessageStudent={handleMessageStudent}
           onDisableTeacher={handleDisableTeacher}
-          onEnrollTeacher={handleEnrollTeacher}
+          // onAssignProgram={handleAssignProgram}
         />
       </div>
 
@@ -166,7 +162,7 @@ export default function Teachers() {
                     </h1>
                     <h1 className="flex items-center gap-1 text-gray-400 text-xs">
                       <div className="h-1.5 w-1.5  bg-green-500 rounded-full" />
-                      <span>Active student</span>
+                      <span>Active Teacher</span>
                     </h1>
                   </div>
 

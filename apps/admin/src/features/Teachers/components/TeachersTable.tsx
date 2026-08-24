@@ -15,7 +15,7 @@ interface TeachersTableProps {
   onOpenProfile?: (teacher: Teacher) => void;
   onMessageTeacher?: (teacher: Teacher) => void;
   onDisableTeacher?: (teacher: Teacher) => void;
-  onEnrollTeacher?: (teacher: Teacher) => void;
+  onAssignProgram?: (teacher: Teacher) => void;
   onAssignCra?: (teacher: Teacher) => void;
 }
 
@@ -40,11 +40,10 @@ const TEACHERS: Teacher[] = [
       },
     ],
     dateJoined: "05 Apr, 2026",
-    dateJoinedTime: "8:30 PM",
-    dateOnboarded: "05 Apr, 2026",
-    dateOnboardedTime: "8:30 PM",
+
     rank: 1,
-    location: "Lagos, NG.",
+    rating: "4.5 (2.9k)",
+    sessions: {total: 34, completed: 18},
   },
   {
     id: "2",
@@ -84,11 +83,10 @@ const TEACHERS: Teacher[] = [
       },
     ],
     dateJoined: "05 Apr, 2026",
-    dateJoinedTime: "8:30 PM",
-    dateOnboarded: "05 Apr, 2026",
-    dateOnboardedTime: "8:30 PM",
+
     rank: 21,
-    location: "Uyo, NG.",
+    rating: "4.5 (2.9k)",
+    sessions: {total: 34, completed: 18},
   },
   {
     id: "3",
@@ -104,11 +102,10 @@ const TEACHERS: Teacher[] = [
       },
     ],
     dateJoined: "05 Apr, 2026",
-    dateJoinedTime: "8:30 PM",
-    dateOnboarded: "05 Apr, 2026",
-    dateOnboardedTime: "8:30 PM",
+
     rank: 8,
-    location: "Ibadan, NG.",
+    rating: "4.5 (2.9k)",
+    sessions: {total: 34, completed: 18},
   },
   {
     id: "4",
@@ -130,11 +127,10 @@ const TEACHERS: Teacher[] = [
       },
     ],
     dateJoined: "05 Apr, 2026",
-    dateJoinedTime: "8:30 PM",
-    dateOnboarded: "05 Apr, 2026",
-    dateOnboardedTime: "8:30 PM",
+
     rank: 1,
-    location: "Lagos, NG.",
+    rating: "4.5 (2.9k)",
+    sessions: {total: 34, completed: 18},
   },
   {
     id: "5",
@@ -150,11 +146,10 @@ const TEACHERS: Teacher[] = [
       },
     ],
     dateJoined: "05 Apr, 2026",
-    dateJoinedTime: "8:30 PM",
-    dateOnboarded: "05 Apr, 2026",
-    dateOnboardedTime: "8:30 PM",
+
     rank: 3,
-    location: "Enugu, NG.",
+    rating: "4.5 (2.9k)",
+    sessions: {total: 34, completed: 18},
   },
   {
     id: "6",
@@ -188,11 +183,10 @@ const TEACHERS: Teacher[] = [
       },
     ],
     dateJoined: "05 Apr, 2026",
-    dateJoinedTime: "8:30 PM",
-    dateOnboarded: "05 Apr, 2026",
-    dateOnboardedTime: "8:30 PM",
+
     rank: 12,
-    location: "Port H…, NG.",
+    rating: "4.5 (2.9k)",
+    sessions: {total: 34, completed: 18},
   },
 ];
 
@@ -414,17 +408,6 @@ function LeaderboardBadge({rank}: {rank: number}) {
   );
 }
 
-function LocationCell({location}: {location: string}) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <Icon icon="twemoji:flag-nigeria" size={20} />
-      <span className="text-sm text-gray-700 whitespace-nowrap">
-        {location}
-      </span>
-    </div>
-  );
-}
-
 interface MenuItem {
   id: string;
   label: string;
@@ -443,7 +426,7 @@ function ActionsMenuPortal({
   onOpenProfile,
   onMessageTeacher,
   onDisableTeacher,
-  onEnrollTeacher,
+  onAssignProgram,
   onAssignCra,
 }: {
   teacher: Teacher;
@@ -452,7 +435,7 @@ function ActionsMenuPortal({
   onOpenProfile?: (teacher: Teacher) => void;
   onMessageTeacher?: (teacher: Teacher) => void;
   onDisableTeacher?: (teacher: Teacher) => void;
-  onEnrollTeacher?: (teacher: Teacher) => void;
+  onAssignProgram?: (teacher: Teacher) => void;
   onAssignCra?: (teacher: Teacher) => void;
 }) {
   const menuRef = useRef<HTMLDivElement>(null);
@@ -469,11 +452,11 @@ function ActionsMenuPortal({
       action: onOpenProfile,
     },
     {
-      id: "enroll",
-      label: "Enroll Teacher",
+      id: "assign-program",
+      label: "Assign Program",
       icon: "ri:user-follow-line",
       danger: false,
-      action: onEnrollTeacher,
+      action: onAssignProgram,
     },
     {
       id: "message",
@@ -570,21 +553,21 @@ function ActionsCell({
   onOpenProfile,
   onMessageTeacher,
   onDisableTeacher,
-  onEnrollTeacher,
+  onAssignProgram,
   onAssignCra,
 }: {
   teacher: Teacher;
   onOpenProfile?: (teacher: Teacher) => void;
   onMessageTeacher?: (teacher: Teacher) => void;
   onDisableTeacher?: (teacher: Teacher) => void;
-  onEnrollTeacher?: (teacher: Teacher) => void;
+  onAssignProgram?: (teacher: Teacher) => void;
   onAssignCra?: (teacher: Teacher) => void;
 }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   return (
-    <div className="flex items-center justify-end w-full">
+    <div className="flex items-center justify-center w-full">
       <button
         ref={triggerRef}
         onClick={() => setOpen((o) => !o)}
@@ -603,7 +586,7 @@ function ActionsCell({
           onOpenProfile={onOpenProfile}
           onMessageTeacher={onMessageTeacher}
           onDisableTeacher={onDisableTeacher}
-          onEnrollTeacher={onEnrollTeacher}
+          onAssignProgram={onAssignProgram}
           onAssignCra={onAssignCra}
         />
       )}
@@ -615,7 +598,7 @@ const columnHelper = createColumnHelper<Teacher>();
 
 export default function TeachersTable({
   onOpenProfile,
-  onEnrollTeacher,
+  onAssignProgram,
   onMessageTeacher,
   onAssignCra,
   onDisableTeacher,
@@ -625,46 +608,55 @@ export default function TeachersTable({
   const columns = useMemo(
     () => [
       columnHelper.accessor("name", {
-        header: "Name",
+        header: "Name of Teacher",
         enableSorting: false,
         cell: (info) => <NameCell teacher={info.row.original} />,
       }),
       columnHelper.accessor((row) => row.programs[0]?.title ?? "", {
         id: "programs",
-        header: "Program enrolled",
+        header: "Programs ",
         cell: (info) => <ProgramCell teacher={info.row.original} />,
       }),
       columnHelper.accessor("dateJoined", {
         header: "Date joined",
-        enableSorting: false,
+
         cell: (info) => (
           <span className="text-sm text-gray-600 whitespace-nowrap">
             {info.getValue()}
-            <span className="text-gray-300 mx-1">|</span>
-            {info.row.original.dateJoinedTime}
           </span>
         ),
       }),
-      columnHelper.accessor("dateOnboarded", {
-        header: "Date onb.",
-        enableSorting: false,
+      columnHelper.accessor("sessions", {
+        header: "No of sessions",
+
         cell: (info) => (
           <span className="text-sm text-gray-600 whitespace-nowrap">
-            {info.getValue()}
-            <span className="text-gray-300 mx-1">|</span>
-            {info.row.original.dateOnboardedTime}
+            <span className="text-black font-medium">
+              Completed {info.row.original.sessions.completed}
+            </span>
+            <sub className="">/{info.row.original.sessions.total}</sub>
           </span>
         ),
       }),
       columnHelper.accessor("rank", {
         header: "L. Board",
-        enableSorting: false,
+
         cell: (info) => <LeaderboardBadge rank={info.getValue()} />,
       }),
-      columnHelper.accessor("location", {
-        header: "Location",
-        enableSorting: false,
-        cell: (info) => <LocationCell location={info.getValue()} />,
+      columnHelper.accessor("rating", {
+        header: "Ratings",
+
+        cell: (info) => (
+          <div className="flex items-center gap-2">
+            <Icon
+              icon="material-symbols:star-rounded"
+              className="text-green-500"
+            />
+            <span className="text-gray-600 whitespace-nowrap">
+              {info.getValue()}
+            </span>
+          </div>
+        ),
       }),
       columnHelper.display({
         id: "actions",
@@ -675,7 +667,7 @@ export default function TeachersTable({
             onOpenProfile={onOpenProfile}
             onMessageTeacher={onMessageTeacher}
             onDisableTeacher={onDisableTeacher}
-            onEnrollTeacher={onEnrollTeacher}
+            onAssignProgram={onAssignProgram}
             onAssignCra={onAssignCra}
           />
         ),
@@ -683,9 +675,9 @@ export default function TeachersTable({
     ],
     [
       onOpenProfile,
-      //   onMessageTeacher,
-      //   onDisableTeacher,
-      //   onEnrollTeacher,
+      onMessageTeacher,
+      onDisableTeacher,
+      onAssignProgram,
       onAssignCra,
     ],
   );

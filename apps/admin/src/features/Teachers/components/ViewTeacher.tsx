@@ -314,8 +314,8 @@ function LearningInformation() {
         Learning Information
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
-        <div className="flex flex-col justify-between space-y-6">
+      <div className="flex gap-x-8">
+        <div className="flex gap-10 ">
           <div>
             <p className="text-xs font-semibold text-gray-900 mb-1">
               Date Joined
@@ -327,31 +327,9 @@ function LearningInformation() {
 
           <div>
             <p className="text-xs font-semibold text-gray-900 mb-1">
-              Average performance per course
+              No of Sessions
             </p>
-            <p className="text-xs text-gray-600">
-              130/300 <span className="text-gray-400 mx-1">•</span> 234 points
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col space-y-6">
-          <div>
-            <p className="text-xs font-semibold text-gray-900 mb-1">
-              Date Onboarded
-            </p>
-            <p className="text-xs text-gray-500">
-              05 Apr, 2026<span className="mx-1 text-gray-300">|</span>8:30 PM
-            </p>
-          </div>
-
-          <div>
-            <p className="text-xs font-semibold text-gray-900 mb-0.5">
-              L. Board position
-            </p>
-            <p className="text-xs italic text-gray-400 mb-4">
-              last updated: 05 Apr, 2026| 8:30 PM
-            </p>
+            <p className="text-xs text-gray-600">201 of 300 Completed</p>
           </div>
         </div>
       </div>
