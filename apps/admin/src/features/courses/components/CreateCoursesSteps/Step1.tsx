@@ -1,8 +1,10 @@
-import {Controller, FormInputs, useFormContext} from "@mcc/features";
-import {Button, Icon} from "@mcc/ui";
-import {useState} from "react";
-import {CoursesFormValues} from "@/src/features/courses/types/types";
-import {useRouter} from "next/navigation";
+import { Controller, FormInputs, useFormContext, useTeachers } from "@mcc/features";
+import { Button, Icon } from "@mcc/ui";
+import { useMemo, useState } from "react";
+import { CoursesFormValues } from "@/src/features/courses/types/types";
+import { toCreateCourseDetailsPayload } from "@/src/features/courses/helper/helper";
+import { createCourseDetails } from "@/src/features/courses/services/course.service";
+import { useRouter } from "next/navigation";
 
 export default function CreateDetails({
   onNext,
@@ -15,8 +17,27 @@ export default function CreateDetails({
     register,
     control,
     trigger,
-    formState: {errors, isValid},
+    getValues,
+    setValue,
+    formState: { errors, isValid },
   } = useFormContext<CoursesFormValues>();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const { data: teachersData = [], isLoading: isLoadingTeachers } = useTeachers();
+
+  const instructorOptions = useMemo(() => {
+    if (teachersData && teachersData.length > 0) {
+      return teachersData.map((t) => ({
+        label: t.teacher_name || t.name || t.email || t.subject || `Teacher ${t.teacher_id || t.id}`,
+        value: t.teacher_id || t.id || t.email,
+      }));
+    }
+    return [];
+  }, [teachersData]);
+
+  console.log(teachersData, instructorOptions, 'jjjj')
 
   async function handleNext() {
     const valid = await trigger([
@@ -29,7 +50,30 @@ export default function CreateDetails({
       "learnItems",
       "tags",
     ]);
-    if (valid) onNext();
+    if (!valid) return;
+
+    setSubmitError(null);
+    setIsSubmitting(true);
+
+    try {
+      const created = await createCourseDetails(
+        toCreateCourseDetailsPayload(getValues()),
+      );
+
+      // Adopt the backend-issued id so later steps/publish target the
+      // course the API actually created.
+      setValue("id", created.id);
+
+      onNext();
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : "Failed to save course details. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
   const router = useRouter();
 
@@ -62,8 +106,8 @@ export default function CreateDetails({
           <Controller
             name="category"
             control={control}
-            rules={{required: "Please select a category"}}
-            render={({field}) => (
+            rules={{ required: "Please select a category" }}
+            render={({ field }) => (
               <FormInputs
                 type="select"
                 label="Category"
@@ -88,15 +132,15 @@ export default function CreateDetails({
           <Controller
             name="instructorName"
             control={control}
-            rules={{required: "Please select an instructor"}}
-            render={({field}) => (
+            rules={{ required: "Please select an instructor" }}
+            render={({ field }) => (
               <FormInputs
                 type="select"
                 label="Instructor"
-                placeholder="Select instructor"
+                placeholder={isLoadingTeachers ? "Loading instructors..." : "Select instructor"}
                 selectRadius="xl"
                 selectClassName="py-4"
-                options={INSTRUCTOR_OPTIONS}
+                options={instructorOptions}
                 value={field.value}
                 onChange={field.onChange}
                 errors={errors.instructorName}
@@ -118,7 +162,7 @@ export default function CreateDetails({
             inputClassName="py-4 rounded-xl"
             registration={register("price", {
               required: "Price is required",
-              min: {value: 0, message: "Price must be 0 or more"},
+              min: { value: 0, message: "Price must be 0 or more" },
             })}
             errors={errors.price}
           />
@@ -128,8 +172,8 @@ export default function CreateDetails({
         <Controller
           name="level"
           control={control}
-          rules={{required: "Please select a level"}}
-          render={({field}) => (
+          rules={{ required: "Please select a level" }}
+          render={({ field }) => (
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-900">
                 <span className="text-red-500">*</span> Level
@@ -142,17 +186,15 @@ export default function CreateDetails({
                       key={lvl.id}
                       type="button"
                       onClick={() => field.onChange(lvl.id)}
-                      className={`flex items-center justify-between rounded-xl border px-4 py-5 text-sm font-medium transition-colors ${
-                        selected
-                          ? "border-violet-600 text-gray-900 ring-1 ring-violet-600"
-                          : "border-gray-200 text-gray-400 hover:border-gray-300"
-                      }`}
+                      className={`flex items-center justify-between rounded-xl border px-4 py-5 text-sm font-medium transition-colors ${selected
+                        ? "border-violet-600 text-gray-900 ring-1 ring-violet-600"
+                        : "border-gray-200 text-gray-400 hover:border-gray-300"
+                        }`}
                     >
                       <span className="flex items-center gap-2">
                         <span
-                          className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${
-                            selected ? "border-violet-600" : "border-gray-300"
-                          }`}
+                          className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${selected ? "border-violet-600" : "border-gray-300"
+                            }`}
                         >
                           {selected && (
                             <span className="h-1.5 w-1.5 rounded-full bg-violet-600" />
@@ -200,7 +242,7 @@ export default function CreateDetails({
             validate: (v) =>
               v.length > 0 || "Add at least one learning outcome",
           }}
-          render={({field}) => (
+          render={({ field }) => (
             <ChipInput
               label="What will students learn?"
               max={5}
@@ -218,7 +260,7 @@ export default function CreateDetails({
           rules={{
             validate: (v) => v.length > 0 || "Add at least one tag",
           }}
-          render={({field}) => (
+          render={({ field }) => (
             <ChipInput
               label="Tags"
               max={5}
@@ -231,6 +273,9 @@ export default function CreateDetails({
       </div>
 
       {/* Footer */}
+      {submitError && (
+        <p className="mt-4 text-sm text-red-500 text-right">{submitError}</p>
+      )}
       <div className="mt-8 flex items-center justify-between border-t border-gray-100 pt-5">
         <button
           type="button"
@@ -248,9 +293,9 @@ export default function CreateDetails({
             variant={isValid ? "primary" : "secondary"}
             onClick={handleNext}
             className={!isValid ? "text-muted/60" : ""}
-            disabled={!isValid}
+            disabled={!isValid || isSubmitting}
           >
-            Save &amp; continue
+            {isSubmitting ? "Saving..." : "Save & continue"}
           </Button>
         </div>
       </div>
@@ -260,7 +305,7 @@ export default function CreateDetails({
 
 // SUB-COMPONENTS
 
-function LevelDial({fill}: {fill: number}) {
+function LevelDial({ fill }: { fill: number }) {
   const r = 7;
   const c = 2 * Math.PI * r;
   return (
@@ -324,9 +369,8 @@ function ChipInput({
         <Icon icon="lucide:help-circle" size={14} className="text-gray-300" />
       </label>
       <div
-        className={`flex flex-wrap items-center gap-2 rounded-xl border px-3.5 py-2.5 ${
-          error ? "border-red-400 ring-2 ring-red-200" : "border-gray-200"
-        }`}
+        className={`flex flex-wrap items-center gap-2 rounded-xl border px-3.5 py-2.5 ${error ? "border-red-400 ring-2 ring-red-200" : "border-gray-200"
+          }`}
       >
         {chips.map((chip) => (
           <span
@@ -367,19 +411,15 @@ function ChipInput({
 }
 
 const LEVELS = [
-  {id: "all", label: "All levels", fill: 0},
-  {id: "beginner", label: "Beginner", fill: 0.33},
-  {id: "intermediate", label: "Intermediate", fill: 0.66},
-  {id: "advanced", label: "Advanced", fill: 1},
+  { id: "all", label: "All levels", fill: 0 },
+  { id: "beginner", label: "Beginner", fill: 0.33 },
+  { id: "intermediate", label: "Intermediate", fill: 0.66 },
+  { id: "advanced", label: "Advanced", fill: 1 },
 ] as const;
 
 // Placeholder option lists â€” replace with real data when ready
 const CATEGORY_OPTIONS = [
-  {label: "Science", value: "science"},
-  {label: "Arts", value: "arts"},
-  {label: "Commerce", value: "commerce"},
-];
-const INSTRUCTOR_OPTIONS = [
-  {label: "John Doe", value: "john_doe"},
-  {label: "Jane Smith", value: "jane_smith"},
+  { label: "Science", value: "science" },
+  { label: "Arts", value: "arts" },
+  { label: "Commerce", value: "commerce" },
 ];
