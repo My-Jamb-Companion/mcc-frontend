@@ -13,7 +13,7 @@ import {calculateTotalHours} from "../helper/helper";
 import {AdditionalCourseTypes, CoursesFormValues, LEVELS, UpdateCoursePayload} from "../types/types";
 import {useCourseData} from "../hooks/useCourse";
 import {serializeModulesPayload} from "../helper/course.mapper";
-import {updateCourse} from "../services/course.service";
+import {publishCourse, updateCourse} from "../services/course.service";
 export {LEVELS};
 
 type Step = "details" | "content" | "upload";
@@ -315,6 +315,7 @@ export default function CreateCourseForm() {
 
       if (publishedCourse.id) {
         await updateCourse(publishedCourse.id, updatePayload);
+        await publishCourse(publishedCourse.id);
       }
 
       // Keep React Hook Form in sync.

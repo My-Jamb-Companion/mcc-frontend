@@ -63,4 +63,33 @@ export const updateCourse = async (
   }>(`/admin/courses/${courseId}`, payload);
 
   return res.data;
-};
+};
+
+/**
+ * Publishes a course (triggers final validation and flips status to published).
+ * Endpoint: POST /admin/courses/{course_id}/publish
+ */
+export const publishCourse = async (courseId: string) => {
+  const res = await apiClient.post<{
+    success: boolean;
+    data: any;
+    message: string;
+  }>(`/admin/courses/${courseId}/publish`);
+
+  return res.data;
+};
+
+/**
+ * Unpublishes a course (reverts status back to draft).
+ * Endpoint: POST /admin/courses/{course_id}/unpublish
+ */
+export const unpublishCourse = async (courseId: string) => {
+  const res = await apiClient.post<{
+    success: boolean;
+    data: any;
+    message: string;
+  }>(`/admin/courses/${courseId}/unpublish`);
+
+  return res.data;
+};
+
