@@ -47,3 +47,20 @@ export const createCourseDetails = async (
 
   return res.data.data;
 };
+
+/**
+ * Updates a course with modules, lectures, quizzes, cover_image_url, and promo_video_url.
+ * Endpoint: PATCH /admin/courses/{course_id}
+ */
+export const updateCourse = async (
+  courseId: string,
+  payload: import("../types/types").UpdateCoursePayload,
+) => {
+  const res = await apiClient.patch<{
+    success: boolean;
+    data: any;
+    message: string;
+  }>(`/admin/courses/${courseId}`, payload);
+
+  return res.data;
+};

@@ -124,12 +124,18 @@ function QuestionCard({
               selectRadius="full"
               selectClassName="shadow-sm border-muted/30! py-2!"
               options={[
-                {label: "Single choice", value: "single"},
-                {label: "Multiple choice", value: "multiple"},
+                {label: "Single choice", value: "single_choice"},
+                {label: "Multiple choice", value: "multi_choice"},
               ]}
-              value={question.type}
+              value={
+                question.type === "single"
+                  ? "single_choice"
+                  : question.type === "multiple"
+                  ? "multi_choice"
+                  : question.type
+              }
               onChange={(value) =>
-                updateField("type", value as "single" | "multiple")
+                updateField("type", value as any)
               }
             />
 
@@ -184,6 +190,8 @@ function QuestionCard({
           <div className="space-y-4">
             {question.options.map((opt, optIdx) => {
               const letter = String.fromCharCode(65 + optIdx);
+              const isSingleChoice =
+                question.type === "single" || question.type === "single_choice";
               return (
                 <div
                   key={opt.id}
@@ -213,7 +221,7 @@ function QuestionCard({
                   </div>
 
                   <input
-                    type={question.type === "single" ? "radio" : "checkbox"}
+                    type={isSingleChoice ? "radio" : "checkbox"}
                     checked={opt.isCorrect}
                     onChange={() => handleOptionCorrectToggle(optIdx)}
                     className="h-4 w-4 text-violet-600 border-gray-300 focus:ring-violet-500"

@@ -1,7 +1,7 @@
 "use client";
 
 import {useState} from "react";
-import {Button, confettiCelebrate, Icon} from "@mcc/ui";
+import {Button, confettiCelebrate, Icon, showError, showSuccess} from "@mcc/ui";
 import {useForm, FormProvider} from "@mcc/features";
 import ContentStep, {hasCompleteContent, uid} from "./CreateCoursesSteps/Step2";
 import CreateDetails from "./CreateCoursesSteps/Step1";
@@ -10,8 +10,10 @@ import PromotionalCoverUpload, {
 } from "./CreateCoursesSteps/Step3";
 import CourseStudentView from "./studentPreview/CourseStudentView";
 import {calculateTotalHours} from "../helper/helper";
-import {AdditionalCourseTypes, CoursesFormValues, LEVELS} from "../types/types";
+import {AdditionalCourseTypes, CoursesFormValues, LEVELS, UpdateCoursePayload} from "../types/types";
 import {useCourseData} from "../hooks/useCourse";
+import {serializeModulesPayload} from "../helper/course.mapper";
+import {updateCourse} from "../services/course.service";
 export {LEVELS};
 
 type Step = "details" | "content" | "upload";
@@ -100,6 +102,9 @@ export default function CreateCourseForm() {
   const [activeStep, setActiveStep] = useState("details");
 
   const [isPublished, setIsPublished] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const [previewView, setPreviewView] = useState(false);
 
@@ -222,37 +227,112 @@ export default function CreateCourseForm() {
   }
 
   // ─────────────────────────────────────────────
-  // SAVE AS DRAFT
+  // SAVE AS DRAFT (PATCH)
   // ─────────────────────────────────────────────
 
-  function handleSaveDraft() {
-    const finalPayload = buildCoursePayload("draft");
+  async function handleSaveDraft() {
+    try {
+      setApiError(null);
+      setIsSavingDraft(true);
+      const finalPayload = buildCoursePayload("draft");
+      const savedCourse = saveDraft(finalPayload);
 
-    const savedCourse = saveDraft(finalPayload);
+      // Construct PATCH payload matching target API schema
+      const updatePayload: UpdateCoursePayload = {
+        title: finalPayload.courseName,
+        category: finalPayload.category,
+        teacher_id: finalPayload.instructorName,
+        price: Number(finalPayload.price || 0),
+        level: finalPayload.level,
+        description: finalPayload.description,
+        learning_outcomes: finalPayload.learnItems,
+        tags: finalPayload.tags,
+        cover_image_url:
+          finalPayload.upload?.coverImageUrl ||
+          finalPayload.upload?.coverImage?.remoteUrl ||
+          finalPayload.upload?.coverImage?.previewUrl,
+        promo_video_url:
+          finalPayload.upload?.promoVideoUrl ||
+          finalPayload.upload?.promoVideo?.remoteUrl ||
+          finalPayload.upload?.promoVideo?.previewUrl,
+        modules: serializeModulesPayload(finalPayload.content.topics),
+      };
 
-    // Keep React Hook Form in sync too.
-    methods.reset(savedCourse);
+      if (savedCourse.id) {
+        await updateCourse(savedCourse.id, updatePayload);
+      }
 
-    setIsPublished(false);
+      // Keep React Hook Form in sync.
+      methods.reset(savedCourse);
+      setIsPublished(false);
+      showSuccess("Course draft saved successfully!");
+    } catch (err: any) {
+      console.error("Failed to save draft:", err);
+      const errorMsg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to save course draft. Please try again.";
+      setApiError(errorMsg);
+      showError(errorMsg);
+    } finally {
+      setIsSavingDraft(false);
+    }
   }
 
   // ─────────────────────────────────────────────
-  // PUBLISH
+  // PUBLISH (PATCH)
   // ─────────────────────────────────────────────
 
-  function handlePublish() {
+  async function handlePublish() {
     if (!canPublish) return;
 
-    const finalPayload = buildCoursePayload("published");
+    try {
+      setApiError(null);
+      setIsPublishing(true);
+      const finalPayload = buildCoursePayload("published");
+      const publishedCourse = publish(finalPayload);
 
-    const publishedCourse = publish(finalPayload);
+      // Construct PATCH payload matching target API schema
+      const updatePayload: UpdateCoursePayload = {
+        title: finalPayload.courseName,
+        category: finalPayload.category,
+        teacher_id: finalPayload.instructorName,
+        price: Number(finalPayload.price || 0),
+        level: finalPayload.level,
+        description: finalPayload.description,
+        learning_outcomes: finalPayload.learnItems,
+        tags: finalPayload.tags,
+        cover_image_url:
+          finalPayload.upload?.coverImageUrl ||
+          finalPayload.upload?.coverImage?.remoteUrl ||
+          finalPayload.upload?.coverImage?.previewUrl,
+        promo_video_url:
+          finalPayload.upload?.promoVideoUrl ||
+          finalPayload.upload?.promoVideo?.remoteUrl ||
+          finalPayload.upload?.promoVideo?.previewUrl,
+        modules: serializeModulesPayload(finalPayload.content.topics),
+      };
 
-    // Keep React Hook Form in sync.
-    methods.reset(publishedCourse);
+      if (publishedCourse.id) {
+        await updateCourse(publishedCourse.id, updatePayload);
+      }
 
-    confettiCelebrate(undefined, 1000, 300);
-
-    setIsPublished(true);
+      // Keep React Hook Form in sync.
+      methods.reset(publishedCourse);
+      confettiCelebrate(undefined, 1000, 300);
+      setIsPublished(true);
+      showSuccess("Course published successfully!");
+    } catch (err: any) {
+      console.error("Failed to publish course:", err);
+      const errorMsg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to publish course. Please try again.";
+      setApiError(errorMsg);
+      showError(errorMsg);
+    } finally {
+      setIsPublishing(false);
+    }
   }
 
   // ─────────────────────────────────────────────
@@ -306,6 +386,22 @@ export default function CreateCourseForm() {
       ) : (
         <FormProvider {...methods}>
           <div className="flex flex-col h-full">
+            {apiError && (
+              <div className="mb-4 flex items-center justify-between rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                <div className="flex items-center gap-2">
+                  <Icon icon="lucide:alert-circle" size={18} className="shrink-0 text-red-500" />
+                  <span>{apiError}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setApiError(null)}
+                  className="font-semibold text-xs text-red-500 hover:text-red-700"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-4">
               <h1 className="text-xl font-semibold text-gray-900">
@@ -351,7 +447,7 @@ export default function CreateCourseForm() {
                   shadow={"sm"}
                   size={"sm"}
                   leftIcon={<Icon icon="lucide:eye" size={16} />}
-                  disabled={!canPublish}
+                  disabled={!canPublish || isPublishing || isSavingDraft}
                   onClick={() => setPreviewView(true)}
                 >
                   View as a student
@@ -360,7 +456,9 @@ export default function CreateCourseForm() {
                   type="button"
                   variant={canPublish ? "primary" : "secondary"}
                   size={"sm"}
-                  disabled={!canPublish}
+                  disabled={!canPublish || isPublishing || isSavingDraft}
+                  loading={isPublishing}
+                  loadingText="Publishing..."
                   className={!canPublish ? "text-muted/60" : ""}
                   onClick={handlePublish}
                 >
@@ -397,3 +495,4 @@ export default function CreateCourseForm() {
     </>
   );
 }
+

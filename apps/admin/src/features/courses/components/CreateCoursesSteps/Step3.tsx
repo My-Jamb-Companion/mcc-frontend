@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useRef, useState} from "react";
 import {Button, Icon} from "@mcc/ui";
 import {useFormContext} from "@mcc/features";
 import {
@@ -98,39 +98,13 @@ function UploadDropzone({
   value: UploadedFile | null;
   onChange: (file: UploadedFile | null) => void;
 }) {
+  const {setValue} = useFormContext<CoursesFormValues>();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Simulated upload: holds the file + progress while "uploading", then
-  // hands off to `value` once it reaches 100. Swap the timer effect below
-  // for a real upload call (FormData POST, presigned URL PUT, etc.) later —
-  // just call setProgress(...) from the real upload's progress callback.
   const [pending, setPending] = useState<UploadedFile | null>(null);
   const [progress, setProgress] = useState(0);
-
-  // Ticks progress up while an upload is in flight.
-  useEffect(() => {
-    if (!pending || progress >= 100) return;
-    const timer = setTimeout(() => {
-      setProgress((p) => Math.min(p + 20, 100));
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [pending, progress]);
-
-  // Hands the file off to the parent once progress hits 100. Deferred via
-  // setTimeout (rather than calling setState directly in the effect body)
-  // to avoid the "setState synchronously within an effect" cascading-render
-  // warning.
-  useEffect(() => {
-    if (!pending || progress < 100) return;
-    const timer = setTimeout(() => {
-      onChange(pending);
-      setPending(null);
-      setProgress(0);
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [pending, progress, onChange]);
 
   function acceptFile(file: File | undefined) {
     if (!file) return;
@@ -139,8 +113,19 @@ function UploadDropzone({
       return;
     }
     setError(null);
-    setProgress(0);
-    setPending({file, previewUrl: URL.createObjectURL(file)});
+
+    const localPreview = URL.createObjectURL(file);
+    const uploadedItem: UploadedFile = {
+      file,
+      previewUrl: localPreview,
+    };
+
+    onChange(uploadedItem);
+    if (kind === "image") {
+      setValue("upload.coverImageUrl", localPreview, {shouldDirty: true});
+    } else {
+      setValue("upload.promoVideoUrl", localPreview, {shouldDirty: true});
+    }
   }
 
   function handleDragOver(e: React.DragEvent) {
@@ -168,6 +153,11 @@ function UploadDropzone({
     e.stopPropagation();
     if (value) URL.revokeObjectURL(value.previewUrl);
     onChange(null);
+    if (kind === "image") {
+      setValue("upload.coverImageUrl", undefined, {shouldDirty: true});
+    } else {
+      setValue("upload.promoVideoUrl", undefined, {shouldDirty: true});
+    }
     setError(null);
   }
 

@@ -37,8 +37,6 @@ export default function CreateDetails({
     return [];
   }, [teachersData]);
 
-  console.log(teachersData, instructorOptions, 'jjjj')
-
   async function handleNext() {
     const valid = await trigger([
       "courseName",

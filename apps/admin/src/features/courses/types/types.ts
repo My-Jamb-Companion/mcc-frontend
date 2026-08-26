@@ -29,6 +29,8 @@ export type CoursesFormValues = Step1Values & {
   upload: {
     coverImage: UploadedFile | null;
     promoVideo: UploadedFile | null;
+    coverImageUrl?: string;
+    promoVideoUrl?: string;
   };
 };
 
@@ -131,9 +133,11 @@ export type FileRow = {
   title: string;
   format: string;
   size: string;
+  fileSizeBytes?: number;
   progress?: number;
   previewUrl?: string;
   src?: string;
+  thumbnailUrl?: string;
   duration?: number;
   file?: File;
 };
@@ -149,8 +153,9 @@ export interface CourseDetail {
 // STEP 3 TYPES
 
 export type UploadedFile = {
-  file: File;
+  file?: File;
   previewUrl: string;
+  remoteUrl?: string;
 };
 
 // PRACTICE TYPES
@@ -200,11 +205,57 @@ export type Option = {
   isCorrect: boolean;
 };
 
+export type QuestionTypeApi =
+  | "single_choice"
+  | "multi_choice"
+  | "long_short_answer";
+
 export type CreatPracticeQuestionType = {
   id: string;
-  type: "single" | "multiple";
+  type: "single" | "multiple" | QuestionTypeApi;
   question: string;
   description?: string;
   options: Option[];
   explanation?: string;
 };
+
+// API PAYLOAD TYPES MATCHING BACKEND SCHEMA
+export interface ApiLecturePayload {
+  title: string;
+  video_url?: string;
+  file_format?: string;
+  file_size_bytes?: number;
+  duration_seconds?: number;
+  thumbnail_url?: string;
+}
+
+export interface ApiQuizQuestionPayload {
+  question_text: string;
+  description?: string;
+  question_type: QuestionTypeApi;
+  options?: string[];
+  correct_answers?: string[];
+  explanation?: string;
+  image_url?: string;
+}
+
+export interface ApiModulePayload {
+  title: string;
+  lectures: ApiLecturePayload[];
+  quizzes: ApiQuizQuestionPayload[];
+}
+
+export interface UpdateCoursePayload {
+  title?: string;
+  category?: string;
+  teacher_id?: string;
+  price?: number;
+  level?: string;
+  description?: string;
+  learning_outcomes?: string[];
+  tags?: string[];
+  cover_image_url?: string;
+  promo_video_url?: string;
+  modules?: ApiModulePayload[];
+}
+
