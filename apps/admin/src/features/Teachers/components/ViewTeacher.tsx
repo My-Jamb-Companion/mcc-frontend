@@ -141,7 +141,7 @@ export default function ViewTeacher({
                       </h1>
                       <h1 className="flex items-center gap-1 text-gray-400 text-xs">
                         <div className="h-1.5 w-1.5  bg-green-500 rounded-full" />
-                        <span>Active student</span>
+                        <span>Active Teacher</span>
                       </h1>
                     </div>
 
@@ -152,7 +152,7 @@ export default function ViewTeacher({
                           className="text-green-500"
                           size={15}
                         />
-                        <p className="text-white text-xs ">2.4k (1.4k)</p>
+                        <p className="text-white text-xs ">{teacher.rating}</p>
                       </div>
 
                       <div
@@ -162,7 +162,7 @@ export default function ViewTeacher({
                             "polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%)",
                         }}
                       >
-                        <span className="translate-y-2">#24</span>
+                        <span className="translate-y-2">#{teacher.rank}</span>
                       </div>
                     </div>
                   </div>

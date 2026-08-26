@@ -11,23 +11,16 @@ import Image from "next/image";
 export default function Teachers() {
   const [program, setProgram] = useState("");
   const [date, setDate] = useState("");
-  const [location, setLocation] = useState("");
   const [search, setSearch] = useState("");
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [viewTeacher, setViewTeacher] = useState(false);
   const [, setCreateTeacher] = useState(false);
-  const [, setEnrollTeacher] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);
 
   const handleOpenProfile = (teacher: Teacher) => {
     setViewTeacher(true);
     setTeacher(teacher);
   };
-
-  // const handleMessageStudent = (student: Student) => {
-  //   // Open message modal
-  //   console.log("Messaging:", student.email);
-  // };
 
   const handleDisableTeacher = (teacher: Teacher) => {
     setConfirmDisable(true);
@@ -52,7 +45,7 @@ export default function Teachers() {
 
       <div className="flex flex-col h-full border border-muted/20 rounded-2xl px-6 py-8 ">
         <div className="flex items-center justify-between w-full  pb-4">
-          <div className="flex items-center gap-3 w-[30%]">
+          <div className="flex items-center gap-3 w-[20%]">
             <FormInputs
               type="select"
               placeholder="Select program"
@@ -83,21 +76,6 @@ export default function Teachers() {
               ]}
               value={date}
               onChange={setDate}
-              selectRadius="full"
-              selectClassName="py-1.5! text-nowrap gap-2"
-            />
-            <FormInputs
-              type="select"
-              placeholder="Select Location"
-              icon="mdi:location"
-              options={[
-                {value: "Abuja", label: "Abuja"},
-                {value: "Lagos", label: "Lagos"},
-                {value: "Kano", label: "Kano"},
-                {value: "Oyo", label: "Oyo"},
-              ]}
-              value={location}
-              onChange={setLocation}
               selectRadius="full"
               selectClassName="py-1.5! text-nowrap gap-2"
             />
