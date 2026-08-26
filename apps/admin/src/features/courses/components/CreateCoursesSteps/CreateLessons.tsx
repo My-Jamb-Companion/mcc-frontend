@@ -172,6 +172,7 @@ export default function LessonsCreate({
           title: f.name,
           format: f.name.split(".").pop()?.toUpperCase() || "FILE",
           size: (f.size / (1024 * 1024)).toFixed(1) + "mb",
+          fileSizeBytes: f.size,
           previewUrl: objectUrl,
           src: objectUrl,
           duration,

@@ -1,4 +1,5 @@
-import {MakeModule, Topic} from "../types/types";
+import {MakeModule, Step1Values, Topic} from "../types/types";
+import {CreateCourseDetailsPayload} from "../services/course.service";
 
 export const shuffleArray = <T>(array: T[]) => {
   return [...array].sort(() => Math.random() - 0.5);
@@ -48,4 +49,23 @@ export function calculateTotalHours(topics: Topic[] = []): number {
   // Convert total seconds to hours rounded to 1 decimal place
   const totalHours = totalSeconds / 3600;
   return Math.round(totalHours * 10) / 10;
+}
+
+/**
+ * Maps the Step 1 (details) form values to the shape the backend's
+ * "/admin/courses" endpoint expects.
+ */
+export function toCreateCourseDetailsPayload(
+  values: Step1Values,
+): CreateCourseDetailsPayload {
+  return {
+    title: values.courseName,
+    category: values.category,
+    teacher_id: values.instructorName,
+    price: Number(values.price || 0),
+    level: values.level,
+    description: values.description,
+    learning_outcomes: values.learnItems,
+    tags: values.tags,
+  };
 }
