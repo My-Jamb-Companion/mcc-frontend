@@ -7,6 +7,9 @@ import {Teacher} from "../types/types";
 import TeachersTable from "./TeachersTable";
 import ViewTeacher from "./ViewTeacher";
 import Image from "next/image";
+import SendMessage from "./SendMessage";
+import AssignCRAModal, {CraStudent} from "./AssignCRA";
+import AssignProgram from "./AssignProgram";
 
 export default function Teachers() {
   const [program, setProgram] = useState("");
@@ -14,7 +17,10 @@ export default function Teachers() {
   const [search, setSearch] = useState("");
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [viewTeacher, setViewTeacher] = useState(false);
+  const [messageCall, setMessageCall] = useState(false);
   const [, setCreateTeacher] = useState(false);
+  const [isAssignOpen, setIsAssignOpen] = useState(false);
+  const [assignProgram, setAssignProgram] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);
 
   const handleOpenProfile = (teacher: Teacher) => {
@@ -25,6 +31,16 @@ export default function Teachers() {
   const handleDisableTeacher = (teacher: Teacher) => {
     setConfirmDisable(true);
     setTeacher(teacher);
+  };
+
+  const handleAssignCra = (teacher: Teacher) => {
+    setTeacher(teacher);
+    setIsAssignOpen(true);
+  };
+
+  const handleAssignProgram = (teacher: Teacher) => {
+    setTeacher(teacher);
+    setAssignProgram(true);
   };
 
   return (
@@ -93,9 +109,10 @@ export default function Teachers() {
         </div>
         <TeachersTable
           onOpenProfile={handleOpenProfile}
-          // onMessageStudent={handleMessageStudent}
+          onMessageTeacher={() => setMessageCall(true)}
           onDisableTeacher={handleDisableTeacher}
-          // onAssignProgram={handleAssignProgram}
+          onAssignProgram={handleAssignProgram}
+          onAssignCra={handleAssignCra}
         />
       </div>
 
@@ -110,6 +127,27 @@ export default function Teachers() {
           }}
         />
 
+        <SendMessage
+          open={!!messageCall}
+          onClose={() => setMessageCall(false)}
+          onSend={() => {
+            setMessageCall(false);
+          }}
+        />
+
+        <AssignCRAModal
+          isOpen={isAssignOpen}
+          onClose={() => setIsAssignOpen(false)}
+          teacher={teacher!}
+          students={Students}
+          onAssign={() => {}}
+        />
+
+        <AssignProgram
+          teacher={teacher}
+          isOpen={assignProgram}
+          onClose={() => setAssignProgram(false)}
+        />
         <Modal open={confirmDisable} onClose={() => setConfirmDisable(false)}>
           <div className="flex flex-col ">
             <div className="flex flex-col relative">
@@ -192,3 +230,18 @@ export default function Teachers() {
     </section>
   );
 }
+
+const Students: CraStudent[] = [
+  {
+    id: "vusi-tani",
+    name: "Vusi Tani",
+    avatarUrl: "https://i.pravatar.cc/64?img=51",
+    email: "whatever@mail.com",
+  },
+  {
+    id: "kehinde-ajani",
+    name: "Kehinde Ajani",
+    avatarUrl: "https://i.pravatar.cc/64?img=33",
+    email: "however@mail.com",
+  },
+];

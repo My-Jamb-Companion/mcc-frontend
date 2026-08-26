@@ -22,6 +22,7 @@ export interface Teacher {
     total: number;
     completed: number;
   };
+  location?: string;
 }
 export interface ProspectiveStudent {
   id: string;
