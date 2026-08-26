@@ -259,14 +259,14 @@ const navs = {
     {
       icon: "material-symbols:dashboard-outline-rounded",
       label: "dashboard",
-      href: "/admin/dashboard",
+      href: "/dashboard",
     },
     {
       icon: "ri:money-dollar-box-line",
       label: "finance",
-      href: "/admin/finance",
+      href: "/finance",
     },
-    {icon: "solar:user-linear", label: "user", href: "/admin/user"},
+    {icon: "ri:message-2-line", label: "user", href: "/messaging"},
   ],
   bottomNav: [
     {icon: "stash:question-light", label: "help", href: "/admin/help"},
