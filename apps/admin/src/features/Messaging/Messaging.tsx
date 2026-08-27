@@ -1,6 +1,9 @@
 "use client";
+
 import {Icon} from "@mcc/ui";
-import {useEffect, useRef, useState} from "react";
+import dynamic from "next/dynamic";
+import {useEffect, useMemo, useRef, useState} from "react";
+import "react-quill-new/dist/quill.snow.css";
 
 interface Participant {
   name: string;
@@ -12,6 +15,7 @@ interface ThreadMessage {
   id: string;
   from: Participant;
   to: string;
+  format: "html" | "plain";
   body: string[];
 }
 
@@ -27,9 +31,13 @@ interface Thread {
   messages: ThreadMessage[];
 }
 
-const CURRENT_USER_EMAIL = "lesalexand@gmail.com";
+const CURRENT_USER: Participant = {
+  name: "Bright",
+  email: "bright@gmail.com",
+  avatarUrl: "https://i.pravatar.cc/64?img=68",
+};
 
-const THREADS: Thread[] = [
+const INITIAL_THREADS: Thread[] = [
   {
     id: "t1",
     sender: {
@@ -53,6 +61,7 @@ const THREADS: Thread[] = [
           avatarUrl: "https://i.pravatar.cc/64?img=47",
         },
         to: "Me",
+        format: "plain",
         body: [
           "Dear Bright",
           "I hope this message finds you well. I wanted to reach out to discuss our upcoming project timeline and ensure we're aligned on the next steps.",
@@ -62,17 +71,12 @@ const THREADS: Thread[] = [
       },
       {
         id: "m2",
-        from: {
-          name: "Bright",
-          email: "bright@gmail.com",
-          avatarUrl: "https://i.pravatar.cc/64?img=68",
-        },
+        from: CURRENT_USER,
         to: "Leslie Alexander",
+        format: "plain",
         body: [
           "Dear Leslie",
-          "I hope this message finds you well. I wanted to reach out to discuss our upcoming project timeline and ensure we're aligned on the next steps.",
-          "Please let me know if you have any questions or need additional information. Looking forward to your feedback.",
-          "Thank you for your attention to this matter.",
+          "Thanks for reaching out! Everything looks good on my end. Let's touch base tomorrow afternoon to finalize the details.",
         ],
       },
     ],
@@ -84,27 +88,11 @@ const THREADS: Thread[] = [
       email: "lesalexand@gmail.com",
       avatarUrl: "https://i.pravatar.cc/64?img=47",
     },
-    subject: "PLEASE CHECK IN.",
-    preview:
-      "Hey, just wanted to give you a heads-up that I'll be there next time. I'm really looki...",
-    date: "",
-    timestamp: "",
-    relativeTime: "",
-    messages: [],
-  },
-  {
-    id: "t3",
-    sender: {
-      name: "Leslie Alexander",
-      email: "lesalexand@gmail.com",
-      avatarUrl: "https://i.pravatar.cc/64?img=47",
-    },
-    subject: "PLEASE CHECK IN.",
-    preview:
-      "Hey, just wanted to give you a heads-up that I'll be there next time. I'm really looki...",
-    date: "",
-    timestamp: "",
-    relativeTime: "",
+    subject: "PROJECT UPDATES",
+    preview: "Hey, just wanted to check on the latest designs...",
+    date: "Nov 5",
+    timestamp: "Aug 19, 2026, 10:15 AM",
+    relativeTime: "6d ago",
     messages: [],
   },
 ];
@@ -170,33 +158,9 @@ function ThreadListItem({
   );
 }
 
-function CollapsedMessageBar({
-  count,
-  onExpand,
-}: {
-  count: number;
-  onExpand: () => void;
-}) {
-  return (
-    <div className="relative my-4 flex items-center border-t border-neutral-200">
-      <span className="absolute left-0 -top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-100 text-xs font-medium text-neutral-500">
-        {count}
-      </span>
-      <button
-        type="button"
-        onClick={onExpand}
-        aria-label="Expand thread"
-        className="absolute right-0 -top-3 flex h-6 w-6 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-400 hover:text-neutral-600"
-      >
-        <Icon icon="mdi:unfold-more-horizontal" size={16} />
-      </button>
-    </div>
-  );
-}
-
 function MessageBody({message}: {message: ThreadMessage}) {
   return (
-    <div>
+    <div className="border-b border-neutral-100 pb-5">
       <div className="flex items-center gap-3">
         <img
           src={message.from.avatarUrl}
@@ -211,15 +175,23 @@ function MessageBody({message}: {message: ThreadMessage}) {
         </p>
       </div>
       <p className="mt-1 pl-11 text-xs text-neutral-400">To: {message.to}</p>
-      <div className="mt-4 space-y-4 pl-11 text-sm leading-relaxed text-neutral-700">
-        {message.body.map((paragraph, i) => (
-          <p key={i}>{paragraph}</p>
-        ))}
+      <div className="mt-3 space-y-3 pl-11 text-sm leading-relaxed text-neutral-700">
+        {message.format === "html"
+          ? message.body.map((paragraph, i) => (
+              <div key={i} dangerouslySetInnerHTML={{__html: paragraph}} />
+            ))
+          : message.body.map((paragraph, i) => <p key={i}>{paragraph}</p>)}
       </div>
     </div>
   );
 }
 
+const ReactQuill = dynamic(() => import("react-quill-new"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-32 w-full animate-pulse rounded-md bg-gray-100" />
+  ),
+});
 function ReplyComposer({
   recipientEmail,
   onClose,
@@ -227,92 +199,102 @@ function ReplyComposer({
 }: {
   recipientEmail: string;
   onClose: () => void;
-  onSend: (text: string) => void;
+  onSend: (htmlContent: string) => void;
 }) {
-  const [text, setText] = useState("");
+  const [content, setContent] = useState("");
+
+  const modules = useMemo(
+    () => ({
+      toolbar: [
+        ["bold", "italic", "underline", "strike"],
+        [{list: "ordered"}, {list: "bullet"}],
+        ["link", "image"],
+        ["clean"],
+      ],
+    }),
+    [],
+  );
+
+  const handleSend = () => {
+    // Strip empty HTML tags from blank Quill state
+    const cleanText = content.replace(/<[^>]*>/g, "").trim();
+    if (cleanText.length > 0) {
+      onSend(content);
+      setContent("");
+    }
+  };
 
   return (
-    <div className="mt-6 rounded-2xl border border-neutral-200">
-      <div className="flex items-center justify-between px-4 py-2.5 text-sm text-neutral-600">
-        <span>{recipientEmail}</span>
+    <div className="mt-6 rounded-2xl border border-neutral-200 bg-white shadow-xs overflow-hidden">
+      <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-2.5 text-sm text-neutral-600 bg-neutral-50/50">
+        <span>To: {recipientEmail}</span>
         <button
           type="button"
           onClick={onClose}
           aria-label="Close reply"
-          className="text-neutral-400 hover:text-neutral-600"
+          className="text-neutral-400 hover:text-neutral-600 transition-colors"
         >
           <Icon icon="mdi:close" size={16} />
         </button>
       </div>
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Write reply here..."
-        rows={5}
-        className="w-full resize-none border-t border-neutral-200 px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
-      />
-      <div className="flex items-center justify-between border-t border-neutral-200 px-4 py-2.5">
-        <div className="flex items-center gap-3 text-neutral-400">
-          <Icon
-            icon="mdi:format-bold"
-            size={16}
-            className="cursor-pointer hover:text-neutral-600"
-          />
-          <Icon
-            icon="mdi:format-italic"
-            size={16}
-            className="cursor-pointer hover:text-neutral-600"
-          />
-          <Icon
-            icon="mdi:format-underline"
-            size={16}
-            className="cursor-pointer hover:text-neutral-600"
-          />
-          <Icon
-            icon="mdi:format-list-bulleted"
-            size={16}
-            className="cursor-pointer hover:text-neutral-600"
-          />
-          <Icon
-            icon="mdi:format-list-checks"
-            size={16}
-            className="cursor-pointer hover:text-neutral-600"
-          />
-          <Icon
-            icon="mdi:link-variant"
-            size={16}
-            className="cursor-pointer hover:text-neutral-600"
-          />
-          <Icon
-            icon="mdi:image-outline"
-            size={16}
-            className="cursor-pointer hover:text-neutral-600"
-          />
-          <Icon
-            icon="mdi:paperclip"
-            size={16}
-            className="cursor-pointer hover:text-neutral-600"
-          />
-        </div>
+
+      <div className="quill-composer-wrapper">
+        <ReactQuill
+          theme="snow"
+          value={content}
+          onChange={setContent}
+          modules={modules}
+          placeholder="Write reply here..."
+          className="border-none"
+        />
+      </div>
+
+      <div className="flex items-center justify-end border-t border-neutral-200 px-4 py-2.5 bg-white">
         <button
           type="button"
-          onClick={() => text.trim() && onSend(text)}
-          className="rounded-full bg-neutral-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-neutral-800"
+          onClick={handleSend}
+          className="rounded-full bg-neutral-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-neutral-800 transition-colors"
         >
           Send
         </button>
       </div>
+
+      <style jsx global>{`
+        .quill-composer-wrapper .ql-toolbar.ql-snow {
+          border: none;
+          border-bottom: 1px solid #e5e5e5;
+          padding: 8px 16px;
+        }
+        .quill-composer-wrapper .ql-container.ql-snow {
+          border: none;
+          font-family: inherit;
+          font-size: 0.875rem;
+          min-height: 120px;
+        }
+        .quill-composer-wrapper .ql-editor {
+          min-height: 120px;
+          padding: 12px 16px;
+        }
+        .quill-composer-wrapper .ql-editor.ql-blank::before {
+          left: 16px;
+          font-style: normal;
+          color: #a3a3a3;
+        }
+      `}</style>
     </div>
   );
 }
 
 export default function Messaging() {
+  const [threads, setThreads] = useState<Thread[]>(INITIAL_THREADS);
   const [tab, setTab] = useState<"inbox" | "archive">("inbox");
-  const [activeThreadId, setActiveThreadId] = useState(THREADS[0].id);
-  const [expanded, setExpanded] = useState(false);
+  const [activeThreadId, setActiveThreadId] = useState(INITIAL_THREADS[0].id);
   const [menuOpen, setMenuOpen] = useState(false);
   const [replying, setReplying] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+
   const menuRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -324,15 +306,70 @@ export default function Messaging() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
+  }, [threads, isTyping]);
+
   const activeThread =
-    THREADS.find((t) => t.id === activeThreadId) ?? THREADS[0];
+    threads.find((t) => t.id === activeThreadId) ?? threads[0];
   const hasThread = activeThread.messages.length > 0;
-  const firstMessage = activeThread.messages[0];
-  const restMessages = activeThread.messages.slice(1);
+
+  const handleSendMessage = (html: string) => {
+    const newMessage: ThreadMessage = {
+      id: `m_${Date.now()}`,
+      from: CURRENT_USER,
+      to: activeThread.sender.name,
+      format: "html",
+      body: [html],
+    };
+
+    setThreads((prevThreads) =>
+      prevThreads.map((t) => {
+        if (t.id === activeThreadId) {
+          return {
+            ...t,
+            preview: html.replace(/<[^>]*>/g, ""),
+            messages: [...t.messages, newMessage],
+          };
+        }
+        return t;
+      }),
+    );
+
+    setReplying(false);
+
+    // Simulate Automated Response
+    setIsTyping(true);
+    setTimeout(() => {
+      const simulatedResponse: ThreadMessage = {
+        id: `m_reply_${Date.now()}`,
+        from: activeThread.sender,
+        to: CURRENT_USER.name,
+        format: "plain",
+        body: [
+          "Got it! Thanks for sending that over. I've noted down your updates and will review them shortly.",
+        ],
+      };
+
+      setThreads((prevThreads) =>
+        prevThreads.map((t) => {
+          if (t.id === activeThreadId) {
+            return {
+              ...t,
+              preview: simulatedResponse.body[0],
+              messages: [...t.messages, simulatedResponse],
+            };
+          }
+          return t;
+        }),
+      );
+      setIsTyping(false);
+    }, 1500);
+  };
 
   return (
     <div className="flex h-full w-full overflow-hidden rounded-2xl border border-neutral-200 bg-white">
-      {/* Left: thread list */}
+      {/* Left Sidebar */}
       <div className="flex w-80 shrink-0 flex-col border-r border-neutral-200">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex gap-1 rounded-lg bg-neutral-100 p-1">
@@ -367,14 +404,13 @@ export default function Messaging() {
         </div>
         <div className="flex-1 overflow-y-auto">
           {tab === "inbox" ? (
-            THREADS.map((thread) => (
+            threads.map((thread) => (
               <ThreadListItem
                 key={thread.id}
                 thread={thread}
                 active={thread.id === activeThreadId}
                 onClick={() => {
                   setActiveThreadId(thread.id);
-                  setExpanded(false);
                   setReplying(false);
                 }}
               />
@@ -387,7 +423,7 @@ export default function Messaging() {
         </div>
       </div>
 
-      {/* Right: thread detail */}
+      {/* Right Content */}
       <div className="flex flex-1 flex-col overflow-y-auto">
         {hasThread ? (
           <>
@@ -407,7 +443,6 @@ export default function Messaging() {
                       &lt;{activeThread.sender.email}&gt;
                     </span>
                   </p>
-                  <p className="text-xs text-neutral-400">To: Me</p>
                   <p className="text-xs text-neutral-400">
                     Subject: {activeThread.subject}
                   </p>
@@ -418,11 +453,13 @@ export default function Messaging() {
                   <p>{activeThread.timestamp}</p>
                   <p>({activeThread.relativeTime})</p>
                 </div>
-                <Icon
-                  icon="mdi:reply-outline"
-                  size={18}
-                  className="cursor-pointer text-neutral-400 hover:text-neutral-600"
-                />
+                <button
+                  type="button"
+                  onClick={() => setReplying((r) => !r)}
+                  className="text-neutral-400 hover:text-neutral-600"
+                >
+                  <Icon icon="mdi:reply-outline" size={18} />
+                </button>
                 <div ref={menuRef} className="relative">
                   <button
                     type="button"
@@ -454,30 +491,19 @@ export default function Messaging() {
               </div>
             </div>
 
-            <div className="flex-1 px-6 py-5">
-              {!expanded ? (
-                <>
-                  <p className="text-sm font-medium text-neutral-900">
-                    Dear Bright
-                  </p>
-                  <p className="mt-1 text-sm leading-relaxed text-neutral-500">
-                    I hope this message finds you well. I wanted to reach out to
-                    discuss our upcoming project timeline and ensure we&apos;re
-                    aligned on the next steps....
-                  </p>
-                  {restMessages.length > 0 && (
-                    <CollapsedMessageBar
-                      count={restMessages.length}
-                      onExpand={() => setExpanded(true)}
-                    />
-                  )}
-                  {restMessages.map((message) => (
-                    <MessageBody key={message.id} message={message} />
-                  ))}
-                </>
-              ) : (
-                <MessageBody message={firstMessage} />
+            <div className="flex-1 space-y-6 px-6 py-5">
+              {activeThread.messages.map((message) => (
+                <MessageBody key={message.id} message={message} />
+              ))}
+
+              {isTyping && (
+                <div className="flex items-center gap-2 text-xs text-neutral-400 pl-11">
+                  <Icon icon="eos-icons:three-dots-loading" size={24} />
+                  <span>{activeThread.sender.name} is responding...</span>
+                </div>
               )}
+
+              <div ref={messagesEndRef} />
 
               {!replying && (
                 <div className="mt-6 flex gap-2">
@@ -489,21 +515,14 @@ export default function Messaging() {
                     <Icon icon="mdi:reply-outline" size={16} />
                     Reply
                   </button>
-                  <button
-                    type="button"
-                    className="flex items-center gap-1.5 rounded-full border border-neutral-200 px-4 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
-                  >
-                    <Icon icon="mdi:share-outline" size={16} />
-                    Forward
-                  </button>
                 </div>
               )}
 
               {replying && (
                 <ReplyComposer
-                  recipientEmail={CURRENT_USER_EMAIL}
+                  recipientEmail={activeThread.sender.email}
                   onClose={() => setReplying(false)}
-                  onSend={() => setReplying(false)}
+                  onSend={handleSendMessage}
                 />
               )}
             </div>
