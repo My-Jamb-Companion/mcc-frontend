@@ -12,7 +12,6 @@ export default function SideNav() {
 
   const pathname = usePathname();
 
-  // Check if current path belongs to the dashboard route hierarchy
   const isDashboardRoute = pathname?.startsWith("/dashboard") ?? false;
 
   const toggle = (key: string) => {
@@ -257,9 +256,9 @@ const navs = {
     {icon: "ri:message-2-line", label: "user", href: "/messaging"},
   ],
   bottomNav: [
-    {icon: "stash:question-light", label: "help", href: "/admin/help"},
-    {icon: "solar:settings-broken", label: "settings", href: "/admin/settings"},
-    {icon: "solar:settings-broken", label: "profile", href: "/admin/profile"},
+    {icon: "stash:question-light", label: "help", href: "/help"},
+    {icon: "solar:settings-broken", label: "settings", href: "/settings"},
+    {icon: "solar:settings-broken", label: "profile", href: "/profile"},
   ],
   navAccordions: [
     {
