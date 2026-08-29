@@ -3,17 +3,28 @@
 import {Button} from "@/src/components/Buttons";
 import TabbedButton from "@/src/components/TabbedButton";
 import {FormInputs} from "@mcc/features";
-import {Icon} from "@mcc/ui";
+import {Icon, showError, showSuccess} from "@mcc/ui";
 import {useEffect, useMemo, useRef, useState} from "react";
 import ShareSessionLink from "@/src/components/Modals/ShareLink";
 import {useRouter} from "next/navigation";
 import {CourseListRowData} from "./CoursesRow";
 import {CourseList} from "./CourseLists";
-import {useCourseData} from "../hooks/useCourse";
+import {useCourses} from "../hooks/useCourses";
+import {
+  deleteCourse as deleteCourseApi,
+  getApiErrorMessage,
+  publishCourse,
+  unpublishCourse,
+} from "../services/course.service";
 import {AdditionalCourseTypes, CoursesFormValues} from "../types/types";
 
 export default function Courses() {
-  const {courses, publish, saveDraft, deleteCourse} = useCourseData();
+  const {
+    courses,
+    isLoading: isLoadingCourses,
+    isError: isCoursesError,
+    refetch: refetchCourses,
+  } = useCourses();
   const [active, setActive] = useState("published");
   const [teachers, setTeachers] = useState<TeacherOption[]>([]);
   const [search, setSearch] = useState("");
@@ -46,7 +57,7 @@ export default function Courses() {
 
       return matchesStatus && matchesSearch && matchesTeacher;
     });
-  }, [active, search, teachers]);
+  }, [courses, active, search, teachers]);
 
   const allTeachers = useMemo<TeacherOption[]>(() => {
     const seen = new Set<string>();
@@ -58,7 +69,7 @@ export default function Courses() {
       }
       return acc;
     }, []);
-  }, []);
+  }, [courses]);
 
   return (
     <section className="flex flex-col gap-6 h-full">
@@ -108,6 +119,13 @@ export default function Courses() {
         </div>
 
         <div className="min-h-0 flex-1 flex items-center justify-center pt-10 overflow-y-auto">
+          {isLoadingCourses ? (
+            <p className="text-sm text-muted">Loading courses…</p>
+          ) : isCoursesError ? (
+            <p className="text-sm text-red-600">
+              Failed to load courses. Please try again.
+            </p>
+          ) : (
           <CourseList
             course={filteredCourses || []}
             onOpen={(course) => {
@@ -122,21 +140,46 @@ export default function Courses() {
               if (course)
                 router.push(`/dashboard/courses/edit-course?id=${id}`);
             }}
-            onPublishCourse={(id) => {
+            onPublishCourse={async (id) => {
               const course = courses.find((i) => i.id === id);
-              if (course && course.status === "draft") {
-                publish(course);
-              } else if (course && course.status === "published") {
-                saveDraft(course);
+              if (!course) return;
+              try {
+                if (course.status === "draft") {
+                  await publishCourse(id);
+                  showSuccess("Course published successfully!");
+                } else {
+                  await unpublishCourse(id);
+                  showSuccess("Course moved back to drafts.");
+                }
+                refetchCourses();
+              } catch (err) {
+                showError(
+                  getApiErrorMessage(
+                    err,
+                    "Failed to update course status. Please try again.",
+                  ),
+                );
               }
             }}
             // onMessageTeacher={(id) => {
             //   console.log(id);
             // }}
-            onDeleteCourse={(id) => {
-              deleteCourse(id);
+            onDeleteCourse={async (id) => {
+              try {
+                await deleteCourseApi(id);
+                showSuccess("Course deleted.");
+                refetchCourses();
+              } catch (err) {
+                showError(
+                  getApiErrorMessage(
+                    err,
+                    "Failed to delete course. Please try again.",
+                  ),
+                );
+              }
             }}
           />
+          )}
         </div>
 
         <div className="flex justify-end w-full mt-4 gap-4">

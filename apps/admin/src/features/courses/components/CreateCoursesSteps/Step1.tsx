@@ -2,16 +2,32 @@ import { Controller, FormInputs, useFormContext, useTeachers } from "@mcc/featur
 import { Button, Icon } from "@mcc/ui";
 import { useMemo, useState } from "react";
 import { CoursesFormValues } from "@/src/features/courses/types/types";
-import { toCreateCourseDetailsPayload } from "@/src/features/courses/helper/helper";
-import { createCourseDetails } from "@/src/features/courses/services/course.service";
+import {
+  toCreateCourseDetailsPayload,
+  toUpdateDetailsPayload,
+} from "@/src/features/courses/helper/helper";
+import {
+  createCourseDetails,
+  getApiErrorMessage,
+  updateCourse,
+} from "@/src/features/courses/services/course.service";
 import { useRouter } from "next/navigation";
 
 export default function CreateDetails({
   onNext,
   saveDraft,
+  existingCourseId,
 }: {
   onNext: () => void;
   saveDraft: () => void;
+  /**
+   * Pass the real course id when Details is opened against a course that
+   * already exists (editing) — without it, "Save & continue" always POSTs
+   * a new course, which would silently create a duplicate every time an
+   * already-created course is edited or Details is resubmitted after going
+   * back from a later step.
+   */
+  existingCourseId?: string;
 }) {
   const {
     register,
@@ -24,6 +40,10 @@ export default function CreateDetails({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // Once true (either handed in, or set after our own first successful
+  // create), every later "Save & continue" here PATCHes instead of
+  // re-POSTing — see the `existingCourseId` prop doc above.
+  const [hasCreated, setHasCreated] = useState(!!existingCourseId);
 
   const { data: teachersData = [], isLoading: isLoadingTeachers } = useTeachers();
 
@@ -54,20 +74,30 @@ export default function CreateDetails({
     setIsSubmitting(true);
 
     try {
-      const created = await createCourseDetails(
-        toCreateCourseDetailsPayload(getValues()),
-      );
+      const values = getValues();
 
-      // Adopt the backend-issued id so later steps/publish target the
-      // course the API actually created.
-      setValue("id", created.id);
+      if (hasCreated) {
+        // The course already exists — update it in place rather than
+        // creating a duplicate.
+        await updateCourse(values.id, toUpdateDetailsPayload(values));
+      } else {
+        const created = await createCourseDetails(
+          toCreateCourseDetailsPayload(values),
+        );
+
+        // Adopt the backend-issued id so later steps/publish target the
+        // course the API actually created.
+        setValue("id", created.id);
+        setHasCreated(true);
+      }
 
       onNext();
     } catch (error) {
       setSubmitError(
-        error instanceof Error
-          ? error.message
-          : "Failed to save course details. Please try again.",
+        getApiErrorMessage(
+          error,
+          "Failed to save course details. Please try again.",
+        ),
       );
     } finally {
       setIsSubmitting(false);

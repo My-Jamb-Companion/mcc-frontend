@@ -2,6 +2,7 @@ import {useEffect, useRef, useState} from "react";
 import {Icon} from "@mcc/ui";
 import {InlineRename} from "./Step2";
 import {FileRow} from "@/src/features/courses/types/types";
+import {uploadMedia} from "@/src/features/courses/services/media.service";
 
 function uid() {
   return Math.random().toString(36).slice(2, 9);
@@ -29,8 +30,10 @@ function getVideoDuration(file: File): Promise<number> {
 
 function FileRowItem({
   file,
+  error,
   onRemove,
   onRename,
+  onRetry,
   index,
   onDragStart,
   onDragEnter,
@@ -38,8 +41,10 @@ function FileRowItem({
   onDrop,
 }: {
   file: FileRow;
+  error?: string;
   onRemove?: (id: string) => void;
   onRename?: (id: string, newTitle: string) => void;
+  onRetry?: (id: string) => void;
   index: number;
   onDragStart?: (e: React.DragEvent, index: number) => void;
   onDragEnter?: (e: React.DragEvent, index: number) => void;
@@ -109,6 +114,18 @@ function FileRowItem({
             ? ` • ${Math.floor(file.duration / 60)}m ${file.duration % 60}s`
             : ""}
         </p>
+        {error && (
+          <p className="mt-0.5 flex items-center gap-2 text-xs text-danger">
+            {error}
+            <button
+              type="button"
+              onClick={() => onRetry?.(file.id)}
+              className="font-semibold underline"
+            >
+              Retry
+            </button>
+          </p>
+        )}
       </div>
       {uploading && (
         <span className="relative z-10 mr-2 text-sm font-semibold text-violet-600">
@@ -146,6 +163,19 @@ export default function LessonsCreate({
   const [uploadsProgress, setUploadsProgress] = useState<
     Record<string, number>
   >({});
+  const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
+
+  // Uploads run against whatever the file list looks like *when they finish*,
+  // not when they started — a ref keeps that current without re-subscribing
+  // the upload effect to every reorder/rename.
+  const filesRef = useRef(files);
+  useEffect(() => {
+    filesRef.current = files;
+  }, [files]);
+  const onFilesChangeRef = useRef(onFilesChange);
+  useEffect(() => {
+    onFilesChangeRef.current = onFilesChange;
+  }, [onFilesChange]);
 
   // Drag & drop reorder state
   const [dragItemIndex, setDragItemIndex] = useState<number | null>(null);
@@ -153,19 +183,54 @@ export default function LessonsCreate({
     null,
   );
 
+  function uploadRow(id: string, file: File) {
+    setUploadsProgress((prev) => ({...prev, [id]: 0}));
+    setUploadErrors((prev) => {
+      const next = {...prev};
+      delete next[id];
+      return next;
+    });
+
+    uploadMedia(file, "courses", (percent) => {
+      setUploadsProgress((prev) => ({...prev, [id]: percent}));
+    })
+      .then((remoteUrl) => {
+        onFilesChangeRef.current(
+          filesRef.current.map((f) =>
+            f.id === id ? {...f, src: remoteUrl} : f,
+          ),
+        );
+      })
+      .catch(() => {
+        setUploadErrors((prev) => ({
+          ...prev,
+          [id]: "Upload failed.",
+        }));
+      })
+      .finally(() => {
+        setUploadsProgress((prev) => {
+          const next = {...prev};
+          delete next[id];
+          return next;
+        });
+      });
+  }
+
+  function retryUpload(id: string) {
+    const row = filesRef.current.find((f) => f.id === id);
+    if (row?.file) uploadRow(id, row.file);
+  }
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files?.length) return;
 
     const fileList = Array.from(e.target.files);
-    const newProgress: Record<string, number> = {...uploadsProgress};
 
     const newRows: FileRow[] = await Promise.all(
       fileList.map(async (f) => {
         const id = uid();
         const objectUrl = URL.createObjectURL(f);
         const duration = await getVideoDuration(f);
-
-        newProgress[id] = 0;
 
         return {
           id,
@@ -181,33 +246,10 @@ export default function LessonsCreate({
       }),
     );
 
-    setUploadsProgress(newProgress);
     onFilesChange([...files, ...newRows]);
+    newRows.forEach((row) => uploadRow(row.id, row.file as File));
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
-
-  useEffect(() => {
-    const activeIds = Object.keys(uploadsProgress);
-    if (activeIds.length === 0) return;
-
-    const timer = setTimeout(() => {
-      setUploadsProgress((prev) => {
-        const next = {...prev};
-        let changed = false;
-        for (const id of Object.keys(next)) {
-          if (next[id] < 100) {
-            next[id] += 25;
-            changed = true;
-          } else {
-            delete next[id];
-            changed = true;
-          }
-        }
-        return changed ? next : prev;
-      });
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [uploadsProgress]);
 
   function handleDrop() {
     if (
@@ -242,9 +284,11 @@ export default function LessonsCreate({
         <FileRowItem
           key={file.id}
           file={file}
+          error={uploadErrors[file.id]}
           index={index}
           onRemove={(id) => onFilesChange(files.filter((x) => x.id !== id))}
           onRename={handleRenameFile}
+          onRetry={retryUpload}
           onDragStart={(_, idx) => setDragItemIndex(idx)}
           onDragEnter={(_, idx) => setDragOverItemIndex(idx)}
           onDragEnd={() => {
