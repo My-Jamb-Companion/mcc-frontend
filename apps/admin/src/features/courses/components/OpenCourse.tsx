@@ -1,12 +1,17 @@
 "use client";
 import {useRouter} from "next/navigation";
-import {Button, Icon} from "@mcc/ui";
+import {Button, Icon, showError, showSuccess} from "@mcc/ui";
 import {FormInputs} from "@mcc/features";
 import {useEffect, useRef, useState} from "react";
 import StatsSummaryRow from "@/src/components/StatsSummary";
 import CourseSideDetail from "./CourseSideDetails";
 import CourseInfo from "./CourseInfo";
-import {useCourseData} from "../hooks/useCourse";
+import {useCourse} from "../hooks/useCourses";
+import {
+  getApiErrorMessage,
+  publishCourse,
+  unpublishCourse,
+} from "../services/course.service";
 import {AdditionalCourseTypes, CoursesFormValues} from "../types/types";
 import {STATUS_STYLES} from "./CoursesRow";
 import Image from "next/image";
@@ -14,22 +19,37 @@ import Image from "next/image";
 export default function OpenCourse({id}: {id: string}) {
   const router = useRouter();
 
-  const {getCourse, saveDraft, publish} = useCourseData();
   useEffect(() => {
     if (!id) {
       router.push("/dashboard/courses");
     }
   }, [id, router]);
 
-  const item:
+  const {
+    data,
+    isLoading: isLoadingCourse,
+    isError: isCourseError,
+    refetch: refetchCourse,
+  } = useCourse(id);
+  const item = data as
     | (CoursesFormValues & Partial<AdditionalCourseTypes>)
-    | null
-    | undefined = id
-    ? (getCourse(id) as CoursesFormValues & Partial<AdditionalCourseTypes>)
-    : null;
+    | undefined;
 
   const [filter, setFilter] = useState("last 7 days");
   const status = STATUS_STYLES[item?.status || "draft"];
+
+  if (isLoadingCourse) {
+    return <p className="text-sm text-muted">Loading course…</p>;
+  }
+
+  if (isCourseError) {
+    return (
+      <p className="text-sm text-red-600">
+        Failed to load this course. Please try again.
+      </p>
+    );
+  }
+
   return (
     <section className="flex flex-col gap-6 ">
       <div className="flex items-center justify-between">
@@ -113,10 +133,25 @@ export default function OpenCourse({id}: {id: string}) {
                 }
                 variant="outline"
                 className="text-nowrap"
-                onClick={() => {
-                  if (item && item.status === "published") saveDraft(item);
-
-                  if (item && item.status === "draft") publish(item);
+                onClick={async () => {
+                  if (!item) return;
+                  try {
+                    if (item.status === "published") {
+                      await unpublishCourse(id);
+                      showSuccess("Course moved back to drafts.");
+                    } else {
+                      await publishCourse(id);
+                      showSuccess("Course published successfully!");
+                    }
+                    refetchCourse();
+                  } catch (err) {
+                    showError(
+                      getApiErrorMessage(
+                        err,
+                        "Failed to update course status. Please try again.",
+                      ),
+                    );
+                  }
                 }}
               >
                 {item?.status === "published"

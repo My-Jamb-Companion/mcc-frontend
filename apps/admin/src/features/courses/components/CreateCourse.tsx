@@ -11,9 +11,12 @@ import PromotionalCoverUpload, {
 import CourseStudentView from "./studentPreview/CourseStudentView";
 import {calculateTotalHours} from "../helper/helper";
 import {AdditionalCourseTypes, CoursesFormValues, LEVELS, UpdateCoursePayload} from "../types/types";
-import {useCourseData} from "../hooks/useCourse";
-import {serializeModulesPayload} from "../helper/course.mapper";
-import {publishCourse, updateCourse} from "../services/course.service";
+import {serializeModulesPayload, toApiLevel} from "../helper/course.mapper";
+import {
+  getApiErrorMessage,
+  publishCourse,
+  updateCourse,
+} from "../services/course.service";
 export {LEVELS};
 
 type Step = "details" | "content" | "upload";
@@ -107,12 +110,6 @@ export default function CreateCourseForm() {
   const [apiError, setApiError] = useState<string | null>(null);
 
   const [previewView, setPreviewView] = useState(false);
-
-  // ─────────────────────────────────────────────
-  // COURSE STORE
-  // ─────────────────────────────────────────────
-
-  const {saveDraft, publish} = useCourseData();
 
   // ─────────────────────────────────────────────
   // FORM
@@ -235,7 +232,7 @@ export default function CreateCourseForm() {
       setApiError(null);
       setIsSavingDraft(true);
       const finalPayload = buildCoursePayload("draft");
-      const savedCourse = saveDraft(finalPayload);
+      const savedCourse = finalPayload;
 
       // Construct PATCH payload matching target API schema
       const updatePayload: UpdateCoursePayload = {
@@ -243,7 +240,7 @@ export default function CreateCourseForm() {
         category: finalPayload.category,
         teacher_id: finalPayload.instructorName,
         price: Number(finalPayload.price || 0),
-        level: finalPayload.level,
+        level: toApiLevel(finalPayload.level),
         description: finalPayload.description,
         learning_outcomes: finalPayload.learnItems,
         tags: finalPayload.tags,
@@ -266,12 +263,12 @@ export default function CreateCourseForm() {
       methods.reset(savedCourse);
       setIsPublished(false);
       showSuccess("Course draft saved successfully!");
-    } catch (err: any) {
+    } catch (err) {
       console.error("Failed to save draft:", err);
-      const errorMsg =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Failed to save course draft. Please try again.";
+      const errorMsg = getApiErrorMessage(
+        err,
+        "Failed to save course draft. Please try again.",
+      );
       setApiError(errorMsg);
       showError(errorMsg);
     } finally {
@@ -290,7 +287,7 @@ export default function CreateCourseForm() {
       setApiError(null);
       setIsPublishing(true);
       const finalPayload = buildCoursePayload("published");
-      const publishedCourse = publish(finalPayload);
+      const publishedCourse = finalPayload;
 
       // Construct PATCH payload matching target API schema
       const updatePayload: UpdateCoursePayload = {
@@ -298,7 +295,7 @@ export default function CreateCourseForm() {
         category: finalPayload.category,
         teacher_id: finalPayload.instructorName,
         price: Number(finalPayload.price || 0),
-        level: finalPayload.level,
+        level: toApiLevel(finalPayload.level),
         description: finalPayload.description,
         learning_outcomes: finalPayload.learnItems,
         tags: finalPayload.tags,
@@ -323,12 +320,12 @@ export default function CreateCourseForm() {
       confettiCelebrate(undefined, 1000, 300);
       setIsPublished(true);
       showSuccess("Course published successfully!");
-    } catch (err: any) {
+    } catch (err) {
       console.error("Failed to publish course:", err);
-      const errorMsg =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Failed to publish course. Please try again.";
+      const errorMsg = getApiErrorMessage(
+        err,
+        "Failed to publish course. Please try again.",
+      );
       setApiError(errorMsg);
       showError(errorMsg);
     } finally {

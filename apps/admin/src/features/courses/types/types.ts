@@ -259,3 +259,64 @@ export interface UpdateCoursePayload {
   modules?: ApiModulePayload[];
 }
 
+// ─────────────────────────────────────────────
+// GET /admin/courses & GET /admin/courses/{id}
+// ─────────────────────────────────────────────
+
+export interface ApiEnvelope<T> {
+  data: T;
+  message: string;
+  success: boolean;
+}
+
+export interface PaginatedEnvelope<T> extends ApiEnvelope<T[]> {
+  meta: {
+    page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+// Query params match app/features/admin/courses/router.py:list_courses exactly
+// — note it's `limit`/`teacher_id`/`category_id`/`search`, not `per_page`/`category`.
+export interface ListCoursesParams {
+  page?: number;
+  limit?: number;
+  status?: "draft" | "published";
+  teacher_id?: string;
+  category_id?: string;
+  search?: string;
+}
+
+export interface ApiTeacher {
+  user_id: string;
+  full_name: string;
+  email: string;
+  avatar_url: string | null;
+}
+
+export interface ApiCourseSummary {
+  course_id: string;
+  title: string;
+  category: string | null;
+  level: string;
+  price: string;
+  status: "draft" | "published";
+  tags: string[];
+  cover_image_url: string | null;
+  modules_count: number;
+  rating: string | null;
+  teacher: ApiTeacher | null;
+  created_at: string;
+}
+
+export interface ApiCourseDetail extends Omit<ApiCourseSummary, "category"> {
+  category: {category_id: string; name: string} | null;
+  description: string;
+  learning_outcomes: string[];
+  promo_video_url: string | null;
+  modules: ApiModulePayload[];
+  updated_at: string;
+}
+

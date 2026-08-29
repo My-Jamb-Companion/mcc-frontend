@@ -1,7 +1,11 @@
 import {
+  ApiCourseDetail,
+  ApiCourseSummary,
   ApiLecturePayload,
   ApiModulePayload,
   ApiQuizQuestionPayload,
+  CoursesFormValues,
+  CourseLevel,
   CreatPracticeQuestionType,
   LessonModuleContent,
   MakeModule,
@@ -164,4 +168,103 @@ export function deserializeModulesPayload(
       modules: convertedModules,
     },
   ];
+}
+
+/**
+ * Maps course level between the UI's values (`LEVELS` in types.ts, used for
+ * the "all levels" fill-bar control) and the backend's Pydantic enum
+ * (`app/features/admin/courses/schemas.py::CourseLevel`), which spells the
+ * "no preference" option `all_levels`, not `all`. Sending `"all"` straight
+ * through fails the backend's validation on every course creation/update
+ * where the level was left at its default.
+ */
+const API_LEVEL_TO_UI: Record<string, CourseLevel> = {
+  all_levels: "all",
+  beginner: "beginner",
+  intermediate: "intermediate",
+  advanced: "advanced",
+};
+
+const UI_LEVEL_TO_API: Record<CourseLevel, string> = {
+  all: "all_levels",
+  beginner: "beginner",
+  intermediate: "intermediate",
+  advanced: "advanced",
+};
+
+export function fromApiLevel(level: string): CourseLevel {
+  return API_LEVEL_TO_UI[level] ?? "all";
+}
+
+export function toApiLevel(level: CourseLevel): string {
+  return UI_LEVEL_TO_API[level] ?? "all_levels";
+}
+
+/**
+ * Adapts one GET /admin/courses list item into CoursesFormValues so
+ * CourseCard / CoursesRow / CourseLists never learn the API's key names.
+ */
+export function fromApiCourseSummary(api: ApiCourseSummary): CoursesFormValues {
+  return {
+    id: api.course_id,
+    status: api.status,
+    courseName: api.title,
+    // Category <select> options (Step1.tsx CATEGORY_OPTIONS) match by a
+    // lowercase value ("science"), but the API stores/returns the
+    // display-cased name ("Science") the create flow originally sent —
+    // lowercase it here so an existing course's category shows as
+    // selected instead of blank. Placeholder-options only; revisit once
+    // categories are fetched from a real endpoint instead of hardcoded.
+    category: api.category?.toLowerCase() ?? "",
+    // The Instructor <select> (Step1.tsx) matches options by teacher_id,
+    // not display name — despite the field's name, `instructorName` holds
+    // an id everywhere else in this codebase too (it's sent back to the
+    // API as `teacher_id`). Mapping the display name here left the
+    // dropdown unable to match any option and show as unselected on edit.
+    instructorName: api.teacher?.user_id ?? "",
+    price: api.price,
+    level: fromApiLevel(api.level),
+    description: "",
+    learnItems: [],
+    tags: api.tags ?? [],
+    content: {topics: []},
+    upload: {
+      coverImage: null,
+      promoVideo: null,
+      coverImageUrl: api.cover_image_url ?? undefined,
+    },
+  };
+}
+
+/**
+ * Adapts GET /admin/courses/{course_id} into CoursesFormValues, ready to
+ * be passed straight into methods.reset(...).
+ */
+export function fromApiCourseDetail(api: ApiCourseDetail): CoursesFormValues {
+  return {
+    id: api.course_id,
+    status: api.status,
+    courseName: api.title,
+    // See the matching comment in fromApiCourseSummary — lowercased to
+    // match CATEGORY_OPTIONS' placeholder values.
+    category: api.category?.name?.toLowerCase() ?? "",
+    // The Instructor <select> (Step1.tsx) matches options by teacher_id,
+    // not display name — despite the field's name, `instructorName` holds
+    // an id everywhere else in this codebase too (it's sent back to the
+    // API as `teacher_id`). Mapping the display name here left the
+    // dropdown unable to match any option and show as unselected on edit.
+    instructorName: api.teacher?.user_id ?? "",
+    price: api.price,
+    level: fromApiLevel(api.level),
+    description: api.description,
+    learnItems: api.learning_outcomes ?? [],
+    tags: api.tags ?? [],
+    content: {topics: deserializeModulesPayload(api.modules)},
+    upload: {
+      coverImage: null,
+      promoVideo: null,
+      coverImageUrl: api.cover_image_url ?? undefined,
+      promoVideoUrl: api.promo_video_url ?? undefined,
+    },
+  };
 }

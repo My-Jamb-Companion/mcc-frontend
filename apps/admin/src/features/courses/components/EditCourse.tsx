@@ -1,8 +1,8 @@
 "use client";
 
-import {useState, useEffect} from "react";
+import {useState, useEffect, useRef} from "react";
 import {useSearchParams} from "next/navigation";
-import {Button, confettiCelebrate, Icon} from "@mcc/ui";
+import {Button, confettiCelebrate, Icon, showError, showSuccess} from "@mcc/ui";
 import {useForm, FormProvider} from "@mcc/features";
 import ContentStep, {hasCompleteContent, uid} from "./CreateCoursesSteps/Step2";
 import CreateDetails from "./CreateCoursesSteps/Step1";
@@ -11,8 +11,19 @@ import PromotionalCoverUpload, {
 } from "./CreateCoursesSteps/Step3";
 import CourseStudentView from "./studentPreview/CourseStudentView";
 import {calculateTotalHours} from "../helper/helper";
-import {AdditionalCourseTypes, CoursesFormValues, LEVELS} from "../types/types";
-import {useCourseData} from "../hooks/useCourse";
+import {
+  AdditionalCourseTypes,
+  CoursesFormValues,
+  LEVELS,
+  UpdateCoursePayload,
+} from "../types/types";
+import {useCourse} from "../hooks/useCourses";
+import {serializeModulesPayload, toApiLevel} from "../helper/course.mapper";
+import {
+  getApiErrorMessage,
+  publishCourse,
+  updateCourse,
+} from "../services/course.service";
 
 export {LEVELS};
 
@@ -28,11 +39,19 @@ const STEPS: {id: Step; label: string}[] = [
 function Step1({
   onNext,
   saveDraft,
+  existingCourseId,
 }: {
   onNext: () => void;
   saveDraft: () => void;
+  existingCourseId?: string;
 }) {
-  return <CreateDetails onNext={onNext} saveDraft={saveDraft} />;
+  return (
+    <CreateDetails
+      onNext={onNext}
+      saveDraft={saveDraft}
+      existingCourseId={existingCourseId}
+    />
+  );
 }
 
 // STEP 2
@@ -105,13 +124,19 @@ export default function CreateCourseForm() {
   const [activeStep, setActiveStep] = useState<Step>("details");
   const [isPublished, setIsPublished] = useState(false);
   const [previewView, setPreviewView] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // ─────────────────────────────────────────────
   // COURSE STORE
   // ─────────────────────────────────────────────
-  const {saveDraft, publish, courses} = useCourseData();
+  const {
+    data: existingCourse,
+    isLoading: isLoadingCourse,
+    isError: isCourseError,
+  } = useCourse(editId);
 
-  // const editItem = courses.find((item) => item.id === editId);
   const [isEdit, setIsEdit] = useState(true);
 
   // ─────────────────────────────────────────────
@@ -140,21 +165,19 @@ export default function CreateCourseForm() {
     },
   });
 
-  // Load course details if editing an existing ID
+  // Load course details into the form — but only once per course. Without
+  // the ref guard, any background refetch of useCourse() (e.g. React
+  // Query's default refetchOnWindowFocus firing when a file picker or
+  // another tab steals and returns focus) would re-run this effect and
+  // silently wipe out every unsaved edit via methods.reset(), even though
+  // nothing the user did asked for a reset.
+  const loadedCourseIdRef = useRef<string | null>(null);
   useEffect(() => {
-    if (editId && courses) {
-      const existingCourse = courses.find((c) => c.id === editId);
-      if (existingCourse) {
-        methods.reset(existingCourse);
-        // if (
-        //   existingCourse.status === "live" ||
-        //   existingCourse.status === "published"
-        // ) {
-        //   setIsPublished(true);
-        // }
-      }
+    if (existingCourse && loadedCourseIdRef.current !== editId) {
+      methods.reset(existingCourse);
+      loadedCourseIdRef.current = editId;
     }
-  }, [editId, courses, methods]);
+  }, [existingCourse, editId, methods]);
 
   // ─────────────────────────────────────────────
   // FORM DATA WATCHERS
@@ -219,30 +242,89 @@ export default function CreateCourseForm() {
     };
   }
 
-  // ─────────────────────────────────────────────
-  // SAVE AS DRAFT
-  // ─────────────────────────────────────────────
-  function handleSaveDraft() {
-    const finalPayload = buildCoursePayload("draft");
-    const savedCourse = saveDraft(finalPayload);
-
-    methods.reset(savedCourse);
-    setIsPublished(false);
+  function toUpdatePayload(payload: CoursesFormValues): UpdateCoursePayload {
+    return {
+      title: payload.courseName,
+      category: payload.category,
+      teacher_id: payload.instructorName,
+      price: Number(payload.price || 0),
+      level: toApiLevel(payload.level),
+      description: payload.description,
+      learning_outcomes: payload.learnItems,
+      tags: payload.tags,
+      cover_image_url:
+        payload.upload?.coverImageUrl ||
+        payload.upload?.coverImage?.remoteUrl ||
+        payload.upload?.coverImage?.previewUrl,
+      promo_video_url:
+        payload.upload?.promoVideoUrl ||
+        payload.upload?.promoVideo?.remoteUrl ||
+        payload.upload?.promoVideo?.previewUrl,
+      modules: serializeModulesPayload(payload.content.topics),
+    };
   }
 
   // ─────────────────────────────────────────────
-  // PUBLISH
+  // SAVE AS DRAFT (PATCH)
   // ─────────────────────────────────────────────
-  function handlePublish() {
+  async function handleSaveDraft() {
+    try {
+      setApiError(null);
+      setIsSavingDraft(true);
+      const finalPayload = buildCoursePayload("draft");
+
+      if (finalPayload.id) {
+        await updateCourse(finalPayload.id, toUpdatePayload(finalPayload));
+      }
+
+      methods.reset(finalPayload);
+      setIsPublished(false);
+      showSuccess("Course draft saved successfully!");
+    } catch (err) {
+      console.error("Failed to save draft:", err);
+      const errorMsg = getApiErrorMessage(
+        err,
+        "Failed to save course draft. Please try again.",
+      );
+      setApiError(errorMsg);
+      showError(errorMsg);
+    } finally {
+      setIsSavingDraft(false);
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // PUBLISH (PATCH + POST /publish)
+  // ─────────────────────────────────────────────
+  async function handlePublish() {
     if (!canPublish) return;
 
-    const finalPayload = buildCoursePayload("published");
-    const publishedCourse = publish(finalPayload);
+    try {
+      setApiError(null);
+      setIsPublishing(true);
+      const finalPayload = buildCoursePayload("published");
 
-    methods.reset(publishedCourse);
-    confettiCelebrate(undefined, 1000, 300);
-    setIsPublished(true);
-    setIsEdit(false);
+      if (finalPayload.id) {
+        await updateCourse(finalPayload.id, toUpdatePayload(finalPayload));
+        await publishCourse(finalPayload.id);
+      }
+
+      methods.reset(finalPayload);
+      confettiCelebrate(undefined, 1000, 300);
+      setIsPublished(true);
+      setIsEdit(false);
+      showSuccess("Course published successfully!");
+    } catch (err) {
+      console.error("Failed to publish course:", err);
+      const errorMsg = getApiErrorMessage(
+        err,
+        "Failed to publish course. Please try again.",
+      );
+      setApiError(errorMsg);
+      showError(errorMsg);
+    } finally {
+      setIsPublishing(false);
+    }
   }
 
   // ─────────────────────────────────────────────
@@ -256,6 +338,18 @@ export default function CreateCourseForm() {
   function goBack() {
     const prev = STEPS[activeIndex - 1];
     if (prev) setActiveStep(prev.id);
+  }
+
+  if (editId && isLoadingCourse) {
+    return <p className="text-sm text-muted">Loading course…</p>;
+  }
+
+  if (editId && isCourseError) {
+    return (
+      <p className="text-sm text-red-600">
+        Failed to load this course. Please try again.
+      </p>
+    );
   }
 
   return (
@@ -289,6 +383,22 @@ export default function CreateCourseForm() {
       ) : (
         <FormProvider {...methods}>
           <div className="flex flex-col h-full">
+            {apiError && (
+              <div className="mb-4 flex items-center justify-between rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                <div className="flex items-center gap-2">
+                  <Icon icon="lucide:alert-circle" size={18} className="shrink-0 text-red-500" />
+                  <span>{apiError}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setApiError(null)}
+                  className="font-semibold text-xs text-red-500 hover:text-red-700"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-4">
               <h1 className="text-xl font-semibold text-gray-900">
@@ -335,7 +445,7 @@ export default function CreateCourseForm() {
                   size={"sm"}
                   leftIcon={<Icon icon="lucide:eye" size={16} />}
                   onClick={() => setPreviewView(true)}
-                  disabled={!canPublish}
+                  disabled={!canPublish || isPublishing || isSavingDraft}
                 >
                   View as a student
                 </Button>
@@ -343,7 +453,9 @@ export default function CreateCourseForm() {
                   type="button"
                   variant={canPublish ? "primary" : "secondary"}
                   size={"sm"}
-                  disabled={!canPublish}
+                  disabled={!canPublish || isPublishing || isSavingDraft}
+                  loading={isPublishing}
+                  loadingText="Publishing..."
                   className={!canPublish ? "text-muted/60" : ""}
                   onClick={handlePublish}
                 >
@@ -354,7 +466,11 @@ export default function CreateCourseForm() {
 
             {/* Steps */}
             {activeStep === "details" && (
-              <Step1 onNext={goNext} saveDraft={handleSaveDraft} />
+              <Step1
+                onNext={goNext}
+                saveDraft={handleSaveDraft}
+                existingCourseId={editId ?? undefined}
+              />
             )}
             {activeStep === "content" && (
               <Step2

@@ -1,5 +1,6 @@
-import {MakeModule, Step1Values, Topic} from "../types/types";
+import {MakeModule, Step1Values, Topic, UpdateCoursePayload} from "../types/types";
 import {CreateCourseDetailsPayload} from "../services/course.service";
+import {toApiLevel} from "./course.mapper";
 
 export const shuffleArray = <T>(array: T[]) => {
   return [...array].sort(() => Math.random() - 0.5);
@@ -63,7 +64,28 @@ export function toCreateCourseDetailsPayload(
     category: values.category,
     teacher_id: values.instructorName,
     price: Number(values.price || 0),
-    level: values.level,
+    level: toApiLevel(values.level),
+    description: values.description,
+    learning_outcomes: values.learnItems,
+    tags: values.tags,
+  };
+}
+
+/**
+ * Same Step 1 fields, shaped for PATCH /admin/courses/{id} instead of the
+ * create endpoint — used once a course already exists (editing, or
+ * resubmitting Details after the initial create in the same session), so
+ * Details never re-creates a course it's already saved once.
+ */
+export function toUpdateDetailsPayload(
+  values: Step1Values,
+): UpdateCoursePayload {
+  return {
+    title: values.courseName,
+    category: values.category,
+    teacher_id: values.instructorName,
+    price: Number(values.price || 0),
+    level: toApiLevel(values.level),
     description: values.description,
     learning_outcomes: values.learnItems,
     tags: values.tags,

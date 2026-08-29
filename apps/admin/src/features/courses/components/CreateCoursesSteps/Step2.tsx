@@ -581,8 +581,29 @@ function ExerciseManager({
   );
 }
 
+/**
+ * A module the backend will actually accept has at least one lecture —
+ * `ModulePublish.lectures` requires `min_length=1`. A module with a
+ * "Lessons" leaf but zero files in it still satisfies the old, looser
+ * check (`modules.length > 0`), which let the UI report content as
+ * "complete" — enabling Save/Publish — for a module the API silently
+ * rejects (see getIncompleteModuleLabels for where that's surfaced).
+ */
+function moduleHasLecture(module: MakeModule): boolean {
+  return module.content.some((c) => c.type === "lesson");
+}
+
 export function hasCompleteContent(topics: Topic[]) {
-  return topics.some((t) => t.modules.length > 0);
+  const allModules = topics.flatMap((t) => t.modules);
+  return allModules.length > 0 && allModules.every(moduleHasLecture);
+}
+
+/** Labels of modules with no lecture content yet — for a save-blocking error message. */
+export function getIncompleteModuleLabels(topics: Topic[]): string[] {
+  return topics
+    .flatMap((t) => t.modules)
+    .filter((m) => !moduleHasLecture(m))
+    .map((m) => m.label || "Untitled module");
 }
 
 export function lessonsViewId(moduleId: string) {

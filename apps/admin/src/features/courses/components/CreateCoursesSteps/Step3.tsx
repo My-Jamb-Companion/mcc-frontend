@@ -1,10 +1,11 @@
-import {useCallback, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {Button, Icon} from "@mcc/ui";
 import {useFormContext} from "@mcc/features";
 import {
   CoursesFormValues,
   UploadedFile,
 } from "@/src/features/courses/types/types";
+import {uploadMedia} from "@/src/features/courses/services/media.service";
 import {useRouter} from "next/navigation";
 
 export function hasCompleteUpload(upload: {
@@ -27,6 +28,36 @@ export default function PromotionalCoverUpload({
 
   const coverImage = watch("upload.coverImage");
   const promoVideo = watch("upload.promoVideo");
+  const coverImageUrl = watch("upload.coverImageUrl");
+  const promoVideoUrl = watch("upload.promoVideoUrl");
+
+  // When editing an existing course, fromApiCourseDetail() only has a
+  // public URL to work with (no File object exists client-side to
+  // reconstruct) — it fills upload.coverImageUrl/promoVideoUrl but leaves
+  // upload.coverImage/promoVideo null. Backfill those from the URL once, so
+  // the dropzone shows the already-uploaded media instead of an empty
+  // "select file" prompt, and so hasCompleteUpload()/the publish payload
+  // (which both read upload.coverImage/promoVideo) see it as complete.
+  useEffect(() => {
+    if (!coverImage && coverImageUrl) {
+      setValue(
+        "upload.coverImage",
+        {previewUrl: coverImageUrl, remoteUrl: coverImageUrl},
+        {shouldDirty: false},
+      );
+    }
+  }, [coverImage, coverImageUrl, setValue]);
+
+  useEffect(() => {
+    if (!promoVideo && promoVideoUrl) {
+      setValue(
+        "upload.promoVideo",
+        {previewUrl: promoVideoUrl, remoteUrl: promoVideoUrl},
+        {shouldDirty: false},
+      );
+    }
+  }, [promoVideo, promoVideoUrl, setValue]);
+
   const setCoverImage = useCallback(
     (file: UploadedFile | null) => {
       setValue("upload.coverImage", file, {shouldDirty: true});
@@ -105,8 +136,9 @@ function UploadDropzone({
 
   const [pending, setPending] = useState<UploadedFile | null>(null);
   const [progress, setProgress] = useState(0);
+  const abortRef = useRef<AbortController | null>(null);
 
-  function acceptFile(file: File | undefined) {
+  async function acceptFile(file: File | undefined) {
     if (!file) return;
     if (!file.type.startsWith(kind === "image" ? "image/" : "video/")) {
       setError(`Please upload a ${kind} file.`);
@@ -115,16 +147,43 @@ function UploadDropzone({
     setError(null);
 
     const localPreview = URL.createObjectURL(file);
-    const uploadedItem: UploadedFile = {
-      file,
-      previewUrl: localPreview,
-    };
+    setPending({file, previewUrl: localPreview});
+    setProgress(0);
 
-    onChange(uploadedItem);
-    if (kind === "image") {
-      setValue("upload.coverImageUrl", localPreview, {shouldDirty: true});
-    } else {
-      setValue("upload.promoVideoUrl", localPreview, {shouldDirty: true});
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      const remoteUrl = await uploadMedia(
+        file,
+        "courses",
+        setProgress,
+        controller.signal,
+      );
+
+      const uploadedItem: UploadedFile = {
+        file,
+        previewUrl: localPreview,
+        remoteUrl,
+      };
+
+      onChange(uploadedItem);
+      if (kind === "image") {
+        setValue("upload.coverImageUrl", remoteUrl, {shouldDirty: true});
+      } else {
+        setValue("upload.promoVideoUrl", remoteUrl, {shouldDirty: true});
+      }
+    } catch {
+      if (controller.signal.aborted) {
+        URL.revokeObjectURL(localPreview);
+      } else {
+        setError(`Failed to upload ${kind}. Please try again.`);
+        URL.revokeObjectURL(localPreview);
+      }
+    } finally {
+      setPending(null);
+      setProgress(0);
+      abortRef.current = null;
     }
   }
 
@@ -162,9 +221,9 @@ function UploadDropzone({
   }
 
   function cancelPending() {
-    if (pending) URL.revokeObjectURL(pending.previewUrl);
-    setPending(null);
-    setProgress(0);
+    abortRef.current?.abort();
+    // acceptFile's catch/finally handles clearing pending/progress and
+    // revoking the preview URL once the aborted request settles.
   }
 
   return (
@@ -260,7 +319,9 @@ function UploadDropzone({
           </div>
 
           <p className="truncate border-t border-muted/20 bg-white px-4 py-2 text-xs text-muted">
-            {value.file.name}
+            {value.file?.name ||
+              decodeURIComponent(value.previewUrl.split("/").pop() || "") ||
+              "Uploaded"}
           </p>
         </div>
       ) : (
