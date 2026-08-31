@@ -144,7 +144,7 @@ export default function AssignProgram({
             <div className="flex flex-col gap-5">
               <div className="flex items-center justify-between pb-1 border-b border-gray-100">
                 <h2 className="text-base font-semibold text-gray-900">
-                  Enroll student
+                  Assign Program
                 </h2>
                 <button
                   onClick={onClose}
@@ -410,7 +410,7 @@ export default function AssignProgram({
                     : "bg-gray-100 text-gray-400 hover:bg-gray-200"
                 }`}
               >
-                Update Enrollment
+                Update Assignments
               </button>
             </div>
           </motion.section>

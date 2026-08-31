@@ -48,14 +48,14 @@ export default function Teachers() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Teachers</h1>
         <div className="relative">
-          <Button
+          {/* <Button
             width="fit"
             className="p-2! pr-4!"
             leftIcon={<Icon icon="line-md:plus" />}
             onClick={() => setCreateTeacher(true)}
           >
             <p>Create Teacher</p>
-          </Button>
+          </Button> */}
         </div>
       </div>
 

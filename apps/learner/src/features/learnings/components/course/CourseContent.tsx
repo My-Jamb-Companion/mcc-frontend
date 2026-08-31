@@ -124,6 +124,23 @@ export default function CourseContent({course}: {course: CourseDetail}) {
                 </motion.div>
               )}
 
+              {activeLesson?.type === "audio" && (
+                <motion.div
+                  key={`audio-${activeLesson?.id}`}
+                  initial={{opacity: 0, scale: 0.98}}
+                  animate={{opacity: 1, scale: 1}}
+                  exit={{opacity: 0, scale: 0.98}}
+                  transition={{duration: 0.25}}
+                >
+                  <CoursePlayer
+                    src={activeLesson?.src}
+                    isAudio={true}
+                    onEnded={handleVideoEnded}
+                    onTimeUpdate={setCurrentVideoTime}
+                  />
+                </motion.div>
+              )}
+
               {activeLesson?.type === "doc" && (
                 <motion.div
                   key={`doc-${activeLesson?.id}`}
