@@ -18,7 +18,6 @@ export default function Teachers() {
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [viewTeacher, setViewTeacher] = useState(false);
   const [messageCall, setMessageCall] = useState(false);
-  const [, setCreateTeacher] = useState(false);
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [assignProgram, setAssignProgram] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);

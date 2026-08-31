@@ -10,7 +10,7 @@ import {
 } from "@tanstack/react-table";
 import {Plus, Search, SlidersHorizontal} from "lucide-react";
 import EnhancedTable from "@/src/components/Table";
-import {Button, Icon} from "@mcc/ui";
+import {Button} from "@mcc/ui";
 import AddUserModal from "./AddUser";
 
 interface User {
