@@ -1,7 +1,16 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import {useMemo, useState} from "react";
 import {Icon, Modal} from "@mcc/ui";
+import "react-quill-new/dist/quill.snow.css";
+
+const ReactQuill = dynamic(() => import("react-quill-new"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-32 w-full animate-pulse rounded-xl bg-gray-100" />
+  ),
+});
 
 type Teacher = {
   id: string;
@@ -89,6 +98,15 @@ function TeacherSelect({
   );
 }
 
+const QUILL_MODULES = {
+  toolbar: [
+    ["bold", "italic", "underline", "strike"],
+    [{list: "ordered"}, {list: "bullet"}],
+    ["link"],
+    ["clean"],
+  ],
+};
+
 export default function SendMessage({
   open,
   onClose,
@@ -103,7 +121,8 @@ export default function SendMessage({
   const [message, setMessage] = useState("");
 
   const canProceedStep1 = teacher !== null;
-  const canSend = message.trim().length > 0;
+  const messageIsEmpty = message.replace(/<[^>]*>/g, "").trim().length === 0;
+  const canSend = !messageIsEmpty;
 
   const resetAndClose = () => {
     setStep(1);
@@ -118,7 +137,7 @@ export default function SendMessage({
       return;
     }
     if (canSend && teacher) {
-      onSend?.({teacher, message: message.trim()});
+      onSend?.({teacher, message});
       setStep(1);
       setTeacher(null);
       setMessage("");
@@ -182,13 +201,37 @@ export default function SendMessage({
                   </span>
                 ) : null}
               </label>
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Type your message..."
-                rows={4}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-violet-400 resize-none"
-              />
+              <div className="quill-send-message-wrapper rounded-xl border border-gray-200 bg-white overflow-hidden">
+                <ReactQuill
+                  theme="snow"
+                  value={message}
+                  onChange={setMessage}
+                  modules={QUILL_MODULES}
+                  placeholder="Type your message..."
+                />
+              </div>
+
+              <style jsx global>{`
+                .quill-send-message-wrapper .ql-toolbar.ql-snow {
+                  border: none;
+                  border-bottom: 1px solid #e5e7eb;
+                  padding: 8px 12px;
+                }
+                .quill-send-message-wrapper .ql-container.ql-snow {
+                  border: none;
+                  font-family: inherit;
+                  font-size: 0.875rem;
+                }
+                .quill-send-message-wrapper .ql-editor {
+                  min-height: 96px;
+                  padding: 12px 16px;
+                }
+                .quill-send-message-wrapper .ql-editor.ql-blank::before {
+                  left: 16px;
+                  font-style: normal;
+                  color: #9ca3af;
+                }
+              `}</style>
             </div>
           )}
         </div>

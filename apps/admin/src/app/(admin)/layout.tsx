@@ -30,7 +30,7 @@ export default function DashboardLayout({
       >
         <SideNav />
         <div className="flex flex-col w-full h-full col-start-2 max-sm:pl-0 p-2 overflow-hidden">
-          <div className="bg-white border border-muted/20 rounded-3xl h-full flex flex-col overflow-hidden">
+          <div className="relative bg-white border border-muted/20 rounded-3xl h-full flex flex-col overflow-hidden">
             <div className="shrink-0">
               <BreadcrumbsTopNav />
             </div>
