@@ -9,6 +9,9 @@ export type FileRow = {
   size: string;
   progress?: number;
   previewUrl?: string;
+  src?: string;
+  duration?: number;
+  file?: File;
 };
 
 function uid() {

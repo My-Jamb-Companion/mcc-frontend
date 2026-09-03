@@ -1,6 +1,6 @@
-import {Controller, FormInputs, useFormContext} from "@mcc/features";
+import {Controller, FormInputs, useFormContext, useTeachers} from "@mcc/features";
 import {Button, Icon} from "@mcc/ui";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import {ExamProgramFormValues} from "../CreateExamProgram";
 
 export default function CreateDetails({onNext}: {onNext: () => void}) {
@@ -10,6 +10,18 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
     trigger,
     formState: {errors, isValid},
   } = useFormContext<ExamProgramFormValues>();
+
+  const {data: teachersData = [], isLoading: isLoadingTeachers} = useTeachers();
+
+  const instructorOptions = useMemo(() => {
+    if (teachersData && teachersData.length > 0) {
+      return teachersData.map((t) => ({
+        label: t.teacher_name || t.name || t.email || `Teacher ${t.teacher_id || t.id}`,
+        value: t.teacher_id || t.id || t.email,
+      }));
+    }
+    return [];
+  }, [teachersData]);
 
   async function handleNext() {
     // Scope validation to this step's fields only, so an untouched Step2/3
@@ -120,10 +132,10 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
               <FormInputs
                 type="select"
                 label="Instructor"
-                placeholder="Select instructor"
+                placeholder={isLoadingTeachers ? "Loading instructors..." : "Select instructor"}
                 selectRadius="xl"
                 selectClassName="py-4"
-                options={INSTRUCTOR_OPTIONS}
+                options={instructorOptions}
                 value={field.value}
                 onChange={field.onChange}
                 errors={errors.instructor}
@@ -408,8 +420,4 @@ const CATEGORY_OPTIONS = [
   {label: "Science", value: "science"},
   {label: "Arts", value: "arts"},
   {label: "Commerce", value: "commerce"},
-];
-const INSTRUCTOR_OPTIONS = [
-  {label: "John Doe", value: "john_doe"},
-  {label: "Jane Smith", value: "jane_smith"},
 ];

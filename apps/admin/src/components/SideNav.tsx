@@ -290,7 +290,23 @@ const navs = {
         {label: "Courses", key: "courses", href: "/dashboard/courses"},
       ],
     },
-    {label: "Students", key: "students", expandable: true, children: []},
+    {
+      label: "Students",
+      key: "students",
+      expandable: true,
+      children: [
+        {
+          label: "Active Students",
+          key: "active-students",
+          href: "/dashboard/students/active-students",
+        },
+        {
+          label: "Prospective Students",
+          key: "prospective-students",
+          href: "/dashboard/students/prospective-students",
+        },
+      ],
+    },
     // {label: "More", key: "more", expandable: true, children: []},
   ],
 };
