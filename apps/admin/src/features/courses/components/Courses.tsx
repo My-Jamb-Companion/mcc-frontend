@@ -46,14 +46,16 @@ export default function Courses() {
           ? item.status === "published"
           : item.status === "draft";
 
+      const teacherName = item.instructor?.name || item.instructorName;
+
       const matchesSearch =
         query === "" ||
         item.courseName.toLowerCase().includes(query) ||
-        item.instructorName.toLowerCase().includes(query);
+        teacherName.toLowerCase().includes(query);
 
       const matchesTeacher =
         teachers.length === 0 ||
-        teachers.some((t) => t.name === item.instructorName);
+        teachers.some((t) => t.name === teacherName);
 
       return matchesStatus && matchesSearch && matchesTeacher;
     });
@@ -63,9 +65,10 @@ export default function Courses() {
     const seen = new Set<string>();
 
     return courses.reduce<TeacherOption[]>((acc, item) => {
-      if (!seen.has(item.instructorName)) {
-        seen.add(item.instructorName);
-        acc.push({id: item.instructorName, name: item.instructorName});
+      const teacherName = item.instructor?.name || item.instructorName;
+      if (teacherName && !seen.has(teacherName)) {
+        seen.add(teacherName);
+        acc.push({id: teacherName, name: teacherName});
       }
       return acc;
     }, []);

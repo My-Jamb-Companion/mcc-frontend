@@ -14,7 +14,6 @@ import {
 } from "../services/course.service";
 import {AdditionalCourseTypes, CoursesFormValues} from "../types/types";
 import {STATUS_STYLES} from "./CoursesRow";
-import Image from "next/image";
 
 export default function OpenCourse({id}: {id: string}) {
   const router = useRouter();
@@ -86,16 +85,26 @@ export default function OpenCourse({id}: {id: string}) {
             <Hero
               rating={item?.stats?.rating || 0}
               totalRatings={item?.stats?.reviewCount || 0}
-              // mainImage={item?.upload?.coverImage?.previewUrl || ""}
-              promoVideoSrc={item?.upload?.promoVideo?.previewUrl || ""}
-              poster={item?.upload?.coverImage?.previewUrl || ""}
-              instructorAvatar={item?.instructor?.avatar || ""}
+              promoVideoSrc={
+                item?.promo_video_url ||
+                item?.upload?.promoVideoUrl ||
+                item?.upload?.promoVideo?.previewUrl ||
+                item?.upload?.promoVideo?.remoteUrl ||
+                ""
+              }
+              coverImage={
+                item?.cover_image_url ||
+                item?.upload?.coverImageUrl ||
+                item?.upload?.coverImage?.previewUrl ||
+                item?.upload?.coverImage?.remoteUrl ||
+                ""
+              }
               onPlay={() => {}}
             />
 
             <div className="mt-8">
               <CourseInfo
-                instructor={item?.instructorName}
+                instructor={item?.instructor?.name || item?.instructorName}
                 title={item?.courseName}
                 description={item?.description}
                 topics={item?.content.topics}
@@ -180,10 +189,9 @@ export default function OpenCourse({id}: {id: string}) {
 
 function Hero({
   promoVideoSrc,
-  poster,
+  coverImage,
   rating,
   totalRatings,
-  instructorAvatar,
   onPlay,
 }: HeroProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -193,13 +201,12 @@ function Hero({
   const hasHalf = rating % 1 >= 0.5;
 
   const togglePlay = () => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || !promoVideoSrc) return;
 
     if (isPlaying) {
       videoRef.current.pause();
     } else {
       videoRef.current.play().catch(() => {
-        // console.warn("Video playback error:", err);
         return;
       });
     }
@@ -209,31 +216,34 @@ function Hero({
 
   return (
     <div className="relative w-full rounded-2xl overflow-visible">
-      <div className="w-full aspect-video rounded-2xl overflow-hidden bg-amber-800">
+      <div className="w-full aspect-video rounded-2xl overflow-hidden bg-zinc-900 relative">
         <video
           ref={videoRef}
-          src={promoVideoSrc}
-          poster={poster}
+          src={promoVideoSrc || undefined}
           controls={isPlaying}
-          className="w-full h-full object-cover"
+          preload="metadata"
+          className="w-full h-full object-cover cursor-pointer"
+          onClick={togglePlay}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
           onEnded={() => setIsPlaying(false)}
         />
       </div>
 
-      <button
-        type="button"
-        onClick={togglePlay}
-        className="absolute top-3 right-3 z-10 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:scale-105 transition-transform duration-200 cursor-pointer"
-        aria-label={isPlaying ? "Pause video" : "Play video"}
-      >
-        <Icon
-          icon={isPlaying ? "solar:pause-bold" : "solar:play-bold"}
-          size={16}
-          color="#000"
-        />
-      </button>
+      {promoVideoSrc && (
+        <button
+          type="button"
+          onClick={togglePlay}
+          className="absolute top-4 right-4 z-10 w-11 h-11 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-200 cursor-pointer"
+          aria-label={isPlaying ? "Pause video" : "Play video"}
+        >
+          <Icon
+            icon={isPlaying ? "solar:pause-bold" : "solar:play-bold"}
+            size={18}
+            className="text-black"
+          />
+        </button>
+      )}
 
       {!isPlaying && (
         <div className="absolute bottom-4 right-4 flex flex-col items-end gap-0.5 pointer-events-none">
@@ -264,14 +274,14 @@ function Hero({
         </div>
       )}
 
-      {!isPlaying && (
+      {/* Small section overlay on the video player with course cover image */}
+      {coverImage && (
         <div className="bg-white absolute -bottom-6 left-4 z-10 w-25 h-25 rounded-2xl overflow-hidden border-[3px] border-white shadow-md">
           <div className="relative w-full h-full">
-            <Image
-              src={instructorAvatar}
-              alt="Instructor"
+            <img
+              src={coverImage}
+              alt="Course Cover"
               className="w-full h-full object-cover"
-              fill
             />
           </div>
         </div>
@@ -281,8 +291,7 @@ function Hero({
 }
 type HeroProps = {
   promoVideoSrc: string;
-  poster: string;
-  instructorAvatar: string;
+  coverImage: string;
   rating: number;
   totalRatings: number;
   onPlay?: () => void;

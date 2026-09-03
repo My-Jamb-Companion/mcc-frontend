@@ -1,4 +1,5 @@
 import {
+  AdditionalCourseTypes,
   ApiCourseDetail,
   ApiCourseSummary,
   ApiLecturePayload,
@@ -204,7 +205,9 @@ export function toApiLevel(level: CourseLevel): string {
  * Adapts one GET /admin/courses list item into CoursesFormValues so
  * CourseCard / CoursesRow / CourseLists never learn the API's key names.
  */
-export function fromApiCourseSummary(api: ApiCourseSummary): CoursesFormValues {
+export function fromApiCourseSummary(
+  api: ApiCourseSummary,
+): CoursesFormValues & Partial<AdditionalCourseTypes> {
   return {
     id: api.course_id,
     status: api.status,
@@ -216,12 +219,9 @@ export function fromApiCourseSummary(api: ApiCourseSummary): CoursesFormValues {
     // selected instead of blank. Placeholder-options only; revisit once
     // categories are fetched from a real endpoint instead of hardcoded.
     category: api.category?.toLowerCase() ?? "",
-    // The Instructor <select> (Step1.tsx) matches options by teacher_id,
-    // not display name — despite the field's name, `instructorName` holds
-    // an id everywhere else in this codebase too (it's sent back to the
-    // API as `teacher_id`). Mapping the display name here left the
-    // dropdown unable to match any option and show as unselected on edit.
-    instructorName: api.teacher?.user_id ?? "",
+    // Display the teacher's full_name on the courses list page (falls back to email or user_id)
+    instructorName:
+      api.teacher?.full_name || api.teacher?.email || api.teacher?.user_id || "",
     price: api.price,
     level: fromApiLevel(api.level),
     description: "",
@@ -233,6 +233,17 @@ export function fromApiCourseSummary(api: ApiCourseSummary): CoursesFormValues {
       promoVideo: null,
       coverImageUrl: api.cover_image_url ?? undefined,
     },
+    instructor: api.teacher
+      ? {
+          id: api.teacher.user_id,
+          name: api.teacher.full_name || api.teacher.email || api.teacher.user_id,
+          bio: "",
+          avatar: api.teacher.avatar_url ?? "",
+          role: "Instructor",
+          social: [],
+        }
+      : undefined,
+    cover_image_url: api.cover_image_url ?? undefined,
   };
 }
 
@@ -240,7 +251,9 @@ export function fromApiCourseSummary(api: ApiCourseSummary): CoursesFormValues {
  * Adapts GET /admin/courses/{course_id} into CoursesFormValues, ready to
  * be passed straight into methods.reset(...).
  */
-export function fromApiCourseDetail(api: ApiCourseDetail): CoursesFormValues {
+export function fromApiCourseDetail(
+  api: ApiCourseDetail,
+): CoursesFormValues & Partial<AdditionalCourseTypes> {
   return {
     id: api.course_id,
     status: api.status,
@@ -266,5 +279,17 @@ export function fromApiCourseDetail(api: ApiCourseDetail): CoursesFormValues {
       coverImageUrl: api.cover_image_url ?? undefined,
       promoVideoUrl: api.promo_video_url ?? undefined,
     },
+    instructor: api.teacher
+      ? {
+          id: api.teacher.user_id,
+          name: api.teacher.full_name || api.teacher.email || api.teacher.user_id,
+          bio: "",
+          avatar: api.teacher.avatar_url ?? "",
+          role: "Instructor",
+          social: [],
+        }
+      : undefined,
+    cover_image_url: api.cover_image_url ?? undefined,
+    promo_video_url: api.promo_video_url ?? undefined,
   };
 }

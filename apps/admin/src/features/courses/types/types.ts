@@ -66,6 +66,8 @@ export type AdditionalCourseTypes = {
   availableLanguage?: string[];
   certificate?: string;
   lastUpdated?: string;
+  cover_image_url?: string;
+  promo_video_url?: string;
 };
 
 // STEP 2 TYPES
