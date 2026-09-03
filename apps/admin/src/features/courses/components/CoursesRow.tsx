@@ -61,10 +61,10 @@ export function CourseListRow({
 
   return (
     <div className="flex items-center gap-4 border-b border-zinc-50">
-      {course.upload.coverImage?.previewUrl ? (
+      {course.upload.coverImageUrl ? (
         <div className="w-[108px] h-[108px] relative rounded-2xl overflow-hidden">
           <img
-            src={course.upload.coverImage?.previewUrl}
+            src={course.upload.coverImageUrl}
             alt={course.courseName}
             className="h-full w-full shrink-0 rounded-xl object-cover"
           />
@@ -78,7 +78,7 @@ export function CourseListRow({
       <div className="min-w-0 flex-1 h-full flex flex-col justify-center">
         <div className="flex items-center gap-1.5 text-xs text-zinc-500">
           <Icon icon="ph:user-circle" className="h-3.5 w-3.5" />
-          <span>{course.instructorName}</span>
+          <span>{course.instructor?.name || course.instructorName}</span>
           <Icon icon="ph:star-fill" className="h-3 w-3" />
           <span>
             {course?.stats?.rating} ({course?.stats?.reviewCount})
