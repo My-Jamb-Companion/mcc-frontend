@@ -14,7 +14,6 @@ import {
 } from "../services/course.service";
 import {AdditionalCourseTypes, CoursesFormValues} from "../types/types";
 import {STATUS_STYLES} from "./CoursesRow";
-import Image from "next/image";
 
 export default function OpenCourse({id}: {id: string}) {
   const router = useRouter();

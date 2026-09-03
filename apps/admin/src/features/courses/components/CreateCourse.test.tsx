@@ -103,7 +103,7 @@ describe("CreateCourseForm", () => {
   });
 
   it("renders Step 1 (Details) and fails validation when required fields are empty", async () => {
-    const user = userEvent.setup();
+    userEvent.setup();
     render(<CreateCourseForm />, { wrapper: Providers });
 
     // Expect form title
