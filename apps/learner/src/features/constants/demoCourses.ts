@@ -117,6 +117,16 @@ const videoSrcs = [
   "https://samplelib.com/lib/preview/mp4/sample-30s.mp4",
 ];
 
+const audioSrc = [
+  "https://samplelib.com/wav/sample-3s-8khz.wav",
+  "https://samplelib.com/mp3/sample-6s.mp3",
+  "https://samplelib.com/mp3/sample-9s.mp3",
+  "https://samplelib.com/lib/preview/mp3/sample-15s.mp3",
+];
+
+const getRandomAudioSrc = () =>
+  audioSrc[Math.floor(Math.random() * audioSrc.length)];
+
 const getRandomSrc = () =>
   videoSrcs[Math.floor(Math.random() * videoSrcs.length)];
 
@@ -124,7 +134,13 @@ const getRandomSrc = () =>
 // Types
 // ---------------------------------------------------------------------------
 
-export type LessonType = "video" | "doc" | "practice" | "exam" | "exercise";
+export type LessonType =
+  | "video"
+  | "audio"
+  | "doc"
+  | "practice"
+  | "exam"
+  | "exercise";
 
 export interface Lessons {
   id: string;
@@ -308,7 +324,7 @@ export const courseDetails: CourseDetail[] = [
                 title: "History of Pilates",
                 duration: 734,
                 src: getRandomSrc(),
-                type: "video",
+                type: "audio",
                 completed: true,
                 currentTime: 127,
               },
@@ -364,6 +380,15 @@ export const courseDetails: CourseDetail[] = [
                 type: "video",
                 completed: false,
                 currentTime: 127,
+              },
+              {
+                id: "Introduction to Alignment (Audio)",
+                title: "Introduction to Alignment (Audio)",
+                duration: 645,
+                src: getRandomAudioSrc(),
+                type: "audio",
+                completed: false,
+                currentTime: 0,
               },
               {
                 id: "Neutral Spine Explained",

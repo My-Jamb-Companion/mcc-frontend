@@ -3,11 +3,12 @@
 import {useRef, useState, useEffect, useCallback} from "react";
 import {Icon} from "@mcc/ui";
 
-interface VideoPlayerProps {
+interface CoursePlayerProps {
   src: string | undefined;
   poster?: string;
+  isAudio?: boolean;
   onEnded?: () => void;
-  onTimeUpdate?: (currentTime: number) => void;
+  onTimeUpdate?: (second: number) => void;
 }
 
 function formatTime(seconds: number) {
@@ -19,10 +20,12 @@ function formatTime(seconds: number) {
 export default function CoursePlayer({
   src,
   poster,
+  isAudio = false,
   onEnded,
   onTimeUpdate: onTimeUpdateProp,
-}: VideoPlayerProps) {
+}: CoursePlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hideControlsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -42,22 +45,23 @@ export default function CoursePlayer({
     "back" | "forward" | null
   >(null);
 
-  // Derived — always show when paused, otherwise follow mouse activity
-  const showControls = !playing || controlsVisible;
+  // Get active media element ref dynamically
+  const getActiveMedia = () => (isAudio ? audioRef.current : videoRef.current);
+
+  const showControls = isAudio || !playing || controlsVisible;
 
   // ── auto-hide controls ────────────────────────────────────────────
   const resetHideTimer = useCallback(() => {
     setControlsVisible(true);
     if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
-    if (playing) {
+    if (playing && !isAudio) {
       hideControlsTimer.current = setTimeout(
         () => setControlsVisible(false),
         3000,
       );
     }
-  }, [playing]);
+  }, [playing, isAudio]);
 
-  // Effect only clears timer — no setState
   useEffect(() => {
     if (!playing && hideControlsTimer.current) {
       clearTimeout(hideControlsTimer.current);
@@ -67,10 +71,11 @@ export default function CoursePlayer({
     };
   }, [playing]);
 
-  // ── video event handlers ──────────────────────────────────────────
+  // ── Media Event Handlers ──────────────────────────────────────────
   const onTimeUpdate = () => {
-    if (!videoRef.current || seeking) return;
-    const time = videoRef.current.currentTime;
+    const media = getActiveMedia();
+    if (!media || seeking) return;
+    const time = media.currentTime;
     setCurrentTime(time);
 
     if (onTimeUpdateProp) {
@@ -83,8 +88,9 @@ export default function CoursePlayer({
   };
 
   const onLoadedMetadata = () => {
-    if (!videoRef.current) return;
-    setDuration(videoRef.current.duration);
+    const media = getActiveMedia();
+    if (!media) return;
+    setDuration(media.duration);
   };
 
   const handleEnded = () => {
@@ -92,21 +98,31 @@ export default function CoursePlayer({
     if (onEnded) onEnded();
   };
 
-  // ── controls ──────────────────────────────────────────────────────
+  // ── Control Actions ───────────────────────────────────────────────
   const togglePlay = () => {
-    if (!videoRef.current) return;
+    const media = getActiveMedia();
+    if (!media) return;
+
     if (playing) {
-      videoRef.current.pause();
+      media.pause();
+      setPlaying(false);
     } else {
-      videoRef.current.play();
+      media
+        .play()
+        .then(() => setPlaying(true))
+        .catch((err) => {
+          console.error("Playback failed:", err);
+          setPlaying(false);
+        });
     }
-    setPlaying((p) => !p);
   };
 
   const skip = (secs: number) => {
-    if (!videoRef.current) return;
-    videoRef.current.currentTime = Math.min(
-      Math.max(0, videoRef.current.currentTime + secs),
+    const media = getActiveMedia();
+    if (!media) return;
+
+    media.currentTime = Math.min(
+      Math.max(0, media.currentTime + secs),
       duration,
     );
     setShowSkipIndicator(secs < 0 ? "back" : "forward");
@@ -114,27 +130,31 @@ export default function CoursePlayer({
   };
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!progressRef.current || !videoRef.current) return;
+    const media = getActiveMedia();
+    if (!progressRef.current || !media) return;
+
     const rect = progressRef.current.getBoundingClientRect();
     const ratio = Math.max(
       0,
       Math.min(1, (e.clientX - rect.left) / rect.width),
     );
-    videoRef.current.currentTime = ratio * duration;
+    media.currentTime = ratio * duration;
     setCurrentTime(ratio * duration);
   };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = parseFloat(e.target.value);
     setVolume(v);
-    if (videoRef.current) videoRef.current.volume = v;
+    const media = getActiveMedia();
+    if (media) media.volume = v;
     setMuted(v === 0);
   };
 
   const toggleMute = () => {
-    if (!videoRef.current) return;
+    const media = getActiveMedia();
+    if (!media) return;
     const next = !muted;
-    videoRef.current.muted = next;
+    media.muted = next;
     setMuted(next);
   };
 
@@ -163,7 +183,7 @@ export default function CoursePlayer({
           toggleMute();
           break;
         case "f":
-          toggleFullscreen();
+          if (!isAudio) toggleFullscreen();
           break;
         case "arrowright":
           skip(10);
@@ -180,7 +200,7 @@ export default function CoursePlayer({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [muted, isFullscreen, duration, playing]);
+  }, [muted, isFullscreen, duration, playing, isAudio]);
 
   const progress = duration ? (currentTime / duration) * 100 : 0;
 
@@ -194,27 +214,71 @@ export default function CoursePlayer({
   return (
     <div
       ref={containerRef}
-      className="relative w-full md:rounded-2xl overflow-hidden bg-black shadow-2xl select-none"
+      className={`relative w-full overflow-hidden bg-neutral-900 shadow-2xl select-none ${
+        isAudio ? "rounded-2xl border border-neutral-800 p-4" : "md:rounded-2xl"
+      }`}
       onMouseMove={resetHideTimer}
-      onMouseLeave={() => playing && setControlsVisible(false)}
+      onMouseLeave={() => playing && !isAudio && setControlsVisible(false)}
       onClick={() => showVolume && setShowVolume(false)}
     >
-      {/* ── Video ── */}
-      <video
-        ref={videoRef}
-        src={src}
-        poster={poster}
-        loop={looping}
-        className="w-full aspect-video object-cover"
-        onTimeUpdate={onTimeUpdate}
-        onLoadedMetadata={onLoadedMetadata}
-        onEnded={handleEnded}
-        onClick={togglePlay}
-      />
+      {/* ── Video Player ── */}
+      {!isAudio && (
+        <video
+          ref={videoRef}
+          src={src}
+          poster={poster}
+          loop={looping}
+          className="w-full aspect-video object-cover"
+          onTimeUpdate={onTimeUpdate}
+          onLoadedMetadata={onLoadedMetadata}
+          onEnded={handleEnded}
+          onClick={togglePlay}
+        />
+      )}
 
-      {/* ── Skip indicator ── */}
-      {showSkipIndicator && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      {/* ── Audio Player ── */}
+      {isAudio && (
+        <div className="flex items-center gap-4 py-3 px-2">
+          {/* Audio Visual / Cover Art Indicator */}
+          <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-violet-600/20 text-violet-400 border border-violet-500/30">
+            {poster ? (
+              <img
+                src={poster}
+                alt="Audio cover"
+                className="h-full w-full rounded-xl object-cover"
+              />
+            ) : (
+              <Icon
+                icon={playing ? "ph:wave-sine-bold" : "ph:music-notes-bold"}
+                size={24}
+                className={playing ? "animate-pulse" : ""}
+              />
+            )}
+          </div>
+
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-sm font-semibold text-white truncate">
+              Audio Track
+            </span>
+            <span className="text-xs text-neutral-400">
+              {playing ? "Playing..." : "Paused"}
+            </span>
+          </div>
+
+          <audio
+            ref={audioRef}
+            src={src}
+            loop={looping}
+            onTimeUpdate={onTimeUpdate}
+            onLoadedMetadata={onLoadedMetadata}
+            onEnded={handleEnded}
+          />
+        </div>
+      )}
+
+      {/* ── Skip Indicator Overlay ── */}
+      {showSkipIndicator && !isAudio && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
           <div className="bg-black/40 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2 text-sm font-medium text-white">
             <Icon
               icon={
@@ -229,44 +293,49 @@ export default function CoursePlayer({
         </div>
       )}
 
-      {/* ── Controls overlay ── */}
+      {/* ── Controls Bar ── */}
       <div
-        className={`absolute inset-x-0 bottom-0 transition-opacity duration-300 ${
-          showControls ? "opacity-100" : "opacity-0 pointer-events-none"
+        className={`${
+          isAudio
+            ? "relative mt-2"
+            : `absolute inset-x-0 bottom-0 transition-opacity duration-300 ${
+                showControls ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`
         }`}
       >
-        {/* gradient */}
-        <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
+        {/* Dark Gradient (Video Only) */}
+        {!isAudio && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
+        )}
 
-        <div className="relative px-4 pb-4 pt-8 flex flex-col gap-2">
-          {/* ── Progress bar ── */}
+        <div className="relative px-4 pb-3 pt-4 flex flex-col gap-2.5">
+          {/* Progress Bar */}
           <div
             ref={progressRef}
-            className="w-full h-1 rounded-full bg-white/25 cursor-pointer group"
+            className="w-full h-1.5 rounded-full bg-white/20 cursor-pointer group"
             onClick={handleProgressClick}
             onMouseDown={() => setSeeking(true)}
             onMouseUp={() => setSeeking(false)}
           >
             <div
-              className="h-full rounded-full bg-white relative"
+              className="h-full rounded-full bg-violet-500 relative"
               style={{width: `${progress}%`}}
             >
               <div className="absolute right-0 top-1/2 -translate-y-1/2 size-3 rounded-full bg-white shadow opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
 
-          {/* ── Buttons row ── */}
+          {/* Buttons & Time Row */}
           <div className="flex items-center justify-between">
-            {/* left controls */}
+            {/* Left Controls */}
             <div className="flex items-center gap-3">
-              {/* play/pause */}
               <button
                 type="button"
                 onClick={togglePlay}
                 aria-label={playing ? "Pause" : "Play"}
                 className="text-white hover:scale-110 transition-transform"
               >
-                <div className="bg-white/15 hover:bg-white/25 transition-colors rounded-full p-1.5">
+                <div className="bg-white/15 hover:bg-white/25 transition-colors rounded-full p-2">
                   <Icon
                     icon={playing ? "ph:pause-fill" : "ph:play-fill"}
                     size={16}
@@ -275,47 +344,42 @@ export default function CoursePlayer({
                 </div>
               </button>
 
-              {/* rewind */}
               <button
                 type="button"
                 onClick={() => skip(-10)}
                 aria-label="Rewind 10 seconds"
-                className="text-white hover:scale-110 transition-transform"
+                className="text-neutral-300 hover:text-white hover:scale-110 transition-all"
               >
                 <Icon icon="ph:arrow-counter-clockwise" size={18} />
               </button>
 
-              {/* forward */}
               <button
                 type="button"
                 onClick={() => skip(10)}
                 aria-label="Skip 10 seconds"
-                className="text-white hover:scale-110 transition-transform"
+                className="text-neutral-300 hover:text-white hover:scale-110 transition-all"
               >
                 <Icon icon="ph:arrow-clockwise" size={18} />
               </button>
 
-              {/* time */}
-              <span className="text-white text-xs font-medium tabular-nums">
-                {formatTime(currentTime)}/{formatTime(duration)}
+              <span className="text-neutral-300 text-xs font-medium tabular-nums ml-1">
+                {formatTime(currentTime)} / {formatTime(duration)}
               </span>
 
-              {/* loop */}
               <button
                 type="button"
                 onClick={() => setLooping((l) => !l)}
                 aria-label="Toggle loop"
                 className={`hover:scale-110 transition-all ${
-                  looping ? "text-white" : "text-white/50"
+                  looping ? "text-violet-400" : "text-neutral-400"
                 }`}
               >
                 <Icon icon="ph:repeat" size={18} />
               </button>
             </div>
 
-            {/* right controls */}
+            {/* Right Controls */}
             <div className="flex items-center gap-3">
-              {/* volume */}
               <div className="relative flex items-center">
                 <button
                   type="button"
@@ -325,14 +389,14 @@ export default function CoursePlayer({
                   }}
                   onDoubleClick={toggleMute}
                   aria-label="Volume"
-                  className="text-white hover:scale-110 transition-transform"
+                  className="text-neutral-300 hover:text-white hover:scale-110 transition-all"
                 >
                   <Icon icon={volumeIcon} size={18} />
                 </button>
 
                 {showVolume && (
                   <div
-                    className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-xl px-3 py-3 flex flex-col items-center gap-1"
+                    className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-neutral-800/90 backdrop-blur-md rounded-xl px-3 py-3 flex flex-col items-center gap-1 border border-neutral-700 shadow-xl z-20"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <input
@@ -342,8 +406,11 @@ export default function CoursePlayer({
                       step={0.01}
                       value={muted ? 0 : volume}
                       onChange={handleVolumeChange}
-                      className="h-20 cursor-pointer accent-white"
-                      style={{writingMode: "vertical-lr", direction: "rtl"}}
+                      className="h-20 cursor-pointer accent-violet-500"
+                      style={{
+                        writingMode: "vertical-lr",
+                        direction: "rtl",
+                      }}
                     />
                     <span className="text-white text-[10px] tabular-nums mt-1">
                       {Math.round((muted ? 0 : volume) * 100)}
@@ -352,28 +419,32 @@ export default function CoursePlayer({
                 )}
               </div>
 
-              {/* fullscreen */}
-              <button
-                type="button"
-                onClick={toggleFullscreen}
-                aria-label="Fullscreen"
-                className="text-white hover:scale-110 transition-transform"
-              >
-                <Icon
-                  icon={isFullscreen ? "ph:arrows-in" : "ph:arrows-out"}
-                  size={18}
-                />
-              </button>
+              {!isAudio && (
+                <>
+                  <button
+                    type="button"
+                    onClick={toggleFullscreen}
+                    aria-label="Fullscreen"
+                    className="text-neutral-300 hover:text-white hover:scale-110 transition-all"
+                  >
+                    <Icon
+                      icon={isFullscreen ? "ph:arrows-in" : "ph:arrows-out"}
+                      size={18}
+                    />
+                  </button>
 
-              {/* pip */}
-              <button
-                type="button"
-                onClick={() => videoRef.current?.requestPictureInPicture?.()}
-                aria-label="Picture in picture"
-                className="text-white hover:scale-110 transition-transform"
-              >
-                <Icon icon="ph:picture-in-picture" size={18} />
-              </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      videoRef.current?.requestPictureInPicture?.()
+                    }
+                    aria-label="Picture in picture"
+                    className="text-neutral-300 hover:text-white hover:scale-110 transition-all"
+                  >
+                    <Icon icon="ph:picture-in-picture" size={18} />
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

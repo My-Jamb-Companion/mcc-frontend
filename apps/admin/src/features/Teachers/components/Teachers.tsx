@@ -18,7 +18,6 @@ export default function Teachers() {
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [viewTeacher, setViewTeacher] = useState(false);
   const [messageCall, setMessageCall] = useState(false);
-  const [, setCreateTeacher] = useState(false);
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [assignProgram, setAssignProgram] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);
@@ -48,14 +47,14 @@ export default function Teachers() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Teachers</h1>
         <div className="relative">
-          <Button
+          {/* <Button
             width="fit"
             className="p-2! pr-4!"
             leftIcon={<Icon icon="line-md:plus" />}
             onClick={() => setCreateTeacher(true)}
           >
             <p>Create Teacher</p>
-          </Button>
+          </Button> */}
         </div>
       </div>
 

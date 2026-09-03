@@ -25,6 +25,10 @@ const lessonIconMap: Record<LessonType, {icon: string; className: string}> = {
     icon: "line-md:youtube",
     className: "text-primary",
   },
+  audio: {
+    icon: "hugeicons:audio-wave-01",
+    className: "text-primary",
+  },
   doc: {
     icon: "ri:booklet-line",
     className: "text-primary",
