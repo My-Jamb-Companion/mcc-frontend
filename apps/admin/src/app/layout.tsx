@@ -27,7 +27,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: {
     default: "MCC",
-    template: "MCC | %s", // %s will be replaced by child page title
+    template: "MCC | %s",
   },
 };
 export default function RootLayout({

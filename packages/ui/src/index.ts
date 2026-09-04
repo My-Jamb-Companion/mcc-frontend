@@ -11,4 +11,5 @@ export * from "./components/ConfirmModal";
 export * from "./lib/cn";
 export * from "./lib/cva";
 export * from "./lib/confetti";
+export * from "recharts";
 // export * from "./lib/iconify";

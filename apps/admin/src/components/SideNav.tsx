@@ -248,11 +248,11 @@ const navs = {
       label: "dashboard",
       href: "/dashboard",
     },
-    // {
-    //   icon: "ri:money-dollar-box-line",
-    //   label: "finance",
-    //   href: "/finance",
-    // },
+    {
+      icon: "ri:money-dollar-box-line",
+      label: "finance",
+      href: "/finance",
+    },
     {icon: "ri:message-2-line", label: "user", href: "/messaging"},
   ],
   bottomNav: [
