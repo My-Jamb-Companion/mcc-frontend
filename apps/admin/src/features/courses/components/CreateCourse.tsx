@@ -13,10 +13,12 @@ import {calculateTotalHours} from "../helper/helper";
 import {AdditionalCourseTypes, CoursesFormValues, LEVELS, UpdateCoursePayload} from "../types/types";
 import {serializeModulesPayload, toApiLevel} from "../helper/course.mapper";
 import {
+  createCourseDetails,
   getApiErrorMessage,
   publishCourse,
   updateCourse,
 } from "../services/course.service";
+import {toCreateCourseDetailsPayload} from "../helper/helper";
 export {LEVELS};
 
 type Step = "details" | "content" | "upload";
@@ -232,7 +234,7 @@ export default function CreateCourseForm() {
       setApiError(null);
       setIsSavingDraft(true);
       const finalPayload = buildCoursePayload("draft");
-      const savedCourse = finalPayload;
+      let savedCourse = finalPayload;
 
       // Construct PATCH payload matching target API schema
       const updatePayload: UpdateCoursePayload = {
@@ -255,8 +257,19 @@ export default function CreateCourseForm() {
         modules: serializeModulesPayload(finalPayload.content.topics),
       };
 
-      if (savedCourse.id) {
+      // uid() generates 7-char strings; an API-issued id is always longer.
+      // savedCourse.id starts as uid() until Step1's "Save & continue" replaces
+      // it with the real backend id via setValue("id", created.id).
+      const hasApiId = savedCourse.id && savedCourse.id.length > 7;
+
+      if (hasApiId) {
         await updateCourse(savedCourse.id, updatePayload);
+      } else {
+        // First save — create the course on the backend and adopt the real id.
+        const created = await createCourseDetails(
+          toCreateCourseDetailsPayload(finalPayload),
+        );
+        savedCourse = {...savedCourse, id: created.id};
       }
 
       // Keep React Hook Form in sync.
@@ -310,10 +323,17 @@ export default function CreateCourseForm() {
         modules: serializeModulesPayload(finalPayload.content.topics),
       };
 
-      if (publishedCourse.id) {
-        await updateCourse(publishedCourse.id, updatePayload);
-        await publishCourse(publishedCourse.id);
+      if (!publishedCourse.id || publishedCourse.id.length <= 7) {
+        // The course was never saved to the backend (id is still the local
+        // uid() sentinel) — surface a clear error instead of silently skipping
+        // the publish API calls and showing a false success.
+        throw new Error(
+          "Course has not been saved yet. Please complete Step 1 (Save & continue) before publishing.",
+        );
       }
+
+      await updateCourse(publishedCourse.id, updatePayload);
+      await publishCourse(publishedCourse.id);
 
       // Keep React Hook Form in sync.
       methods.reset(publishedCourse);
