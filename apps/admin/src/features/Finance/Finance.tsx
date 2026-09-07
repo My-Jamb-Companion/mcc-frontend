@@ -1,13 +1,14 @@
-import React from "react";
 import FinancialOverview from "./Overview";
 import IncomeandPayoutschart from "./IncomeAndPayouts";
 import PerformanceByProgramsChart from "./Performance";
+import FinancialHealthCard from "./Health";
+import {FinanceProgramOverviewTable} from "./FinanceProgramsOverview";
 
 export default function Finance() {
   return (
     <section>
       <FinancialOverview />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 py-6">
         <IncomeandPayoutschart data={monthlyFlowData} currencySymbol="₦" />
         <PerformanceByProgramsChart
           //   isLoading={isPending}
@@ -37,6 +38,24 @@ export default function Finance() {
               value: 9_920_000,
               iconUrl: "/avatars/trainer2.jpg",
             },
+          ]}
+        />
+      </div>
+      <div className="flex gap-4">
+        <FinanceProgramOverviewTable />
+
+        <FinancialHealthCard
+          statusLabel="On track"
+          statusTone="success"
+          amount={110_211_503}
+          currencySymbol="₦"
+          changePercent={20}
+          ringValueLabel="56%"
+          ringCaption="Of monthly income saved"
+          ringSegments={[
+            {upTo: 56, color: "#4F3FE0"},
+            {upTo: 88, color: "#C7C2F5"},
+            {upTo: 100, color: "#8FDB6E"},
           ]}
         />
       </div>

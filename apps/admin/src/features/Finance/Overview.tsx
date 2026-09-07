@@ -4,7 +4,6 @@ export default function FinancialOverview() {
   return (
     <div className="">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Card 1: Overall Balance */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center mb-6">
@@ -30,7 +29,7 @@ export default function FinancialOverview() {
           </div>
 
           <div className="space-y-2 pt-4">
-            <div className="inline-flex items-center gap-2 bg-emerald-50/60 px-3 py-1.5 rounded-lg text-xs w-full">
+            <div className="inline-flex items-center gap-2 bg-gray-100/60 px-3 py-1.5 rounded-lg text-xs w-full">
               <CreditCard className="w-4 h-4 text-gray-500 shrink-0" />
               <span className="text-gray-600 font-medium">
                 Total earned from cards
@@ -40,7 +39,7 @@ export default function FinancialOverview() {
               </span>
             </div>
 
-            <div className="inline-flex items-center gap-2 bg-emerald-50/60 px-3 py-1.5 rounded-lg text-xs w-full">
+            <div className="inline-flex items-center gap-2 bg-gray-100/60 px-3 py-1.5 rounded-lg text-xs w-full">
               <Landmark className="w-4 h-4 text-gray-500 shrink-0" />
               <span className="text-gray-600 font-medium">
                 Total earned from transfer
@@ -52,7 +51,6 @@ export default function FinancialOverview() {
           </div>
         </div>
 
-        {/* Card 2: MCC Revenue */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center mb-6">
@@ -90,7 +88,6 @@ export default function FinancialOverview() {
           </div>
         </div>
 
-        {/* Card 3: Teachers Payout */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center mb-6">

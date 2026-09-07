@@ -2,6 +2,10 @@ import {HeadUnit} from "@/src/features/brainy/components/Brainy";
 import BrainySideNav from "@/src/features/brainy/components/BrainySideNav";
 import {BrainyProvider} from "@/src/features/brainy/contexts/BrainyContext";
 
+export const metadata = {
+  title: "Brainy",
+};
+
 export default function brianyLayout({children}: {children: React.ReactNode}) {
   return (
     <BrainyProvider>

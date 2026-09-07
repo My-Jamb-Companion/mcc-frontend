@@ -22,7 +22,6 @@ export interface MonthlyFlowDatum {
 
 interface MonthlyFlowChartProps {
   data: MonthlyFlowDatum[];
-  /** Currency symbol shown in the tooltip, e.g. "₦", "$" */
   currencySymbol?: string;
   className?: string;
 }
@@ -120,7 +119,7 @@ export function IncomeandPayoutschart({
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
-            barGap={-32}
+            barGap={-68}
             margin={{top: 20, right: 4, bottom: 0, left: 4}}
             onMouseMove={(state) => {
               if (
@@ -156,16 +155,15 @@ export function IncomeandPayoutschart({
             <Bar
               dataKey="payout"
               fill="#eeecfb"
-              radius={[8, 8, 0, 0]}
-              barSize={32}
+              radius={[8, 8, 8, 8]}
+              barSize={68}
               isAnimationActive={false}
             />
 
-            {/* Foreground "income" bar */}
             <Bar
               dataKey="income"
-              radius={[8, 8, 0, 0]}
-              barSize={32}
+              radius={[8, 8, 8, 8]}
+              barSize={68}
               isAnimationActive={false}
             >
               {data.map((_, index) => (

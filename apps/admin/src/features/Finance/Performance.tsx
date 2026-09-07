@@ -93,7 +93,6 @@ export function PerformanceByProgramsChart({
     <div
       className={`w-full min-w-0 rounded-2xl border border-neutral-100 bg-white p-4 sm:p-6 ${className}`}
     >
-      {/* Header */}
       <div className="mb-6 flex items-center justify-between sm:mb-8">
         <h3 className="text-base font-semibold text-neutral-900 sm:text-lg truncate">
           {title}
@@ -108,7 +107,6 @@ export function PerformanceByProgramsChart({
         </button>
       </div>
 
-      {/* Chart Body */}
       {isLoading ? (
         <LoadingSkeleton />
       ) : items.length === 0 ? (
@@ -125,7 +123,6 @@ export function PerformanceByProgramsChart({
                   key={item.id}
                   className="flex w-24 shrink-0 flex-col sm:w-auto sm:flex-1 sm:shrink min-w-0"
                 >
-                  {/* Card Container */}
                   <div
                     className="relative flex flex-col justify-end overflow-hidden rounded-2xl transition-[height] duration-700 ease-out"
                     style={{
@@ -133,7 +130,6 @@ export function PerformanceByProgramsChart({
                       transitionDelay: `${delayMs}ms`,
                     }}
                   >
-                    {/* Accent Line */}
                     <div
                       className={`mx-3 mt-3 h-1 origin-left rounded-full transition-transform duration-500 ease-out sm:mx-4 sm:mt-4 ${
                         mounted ? "scale-x-100" : "scale-x-0"
@@ -144,7 +140,6 @@ export function PerformanceByProgramsChart({
                       }}
                     />
 
-                    {/* Striped Background Tint Area */}
                     <div
                       className={`min-h-0 flex-1 transition-opacity duration-500 ease-out ${
                         mounted ? "opacity-100" : "opacity-0"
@@ -156,7 +151,6 @@ export function PerformanceByProgramsChart({
                       }}
                     />
 
-                    {/* Solid Value Block */}
                     <div
                       className={`flex shrink-0 flex-col justify-center gap-1 px-2 sm:px-4 py-2 transition-all duration-500 ease-out hover:brightness-110 ${
                         mounted ? "translate-y-0" : "translate-y-2"
@@ -176,7 +170,6 @@ export function PerformanceByProgramsChart({
                     </div>
                   </div>
 
-                  {/* Icon + Label Footer */}
                   <div
                     className={`mt-3 flex items-center gap-2 transition-opacity duration-500 ease-out min-w-0 ${
                       mounted ? "opacity-100" : "opacity-0"
