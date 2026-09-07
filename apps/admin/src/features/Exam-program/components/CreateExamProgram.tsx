@@ -12,6 +12,12 @@ import PromotionalCoverUpload, {
   hasCompleteUpload,
 } from "./CreateProgramSteps/Step3";
 import CreateDetails from "./CreateProgramSteps/Step1";
+import {serializeTopicsPayload} from "../helper/content.mapper";
+import {
+  getApiErrorMessage,
+  publishExamProgram,
+  updateExamProgramContent,
+} from "../services/exam.service";
 
 type Step = "details" | "content" | "upload";
 
@@ -31,6 +37,8 @@ export const LEVELS = [
 // FORM TYPES
 
 type Step1Values = {
+  /** Backend-issued program id, set once Step1 has successfully created it. */
+  id: string;
   exam: string;
   subject: string;
   category: string;
@@ -49,6 +57,8 @@ export type ExamProgramFormValues = Step1Values & {
   upload: {
     coverImage: UploadedFile | null;
     promoVideo: UploadedFile | null;
+    coverImageUrl?: string;
+    promoVideoUrl?: string;
   };
 };
 
@@ -65,11 +75,13 @@ function Step2({
   onBack,
   exam,
   subject,
+  programId,
 }: {
   onNext: () => void;
   onBack: () => void;
   exam: string;
   subject: string;
+  programId: string;
 }) {
   return (
     <div className="mt-5 h-full rounded-xl border border-muted/20 p-6">
@@ -78,6 +90,7 @@ function Step2({
         onBack={onBack}
         exam={exam}
         subject={subject}
+        programId={programId}
       />
     </div>
   );
@@ -123,6 +136,7 @@ export default function CreateExamProgramForm() {
   const methods = useForm<ExamProgramFormValues>({
     mode: "onChange",
     defaultValues: {
+      id: "",
       exam: "",
       subject: "",
       category: "",
@@ -137,6 +151,9 @@ export default function CreateExamProgramForm() {
     },
   });
 
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
+
   const activeIndex = STEPS.findIndex((s) => s.id === activeStep);
 
   const topics = methods.watch("content.topics") ?? [];
@@ -150,10 +167,51 @@ export default function CreateExamProgramForm() {
   const canPublish = isDetailsComplete && isContentComplete && isUploadComplete;
   const [isPublished, setIsPublished] = useState(false);
 
-  function handlePublish() {
+  async function handlePublish() {
     if (!canPublish) return;
-    confettiCelebrate(undefined, 1000, 300);
-    setIsPublished(true);
+
+    const programId = methods.getValues("id");
+    if (!programId) {
+      setPublishError(
+        "Missing exam program id — go back and complete Details first.",
+      );
+      return;
+    }
+
+    setPublishError(null);
+    setIsPublishing(true);
+
+    try {
+      const values = methods.getValues();
+
+      // Patch the cover image / promo video (and re-send content, in case
+      // Step2 was left with unsaved edits) before flipping the program live.
+      await updateExamProgramContent(programId, {
+        topics: serializeTopicsPayload(values.content.topics),
+        cover_image_url:
+          values.upload.coverImageUrl ||
+          values.upload.coverImage?.remoteUrl ||
+          values.upload.coverImage?.previewUrl,
+        promo_video_url:
+          values.upload.promoVideoUrl ||
+          values.upload.promoVideo?.remoteUrl ||
+          values.upload.promoVideo?.previewUrl,
+      });
+
+      await publishExamProgram(programId);
+
+      confettiCelebrate(undefined, 1000, 300);
+      setIsPublished(true);
+    } catch (error) {
+      setPublishError(
+        getApiErrorMessage(
+          error,
+          "Failed to publish exam program. Please try again.",
+        ),
+      );
+    } finally {
+      setIsPublishing(false);
+    }
   }
 
   function goNext() {
@@ -221,13 +279,35 @@ export default function CreateExamProgramForm() {
               type="button"
               variant={canPublish ? "primary" : "secondary"}
               size={"sm"}
-              disabled={!canPublish}
+              disabled={!canPublish || isPublishing}
+              loading={isPublishing}
+              loadingText="Publishing..."
               onClick={handlePublish}
             >
               Publish
             </Button>
           </div>
         </div>
+
+        {publishError && (
+          <div className="mt-4 flex items-center justify-between rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className="flex items-center gap-2">
+              <Icon
+                icon="lucide:alert-circle"
+                size={18}
+                className="shrink-0 text-red-500"
+              />
+              <span>{publishError}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPublishError(null)}
+              className="font-semibold text-xs text-red-500 hover:text-red-700"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
 
         {/* Steps */}
         {activeStep === "details" && <Step1 onNext={goNext} />}
@@ -237,6 +317,7 @@ export default function CreateExamProgramForm() {
             onBack={goBack}
             exam={methods.getValues("exam")}
             subject={methods.getValues("subject")}
+            programId={methods.getValues("id")}
           />
         )}
         {activeStep === "upload" && (

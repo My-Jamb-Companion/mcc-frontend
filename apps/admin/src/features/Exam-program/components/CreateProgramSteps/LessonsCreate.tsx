@@ -164,6 +164,7 @@ export default function LessonsCreate({
         format: f.name.split(".").pop()?.toUpperCase() || "FILE",
         size: (f.size / (1024 * 1024)).toFixed(1) + "mb",
         previewUrl: URL.createObjectURL(f),
+        file: f,
       });
       newProgress[id] = 0;
     });

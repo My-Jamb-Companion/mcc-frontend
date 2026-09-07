@@ -3,17 +3,29 @@
 import {Button} from "@/src/components/Buttons";
 import TabbedButton from "@/src/components/TabbedButton";
 import {FormInputs} from "@mcc/features";
-import {AnimatePresence, motion, Icon} from "@mcc/ui";
+import {AnimatePresence, motion, Icon, showError, showSuccess} from "@mcc/ui";
 import {useEffect, useMemo, useRef, useState} from "react";
 import {ProgramList} from "./Programslist";
-import {dummyPrograms} from "../constants/dummyData";
+import {useExamPrograms} from "../hooks/useExamPrograms";
 import ShareSessionLink from "@/src/components/Modals/ShareLink";
 import {ProgramListRowData} from "./ProgramRow";
 import CreateExamProgram from "./CreateExam";
 import EditExamProgram from "./EditExam";
 import {useRouter} from "next/navigation";
+import {
+  deleteExamProgram,
+  getApiErrorMessage,
+  publishExamProgram,
+  unpublishExamProgram,
+} from "../services/exam.service";
 
 export default function ExamProgram() {
+  const {
+    programs,
+    isLoading: isLoadingPrograms,
+    isError: isProgramsError,
+    refetch: refetchPrograms,
+  } = useExamPrograms();
   const [active, setActive] = useState("published");
   const [teachers, setTeachers] = useState<TeacherOption[]>([]);
   const [search, setSearch] = useState("");
@@ -29,7 +41,7 @@ export default function ExamProgram() {
   const filteredPrograms = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    return dummyPrograms.filter((item) => {
+    return programs.filter((item) => {
       const matchesStatus =
         active === "published"
           ? item.status === "live"
@@ -46,19 +58,19 @@ export default function ExamProgram() {
 
       return matchesStatus && matchesSearch && matchesTeacher;
     });
-  }, [active, search, teachers]);
+  }, [programs, active, search, teachers]);
 
   const allTeachers = useMemo<TeacherOption[]>(() => {
     const seen = new Set<string>();
 
-    return dummyPrograms.reduce<TeacherOption[]>((acc, item) => {
+    return programs.reduce<TeacherOption[]>((acc, item) => {
       if (!seen.has(item.teacherName)) {
         seen.add(item.teacherName);
         acc.push({id: item.teacherName, name: item.teacherName});
       }
       return acc;
     }, []);
-  }, []);
+  }, [programs]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -157,22 +169,65 @@ export default function ExamProgram() {
         </div>
 
         <div className="min-h-0 flex-1 flex items-center justify-center pt-10 overflow-y-auto">
-          <ProgramList
-            program={filteredPrograms || []}
-            onOpen={(program) => {
-              router.push(
-                `/dashboard/exam-program/${program.examType}?id=${program.id}`,
-              );
-            }}
-            onShareLink={(id) => {
-              const target = filteredPrograms?.find((p) => p.id === id);
-              if (target) setShareTarget(target);
-            }}
-            onEditProgram={(id) => {
-              const target = filteredPrograms?.find((p) => p.id === id);
-              if (target) setEditExam(target);
-            }}
-          />
+          {isLoadingPrograms ? (
+            <p className="text-sm text-muted">Loading exam programs…</p>
+          ) : isProgramsError ? (
+            <p className="text-sm text-red-600">
+              Failed to load exam programs. Please try again.
+            </p>
+          ) : (
+            <ProgramList
+              program={filteredPrograms || []}
+              onOpen={(program) => {
+                router.push(
+                  `/dashboard/exam-program/${program.examType}?id=${program.id}`,
+                );
+              }}
+              onShareLink={(id) => {
+                const target = filteredPrograms?.find((p) => p.id === id);
+                if (target) setShareTarget(target);
+              }}
+              onEditProgram={(id) => {
+                const target = filteredPrograms?.find((p) => p.id === id);
+                if (target) setEditExam(target);
+              }}
+              onPublishProgram={async (id) => {
+                const target = programs.find((p) => p.id === id);
+                if (!target) return;
+                try {
+                  if (target.status === "draft") {
+                    await publishExamProgram(id);
+                    showSuccess("Exam program published successfully!");
+                  } else {
+                    await unpublishExamProgram(id);
+                    showSuccess("Exam program moved back to drafts.");
+                  }
+                  refetchPrograms();
+                } catch (err) {
+                  showError(
+                    getApiErrorMessage(
+                      err,
+                      "Failed to update exam program status. Please try again.",
+                    ),
+                  );
+                }
+              }}
+              onDeleteProgram={async (id) => {
+                try {
+                  await deleteExamProgram(id);
+                  showSuccess("Exam program deleted.");
+                  refetchPrograms();
+                } catch (err) {
+                  showError(
+                    getApiErrorMessage(
+                      err,
+                      "Failed to delete exam program. Please try again.",
+                    ),
+                  );
+                }
+              }}
+            />
+          )}
         </div>
 
         <div className="flex justify-end w-full mt-4 gap-4">

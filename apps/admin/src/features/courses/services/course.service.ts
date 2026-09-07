@@ -74,6 +74,16 @@ export interface CreateCourseDetailsResponse extends CreateCourseDetailsPayload 
   id: string;
 }
 
+/** Raw shape the backend POST /admin/courses endpoint actually returns. */
+interface CreateCourseApiResponse {
+  /** The API may return the new course's id as `course_id` (matching the rest
+   *  of the course API) rather than `id`. The service normalises it to `id`
+   *  so the rest of the client always has a consistent field to read. */
+  course_id?: string;
+  id?: string;
+  [key: string]: unknown;
+}
+
 /**
  * Creates a course's step-1 details (title, category, instructor, price,
  * level, description, learning outcomes, tags) on the backend.
@@ -83,10 +93,17 @@ export const createCourseDetails = async (
 ): Promise<CreateCourseDetailsResponse> => {
   const res = await apiClient.post<{
     success: boolean;
-    data: CreateCourseDetailsResponse;
+    data: CreateCourseApiResponse;
   }>("/admin/courses", payload);
 
-  return res.data.data;
+  const raw = res.data.data;
+
+  // The backend returns course_id (not id) — normalise so callers
+  // always see a consistent `id` field.
+  return {
+    ...(raw as CreateCourseDetailsPayload),
+    id: (raw.id || raw.course_id || "") as string,
+  };
 };
 
 interface CourseMutationResponse {

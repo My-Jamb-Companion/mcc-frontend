@@ -1,11 +1,13 @@
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useRef, useState} from "react";
 import {Button, Icon} from "@mcc/ui";
 import {useFormContext} from "@mcc/features";
 import type {ExamProgramFormValues} from "../CreateExamProgram";
+import {uploadMedia} from "@/src/features/Exam-program/services/media.service";
 
 export type UploadedFile = {
-  file: File;
+  file?: File;
   previewUrl: string;
+  remoteUrl?: string;
 };
 
 export function hasCompleteUpload(upload: {
@@ -31,12 +33,14 @@ export default function PromotionalCoverUpload({
   const setCoverImage = useCallback(
     (file: UploadedFile | null) => {
       setValue("upload.coverImage", file, {shouldDirty: true});
+      setValue("upload.coverImageUrl", file?.remoteUrl, {shouldDirty: true});
     },
     [setValue],
   );
   const setPromoVideo = useCallback(
     (file: UploadedFile | null) => {
       setValue("upload.promoVideo", file, {shouldDirty: true});
+      setValue("upload.promoVideoUrl", file?.remoteUrl, {shouldDirty: true});
     },
     [setValue],
   );
@@ -105,45 +109,46 @@ function UploadDropzone({
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Simulated upload: holds the file + progress while "uploading", then
-  // hands off to `value` once it reaches 100. Swap the timer effect below
-  // for a real upload call (FormData POST, presigned URL PUT, etc.) later —
-  // just call setProgress(...) from the real upload's progress callback.
   const [pending, setPending] = useState<UploadedFile | null>(null);
   const [progress, setProgress] = useState(0);
+  const abortRef = useRef<AbortController | null>(null);
 
-  // Ticks progress up while an upload is in flight.
-  useEffect(() => {
-    if (!pending || progress >= 100) return;
-    const timer = setTimeout(() => {
-      setProgress((p) => Math.min(p + 20, 100));
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [pending, progress]);
-
-  // Hands the file off to the parent once progress hits 100. Deferred via
-  // setTimeout (rather than calling setState directly in the effect body)
-  // to avoid the "setState synchronously within an effect" cascading-render
-  // warning.
-  useEffect(() => {
-    if (!pending || progress < 100) return;
-    const timer = setTimeout(() => {
-      onChange(pending);
-      setPending(null);
-      setProgress(0);
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [pending, progress, onChange]);
-
-  function acceptFile(file: File | undefined) {
+  async function acceptFile(file: File | undefined) {
     if (!file) return;
     if (!file.type.startsWith(kind === "image" ? "image/" : "video/")) {
       setError(`Please upload a ${kind} file.`);
       return;
     }
     setError(null);
+
+    const localPreview = URL.createObjectURL(file);
+    setPending({file, previewUrl: localPreview});
     setProgress(0);
-    setPending({file, previewUrl: URL.createObjectURL(file)});
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      const remoteUrl = await uploadMedia(
+        file,
+        "exams",
+        setProgress,
+        controller.signal,
+      );
+
+      onChange({file, previewUrl: localPreview, remoteUrl});
+    } catch {
+      if (controller.signal.aborted) {
+        URL.revokeObjectURL(localPreview);
+      } else {
+        setError(`Failed to upload ${kind}. Please try again.`);
+        URL.revokeObjectURL(localPreview);
+      }
+    } finally {
+      setPending(null);
+      setProgress(0);
+      abortRef.current = null;
+    }
   }
 
   function handleDragOver(e: React.DragEvent) {
@@ -175,9 +180,9 @@ function UploadDropzone({
   }
 
   function cancelPending() {
-    if (pending) URL.revokeObjectURL(pending.previewUrl);
-    setPending(null);
-    setProgress(0);
+    abortRef.current?.abort();
+    // acceptFile's catch/finally handles clearing pending/progress and
+    // revoking the preview URL once the aborted request settles.
   }
 
   return (
@@ -234,7 +239,7 @@ function UploadDropzone({
           </div>
 
           <p className="truncate border-t border-muted/20 bg-white px-4 py-2 text-xs text-muted">
-            {pending.file.name}
+            {pending.file?.name}
           </p>
         </div>
       ) : value ? (
@@ -273,7 +278,9 @@ function UploadDropzone({
           </div>
 
           <p className="truncate border-t border-muted/20 bg-white px-4 py-2 text-xs text-muted">
-            {value.file.name}
+            {value.file?.name ||
+              decodeURIComponent(value.previewUrl.split("/").pop() || "") ||
+              "Uploaded"}
           </p>
         </div>
       ) : (
