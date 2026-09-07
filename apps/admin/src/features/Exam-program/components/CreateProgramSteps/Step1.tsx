@@ -2,11 +2,11 @@ import {Controller, FormInputs, useFormContext, useTeachers} from "@mcc/features
 import {Button, Icon, showError, showSuccess} from "@mcc/ui";
 import {useMemo, useState} from "react";
 import {ExamProgramFormValues} from "../CreateExamProgram";
-import {toCreateExamProgramPayload} from "../../helper/helper";
+import {toCreateExamProgramPayload} from "@/src/features/Exam-program/helper/helper";
 import {
   createExamProgram,
   getApiErrorMessage,
-} from "../../services/exam.service";
+} from "@/src/features/Exam-program/services/exam.service";
 
 export default function CreateDetails({onNext}: {onNext: () => void}) {
   const {

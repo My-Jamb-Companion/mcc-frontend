@@ -2,7 +2,7 @@ import {useCallback, useRef, useState} from "react";
 import {Button, Icon} from "@mcc/ui";
 import {useFormContext} from "@mcc/features";
 import type {ExamProgramFormValues} from "../CreateExamProgram";
-import {uploadMedia} from "../../services/media.service";
+import {uploadMedia} from "@/src/features/Exam-program/services/media.service";
 
 export type UploadedFile = {
   file?: File;

@@ -6,11 +6,11 @@ import PracticeQuestions, {
 } from "./PracticeQuestions";
 import Step2Sidebar from "./Step2SideBar";
 import LessonsCreate, {FileRow} from "./LessonsCreate";
-import {serializeTopicsPayload} from "../../helper/content.mapper";
+import {serializeTopicsPayload} from "@/src/features/Exam-program/helper/content.mapper";
 import {
   getApiErrorMessage,
   updateExamProgramContent,
-} from "../../services/exam.service";
+} from "@/src/features/Exam-program/services/exam.service";
 
 type Leaf = {
   id: string;
