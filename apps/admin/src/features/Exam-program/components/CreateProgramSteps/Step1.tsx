@@ -1,15 +1,26 @@
 import {Controller, FormInputs, useFormContext, useTeachers} from "@mcc/features";
-import {Button, Icon} from "@mcc/ui";
+import {Button, Icon, showError, showSuccess} from "@mcc/ui";
 import {useMemo, useState} from "react";
 import {ExamProgramFormValues} from "../CreateExamProgram";
+import {toCreateExamProgramPayload} from "../../helper/helper";
+import {
+  createExamProgram,
+  getApiErrorMessage,
+} from "../../services/exam.service";
 
 export default function CreateDetails({onNext}: {onNext: () => void}) {
   const {
     register,
     control,
     trigger,
+    getValues,
+    setValue,
     formState: {errors, isValid},
   } = useFormContext<ExamProgramFormValues>();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {data: teachersData = [], isLoading: isLoadingTeachers} = useTeachers();
 
@@ -37,7 +48,71 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
       "learnItems",
       "tags",
     ]);
-    if (valid) onNext();
+    if (!valid) return;
+
+    setSubmitError(null);
+    setIsSubmitting(true);
+
+    try {
+      const created = await createExamProgram(
+        toCreateExamProgramPayload(getValues()),
+      );
+
+      // Adopt the backend-issued id so later steps target the program the
+      // API actually created.
+      setValue("id", created.program_id);
+
+      onNext();
+    } catch (error) {
+      setSubmitError(
+        getApiErrorMessage(
+          error,
+          "Failed to save exam program details. Please try again.",
+        ),
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleSaveDraft() {
+    const valid = await trigger([
+      "exam",
+      "subject",
+      "category",
+      "instructor",
+      "price",
+      "level",
+      "description",
+      "learnItems",
+      "tags",
+    ]);
+    if (!valid) return;
+
+    setSubmitError(null);
+    setIsSavingDraft(true);
+
+    try {
+      const existingId = getValues("id");
+      if (!existingId) {
+        // First save — create the program on the backend
+        const created = await createExamProgram(
+          toCreateExamProgramPayload(getValues()),
+        );
+        setValue("id", created.program_id);
+      }
+      // If already created (id exists) it stays as draft until published
+      showSuccess("Exam program draft saved successfully!");
+    } catch (error) {
+      const msg = getApiErrorMessage(
+        error,
+        "Failed to save draft. Please try again.",
+      );
+      setSubmitError(msg);
+      showError(msg);
+    } finally {
+      setIsSavingDraft(false);
+    }
   }
 
   return (
@@ -270,6 +345,9 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
       </div>
 
       {/* Footer */}
+      {submitError && (
+        <p className="mt-4 text-sm text-red-500 text-right">{submitError}</p>
+      )}
       <div className="mt-8 flex items-center justify-between border-t border-gray-100 pt-5">
         <button
           type="button"
@@ -278,11 +356,22 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
           Cancel
         </button>
         <div className="flex items-center gap-3">
-          <Button type="button" variant={"outline"}>
+          <Button
+            type="button"
+            variant={"outline"}
+            onClick={handleSaveDraft}
+            loading={isSavingDraft}
+            loadingText="Saving..."
+            disabled={isSavingDraft || isSubmitting}
+          >
             Save as draft
           </Button>
-          <Button type="button" onClick={handleNext} disabled={!isValid}>
-            Save &amp; continue
+          <Button
+            type="button"
+            onClick={handleNext}
+            disabled={!isValid || isSubmitting || isSavingDraft}
+          >
+            {isSubmitting ? "Saving..." : "Save & continue"}
           </Button>
         </div>
       </div>

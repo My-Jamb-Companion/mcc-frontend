@@ -149,7 +149,9 @@ export default function Step2Sidebar({
           ? {
               ...t,
               subTopics: t.subTopics.map((s) =>
-                s.id === subId ? {...s, hasQuiz: true} : s,
+                s.id === subId
+                  ? {...s, hasQuiz: true, quizQuestions: s.quizQuestions ?? []}
+                  : s,
               ),
             }
           : t,

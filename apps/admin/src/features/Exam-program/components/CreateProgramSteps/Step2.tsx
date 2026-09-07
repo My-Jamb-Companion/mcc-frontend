@@ -6,6 +6,11 @@ import PracticeQuestions, {
 } from "./PracticeQuestions";
 import Step2Sidebar from "./Step2SideBar";
 import LessonsCreate, {FileRow} from "./LessonsCreate";
+import {serializeTopicsPayload} from "../../helper/content.mapper";
+import {
+  getApiErrorMessage,
+  updateExamProgramContent,
+} from "../../services/exam.service";
 
 type Leaf = {
   id: string;
@@ -29,6 +34,8 @@ export type SubTopic = {
   description?: string;
   modules: MakeModule[];
   hasQuiz?: boolean;
+  /** Test exercise questions for this sub-topic's quiz (only meaningful when `hasQuiz` is true). */
+  quizQuestions?: CreatPracticeQuestionType[];
 };
 
 export type Topic = {
@@ -104,7 +111,12 @@ function getActiveContext(topics: Topic[], leafId: string) {
   for (const topic of topics) {
     for (const sub of topic.subTopics) {
       if (leafId === `${sub.id}-quiz`) {
-        return {topic, subTopic: sub, type: "quiz", label: "Quiz exercises"};
+        return {
+          topic,
+          subTopic: sub,
+          type: "quiz" as const,
+          label: "Quiz exercises",
+        };
       }
       for (const mod of sub.modules) {
         const leaf = mod.leaves.find((l) => l.id === leafId);
@@ -129,16 +141,49 @@ export default function ContentStep({
   onBack,
   exam,
   subject,
+  programId,
 }: {
   onNext?: () => void;
   onBack?: () => void;
   exam: string;
   subject: string;
+  programId: string;
 }) {
   const {watch, setValue} = useFormContext<ContentFormValues>();
   const topics = watch("content.topics") ?? [];
   function setTopics(newTopics: Topic[]) {
     setValue("content.topics", newTopics, {shouldDirty: true});
+  }
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  async function handleNext() {
+    if (!programId) {
+      setSubmitError(
+        "Missing exam program id — go back and complete Details first.",
+      );
+      return;
+    }
+
+    setSubmitError(null);
+    setIsSubmitting(true);
+
+    try {
+      await updateExamProgramContent(programId, {
+        topics: serializeTopicsPayload(topics),
+      });
+      onNext?.();
+    } catch (error) {
+      setSubmitError(
+        getApiErrorMessage(
+          error,
+          "Failed to save exam program content. Please try again.",
+        ),
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const [selectedLeaf, setSelectedLeaf] = useState("");
@@ -151,6 +196,7 @@ export default function ContentStep({
   const activeContext = getActiveContext(topics, selectedLeaf);
   const activeFiles = activeContext?.leaf?.lessons || [];
   const activeQuestions = activeContext?.leaf?.questions || [];
+  const activeQuizQuestions = activeContext?.subTopic?.quizQuestions || [];
 
   function handleRenameTopic(id: string, newLabel: string) {
     setTopics(topics.map((t) => (t.id === id ? {...t, label: newLabel} : t)));
@@ -227,6 +273,25 @@ export default function ContentStep({
         ),
       );
     }
+  }
+
+  function setSubTopicQuizQuestions(newQuestions: CreatPracticeQuestionType[]) {
+    if (!activeContext || activeContext.type !== "quiz") return;
+    const {topic, subTopic} = activeContext;
+    setTopics(
+      topics.map((t) =>
+        t.id === topic.id
+          ? {
+              ...t,
+              subTopics: t.subTopics.map((s) =>
+                s.id === subTopic.id
+                  ? {...s, quizQuestions: newQuestions}
+                  : s,
+              ),
+            }
+          : t,
+      ),
+    );
   }
 
   function setLeafQuestions(newQuestions: CreatPracticeQuestionType[]) {
@@ -430,6 +495,13 @@ export default function ContentStep({
                   onChange={setLeafQuestions}
                 />
               )}
+
+              {activeContext?.type === "quiz" && (
+                <PracticeQuestions
+                  questions={activeQuizQuestions}
+                  onChange={setSubTopicQuizQuestions}
+                />
+              )}
             </>
           )}
         </div>
@@ -447,16 +519,19 @@ export default function ContentStep({
             </Button>
           </div>
           <div className="flex items-center gap-3">
+            {submitError && (
+              <p className="text-sm text-red-500">{submitError}</p>
+            )}
             <Button type="button" variant="outline">
               Save as draft
             </Button>
             <Button
               type="button"
-              disabled={!hasCompleteContent(topics)}
-              onClick={onNext}
+              disabled={!hasCompleteContent(topics) || isSubmitting}
+              onClick={handleNext}
               className="text-nowrap"
             >
-              Save & continue
+              {isSubmitting ? "Saving..." : "Save & continue"}
             </Button>
           </div>
         </div>
