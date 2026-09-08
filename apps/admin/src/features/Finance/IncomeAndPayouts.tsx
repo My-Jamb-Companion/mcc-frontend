@@ -34,7 +34,6 @@ const formatValue = (value: number, currencySymbol: string) => {
 function CustomTooltip({
   active,
   payload,
-  label,
   currencySymbol,
 }: TooltipProps<number, string> & {currencySymbol: string}) {
   if (!active || !payload?.length) return null;
