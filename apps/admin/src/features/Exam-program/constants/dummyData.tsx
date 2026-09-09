@@ -1,6 +1,6 @@
-import {ProgramListRowData} from "../components/ProgramRow";
+import {ProgramDetailData} from "../components/ProgramRow";
 
-export const dummyPrograms: ProgramListRowData[] = [
+export const dummyPrograms: ProgramDetailData[] = [
   {
     id: "prog_1",
     examType: "utme",
@@ -34,8 +34,8 @@ export const dummyPrograms: ProgramListRowData[] = [
     tags: ["Exam", "School Leaving"],
     extraTagsCount: 8,
     status: "live",
-    price: "172,345",
-    perSubjectPrice: "24,500",
+    price: 172345,
+    perSubjectPrice: 24500,
     currency: "₦",
     link: "https://mcc.com/prog_2",
   },
@@ -50,8 +50,8 @@ export const dummyPrograms: ProgramListRowData[] = [
     tags: ["Exam", "School Leaving"],
     extraTagsCount: 8,
     status: "live",
-    price: "592,345",
-    perSubjectPrice: "95,899",
+    price: 592345,
+    perSubjectPrice: 95899,
     currency: "₦",
     link: "https://mcc.com/prog_3",
   },
@@ -66,8 +66,8 @@ export const dummyPrograms: ProgramListRowData[] = [
     tags: ["Exam", "School Leaving"],
     extraTagsCount: 8,
     status: "draft",
-    price: "290,345",
-    perSubjectPrice: "75,900",
+    price: 290345,
+    perSubjectPrice: 75900,
     currency: "₦",
     link: "https://mcc.com/prog_4",
   },
@@ -82,8 +82,8 @@ export const dummyPrograms: ProgramListRowData[] = [
     tags: ["Exam", "School Leaving"],
     extraTagsCount: 8,
     status: "draft",
-    price: "290,345",
-    perSubjectPrice: "75,900",
+    price: 290345,
+    perSubjectPrice: 75900,
     currency: "₦",
     link: "https://mcc.com/prog_5",
   },
@@ -98,12 +98,12 @@ export const dummyPrograms: ProgramListRowData[] = [
     tags: ["Exam", "School Leaving"],
     extraTagsCount: 8,
     status: "live",
-    price: "290,345",
-    perSubjectPrice: "75,900",
+    price: 290345,
+    perSubjectPrice: 75900,
     currency: "₦",
     link: "https://mcc.com/prog_6",
   },
 ];
 
 // Empty-state test case
-export const dummyProgramsEmpty: ProgramListRowData[] = [];
+export const dummyProgramsEmpty: ProgramDetailData[] = [];

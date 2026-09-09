@@ -280,7 +280,7 @@ function UploadDropzone({
           </div>
 
           <p className="truncate border-t border-muted/20 bg-white px-4 py-2 text-xs text-muted">
-            {pending.file.name}
+            {pending.file?.name}
           </p>
         </div>
       ) : value ? (

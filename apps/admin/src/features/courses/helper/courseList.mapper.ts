@@ -1,15 +1,15 @@
 import {
-  CourseListItemApi,
+  ApiCourseSummary,
   CoursesFormValues,
   AdditionalCourseTypes,
 } from "../types/types";
 
 /**
- * Converts a backend API course item (CourseListItemApi) into the frontend
+ * Converts a backend API course item (ApiCourseSummary) into the frontend
  * CourseListRowData structure expected by Courses.tsx and CoursesRow.tsx.
  */
 export function toCourseListRowData(
-  item: CourseListItemApi,
+  item: ApiCourseSummary,
 ): CoursesFormValues & Partial<AdditionalCourseTypes> {
   const status: "draft" | "published" =
     item.status === "published" ? "published" : "draft";
@@ -43,7 +43,7 @@ export function toCourseListRowData(
       rating: Number(item.rating || 0),
       reviewCount: 0,
       enrolledStudents: 0,
-      totalHours: "0",
+      totalHours: 0,
       practiceTests: 0,
       additionalResources: 0,
       downloadableResources: 0,
