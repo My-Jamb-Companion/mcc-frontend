@@ -114,7 +114,7 @@ export default function OverviewTab({
           </p>
 
           <Button
-            variant={!certificate ? "primary" : "disabled"}
+            variant="primary"
             onClick={handleDownloadCertificate}
             width="fit"
             radius="sm"

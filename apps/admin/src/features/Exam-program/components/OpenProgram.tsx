@@ -1,12 +1,33 @@
 "use client";
 import {useRouter, useSearchParams} from "next/navigation";
 import {dummyPrograms} from "../constants/dummyData";
+import type {ProgramFeatures, ProgramStats} from "./ProgramRow";
 import {Button, Icon} from "@mcc/ui";
 import {FormInputs} from "@mcc/features";
 import {useState} from "react";
 import StatsSummaryRow from "@/src/components/StatsSummary";
 import ProgramSideDetail from "./ProgramSideDetail";
 import ProgramCardGrid from "./Programcard";
+
+/**
+ * The list endpoint does not return sidebar stats or features, so a program
+ * opened from the table has neither. An empty object is not enough here: both
+ * props are required and every field is read unconditionally.
+ */
+const EMPTY_PROGRAM_STATS: ProgramStats = {
+  students: 0,
+  hoursOfVideo: 0,
+  practiceTests: 0,
+  additionalResources: 0,
+  downloadableResources: 0,
+};
+
+const EMPTY_PROGRAM_FEATURES: ProgramFeatures = {
+  assignments: false,
+  mobileAndTVAccess: false,
+  fullLifetimeAccess: false,
+  certificateOnCompletion: false,
+};
 
 export default function OpenProgram() {
   const params = useSearchParams();
@@ -101,8 +122,8 @@ export default function OpenProgram() {
               currency={item?.currency || ""}
               lessons={item?.meta?.lessons || 0}
               difficulty={item?.meta?.difficulty || "Moderate"}
-              stats={item?.stats || {}}
-              features={item?.features || {}}
+              stats={item?.stats ?? EMPTY_PROGRAM_STATS}
+              features={item?.features ?? EMPTY_PROGRAM_FEATURES}
             />
           </div>
         </div>

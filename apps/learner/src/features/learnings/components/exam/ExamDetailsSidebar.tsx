@@ -137,7 +137,7 @@ export default function ExamDetailsSidebar({
             onClick={handlePrimaryAction}
             width="fit"
             disabled={isEnrollDisabled}
-            variant={isEnrollDisabled ? "disabled" : "primary"}
+            variant="primary"
           >
             <p className=" font-semibold flex items-center gap-2 mx-auto w-fit px-4">
               <Icon

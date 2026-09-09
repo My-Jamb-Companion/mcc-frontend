@@ -1,4 +1,4 @@
-import { CourseList as BaseCourseList } from "@mcc/features/courses";
+import { CourseList as BaseCourseList } from "@mcc/features";
 import { EnrollButton } from "./EnrollButton";
 
 export const CourseList = () => {

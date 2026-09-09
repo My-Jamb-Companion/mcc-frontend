@@ -76,9 +76,9 @@ const FormInputs = ({
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
           >
             <Icon
-              name={show ? "ph:eye-slash" : "ph:eye"}
+              icon={show ? "ph:eye-slash" : "ph:eye"}
               size={16}
-              className={
+              color={
                 errors?.message ? "var(--color-danger)" : "var(--color-muted)"
               }
             />

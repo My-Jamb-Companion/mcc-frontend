@@ -1,5 +1,5 @@
 import {Play, HelpCircle, Award, FileText, Video} from "lucide-react";
-import {ExamLesson} from "@/src/features/constants/demoExams";
+import {CheckpointNode, ExamLesson} from "@/src/features/constants/demoExams";
 import {usePathname} from "next/navigation";
 import Link from "next/link";
 
@@ -7,14 +7,6 @@ interface Practice {
   title: string;
   subtitle: string;
   upNext?: boolean;
-}
-
-interface CheckpointNode {
-  id: string;
-  type: "quiz" | "test" | "doc" | "video";
-  title: string;
-  description?: string;
-  document?: string;
 }
 
 function LearnRow({
@@ -134,22 +126,24 @@ export default function UnitDetailView({lesson}: {lesson: ExamLesson}) {
 
   return (
     <div className="w-full p-6">
-      <section className="pb-6 border-b border-slate-100">
-        <div className="max-w-[70%]">
-          <h2 className="text-[14px] font-semibold text-slate-900 mb-3">
-            About this unit
-          </h2>
-          <p className="text-[13.5px] text-slate-600 leading-relaxed">
-            {lesson.about.intro}
-          </p>
-          <p className="text-[13.5px] text-slate-600 leading-relaxed mt-3">
-            <span className="font-semibold text-slate-800">
-              Unit guides are here!{" "}
-            </span>
-            {lesson.about.note.replace("Unit guides are here! ", "")}
-          </p>
-        </div>
-      </section>
+      {lesson.about && (
+        <section className="pb-6 border-b border-slate-100">
+          <div className="max-w-[70%]">
+            <h2 className="text-[14px] font-semibold text-slate-900 mb-3">
+              About this unit
+            </h2>
+            <p className="text-[13.5px] text-slate-600 leading-relaxed">
+              {lesson.about.intro}
+            </p>
+            <p className="text-[13.5px] text-slate-600 leading-relaxed mt-3">
+              <span className="font-semibold text-slate-800">
+                Unit guides are here!{" "}
+              </span>
+              {lesson.about.note.replace("Unit guides are here! ", "")}
+            </p>
+          </div>
+        </section>
+      )}
 
       {lesson.subLessons.map((node, index) => {
         if (node.type === "topic") {
