@@ -5,7 +5,7 @@ import Link from "next/link";
 import {motion, Icon} from "@mcc/ui";
 import EmailVerify from "./EmailVerify";
 import {useState} from "react";
-import { FieldErrors, useForm, useSignup } from "@mcc/features";
+import { useForm, useSignup } from "@mcc/features";
 import { extractApiError } from "@mcc/api";
 
 export default function SignupForm({back}: {back: (value: boolean) => void}) {
@@ -102,7 +102,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
                 className="text-sm text-black dark:text-muted flex items-center justify-center gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
                 onClick={back.bind(null, false)}
               >
-                <Icon name="eva:arrow-back-outline" size={24} />
+                <Icon icon="eva:arrow-back-outline" size={24} />
                 <span>Back</span>
               </p>
             </form>
@@ -126,5 +126,4 @@ interface SignUpFormInputs {
   email: string;
   password: string;
   confirmPassword: string;
-  errors?: FieldErrors;
 }
