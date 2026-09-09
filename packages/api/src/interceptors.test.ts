@@ -26,6 +26,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   tokenManager.clear();
   localStorage.clear();
+  document.cookie = "mcc_refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -108,6 +109,8 @@ describe("response interceptor — 401 handling", () => {
       // third call → retry of original request succeeds
       .mockResolvedValueOnce(makeResponse(200, { data: [] }));
 
+    document.cookie = "mcc_refresh_token=old-refresh-token; path=/";
+
     await apiClient.get("/courses").catch(() => {});
 
     const calls = mockAdapter.mock.calls.map((c) => c[0].url);
@@ -116,6 +119,7 @@ describe("response interceptor — 401 handling", () => {
 
   // TC-2.6
   it("only calls refresh ONCE even when multiple 401s arrive simultaneously", async () => {
+    document.cookie = "mcc_refresh_token=old-refresh-token; path=/";
     let refreshCount = 0;
 
     mockAdapter.mockImplementation(
@@ -161,6 +165,7 @@ describe("response interceptor — 401 handling", () => {
 
   // TC-2.7
   it("stores the new access token in tokenManager after refresh", async () => {
+    document.cookie = "mcc_refresh_token=old-refresh-token; path=/";
     mockAdapter.mockImplementation(
       (config: { url: string; headers: AxiosHeaders; _retry?: boolean }) => {
         if (config.url === "/auth/token/refresh") {
