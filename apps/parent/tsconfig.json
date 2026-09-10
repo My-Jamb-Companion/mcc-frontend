@@ -12,7 +12,7 @@
     },
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["next-env.d.ts", "src", "middleware.ts"],
+  "include": ["next-env.d.ts", "src"],
   "exclude": ["node_modules", ".next", "dist", "out"],
 
   "references": [
