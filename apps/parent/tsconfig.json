@@ -1,0 +1,24 @@
+{
+  "extends": "../../tooling/tsconfig/base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+
+    "allowJs": true,
+    "plugins": [{ "name": "next" }],
+
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
+  },
+  "include": ["next-env.d.ts", "src", "middleware.ts"],
+  "exclude": ["node_modules", ".next", "dist", "out"],
+
+  "references": [
+    { "path": "../../packages/ui" },
+    { "path": "../../packages/api" },
+    { "path": "../../packages/features" },
+    { "path": "../../packages/store" }
+  ]
+}

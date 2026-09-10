@@ -4,6 +4,8 @@
     { "path": "./apps/admin" },
     { "path": "./apps/learner" },
     { "path": "./apps/landing" },
+    { "path": "./apps/teacher" },
+    { "path": "./apps/parent" },
     { "path": "./packages/ui" },
     { "path": "./packages/api" },
     { "path": "./packages/features" },
