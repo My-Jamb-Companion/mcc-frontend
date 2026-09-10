@@ -43,25 +43,25 @@ describe("unauthenticated user", () => {
 describe("authenticated user", () => {
   // TC-9.2
   it("redirects from /login to /dashboard", () => {
-    const res = middleware(makeRequest("/login", { mcc_auth: "1" }));
+    const res = middleware(makeRequest("/login", { mcc_learner_auth: "1" }));
     expect(getRedirect(res)).toContain("/dashboard");
   });
 
   // TC-9.3
   it("redirects from /signup to /dashboard", () => {
-    const res = middleware(makeRequest("/signup", { mcc_auth: "1" }));
+    const res = middleware(makeRequest("/signup", { mcc_learner_auth: "1" }));
     expect(getRedirect(res)).toContain("/dashboard");
   });
 
   // TC-9.4
   it("redirects from /forget-password to /dashboard", () => {
-    const res = middleware(makeRequest("/forget-password", { mcc_auth: "1" }));
+    const res = middleware(makeRequest("/forget-password", { mcc_learner_auth: "1" }));
     expect(getRedirect(res)).toContain("/dashboard");
   });
 
   // TC-9.5
   it("allows access to /dashboard without redirecting", () => {
-    const res = middleware(makeRequest("/dashboard", { mcc_auth: "1" }));
+    const res = middleware(makeRequest("/dashboard", { mcc_learner_auth: "1" }));
     expect(getRedirect(res)).toBeNull();
   });
 });

@@ -7,5 +7,6 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: [path.resolve(__dirname, "../../vitest.setup.ts")],
     exclude: ["dist/**", "node_modules/**", ".next/**"],
+    env: { NEXT_PUBLIC_APP_ID: "learner" },
   },
 });

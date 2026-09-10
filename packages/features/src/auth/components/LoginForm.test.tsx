@@ -48,7 +48,6 @@ vi.mock("../services/session", () => ({
   // every test here failed on an "is not a function" render crash — masked
   // until now because CI never ran the test suite.
   getStoredRefreshToken: vi.fn().mockReturnValue(null),
-  REFRESH_COOKIE: "mcc_refresh_token",
 }));
 
 const mockLoginApi = vi.mocked(authService.loginApi);
