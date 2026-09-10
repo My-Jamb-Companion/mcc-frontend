@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { middleware } from "./middleware";
+import { proxy } from "./proxy";
 import { NextRequest } from "next/server";
 
 // ─── helper: build a NextRequest with optional cookies ───────────────────────
@@ -10,7 +10,7 @@ function makeRequest(path: string, cookies: Record<string, string> = {}) {
 }
 
 // ─── helper: get redirect location from response ─────────────────────────────
-function getRedirect(res: ReturnType<typeof middleware>) {
+function getRedirect(res: ReturnType<typeof proxy>) {
   return res.headers.get("location");
 }
 
@@ -20,19 +20,19 @@ function getRedirect(res: ReturnType<typeof middleware>) {
 describe("unauthenticated user", () => {
   // TC-9.1
   it("redirects from /dashboard to /login", () => {
-    const res = middleware(makeRequest("/dashboard"));
+    const res = proxy(makeRequest("/dashboard"));
     expect(getRedirect(res)).toContain("/login");
   });
 
   // TC-9.6
   it("allows access to /login", () => {
-    const res = middleware(makeRequest("/login"));
+    const res = proxy(makeRequest("/login"));
     expect(getRedirect(res)).toBeNull();
   });
 
   // TC-9.7
   it("allows access to /signup", () => {
-    const res = middleware(makeRequest("/signup"));
+    const res = proxy(makeRequest("/signup"));
     expect(getRedirect(res)).toBeNull();
   });
 });
@@ -43,25 +43,25 @@ describe("unauthenticated user", () => {
 describe("authenticated user", () => {
   // TC-9.2
   it("redirects from /login to /dashboard", () => {
-    const res = middleware(makeRequest("/login", { mcc_learner_auth: "1" }));
+    const res = proxy(makeRequest("/login", { mcc_learner_auth: "1" }));
     expect(getRedirect(res)).toContain("/dashboard");
   });
 
   // TC-9.3
   it("redirects from /signup to /dashboard", () => {
-    const res = middleware(makeRequest("/signup", { mcc_learner_auth: "1" }));
+    const res = proxy(makeRequest("/signup", { mcc_learner_auth: "1" }));
     expect(getRedirect(res)).toContain("/dashboard");
   });
 
   // TC-9.4
   it("redirects from /forget-password to /dashboard", () => {
-    const res = middleware(makeRequest("/forget-password", { mcc_learner_auth: "1" }));
+    const res = proxy(makeRequest("/forget-password", { mcc_learner_auth: "1" }));
     expect(getRedirect(res)).toContain("/dashboard");
   });
 
   // TC-9.5
   it("allows access to /dashboard without redirecting", () => {
-    const res = middleware(makeRequest("/dashboard", { mcc_learner_auth: "1" }));
+    const res = proxy(makeRequest("/dashboard", { mcc_learner_auth: "1" }));
     expect(getRedirect(res)).toBeNull();
   });
 });
@@ -80,7 +80,7 @@ describe("google oauth pending", () => {
   // it is a routing/behavior decision outside fixing typecheck+CI; tracked
   // for a frontend ticket rather than guessed at here.
   it.skip("redirects to /auth/google/success and deletes the pending cookie", () => {
-    const res = middleware(
+    const res = proxy(
       makeRequest("/dashboard", { google_oauth_pending: "1" }),
     );
 
