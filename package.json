@@ -7,6 +7,8 @@
   "scripts": {
     "dev:learner": "pnpm --filter learner dev -p 3000",
     "dev:admin": "pnpm --filter admin dev -p 3001",
+    "dev:teacher": "pnpm --filter teacher dev -p 3002",
+    "dev:parent": "pnpm --filter parent dev -p 3003",
     "dev:landing": "pnpm --filter landing dev -p 3004",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit --pretty false --diagnostics --extendedDiagnostics",
