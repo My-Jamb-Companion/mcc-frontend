@@ -2,6 +2,7 @@ import { AxiosHeaders } from "axios";
 import { apiClient } from "./api-client";
 import "./interceptors"; // registers the interceptors as a side effect
 import { tokenManager } from "./token-manager";
+import { REFRESH_COOKIE } from "./session-keys";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── mock the axios adapter so no real network calls happen ──────────────────
@@ -26,7 +27,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   tokenManager.clear();
   localStorage.clear();
-  document.cookie = "mcc_refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.cookie = `${REFRESH_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -109,7 +110,7 @@ describe("response interceptor — 401 handling", () => {
       // third call → retry of original request succeeds
       .mockResolvedValueOnce(makeResponse(200, { data: [] }));
 
-    document.cookie = "mcc_refresh_token=old-refresh-token; path=/";
+    document.cookie = `${REFRESH_COOKIE}=old-refresh-token; path=/`;
 
     await apiClient.get("/courses").catch(() => {});
 
@@ -119,7 +120,7 @@ describe("response interceptor — 401 handling", () => {
 
   // TC-2.6
   it("only calls refresh ONCE even when multiple 401s arrive simultaneously", async () => {
-    document.cookie = "mcc_refresh_token=old-refresh-token; path=/";
+    document.cookie = `${REFRESH_COOKIE}=old-refresh-token; path=/`;
     let refreshCount = 0;
 
     mockAdapter.mockImplementation(
@@ -165,7 +166,7 @@ describe("response interceptor — 401 handling", () => {
 
   // TC-2.7
   it("stores the new access token in tokenManager after refresh", async () => {
-    document.cookie = "mcc_refresh_token=old-refresh-token; path=/";
+    document.cookie = `${REFRESH_COOKIE}=old-refresh-token; path=/`;
     mockAdapter.mockImplementation(
       (config: { url: string; headers: AxiosHeaders; _retry?: boolean }) => {
         if (config.url === "/auth/token/refresh") {

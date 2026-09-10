@@ -31,7 +31,7 @@ describe("unauthenticated user", () => {
 describe("authenticated user", () => {
   // TC-10.3
   it("allows access to /dashboard", () => {
-    const res = middleware(makeRequest("/dashboard", { mcc_auth: "1" }));
+    const res = middleware(makeRequest("/dashboard", { mcc_admin_auth: "1" }));
     expect(getRedirect(res)).toBeNull();
   });
 });

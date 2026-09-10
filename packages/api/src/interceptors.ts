@@ -1,18 +1,19 @@
 import { apiClient } from "./api-client";
 import { tokenManager } from "./token-manager";
+import { AUTH_COOKIE, REFRESH_COOKIE, USER_KEY } from "./session-keys";
 
 const hasCookieSession = (): boolean =>
-  typeof document !== "undefined" && document.cookie.includes("mcc_auth=1");
+  typeof document !== "undefined" && document.cookie.includes(`${AUTH_COOKIE}=1`);
 
 const getRefreshTokenCookie = (): string | null => {
   if (typeof document === "undefined") return null;
-  const match = document.cookie.match(/(?:^|;\s*)mcc_refresh_token=([^;]*)/);
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${REFRESH_COOKIE}=([^;]*)`));
   return match ? decodeURIComponent(match[1]) : null;
 };
 
 const setRefreshTokenCookie = (token: string): void => {
   if (typeof document === "undefined") return;
-  document.cookie = `mcc_refresh_token=${encodeURIComponent(token)}; path=/; SameSite=Strict; max-age=${30 * 24 * 60 * 60}`;
+  document.cookie = `${REFRESH_COOKIE}=${encodeURIComponent(token)}; path=/; SameSite=Strict; max-age=${30 * 24 * 60 * 60}`;
 };
 
 apiClient.interceptors.request.use(
@@ -35,9 +36,9 @@ const drainQueue = (token: string) => {
 const clearAuthAndRedirect = () => {
   if (typeof window === "undefined") return;
   tokenManager.clear();
-  localStorage.removeItem("mcc_user");
-  document.cookie = "mcc_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  document.cookie = "mcc_refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  localStorage.removeItem(USER_KEY);
+  document.cookie = `${AUTH_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+  document.cookie = `${REFRESH_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
   window.location.href = "/login";
 };
 

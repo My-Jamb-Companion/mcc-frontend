@@ -7,6 +7,7 @@ import { useAuth } from "./useAuth";
 import * as authService from "../services/auth.service";
 import * as sessionService from "../services/session";
 import type { User } from "@mcc/types";
+import { AUTH_COOKIE } from "@mcc/api";
 
 // ─── mock the service layer ───────────────────────────────────────────────────
 vi.mock("../services/auth.service", () => ({
@@ -62,7 +63,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   useAuthStore.setState({ user: null, accessToken: null });
   localStorage.clear();
-  document.cookie = "mcc_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.cookie = `${AUTH_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
   // default: nothing stored
   mockGetStoredUser.mockReturnValue(null);
   mockGetStoredRefreshToken.mockReturnValue(null);
@@ -87,7 +88,7 @@ describe("hydration", () => {
 
   // TC-6.2
   it("restores user and calls silent refresh when cookie, stored user, and refresh token exist", async () => {
-    document.cookie = "mcc_auth=1; path=/";
+    document.cookie = `${AUTH_COOKIE}=1; path=/`;
     mockGetStoredUser.mockReturnValue(mockUser);
     mockGetStoredRefreshToken.mockReturnValue("stored-refresh-tok");
 
@@ -112,7 +113,7 @@ describe("hydration", () => {
 
   // TC-6.4
   it("does not call silent refresh when refresh token cookie is missing", async () => {
-    document.cookie = "mcc_auth=1; path=/";
+    document.cookie = `${AUTH_COOKIE}=1; path=/`;
     mockGetStoredUser.mockReturnValue(mockUser);
     mockGetStoredRefreshToken.mockReturnValue(null); // no refresh token
 
@@ -125,7 +126,7 @@ describe("hydration", () => {
 
   // TC-6.5
   it("swallows silent refresh failure and keeps user in store", async () => {
-    document.cookie = "mcc_auth=1; path=/";
+    document.cookie = `${AUTH_COOKIE}=1; path=/`;
     mockGetStoredUser.mockReturnValue(mockUser);
     mockGetStoredRefreshToken.mockReturnValue("stored-refresh-tok");
     mockRefreshTokenApi.mockRejectedValue(new Error("Refresh failed"));

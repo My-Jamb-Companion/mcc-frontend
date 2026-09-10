@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "@mcc/store";
-import { tokenManager } from "@mcc/api";
+import { tokenManager, AUTH_COOKIE } from "@mcc/api";
 import { User } from "@mcc/types";
 import { loginApi, logoutApi, refreshTokenApi } from "../services/auth.service";
 import {
@@ -23,7 +23,7 @@ export const useAuth = () => {
       return;
     }
 
-    const hasCookie = document.cookie.includes("mcc_auth=1");
+    const hasCookie = document.cookie.includes(`${AUTH_COOKIE}=1`);
     const storedUser = getStoredUser();
     const refreshToken = getStoredRefreshToken();
 
