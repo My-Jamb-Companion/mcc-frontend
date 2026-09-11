@@ -35,6 +35,7 @@ export const config = {
     "/dashboard/:path*",
     "/availability/:path*",
     "/messages/:path*",
+    "/earnings/:path*",
     "/account/:path*",
   ],
 };

@@ -3,6 +3,7 @@ import IncomeandPayoutschart from "./IncomeAndPayouts";
 import PerformanceByProgramsChart from "./Performance";
 import FinancialHealthCard from "./Health";
 import {FinanceProgramOverviewTable} from "./FinanceProgramsOverview";
+import {PayoutsAndRefunds} from "./PayoutsAndRefunds";
 
 export default function Finance() {
   return (
@@ -41,6 +42,10 @@ export default function Finance() {
           ]}
         />
       </div>
+      <div className="py-2">
+        <PayoutsAndRefunds />
+      </div>
+
       <div className="flex gap-4">
         <FinanceProgramOverviewTable />
 
