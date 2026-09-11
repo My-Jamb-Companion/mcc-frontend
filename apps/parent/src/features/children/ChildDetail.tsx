@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useChildDetail } from "./useChildren";
 import { ChildCheckout } from "../payments/ChildCheckout";
+import { ChildAdvisor } from "../advisor/ChildAdvisor";
 
 const formatWhen = (iso: string) => new Date(iso).toLocaleString();
 
@@ -28,6 +29,8 @@ export const ChildDetail = () => {
           </div>
 
           <ChildCheckout childId={child.child_id} childName={child.full_name || "Your child"} />
+
+          <ChildAdvisor childId={child.child_id} childName={child.full_name || "your child"} />
 
           {!child.has_active_enrollment ? (
             <p className="text-sm text-muted rounded-lg border border-muted/20 p-4">
