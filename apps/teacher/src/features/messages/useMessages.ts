@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { showError } from "@mcc/ui";
+import { showError, showSuccess } from "@mcc/ui";
 import { extractApiError } from "@mcc/api";
-import { getCourses, getStudentThread, getThreads, replyToStudent } from "./messages.service";
+import {
+  getCourses,
+  getStudentThread,
+  getThreads,
+  replyToStudent,
+  reportMessage,
+} from "./messages.service";
 
 export const useTeacherCourses = () =>
   useQuery({ queryKey: ["teacher", "courses"], queryFn: getCourses });
@@ -28,5 +34,14 @@ export const useReplyToStudent = (courseId: string, studentId: string) => {
       queryClient.invalidateQueries({ queryKey: ["teacher", "threads", courseId] });
     },
     onError: (error) => showError(extractApiError(error, "Couldn't send that reply")),
+  });
+};
+
+export const useReportMessage = (courseId: string) => {
+  return useMutation({
+    mutationFn: ({ messageId, reason }: { messageId: string; reason: string }) =>
+      reportMessage(courseId, messageId, reason),
+    onSuccess: () => showSuccess("Message reported to the admin team"),
+    onError: (error) => showError(extractApiError(error, "Couldn't report that message")),
   });
 };

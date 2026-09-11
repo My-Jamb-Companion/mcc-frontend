@@ -3,10 +3,66 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Button } from "@mcc/ui";
-import { useReplyToStudent, useStudentThread } from "./useMessages";
+import { Button, Icon } from "@mcc/ui";
+import { useReplyToStudent, useReportMessage, useStudentThread } from "./useMessages";
+import type { ThreadMessage } from "./messages.service";
 
 const formatWhen = (iso: string) => new Date(iso).toLocaleString();
+
+const ReportMessageAction = ({
+  courseId,
+  message,
+}: {
+  courseId: string;
+  message: ThreadMessage;
+}) => {
+  const reportMutation = useReportMessage(courseId);
+  const [reason, setReason] = useState<string | null>(null);
+
+  if (reportMutation.isSuccess) {
+    return <span className="text-xs text-muted mt-1 block">Reported</span>;
+  }
+
+  if (reason === null) {
+    return (
+      <button
+        type="button"
+        onClick={() => setReason("")}
+        className="flex items-center gap-1 text-xs text-muted hover:text-danger mt-1"
+      >
+        <Icon icon="ph:flag" size={13} />
+        Report
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-2 space-y-2">
+      <textarea
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+        placeholder="Why are you reporting this message?"
+        rows={2}
+        className="w-full resize-none rounded-md border border-muted/20 p-2 text-xs text-foreground outline-none focus:ring-2 ring-primary/30"
+      />
+      <div className="flex gap-2">
+        <Button
+          size="xs"
+          loading={reportMutation.isPending}
+          disabled={!reason.trim()}
+          onClick={() =>
+            reportMutation.mutate({ messageId: message.message_id, reason: reason.trim() })
+          }
+        >
+          Submit report
+        </Button>
+        <Button size="xs" variant="ghost" onClick={() => setReason(null)}>
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 export const StudentThread = () => {
   const { courseId, studentId } = useParams<{ courseId: string; studentId: string }>();
@@ -45,6 +101,9 @@ export const StudentThread = () => {
             >
               {formatWhen(message.created_at)}
             </p>
+            {message.sender_role === "student" && (
+              <ReportMessageAction courseId={courseId} message={message} />
+            )}
           </div>
         ))}
       </div>

@@ -57,3 +57,15 @@ export const replyToStudent = async (
   );
   return res.data.data;
 };
+
+export const reportMessage = async (
+  courseId: string,
+  messageId: string,
+  reason: string,
+): Promise<{ id: string; status: string }> => {
+  const res = await apiClient.post<{ success: boolean; data: { id: string; status: string } }>(
+    `/courses/${courseId}/instructor/messages/${messageId}/report`,
+    { reason },
+  );
+  return res.data.data;
+};
