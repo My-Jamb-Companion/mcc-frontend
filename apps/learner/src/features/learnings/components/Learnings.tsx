@@ -1,16 +1,28 @@
 "use client";
 
-import {exams} from "@/src/features/constants/ExamCards";
+import {useState} from "react";
 import BannerCarousel from "@/src/features/components/BannerCarousel";
 import CourseCard from "@/src/features/components/CourseCard";
 import CourseCardSkeleton from "@/src/features/components/CourseCardSkeleton";
 import ExamCard from "@/src/features/components/ExamCard";
 import ExamCardSkeleton from "@/src/features/components/ExamCardSkeleton";
 import ScrollRow from "@/src/features/components/RowScroll";
-import {demoCourses} from "@/src/features/constants/demoCourses";
-import TopPickCard from "@/src/features/components/TopPickCard";
+import {useCourses, useEnrolledCourses} from "@/src/features/courses/hooks/useCourses";
+import {fromApiCourse, fromApiEnrolledCourse} from "@/src/features/courses/helper/course.mapper";
+import {usePrograms} from "@/src/features/exams/hooks/useExams";
+import {fromApiExamProgram} from "@/src/features/exams/helper/exam.mapper";
+import CourseFeedbackModal from "@/src/features/courses/components/CourseFeedbackModal";
+import {ApiEnrolledCourse} from "@/src/features/courses/services/course.service";
 
 export default function Learnings() {
+  const {courses: allCourses, isLoading: coursesLoading} = useCourses();
+  const {courses: enrolledCourses, isLoading: enrolledLoading} = useEnrolledCourses();
+  const {programs, isLoading: programsLoading} = usePrograms();
+  const [feedbackCourse, setFeedbackCourse] = useState<ApiEnrolledCourse | null>(null);
+
+  const enrolledIds = new Set(enrolledCourses.map((c) => c.course_id));
+  const notYetEnrolled = allCourses.filter((c) => !enrolledIds.has(c.course_id));
+
   return (
     <section className="flex flex-col gap-8 pb-20 px-4">
       <div className="mt-7">
@@ -20,46 +32,50 @@ export default function Learnings() {
       <div>
         <ScrollRow
           title="Continue learning here"
-          // isLoading={isNextLoading}
+          isLoading={enrolledLoading}
           skeleton={<CourseCardSkeleton />}
           skeletonCount={4}
         >
-          {demoCourses.map((card) => (
-            <div key={card.id} className="shrink-0 w-72">
-              <CourseCard
-                image={card.img || "/assets/images/tower.jpg"}
-                course={card.course}
-                title={card.topic}
-                completePercent={card.completed}
-                // onClick={() => console.log("open course")}
-              />
-            </div>
-          ))}
+          {enrolledCourses.length === 0 && !enrolledLoading ? (
+            <p className="text-sm text-muted">
+              You haven&apos;t started any courses yet.
+            </p>
+          ) : (
+            enrolledCourses.map((course) => (
+              <div key={course.course_id} className="shrink-0 w-72">
+                <CourseCard {...fromApiEnrolledCourse(course)} />
+                {course.progress_percent >= 100 && (
+                  <button
+                    type="button"
+                    onClick={() => setFeedbackCourse(course)}
+                    className="mt-2 text-xs font-semibold text-btn-primary hover:underline"
+                  >
+                    Leave feedback
+                  </button>
+                )}
+              </div>
+            ))
+          )}
         </ScrollRow>
       </div>
 
+      <CourseFeedbackModal
+        open={!!feedbackCourse}
+        courseId={feedbackCourse?.course_id ?? ""}
+        courseTitle={feedbackCourse?.title ?? ""}
+        onClose={() => setFeedbackCourse(null)}
+      />
+
       <div>
-        <ScrollRow title="What to learn next?">
-          {[6, 7, 8, 9].map((card) => (
-            <div key={card} className="shrink-0 w-72">
-              <CourseCard
-                image="/assets/images/tower.jpg"
-                instructor="Brooke Graser"
-                rating={4.7}
-                reviewCount={9753}
-                title="Intro to Procreate: Illustration on the iPad (UPDATED)"
-                tags={[
-                  "Procreate",
-                  "Drawing Tablet",
-                  "Beginner",
-                  "Digital Art",
-                  "iPad",
-                ]}
-                price={22345}
-                originalPrice={3500}
-                pricePerModule={75}
-                // onClick={() => console.log("open course")}
-              />
+        <ScrollRow
+          title="What to learn next?"
+          isLoading={coursesLoading}
+          skeleton={<CourseCardSkeleton />}
+          skeletonCount={4}
+        >
+          {notYetEnrolled.map((course) => (
+            <div key={course.course_id} className="shrink-0 w-72">
+              <CourseCard {...fromApiCourse(course)} />
             </div>
           ))}
         </ScrollRow>
@@ -70,29 +86,14 @@ export default function Learnings() {
           variant="card"
           title="Practice Exams"
           subTitle="Best practice resources and environment for your exams"
-          // isLoading={isExamLoading}
+          isLoading={programsLoading}
           skeleton={<ExamCardSkeleton />}
           skeletonCount={5}
         >
-          {exams.map((exam, i) => (
-            <ExamCard key={i} exam={exam} />
+          {programs.map((program) => (
+            <ExamCard key={program.program_id} exam={fromApiExamProgram(program)} />
           ))}
         </ScrollRow>
-      </div>
-
-      <div>
-        <p className="text-2xl font-semibold pb-4">Our top pick for you</p>
-        <TopPickCard
-          image="/assets/images/pencil.jpg"
-          title="Complete web development course"
-          description="Only web development course that you will need. Covers HTML, CSS, Tailwind, Node, React, MongoDB, Prisma, Deployment etc"
-          isPremium
-          rating={4.6}
-          ratingCount="16,454"
-          learners="43,876"
-          price={10345}
-          originalPrice={3500}
-        />
       </div>
     </section>
   );

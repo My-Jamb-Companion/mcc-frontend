@@ -5,24 +5,34 @@ import {useCallback, useState, useRef, useMemo} from "react";
 import DragImageOverlay, {useGlobalFileDrag} from "./DragFile";
 import {useBrainy} from "../contexts/BrainyContext";
 import {redirect} from "next/navigation";
+import {sendChatMessage} from "../services/brainy.service";
 
 export default function BrainyChats() {
   const [question, setQuestion] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const {sessions, activeSessionId, addMessageToActiveSession} = useBrainy();
+  const {sessions, activeSessionId, addMessageToActiveSession, addMessageToSession} = useBrainy();
 
   const activeSession = useMemo(() => {
     return sessions.find((s) => s.id === activeSessionId);
   }, [sessions, activeSessionId]);
 
   const handleSend = () => {
-    if (!question.trim() && files.length === 0) return;
+    const trimmed = question.trim();
+    if (!trimmed && files.length === 0) return;
+    const sessionId = activeSessionId;
 
-    addMessageToActiveSession("user", question.trim(), files);
+    addMessageToActiveSession("user", trimmed, files);
     setQuestion("");
     setFiles([]);
+
+    if (!trimmed || !sessionId) return;
+    sendChatMessage(trimmed).then(
+      (result) => addMessageToSession(sessionId, "ai", result.reply),
+      () =>
+        addMessageToSession(sessionId, "ai", "My brain is fuzzy right now. Please try again."),
+    );
   };
 
   const handleFilesAdded = useCallback((incoming: File[]) => {

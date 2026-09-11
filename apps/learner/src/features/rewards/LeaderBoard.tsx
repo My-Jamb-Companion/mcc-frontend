@@ -1,33 +1,18 @@
 import {ChevronDown, Coins} from "lucide-react";
+import {useLeaderboard, useMyLeaderboardStanding} from "./hooks/useRewards";
+import {useProfile} from "../account/hooks/useProfile";
 
-const rankings = [
-  {
-    id: 2,
-    name: "Micheal Carrick",
-    points: 800,
-    avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Micheal",
-  },
-  {
-    id: 3,
-    name: "Bruno Fernandez",
-    points: 800,
-    avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Bruno",
-  },
-  {
-    id: 4,
-    name: "Mac aliister",
-    points: 800,
-    avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Mac",
-  },
-  {
-    id: 5,
-    name: "Godsent Emma",
-    points: 800,
-    avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Emma",
-  },
-];
+function ordinal(n: number): string {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
 
 export default function Leaderboard() {
+  const {entries, isLoading} = useLeaderboard();
+  const {data: mine} = useMyLeaderboardStanding();
+  const {data: profile} = useProfile();
+
   return (
     <div className="mx-auto max-w-6xl  p-8 max-md:p-0">
       {/* Heading */}
@@ -41,7 +26,7 @@ export default function Leaderboard() {
         <div className="">
           <div className="flex w-[136px] h-[136px] md:h-40 md:w-40 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
             <img
-              src="https://api.dicebear.com/7.x/adventurer/svg?seed=Bright"
+              src={profile?.profile_photo_url || "https://api.dicebear.com/7.x/adventurer/svg?seed=me"}
               className="h-full w-full object-cover"
               alt=""
             />
@@ -50,58 +35,19 @@ export default function Leaderboard() {
 
         <div className="relative flex w-full items-center justify-between h-[95px] md:h-[112px] bg-[#121A22] px-4 pr-7 py-5  rounded-r-3xl">
           <div>
-            <p className="text-xs uppercase  text-gray-400">1st Position</p>
+            <p className="text-xs uppercase  text-gray-400">
+              {mine && mine.rank > 0 ? `${ordinal(mine.rank)} Position` : "Unranked"}
+            </p>
 
-            <h1 className="font-semibold text-white">Bright Mba</h1>
+            <h1 className="font-semibold text-white">
+              {profile?.full_name || profile?.username || "You"}
+            </h1>
           </div>
 
           <div className="flex items-center gap-2 text-white text-xs">
             <Coins size={14} className="text-yellow-400" />
-            <span className="font-semibold">899</span>
+            <span className="font-semibold">{mine?.total_score ?? 0}</span>
             <span className="text-gray-400">points</span>
-          </div>
-
-          <div className="absolute top-0 left-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="102"
-              height="32"
-              viewBox="0 0 102 32"
-              fill="none"
-            >
-              <g filter="url(#filter0_f_4011_41544)">
-                <ellipse
-                  cx="49.5"
-                  rx="36.5"
-                  ry="16"
-                  fill="white"
-                  fill-opacity="0.3"
-                />
-              </g>
-              <defs>
-                <filter
-                  id="filter0_f_4011_41544"
-                  x="-3"
-                  y="-32"
-                  width="105"
-                  height="64"
-                  filterUnits="userSpaceOnUse"
-                  color-interpolation-filters="sRGB"
-                >
-                  <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                  <feBlend
-                    mode="normal"
-                    in="SourceGraphic"
-                    in2="BackgroundImageFix"
-                    result="shape"
-                  />
-                  <feGaussianBlur
-                    stdDeviation="8"
-                    result="effect1_foregroundBlur_4011_41544"
-                  />
-                </filter>
-              </defs>
-            </svg>
           </div>
         </div>
       </div>
@@ -125,31 +71,37 @@ export default function Leaderboard() {
 
       {/* List */}
       <div className="mt-8 space-y-5">
-        {rankings.map((user) => (
+        {isLoading && (
+          <p className="text-sm text-gray-400 text-center py-8">Loading leaderboard…</p>
+        )}
+        {!isLoading && entries.length === 0 && (
+          <p className="text-sm text-gray-400 text-center py-8">No leaderboard activity yet.</p>
+        )}
+        {entries.map((user) => (
           <div
-            key={user.id}
+            key={`${user.rank}-${user.user}`}
             className="flex items-center justify-between rounded-full border border-gray-200 bg-white p-2 shadow-sm transition hover:shadow-md"
           >
             <div className="flex items-center gap-4">
               <img
-                src={user.avatar}
+                src={user.photo || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(user.user)}`}
                 alt=""
                 className="h-12 w-12 rounded-full bg-indigo-500"
               />
 
               <span className="md:text-lg font-semibold text-gray-800">
-                {user.name}
+                {user.user}
               </span>
             </div>
 
             <div className="flex items-center gap-8">
               <div className="flex items-center gap-2 text-gray-600 text-xs font-semibold">
                 <Coins size={14} className="text-yellow-400" />
-                <span>{user.points}</span>
+                <span>{user.score}</span>
               </div>
 
               <div className="flex h-12 w-12 items-center justify-center rounded-full border border-gray-200 text-lg font-bold">
-                {user.id}
+                {user.rank}
               </div>
             </div>
           </div>
