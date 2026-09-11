@@ -10,6 +10,7 @@ import {
 import {Icon} from "@mcc/ui";
 import EnhancedTable from "@/src/components/Table";
 import {LeaderboardTier, Student} from "../types/types";
+import {useActiveStudents} from "../hooks/useActiveStudents";
 
 interface ActiveTableProps {
   onOpenProfile?: (student: Student) => void;
@@ -18,183 +19,6 @@ interface ActiveTableProps {
   onEnrollStudent?: (student: Student) => void;
   onAssignCra?: (student: Student) => void;
 }
-
-const STUDENTS: Student[] = [
-  {
-    id: "1",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=35",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "U",
-        title: "Universal Tertiary Matriculation Exam…",
-        subtitle: "Use of English, Maths, & Physics",
-      },
-      {
-        id: "p2",
-        thumbnailLabel: "W",
-        title: "West African Examination Council - WAEC",
-        subtitle: "English, Maths, Physics & 3 more…",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-    dateJoinedTime: "8:30 PM",
-    dateOnboarded: "05 Apr, 2026",
-    dateOnboardedTime: "8:30 PM",
-    rank: 1,
-    location: "Lagos, NG.",
-  },
-  {
-    id: "2",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=6",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "PT",
-        title: "Pilates Teacher Training Certification 20…",
-        subtitle: "Moderate level.",
-      },
-      {
-        id: "p2",
-        thumbnailLabel: "W",
-        title: "West African Examination Council - WAEC",
-        subtitle: "English, Maths, Physics & 3 more…",
-      },
-      {
-        id: "p3",
-        thumbnailLabel: "U",
-        title: "Universal Tertiary Matriculation Exam…",
-        subtitle: "Use of English, Maths, & Physics",
-      },
-      {
-        id: "p4",
-        thumbnailLabel: "N",
-        title: "National Examination Council - NECO",
-        subtitle: "English, Maths, Biology & 2 more…",
-      },
-      {
-        id: "p5",
-        thumbnailLabel: "J",
-        title: "JAMB CBT Practice Series",
-        subtitle: "Full mock exam simulation.",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-    dateJoinedTime: "8:30 PM",
-    dateOnboarded: "05 Apr, 2026",
-    dateOnboardedTime: "8:30 PM",
-    rank: 21,
-    location: "Uyo, NG.",
-  },
-  {
-    id: "3",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=15",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "PT",
-        title: "Pilates Teacher Training Certification 20…",
-        subtitle: "Moderate level.",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-    dateJoinedTime: "8:30 PM",
-    dateOnboarded: "05 Apr, 2026",
-    dateOnboardedTime: "8:30 PM",
-    rank: 8,
-    location: "Ibadan, NG.",
-  },
-  {
-    id: "4",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=2",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "U",
-        title: "Universal Tertiary Matriculation Exam…",
-        subtitle: "Use of English, Maths, & Physics",
-      },
-      {
-        id: "p2",
-        thumbnailLabel: "N",
-        title: "National Examination Council - NECO",
-        subtitle: "English, Maths, Biology & 2 more…",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-    dateJoinedTime: "8:30 PM",
-    dateOnboarded: "05 Apr, 2026",
-    dateOnboardedTime: "8:30 PM",
-    rank: 1,
-    location: "Lagos, NG.",
-  },
-  {
-    id: "5",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=7",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "PT",
-        title: "Pilates Teacher Training Certification 20…",
-        subtitle: "Moderate level.",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-    dateJoinedTime: "8:30 PM",
-    dateOnboarded: "05 Apr, 2026",
-    dateOnboardedTime: "8:30 PM",
-    rank: 3,
-    location: "Enugu, NG.",
-  },
-  {
-    id: "6",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=27",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "W",
-        title: "West African Examination Council - W…",
-        subtitle: "English, Maths, Physics & 2 more…",
-      },
-      {
-        id: "p2",
-        thumbnailLabel: "U",
-        title: "Universal Tertiary Matriculation Exam…",
-        subtitle: "Use of English, Maths, & Physics",
-      },
-      {
-        id: "p3",
-        thumbnailLabel: "N",
-        title: "National Examination Council - NECO",
-        subtitle: "English, Maths, Biology & 2 more…",
-      },
-      {
-        id: "p4",
-        thumbnailLabel: "J",
-        title: "JAMB CBT Practice Series",
-        subtitle: "Full mock exam simulation.",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-    dateJoinedTime: "8:30 PM",
-    dateOnboarded: "05 Apr, 2026",
-    dateOnboardedTime: "8:30 PM",
-    rank: 12,
-    location: "Port H…, NG.",
-  },
-];
 
 const AVATAR_COLORS = [
   "bg-rose-100 text-rose-600",
@@ -621,6 +445,7 @@ export default function ActiveTable({
   onDisableStudent,
 }: ActiveTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const {students, isLoading} = useActiveStudents();
 
   const columns = useMemo(
     () => [
@@ -691,13 +516,21 @@ export default function ActiveTable({
   );
 
   const table = useReactTable({
-    data: STUDENTS,
+    data: students,
     columns,
     state: {sorting},
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
+
+  if (isLoading) {
+    return <p className="py-10 text-center text-sm text-gray-400">Loading students…</p>;
+  }
+
+  if (students.length === 0) {
+    return <p className="py-10 text-center text-sm text-gray-400">No active students yet.</p>;
+  }
 
   return <EnhancedTable table={table} enableSelection className="min-w-full" />;
 }

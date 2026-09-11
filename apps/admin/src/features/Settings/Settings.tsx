@@ -8,89 +8,46 @@ import {
   ColumnDef,
   SortingState,
 } from "@tanstack/react-table";
-import {Plus, Search, SlidersHorizontal} from "lucide-react";
+import {Search, SlidersHorizontal} from "lucide-react";
 import EnhancedTable from "@/src/components/Table";
-import {Button} from "@mcc/ui";
-import AddUserModal from "./AddUser";
+import {ApiUser} from "./services/users.service";
+import {useUsers} from "./hooks/useUsers";
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl: string;
-  role: string;
-  status: "Active" | "Inactive";
-  addDate: string;
-  lastActive: string;
-  hasAccess: boolean;
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
-const initialData: User[] = [
-  {
-    id: "1",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bright1",
-    role: "Admin",
-    status: "Active",
-    addDate: "March 31, 2026",
-    lastActive: "March 31, 2026",
-    hasAccess: false,
-  },
-  {
-    id: "2",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bright2",
-    role: "Admin",
-    status: "Active",
-    addDate: "March 31, 2026",
-    lastActive: "March 31, 2026",
-    hasAccess: false,
-  },
-  {
-    id: "3",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bright3",
-    role: "Admin",
-    status: "Active",
-    addDate: "March 31, 2026",
-    lastActive: "March 31, 2026",
-    hasAccess: false,
-  },
-];
-
 export default function Settings() {
-  const [data, setData] = useState<User[]>(initialData);
+  const {users, isLoading} = useUsers();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [addUser, setAddUser] = useState(false);
 
-  const toggleAccess = (id: string) => {
-    setData((prev) =>
-      prev.map((item) =>
-        item.id === id ? {...item, hasAccess: !item.hasAccess} : item,
-      ),
-    );
-  };
+  const filtered = searchQuery.trim()
+    ? users.filter(
+        (u) =>
+          u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          u.email.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+    : users;
 
-  const columns: ColumnDef<User>[] = [
+  const columns: ColumnDef<ApiUser>[] = [
     {
-      accessorKey: "name",
+      accessorKey: "full_name",
       header: "Name",
       cell: ({row}) => {
         const user = row.original;
         return (
           <div className="flex items-center gap-3">
-            <img
-              src={user.avatarUrl}
-              alt={user.name}
-              className="h-9 w-9 rounded-full bg-slate-100 object-cover"
-            />
+            <div className="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center text-xs font-semibold text-slate-500 uppercase">
+              {(user.full_name || user.email).slice(0, 1)}
+            </div>
             <div>
               <p className="font-semibold text-slate-900 leading-tight">
-                {user.name}
+                {user.full_name || "—"}
               </p>
               <p className="text-xs text-slate-400 lowercase">{user.email}</p>
             </div>
@@ -102,67 +59,53 @@ export default function Settings() {
       accessorKey: "role",
       header: "User Role",
       cell: ({getValue}) => (
-        <span className="font-medium text-slate-700">
+        <span className="font-medium text-slate-700 capitalize">
           {getValue() as string}
         </span>
       ),
     },
     {
-      accessorKey: "status",
+      accessorKey: "is_active",
       header: "Status",
       enableSorting: true,
       cell: ({getValue}) => {
-        const status = getValue() as string;
+        const isActive = getValue() as boolean;
         return (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-600">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            {status}
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+              isActive
+                ? "bg-emerald-50 text-emerald-600"
+                : "bg-slate-100 text-slate-500"
+            }`}
+          >
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-slate-400"}`}
+            />
+            {isActive ? "Active" : "Inactive"}
           </span>
         );
       },
     },
     {
-      accessorKey: "addDate",
+      accessorKey: "created_at",
       header: "Date Created",
       cell: ({getValue}) => (
-        <span className="text-slate-500">{getValue() as string}</span>
+        <span className="text-slate-500">{formatDate(getValue() as string)}</span>
       ),
     },
     {
-      accessorKey: "lastActive",
-      header: "Last Active",
+      accessorKey: "auth_provider",
+      header: "Sign-up method",
       cell: ({getValue}) => (
-        <span className="font-semibold text-slate-700">
+        <span className="font-medium text-slate-700 capitalize">
           {getValue() as string}
         </span>
-      ),
-    },
-    {
-      accessorKey: "hasAccess",
-      header: "Access",
-      cell: ({row}) => (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleAccess(row.original.id);
-          }}
-          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-            row.original.hasAccess ? "bg-[#6C2BD9]" : "bg-slate-200"
-          }`}
-        >
-          <span
-            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-              row.original.hasAccess ? "translate-x-5" : "translate-x-0"
-            }`}
-          />
-        </button>
       ),
     },
   ];
 
   const table = useReactTable({
-    data,
+    data: filtered,
     columns,
     state: {
       sorting,
@@ -176,21 +119,12 @@ export default function Settings() {
     <div className="h-full ">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-slate-900">Settings</h1>
-        <Button
-          radius={"full"}
-          leftIcon={<Plus />}
-          onClick={() => setAddUser(true)}
-        >
-          Add user
-        </Button>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold text-slate-900">
-              User &amp; Permission
-            </h2>
+            <h2 className="text-lg font-semibold text-slate-900">Users</h2>
           </div>
 
           <div className="flex items-center gap-3">
@@ -212,15 +146,14 @@ export default function Settings() {
           </div>
         </div>
 
-        <EnhancedTable
-          table={table}
-          enableSelection={true}
-          enableRowActions={true}
-        />
+        {isLoading ? (
+          <p className="py-10 text-center text-sm text-slate-400">Loading users…</p>
+        ) : filtered.length === 0 ? (
+          <p className="py-10 text-center text-sm text-slate-400">No users found.</p>
+        ) : (
+          <EnhancedTable table={table} enableSelection={true} enableRowActions={true} />
+        )}
       </div>
-      {addUser && (
-        <AddUserModal isOpen={addUser} onClose={() => setAddUser(false)} />
-      )}
     </div>
   );
 }

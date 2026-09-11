@@ -7,6 +7,7 @@ import {
   createExamProgram,
   getApiErrorMessage,
 } from "@/src/features/Exam-program/services/exam.service";
+import {useCategoryOptions} from "@/src/features/categories/hooks/useCategories";
 
 export default function CreateDetails({onNext}: {onNext: () => void}) {
   const {
@@ -23,6 +24,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {data: teachersData = [], isLoading: isLoadingTeachers} = useTeachers();
+  const {options: categoryOptions} = useCategoryOptions();
 
   const instructorOptions = useMemo(() => {
     if (teachersData && teachersData.length > 0) {
@@ -184,7 +186,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
                 placeholder="Select category"
                 selectRadius="xl"
                 selectClassName="py-4"
-                options={CATEGORY_OPTIONS}
+                options={categoryOptions}
                 value={field.value}
                 onChange={field.onChange}
                 errors={errors.category}
@@ -504,9 +506,4 @@ const SUBJECT_OPTIONS = [
   {label: "Mathematics", value: "mathematics"},
   {label: "English", value: "english"},
   {label: "Physics", value: "physics"},
-];
-const CATEGORY_OPTIONS = [
-  {label: "Science", value: "science"},
-  {label: "Arts", value: "arts"},
-  {label: "Commerce", value: "commerce"},
 ];
