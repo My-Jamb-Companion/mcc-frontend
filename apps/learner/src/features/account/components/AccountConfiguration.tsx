@@ -1,17 +1,26 @@
-import {useState} from "react";
+"use client";
+
 import {ConfigurationsSidebar} from "./ConfigurationSideBar";
 import {NotificationSettingRow} from "./NotificationSettings";
 import {NOTIFICATION_SETTINGS} from "../constants/constants";
 import type {NotificationSetting} from "../constants/types";
+import {useNotificationSettings, useUpdateNotificationSettings} from "../hooks/useProfile";
 
 export function AccountConfigurations() {
-  // Swap for real settings query/mutation once wired to the API.
-  const [settings, setSettings] = useState<NotificationSetting[]>(
-    NOTIFICATION_SETTINGS,
-  );
+  const {data: prefs, isLoading} = useNotificationSettings();
+  const updateSettings = useUpdateNotificationSettings();
+
+  // The backend's email_notifications map has arbitrary keys, deep-merged --
+  // the constant setting IDs here (reminderAlert, marketingEmails, ...) are
+  // used directly as those keys, defaulting to the local demo value only
+  // until the real map has ever been written to for that key.
+  const settings: NotificationSetting[] = NOTIFICATION_SETTINGS.map((s) => ({
+    ...s,
+    enabled: prefs?.email_notifications?.[s.id] ?? s.enabled,
+  }));
 
   const handleToggle = (id: string, enabled: boolean) => {
-    setSettings((prev) => prev.map((s) => (s.id === id ? {...s, enabled} : s)));
+    updateSettings.mutate({email_notifications: {[id]: enabled}});
   };
 
   return (
@@ -19,13 +28,17 @@ export function AccountConfigurations() {
       <ConfigurationsSidebar />
 
       <div className="flex-1 space-y-6">
-        {settings.map((setting) => (
-          <NotificationSettingRow
-            key={setting.id}
-            setting={setting}
-            onToggle={handleToggle}
-          />
-        ))}
+        {isLoading ? (
+          <p className="text-sm text-muted">Loading settings…</p>
+        ) : (
+          settings.map((setting) => (
+            <NotificationSettingRow
+              key={setting.id}
+              setting={setting}
+              onToggle={handleToggle}
+            />
+          ))
+        )}
       </div>
     </div>
   );

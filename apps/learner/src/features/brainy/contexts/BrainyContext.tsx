@@ -53,6 +53,11 @@ interface BrainyContextType {
     text: string,
     files?: File[],
   ) => void;
+  addMessageToSession: (
+    sessionId: string,
+    sender: "user" | "ai",
+    text: string,
+  ) => void;
   isSidebarOpen: boolean;
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
   toggleSidebar: () => void;
@@ -105,12 +110,19 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
     },
     [clearFiles],
   );
-  const addMessageToActiveSession = useCallback(
-    (sender: "user" | "ai", text: string, files?: File[]) => {
-      if (!activeSessionId) return;
+  // Takes the target session id explicitly rather than reading
+  // activeSessionId from this closure -- a callback handed to an async
+  // mutation's onSuccess (e.g. after POST /brainy/chats resolves) closes
+  // over activeSessionId as it was at *creation* time, which for a
+  // brand-new session is still null (createNewSession's setActiveSessionId
+  // hasn't taken effect on this render yet) -- so the guarded
+  // addMessageToActiveSession below silently no-ops for exactly the reply
+  // that matters most, the first one.
+  const addMessageToSession = useCallback(
+    (sessionId: string, sender: "user" | "ai", text: string, files?: File[]) => {
       setSessions((prev) =>
         prev.map((session) => {
-          if (session.id === activeSessionId) {
+          if (session.id === sessionId) {
             return {
               ...session,
               messages: [
@@ -129,7 +141,15 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
         }),
       );
     },
-    [activeSessionId],
+    [],
+  );
+
+  const addMessageToActiveSession = useCallback(
+    (sender: "user" | "ai", text: string, files?: File[]) => {
+      if (!activeSessionId) return;
+      addMessageToSession(activeSessionId, sender, text, files);
+    },
+    [activeSessionId, addMessageToSession],
   );
 
   useEffect(() => {
@@ -171,6 +191,7 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
         setActiveSessionId,
         createNewSession,
         addMessageToActiveSession,
+        addMessageToSession,
       }}
     >
       {children}

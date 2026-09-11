@@ -2,12 +2,20 @@
 import {useParams} from "next/navigation";
 import LearningsHeader from "./LearningsHeader";
 import ScrollRow from "@/src/features/components/RowScroll";
-import {demoCourses} from "@/src/features/constants/demoCourses";
 import CourseCard from "@/src/features/components/CourseCard";
+import CourseCardSkeleton from "@/src/features/components/CourseCardSkeleton";
 import {demoStats} from "../constants/demoHeaderStats";
+import {useCourses, useEnrolledCourses} from "@/src/features/courses/hooks/useCourses";
+import {fromApiCourse, fromApiEnrolledCourse} from "@/src/features/courses/helper/course.mapper";
 
 export default function Topics() {
   const {id} = useParams();
+  const {courses: allCourses, isLoading: coursesLoading} = useCourses();
+  const {courses: enrolledCourses, isLoading: enrolledLoading} = useEnrolledCourses();
+
+  const enrolledIds = new Set(enrolledCourses.map((c) => c.course_id));
+  const notYetEnrolled = allCourses.filter((c) => !enrolledIds.has(c.course_id));
+
   return (
     <section className="py-6 px-4">
       <LearningsHeader
@@ -22,40 +30,34 @@ export default function Topics() {
       />
 
       <div className="pt-16">
-        <ScrollRow title="Programs you're taking already">
-          {demoCourses.map((card) => (
-            <div key={card.id} className="shrink-0 w-72">
-              <CourseCard
-                image={card.img || "/assets/images/tower.jpg"}
-                course={card.course}
-                title={card.topic}
-                completePercent={card.completed}
-                // onClick={() => console.log("open course")}
-              />
-            </div>
-          ))}
+        <ScrollRow
+          title="Programs you're taking already"
+          isLoading={enrolledLoading}
+          skeleton={<CourseCardSkeleton />}
+          skeletonCount={4}
+        >
+          {enrolledCourses.length === 0 && !enrolledLoading ? (
+            <p className="text-sm text-muted">No programs in progress yet.</p>
+          ) : (
+            enrolledCourses.map((course) => (
+              <div key={course.course_id} className="shrink-0 w-72">
+                <CourseCard {...fromApiEnrolledCourse(course)} />
+              </div>
+            ))
+          )}
         </ScrollRow>
       </div>
 
       <div className="pt-16">
-        <ScrollRow title="Skills to acquire next">
-          {[1, 2, 3, 4, 5].map((card) => (
-            <div key={card} className="shrink-0 w-72">
-              <CourseCard
-                image="/assets/images/tower.jpg"
-                instructor="Brooke Graser"
-                rating={4.7}
-                reviewCount={28942}
-                title="Intro to Procreate: Illustration on the iPad (UPDATED)"
-                tags={[
-                  "Procreate",
-                  "Drawing Tablet",
-                  "Beginner",
-                  "Digital Art",
-                  "iPad",
-                ]}
-                // onClick={() => console.log("open course")}
-              />
+        <ScrollRow
+          title="Skills to acquire next"
+          isLoading={coursesLoading}
+          skeleton={<CourseCardSkeleton />}
+          skeletonCount={4}
+        >
+          {notYetEnrolled.map((course) => (
+            <div key={course.course_id} className="shrink-0 w-72">
+              <CourseCard {...fromApiCourse(course)} />
             </div>
           ))}
         </ScrollRow>

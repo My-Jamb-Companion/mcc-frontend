@@ -9,6 +9,7 @@ import BrainyExamActionCardGrid, {
   ActionCardConfig,
 } from "./BrainyExamActionCard";
 import Link from "next/link";
+import {sendChatMessage} from "../services/brainy.service";
 
 export interface FeatureCardConfig {
   id: string;
@@ -28,6 +29,7 @@ export default function Brainy() {
     // sessions,
     // activeSessionId,
     createNewSession,
+    addMessageToSession,
   } = useBrainy();
   const router = useRouter();
 
@@ -105,6 +107,21 @@ export default function Brainy() {
                 [firstMessage],
               );
               router.push(`/brainy/chat/${sessionId}`);
+
+              // Plain promise chain, not the useMutation hook: Brainy.tsx
+              // unmounts the instant router.push above navigates away, and
+              // a hook-bound mutation's onSuccess/onError is not guaranteed
+              // to fire once its owning component is gone. This resolves
+              // independently of any component's lifecycle.
+              sendChatMessage(question).then(
+                (result) => addMessageToSession(sessionId, "ai", result.reply),
+                () =>
+                  addMessageToSession(
+                    sessionId,
+                    "ai",
+                    "My brain is fuzzy right now. Please try again.",
+                  ),
+              );
             }}
           />
         </AnimatePresence>

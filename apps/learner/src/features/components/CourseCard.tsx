@@ -95,22 +95,25 @@ export default function CourseCard({
       )}
 
       {/* Pricing */}
-      {price && (
+      {price !== undefined && (
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2">
             <span className="font-bold">
-              {currency}
-              {price.toLocaleString()}
+              {price > 0 ? `${currency}${price.toLocaleString()}` : "Free"}
             </span>
-            <span className="text-xs text-muted line-through">
-              {currency}
-              {originalPrice?.toLocaleString()}
-            </span>
+            {originalPrice !== undefined && (
+              <span className="text-xs text-muted line-through">
+                {currency}
+                {originalPrice.toLocaleString()}
+              </span>
+            )}
           </div>
-          <span className="text-xs font-medium">
-            ({currency}
-            {pricePerModule} per module)
-          </span>
+          {pricePerModule !== undefined && (
+            <span className="text-xs font-medium">
+              ({currency}
+              {pricePerModule} per module)
+            </span>
+          )}
         </div>
       )}
 
