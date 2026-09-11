@@ -1,19 +1,15 @@
 "use client";
 
-import {useMemo, useState} from "react";
+import {useState} from "react";
 import {Icon, Modal} from "@mcc/ui";
+import {useMutation, useQuery} from "@tanstack/react-query";
+import {searchRecipients} from "@/src/features/Messaging/services/recipients.service";
+import {sendMessage} from "@/src/features/Messaging/services/messages.service";
 
 type Student = {
   id: string;
   name: string;
 };
-
-const SAMPLE_STUDENTS: Student[] = [
-  {id: "1", name: "Emmanuel Okafor"},
-  {id: "2", name: "Misturah Bello"},
-  {id: "3", name: "David Adeyemi"},
-  {id: "4", name: "Chiamaka Nwosu"},
-];
 
 function StudentSelect({
   value,
@@ -25,13 +21,14 @@ function StudentSelect({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
-  const results = useMemo(
-    () =>
-      SAMPLE_STUDENTS.filter((s) =>
-        s.name.toLowerCase().includes(query.toLowerCase()),
+  const {data: results = []} = useQuery({
+    queryKey: ["recipients-search", "student", query],
+    queryFn: () =>
+      searchRecipients(query, "student").then((rows) =>
+        rows.map((r): Student => ({id: r.user_id, name: r.full_name})),
       ),
-    [query],
-  );
+    enabled: open && query.trim().length > 0,
+  });
 
   return (
     <div className="relative">
@@ -102,6 +99,11 @@ export default function SendMessage({
   const [student, setStudent] = useState<Student | null>(null);
   const [message, setMessage] = useState("");
 
+  const sendMutation = useMutation({
+    mutationFn: (payload: {recipientId: string; body: string}) =>
+      sendMessage({recipient_id: payload.recipientId, body: payload.body}),
+  });
+
   const canProceedStep1 = student !== null;
   const canSend = message.trim().length > 0;
 
@@ -109,6 +111,7 @@ export default function SendMessage({
     setStep(1);
     setStudent(null);
     setMessage("");
+    sendMutation.reset();
     onClose?.();
   };
 
@@ -118,10 +121,17 @@ export default function SendMessage({
       return;
     }
     if (canSend && student) {
-      onSend?.({student, message: message.trim()});
-      setStep(1);
-      setStudent(null);
-      setMessage("");
+      sendMutation.mutate(
+        {recipientId: student.id, body: message.trim()},
+        {
+          onSuccess: () => {
+            onSend?.({student, message: message.trim()});
+            setStep(1);
+            setStudent(null);
+            setMessage("");
+          },
+        },
+      );
     }
   };
 
@@ -193,6 +203,11 @@ export default function SendMessage({
           )}
         </div>
 
+        {sendMutation.isError && (
+          <p className="mt-3 text-sm text-red-500">
+            Failed to send message. Please try again.
+          </p>
+        )}
         <div className="flex items-center gap-3 mt-5">
           <button
             type="button"
@@ -204,10 +219,13 @@ export default function SendMessage({
           <button
             type="button"
             onClick={handlePrimaryClick}
-            disabled={step === 1 ? !canProceedStep1 : !canSend}
+            disabled={
+              (step === 1 ? !canProceedStep1 : !canSend) ||
+              sendMutation.isPending
+            }
             className="flex-1 py-3 rounded-full font-semibold transition-colors bg-violet-600 text-white hover:bg-violet-700 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
           >
-            Send message
+            {step === 2 && sendMutation.isPending ? "Sending…" : "Send message"}
           </button>
         </div>
       </div>

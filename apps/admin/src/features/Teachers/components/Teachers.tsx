@@ -10,6 +10,7 @@ import Image from "next/image";
 import SendMessage from "./SendMessage";
 import AssignCRAModal, {CraStudent} from "./AssignCRA";
 import AssignProgram from "./AssignProgram";
+import {useDisableTeacher} from "../hooks/useAdminTeachers";
 
 export default function Teachers() {
   const [program, setProgram] = useState("");
@@ -21,6 +22,7 @@ export default function Teachers() {
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [assignProgram, setAssignProgram] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);
+  const disableTeacherMutation = useDisableTeacher();
 
   const handleOpenProfile = (teacher: Teacher) => {
     setViewTeacher(true);
@@ -211,9 +213,27 @@ export default function Teachers() {
               Are you sure you want to disable {teacher?.name}? This action can
               not be undone.
             </p>
+            {disableTeacherMutation.isError && (
+              <p className="text-sm text-red-500 pb-3">
+                Failed to disable teacher. Please try again.
+              </p>
+            )}
             <div className="inline-flex items-center gap-3 pt-6  w-full ">
-              <Button variant="danger" width="full">
-                Disable Teacher
+              <Button
+                variant="danger"
+                width="full"
+                disabled={disableTeacherMutation.isPending}
+                onClick={() => {
+                  if (!teacher) return;
+                  disableTeacherMutation.mutate(teacher.id, {
+                    onSuccess: () => {
+                      setConfirmDisable(false);
+                      setTeacher(null);
+                    },
+                  });
+                }}
+              >
+                {disableTeacherMutation.isPending ? "Disabling…" : "Disable Teacher"}
               </Button>
               <Button
                 variant="outline"

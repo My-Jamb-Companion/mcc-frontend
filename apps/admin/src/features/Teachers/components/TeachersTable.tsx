@@ -10,6 +10,7 @@ import {
 import {Icon} from "@mcc/ui";
 import EnhancedTable from "@/src/components/Table";
 import {LeaderboardTier, Teacher} from "../types/types";
+import {useAdminTeachers} from "../hooks/useAdminTeachers";
 
 interface TeachersTableProps {
   onOpenProfile?: (teacher: Teacher) => void;
@@ -18,177 +19,6 @@ interface TeachersTableProps {
   onAssignProgram?: (teacher: Teacher) => void;
   onAssignCra?: (teacher: Teacher) => void;
 }
-
-const TEACHERS: Teacher[] = [
-  {
-    id: "1",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=35",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "U",
-        title: "Universal Tertiary Matriculation Exam…",
-        subtitle: "Use of English, Maths, & Physics",
-      },
-      {
-        id: "p2",
-        thumbnailLabel: "W",
-        title: "West African Examination Council - WAEC",
-        subtitle: "English, Maths, Physics & 3 more…",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-
-    rank: 1,
-    rating: "4.5 (2.9k)",
-    sessions: {total: 34, completed: 18},
-  },
-  {
-    id: "2",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=6",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "PT",
-        title: "Pilates Teacher Training Certification 20…",
-        subtitle: "Moderate level.",
-      },
-      {
-        id: "p2",
-        thumbnailLabel: "W",
-        title: "West African Examination Council - WAEC",
-        subtitle: "English, Maths, Physics & 3 more…",
-      },
-      {
-        id: "p3",
-        thumbnailLabel: "U",
-        title: "Universal Tertiary Matriculation Exam…",
-        subtitle: "Use of English, Maths, & Physics",
-      },
-      {
-        id: "p4",
-        thumbnailLabel: "N",
-        title: "National Examination Council - NECO",
-        subtitle: "English, Maths, Biology & 2 more…",
-      },
-      {
-        id: "p5",
-        thumbnailLabel: "J",
-        title: "JAMB CBT Practice Series",
-        subtitle: "Full mock exam simulation.",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-
-    rank: 21,
-    rating: "4.5 (2.9k)",
-    sessions: {total: 34, completed: 18},
-  },
-  {
-    id: "3",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=15",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "PT",
-        title: "Pilates Teacher Training Certification 20…",
-        subtitle: "Moderate level.",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-
-    rank: 8,
-    rating: "4.5 (2.9k)",
-    sessions: {total: 34, completed: 18},
-  },
-  {
-    id: "4",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=2",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "U",
-        title: "Universal Tertiary Matriculation Exam…",
-        subtitle: "Use of English, Maths, & Physics",
-      },
-      {
-        id: "p2",
-        thumbnailLabel: "N",
-        title: "National Examination Council - NECO",
-        subtitle: "English, Maths, Biology & 2 more…",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-
-    rank: 1,
-    rating: "4.5 (2.9k)",
-    sessions: {total: 34, completed: 18},
-  },
-  {
-    id: "5",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=7",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "PT",
-        title: "Pilates Teacher Training Certification 20…",
-        subtitle: "Moderate level.",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-
-    rank: 3,
-    rating: "4.5 (2.9k)",
-    sessions: {total: 34, completed: 18},
-  },
-  {
-    id: "6",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=27",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "W",
-        title: "West African Examination Council - W…",
-        subtitle: "English, Maths, Physics & 2 more…",
-      },
-      {
-        id: "p2",
-        thumbnailLabel: "U",
-        title: "Universal Tertiary Matriculation Exam…",
-        subtitle: "Use of English, Maths, & Physics",
-      },
-      {
-        id: "p3",
-        thumbnailLabel: "N",
-        title: "National Examination Council - NECO",
-        subtitle: "English, Maths, Biology & 2 more…",
-      },
-      {
-        id: "p4",
-        thumbnailLabel: "J",
-        title: "JAMB CBT Practice Series",
-        subtitle: "Full mock exam simulation.",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-
-    rank: 12,
-    rating: "4.5 (2.9k)",
-    sessions: {total: 34, completed: 18},
-  },
-];
 
 const AVATAR_COLORS = [
   "bg-rose-100 text-rose-600",
@@ -604,6 +434,7 @@ export default function TeachersTable({
   onDisableTeacher,
 }: TeachersTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const {teachers, isLoading} = useAdminTeachers();
 
   const columns = useMemo(
     () => [
@@ -629,14 +460,23 @@ export default function TeachersTable({
       columnHelper.accessor("sessions", {
         header: "No of sessions",
 
-        cell: (info) => (
-          <span className="text-sm text-gray-600 whitespace-nowrap">
-            <span className="text-black font-medium">
-              Completed {info.row.original.sessions.completed}
+        cell: (info) => {
+          const {total, completed} = info.row.original.sessions;
+          return (
+            <span className="text-sm text-gray-600 whitespace-nowrap">
+              {completed != null ? (
+                <>
+                  <span className="text-black font-medium">
+                    Completed {completed}
+                  </span>
+                  <sub>/{total}</sub>
+                </>
+              ) : (
+                <span className="text-black font-medium">{total}</span>
+              )}
             </span>
-            <sub className="">/{info.row.original.sessions.total}</sub>
-          </span>
-        ),
+          );
+        },
       }),
       columnHelper.accessor("rank", {
         header: "L. Board",
@@ -683,13 +523,21 @@ export default function TeachersTable({
   );
 
   const table = useReactTable({
-    data: TEACHERS,
+    data: teachers,
     columns,
     state: {sorting},
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
+
+  if (isLoading) {
+    return <p className="py-10 text-center text-sm text-gray-400">Loading teachers…</p>;
+  }
+
+  if (teachers.length === 0) {
+    return <p className="py-10 text-center text-sm text-gray-400">No teachers yet.</p>;
+  }
 
   return <EnhancedTable table={table} enableSelection className="min-w-full" />;
 }
