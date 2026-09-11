@@ -254,6 +254,7 @@ const navs = {
       href: "/finance",
     },
     {icon: "ri:message-2-line", label: "user", href: "/messaging"},
+    {icon: "ri:flag-2-line", label: "moderation", href: "/moderation"},
   ],
   bottomNav: [
     {icon: "stash:question-light", label: "help", href: "/help"},

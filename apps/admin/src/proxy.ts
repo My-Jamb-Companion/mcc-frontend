@@ -28,5 +28,7 @@ export const config = {
     "/finance/:path*",
     "/messaging/:path*",
     "/settings/:path*",
+    // Real top-level sibling added in platform-completion-plan.md Phase 8.4.2.
+    "/moderation/:path*",
   ],
 };
