@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useChildDetail } from "./useChildren";
+import { ChildCheckout } from "../payments/ChildCheckout";
 
 const formatWhen = (iso: string) => new Date(iso).toLocaleString();
 
@@ -25,6 +26,8 @@ export const ChildDetail = () => {
             <h1 className="text-xl font-semibold">{child.full_name || child.email}</h1>
             <p className="text-sm text-muted">{child.email}</p>
           </div>
+
+          <ChildCheckout childId={child.child_id} childName={child.full_name || "Your child"} />
 
           {!child.has_active_enrollment ? (
             <p className="text-sm text-muted rounded-lg border border-muted/20 p-4">
