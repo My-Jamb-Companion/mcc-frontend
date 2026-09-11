@@ -1,4 +1,5 @@
 "use client";
+import {useEffect, useState} from "react";
 import {AnimatePresence, Icon, motion} from "@mcc/ui";
 import BrainyChatBox from "./BrainyChatBox";
 import AssignmentSubjectSelector from "./AssigmentSubjectScrollBarSelector";
@@ -8,6 +9,7 @@ import {ChatMessage, useBrainy} from "../contexts/BrainyContext";
 import BrainyExamActionCardGrid, {
   ActionCardConfig,
 } from "./BrainyExamActionCard";
+import FlashcardGenerator from "./FlashcardGenerator";
 import Link from "next/link";
 import {sendChatMessage} from "../services/brainy.service";
 
@@ -33,6 +35,11 @@ export default function Brainy() {
   } = useBrainy();
   const router = useRouter();
 
+  const [examView, setExamView] = useState<"actions" | "flashcards">("actions");
+  useEffect(() => {
+    if (mode !== "exam") setExamView("actions");
+  }, [mode]);
+
   return (
     <section className="grow flex flex-col h-full items-center justify-start overflow-y-auto px-4 py-8 max-sm:pb-10 max-sm:pt-20">
       <div className="w-full max-w-[700px] flex flex-col items-center gap-12 my-auto">
@@ -53,17 +60,20 @@ export default function Brainy() {
             </motion.div>
           )}
           {mode === "exam" && (
-            <div key="exam">
-              {" "}
-              <BrainyExamActionCardGrid
-                eyebrow="Exam Preparations"
-                heading="How do you want to prepare for your exams?"
-                subtext="Upload anything and get interactive notes, flashcards, quizzes, and more"
-                actions={EXAM_PREP_ACTIONS}
-                // onSelect={(id) => {
-                // console.log("Action selected:", id);
-                // }}
-              />
+            <div key="exam" className="w-full">
+              {examView === "actions" ? (
+                <BrainyExamActionCardGrid
+                  eyebrow="Exam Preparations"
+                  heading="How do you want to prepare for your exams?"
+                  subtext="Paste your notes and get instant flashcards to study from."
+                  actions={EXAM_PREP_ACTIONS}
+                  onSelect={(id) => {
+                    if (id === "paste") setExamView("flashcards");
+                  }}
+                />
+              ) : (
+                <FlashcardGenerator onBack={() => setExamView("actions")} />
+              )}
             </div>
           )}
 
@@ -166,10 +176,7 @@ const DEFAULT_FEATURES: FeatureCardConfig[] = [
     id: "exam",
     icon: "ph:exam",
     title: "Prepare for your exam",
-    description:
-      "Transform lecture slides and notes into flashcards, quizzes, and fill-in-the-blank questions instantly.",
-    badge: "Coming soon",
-    disabled: true,
+    description: "Paste your notes and get instant flashcards to study from.",
   },
   {
     id: "assignment",
@@ -179,12 +186,19 @@ const DEFAULT_FEATURES: FeatureCardConfig[] = [
       "Generate summaries and interactive study materials to simplify complex assignments.",
   },
 ];
+// Only "paste" is wired to anything real (POST /brainy/flashcards) --
+// "Upload" (image/file/audio/video) and "Record live lecture" need OCR,
+// transcription, or audio-capture infrastructure the backend doesn't have,
+// so both stay honestly marked "Coming soon" rather than looking clickable
+// with nothing behind them.
 const EXAM_PREP_ACTIONS: ActionCardConfig[] = [
   {
     id: "upload",
     icon: "hugeicons:pencil-ruler",
     title: "Upload",
     description: "Image, file, audio, video.",
+    badge: "Coming soon",
+    disabled: true,
   },
   {
     id: "record",
@@ -198,6 +212,6 @@ const EXAM_PREP_ACTIONS: ActionCardConfig[] = [
     id: "paste",
     icon: "ph:book-open",
     title: "Paste",
-    description: "Youtube, website, text",
+    description: "Paste your notes or study material",
   },
 ];
