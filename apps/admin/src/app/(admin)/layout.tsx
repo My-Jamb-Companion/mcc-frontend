@@ -2,6 +2,7 @@
 
 import BreadcrumbsTopNav from "@/src/components/BreadcrumbsTopNav";
 import SideNav from "@/src/components/SideNav";
+import {Button} from "@mcc/ui";
 import {useAuth} from "@mcc/features";
 import {useRouter} from "next/navigation";
 import {useEffect} from "react";
@@ -11,7 +12,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const {isAuthenticated} = useAuth();
+  const {isAuthenticated, logoutMutation} = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -19,6 +20,12 @@ export default function DashboardLayout({
       // router.replace("/login");
     }
   }, [isAuthenticated, router]);
+
+  const handleLogout = () => {
+    logoutMutation.mutate(undefined, {
+      onSettled: () => router.replace("/login"),
+    });
+  };
 
   // if (!isAuthenticated) return null;
 
@@ -32,7 +39,18 @@ export default function DashboardLayout({
         <div className="flex flex-col w-full h-full col-start-2 max-sm:pl-0 p-2 overflow-hidden">
           <div className="relative bg-white border border-muted/20 rounded-3xl h-full flex flex-col overflow-hidden">
             <div className="shrink-0">
-              <BreadcrumbsTopNav />
+              <BreadcrumbsTopNav
+                rightSlot={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleLogout}
+                    disabled={logoutMutation.isPending}
+                  >
+                    Log out
+                  </Button>
+                }
+              />
             </div>
             <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pt-10 pb-4.5">
               {children}

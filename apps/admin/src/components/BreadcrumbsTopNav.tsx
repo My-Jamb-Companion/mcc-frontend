@@ -13,6 +13,8 @@ type BreadcrumbsProps = {
    */
   labelMap?: Record<string, string>;
   className?: string;
+  /** Rendered on the right side of the same bar, e.g. a "Log out" button. */
+  rightSlot?: React.ReactNode;
 };
 
 function formatSegment(segment: string) {
@@ -24,6 +26,7 @@ function formatSegment(segment: string) {
 export default function BreadcrumbsTopNav({
   labelMap = {},
   className = "",
+  rightSlot,
 }: BreadcrumbsProps) {
   const pathname = usePathname() ?? "/";
   const segments = pathname.split("/").filter(Boolean);
@@ -33,12 +36,15 @@ export default function BreadcrumbsTopNav({
     href: "/" + segments.slice(0, index + 1).join("/"),
   }));
 
-  if (crumbs.length === 0) return null;
+  if (crumbs.length === 0 && !rightSlot) return null;
 
   return (
     <nav
       aria-label="Breadcrumb"
-      className={className + "px-6 py-4.5 border-b border-muted/30"}
+      className={
+        className +
+        "px-6 py-4.5 border-b border-muted/30 flex items-center justify-between"
+      }
     >
       <ol className="flex items-center gap-2 text-[15px]">
         {crumbs.map((crumb, index) => {
@@ -67,6 +73,7 @@ export default function BreadcrumbsTopNav({
           );
         })}
       </ol>
+      {rightSlot}
     </nav>
   );
 }
