@@ -12,6 +12,7 @@ import { showSuccess } from "@mcc/ui";
 import { formSteps } from "../constants/formSteps";
 import { FormValues } from "../types/formTypes";
 import { getDraftFromStorage, clearDraftFromStorage } from "../constants/storage";
+import { saveCompletionToStorage } from "../constants/completion";
 import { useOnboardingComplete } from "../hooks/useOnboardingComplete";
 
 interface OnboardingContextValue {
@@ -58,6 +59,7 @@ export function OnboardingProvider({
             setPreviewComplete(true);
             return;
           }
+          saveCompletionToStorage(data);
           showSuccess(
             "Your teacher profile is complete! We'll notify you once everything is verified.",
           );

@@ -7,6 +7,7 @@ import { Button, Icon } from "@mcc/ui";
 import { useThemeStore } from "@mcc/store";
 
 const LINKS = [
+  { href: "/onboarding", label: "Onboarding" },
   { href: "/dashboard", label: "Sessions" },
   { href: "/availability", label: "Availability" },
   { href: "/messages", label: "Messages" },
