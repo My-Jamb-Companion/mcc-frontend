@@ -1,7 +1,7 @@
 import {useTeachers} from "@mcc/features";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {fromApiTeacher} from "../helper/teacher.mapper";
-import {disableTeacher} from "../services/teacherActions.service";
+import {approveTeacher, disableTeacher, rejectTeacher} from "../services/teacherActions.service";
 
 /**
  * Teachers from the live backend (GET /admin/teachers via
@@ -20,6 +20,29 @@ export const useDisableTeacher = () => {
 
   return useMutation({
     mutationFn: (teacherId: string) => disableTeacher(teacherId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["teachers"]});
+    },
+  });
+};
+
+export const useApproveTeacher = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (teacherId: string) => approveTeacher(teacherId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["teachers"]});
+    },
+  });
+};
+
+export const useRejectTeacher = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({teacherId, reason}: {teacherId: string; reason: string}) =>
+      rejectTeacher(teacherId, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ["teachers"]});
     },

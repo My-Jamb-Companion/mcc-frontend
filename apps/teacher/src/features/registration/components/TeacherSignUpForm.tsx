@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { FormInputs, useForm } from "@mcc/features";
 import { Button } from "@mcc/ui";
+import { extractApiError } from "@mcc/api";
 import { useTeacherRegistration } from "../hooks/useTeacherRegistration";
 import { TeacherRegistrationInputs } from "../types";
 import ApplicationUnderReview from "./ApplicationUnderReview";
@@ -115,7 +116,7 @@ export function TeacherSignUpForm() {
 
         {registerMutation.isError && (
           <p className="text-red-500 text-sm text-center">
-            Something went wrong. Please try again.
+            {extractApiError(registerMutation.error, "Something went wrong. Please try again.")}
           </p>
         )}
 

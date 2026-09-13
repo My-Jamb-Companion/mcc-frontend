@@ -22,7 +22,7 @@ export default function ApplicationUnderReview({
         Thanks, <span className="text-black font-medium dark:text-white">{fullName}</span>.
         Your teacher application is under review. We&apos;ll verify your details and email{" "}
         <span className="text-black font-medium dark:text-white">{email}</span> once your
-        account is approved — you&apos;ll receive your login details then.
+        account is approved — you can then log in with the email and password you just set.
       </p>
       <p className="text-muted text-xs">This usually takes 1–2 business days.</p>
 
