@@ -10,7 +10,15 @@ const AUTH_COOKIE = `mcc_${process.env.NEXT_PUBLIC_APP_ID || "default"}_auth`;
 const AUTH_PAGES = ["/login", "/signup"];
 
 export function proxy(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const { pathname, searchParams } = req.nextUrl;
+
+  // Public preview of the onboarding wizard -- no real account, nothing
+  // persisted server-side. Distinct from the real, auth-gated /onboarding
+  // below; bypasses both redirect branches regardless of login state.
+  if (pathname.startsWith("/onboarding") && searchParams.get("preview") === "true") {
+    return NextResponse.next();
+  }
+
   const auth = req.cookies.get(AUTH_COOKIE);
 
   const isAuthPage = AUTH_PAGES.some((p) => pathname.startsWith(p));

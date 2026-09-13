@@ -29,6 +29,13 @@ export default function ApplicationUnderReview({
       <Button variant="outline" width="full" onClick={() => router.push("/login")}>
         Back to login
       </Button>
+      <Button
+        variant="ghost"
+        width="full"
+        onClick={() => router.push("/onboarding?preview=true")}
+      >
+        Preview the onboarding wizard
+      </Button>
     </div>
   );
 }

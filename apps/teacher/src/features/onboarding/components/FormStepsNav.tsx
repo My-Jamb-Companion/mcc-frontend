@@ -9,6 +9,7 @@ export function StepNavigation({
   next,
   back,
   onSubmit,
+  submitLabel = "Submit",
 }: {
   step: number;
   totalSteps: number;
@@ -16,6 +17,7 @@ export function StepNavigation({
   next: () => void;
   back: () => void;
   onSubmit: () => void;
+  submitLabel?: string;
 }) {
   const { trigger, control } = useFormContext();
 
@@ -88,7 +90,7 @@ export function StepNavigation({
         disabled={!isStepValid}
         className={`${isStepValid ? "bg-primary text-white hover:bg-primary/90 cursor-pointer" : "bg-hint/30 text-hint dark:bg-muted/30 dark:text-muted cursor-not-allowed"} shadow-sm flex items-center justify-center gap-2 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300`}
       >
-        {isLastStep ? "Submit" : "Continue"}
+        {isLastStep ? submitLabel : "Continue"}
       </button>
     </div>
   );

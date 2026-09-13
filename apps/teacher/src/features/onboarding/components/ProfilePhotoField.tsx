@@ -5,23 +5,34 @@ import { extractApiError } from "@mcc/api";
 import { useUploadProfilePhoto } from "@/src/features/account/useAccount";
 import { PhotoUploadField as PhotoUploadFieldType } from "../types/formTypes";
 
-// The one REAL field in the wizard: POST /user/profile/photo is a real,
-// working endpoint. The value stored is the real https URL it returns, safe
-// to persist to the localStorage draft (see constants/storage.ts).
+// The one REAL field in the wizard outside preview mode: POST
+// /user/profile/photo is a real, working endpoint. The value stored is the
+// real https URL it returns, safe to persist to the localStorage draft (see
+// constants/storage.ts). In preview mode there's no real session to upload
+// against, so this falls back to the same local-object-URL mock every other
+// file field in the wizard uses -- never calls the real endpoint.
 export function ProfilePhotoField({
   field,
   value,
   onChange,
+  preview,
 }: {
   field: PhotoUploadFieldType;
   value: string;
   onChange: (url: string) => void;
+  preview: boolean;
 }) {
   const uploadMutation = useUploadProfilePhoto();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (preview) {
+      onChange(URL.createObjectURL(file));
+      return;
+    }
+
     uploadMutation.mutate(file, {
       onSuccess: (result) => onChange(result.profile_photo_url),
     });
@@ -32,7 +43,7 @@ export function ProfilePhotoField({
       <label className="text-start text-sm">{field.question}</label>
       <div className="flex items-center gap-4">
         <div className="h-16 w-16 rounded-full border border-muted/20 bg-muted/10 flex items-center justify-center overflow-hidden shrink-0">
-          {uploadMutation.isPending ? (
+          {!preview && uploadMutation.isPending ? (
             <LoadingCircle />
           ) : value ? (
             <img src={value} alt="" className="h-full w-full object-cover" />
@@ -51,7 +62,7 @@ export function ProfilePhotoField({
           />
         </label>
       </div>
-      {uploadMutation.isError && (
+      {!preview && uploadMutation.isError && (
         <p className="text-xs text-danger">
           {extractApiError(uploadMutation.error, "Couldn't upload your photo")}
         </p>
