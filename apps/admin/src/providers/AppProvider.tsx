@@ -3,6 +3,7 @@
 import { ReactNode } from "react";
 import { QueryProvider } from "./QueryProvider";
 import { AuthProvider } from "./AuthProvider";
+import { ThemeProvider } from "./ThemeProvider";
 import { ToastProvider, ErrorBoundary } from "@mcc/ui";
 
 export const AppProviders = ({ children }: { children: ReactNode }) => {
@@ -10,8 +11,10 @@ export const AppProviders = ({ children }: { children: ReactNode }) => {
     <ErrorBoundary>
       <QueryProvider>
         <AuthProvider>
-          <ToastProvider />
-          {children}
+          <ThemeProvider>
+            <ToastProvider />
+            {children}
+          </ThemeProvider>
         </AuthProvider>
       </QueryProvider>
     </ErrorBoundary>

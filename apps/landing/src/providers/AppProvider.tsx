@@ -3,6 +3,7 @@
 import { ReactNode } from "react";
 import { QueryProvider } from "./QueryProvider";
 import { AuthProvider } from "./AuthProvider";
+import { ThemeProvider } from "./ThemeProvider";
 import { ToastProvider, ErrorBoundary } from "@mcc/ui";
 import { useHydratePendingCourse } from "@/src/features/enrollment/useHydratePendingCourse";
 
@@ -16,10 +17,12 @@ export const AppProviders = ({ children }: { children: ReactNode }) => {
     <ErrorBoundary>
       <QueryProvider>
         <AuthProvider>
-          <PendingCourseHydrator>
-            <ToastProvider />
-            {children}
-          </PendingCourseHydrator>
+          <ThemeProvider>
+            <PendingCourseHydrator>
+              <ToastProvider />
+              {children}
+            </PendingCourseHydrator>
+          </ThemeProvider>
         </AuthProvider>
       </QueryProvider>
     </ErrorBoundary>
