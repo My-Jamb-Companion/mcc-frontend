@@ -21,12 +21,20 @@ interface OnboardingContextValue {
   prevStep: () => void;
   handleSubmit: (data: FormValues) => void;
   isSubmitting: boolean;
+  previewComplete: boolean;
 }
 
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
 
-export function OnboardingProvider({ children }: { children: ReactNode }) {
-  const [step, setStep] = useState(() => getDraftFromStorage()?.step ?? 0);
+export function OnboardingProvider({
+  children,
+  preview = false,
+}: {
+  children: ReactNode;
+  preview?: boolean;
+}) {
+  const [step, setStep] = useState(() => getDraftFromStorage(preview)?.step ?? 0);
+  const [previewComplete, setPreviewComplete] = useState(false);
 
   const router = useRouter();
   const { completeMutation } = useOnboardingComplete();
@@ -45,7 +53,11 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     (data: FormValues) => {
       completeMutation.mutate(data, {
         onSuccess: () => {
-          clearDraftFromStorage();
+          clearDraftFromStorage(preview);
+          if (preview) {
+            setPreviewComplete(true);
+            return;
+          }
           showSuccess(
             "Your teacher profile is complete! We'll notify you once everything is verified.",
           );
@@ -53,7 +65,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         },
       });
     },
-    [completeMutation, router],
+    [completeMutation, router, preview],
   );
 
   return (
@@ -65,6 +77,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         prevStep,
         handleSubmit,
         isSubmitting: completeMutation.isPending,
+        previewComplete,
       }}
     >
       {children}

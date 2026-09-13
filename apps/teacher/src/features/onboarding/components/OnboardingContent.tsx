@@ -1,7 +1,7 @@
 import { formSteps } from "../constants/formSteps";
 import OnboardingForm from "./OnboardingForm";
 
-export function OnboardingContent({ step }: { step: number }) {
+export function OnboardingContent({ step, preview }: { step: number; preview: boolean }) {
   const currentStep = formSteps[step];
 
   return (
@@ -11,7 +11,7 @@ export function OnboardingContent({ step }: { step: number }) {
         <p className="text-sm text-muted">Help students find and trust you</p>
       </div>
 
-      <OnboardingForm step={step} data={formSteps} />
+      <OnboardingForm step={step} data={formSteps} preview={preview} />
     </div>
   );
 }

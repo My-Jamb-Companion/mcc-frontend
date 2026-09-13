@@ -4,7 +4,13 @@ import { CheckboxGroupField } from "./CheckboxGroupField";
 import { FileUploadField } from "./FileUploadField";
 import { ProfilePhotoField } from "./ProfilePhotoField";
 
-export function MixedStepRenderer({ step }: { step: MixedStep }) {
+export function MixedStepRenderer({
+  step,
+  preview,
+}: {
+  step: MixedStep;
+  preview: boolean;
+}) {
   const { control } = useFormContext();
 
   return (
@@ -100,7 +106,12 @@ export function MixedStepRenderer({ step }: { step: MixedStep }) {
                 control={control}
                 rules={field.validation}
                 render={({ field: { onChange, value } }) => (
-                  <ProfilePhotoField field={field} value={value} onChange={onChange} />
+                  <ProfilePhotoField
+                    field={field}
+                    value={value}
+                    onChange={onChange}
+                    preview={preview}
+                  />
                 )}
               />
             );

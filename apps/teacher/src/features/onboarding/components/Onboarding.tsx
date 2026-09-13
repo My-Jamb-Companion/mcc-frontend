@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "@mcc/features";
-import { Icon, LoadingCircle } from "@mcc/ui";
+import { Button, Icon, LoadingCircle } from "@mcc/ui";
 import { formSteps } from "../constants/formSteps";
 import { extractDefaults } from "../constants/extract";
 import { FormValues } from "../types/formTypes";
@@ -15,23 +16,52 @@ import { OnboardingContent } from "./OnboardingContent";
 import { StepNavigation } from "./FormStepsNav";
 import ProgressBar from "./progressBar";
 
-function OnboardingInner() {
-  const { step, totalSteps, nextStep, prevStep, handleSubmit, isSubmitting } =
-    useOnboardingContext();
+function PreviewComplete() {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col items-center pt-20 max-sm:pt-5 text-center">
+      <div className="max-w-132.5 w-full flex flex-col gap-4 items-center">
+        <div className="dark:bg-muted bg-hint/40 p-6 rounded-full w-fit">
+          <Icon icon="mdi:check-circle-outline" size={48} />
+        </div>
+        <h2 className="text-xl font-bold">You&apos;ve previewed the full wizard</h2>
+        <p className="text-muted text-sm">
+          That&apos;s everything a real teacher fills in during onboarding. Nothing here was
+          saved — log in with a real account to complete it for real.
+        </p>
+        <Button variant="primary" width="full" onClick={() => router.push("/login")}>
+          Back to login
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function OnboardingInner({ preview }: { preview: boolean }) {
+  const {
+    step,
+    totalSteps,
+    nextStep,
+    prevStep,
+    handleSubmit,
+    isSubmitting,
+    previewComplete,
+  } = useOnboardingContext();
 
   const methods = useForm<FormValues>({
     defaultValues: {
       ...extractDefaults(formSteps),
-      ...(getDraftFromStorage()?.values ?? {}),
+      ...(getDraftFromStorage(preview)?.values ?? {}),
     },
     mode: "onChange",
   });
 
   useEffect(() => {
-    const subscription = methods.watch((values) => saveDraftToStorage(step, values));
+    const subscription = methods.watch((values) => saveDraftToStorage(step, values, preview));
     return () => subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
+  }, [step, preview]);
 
   // Persist the step number immediately on navigation too -- the watch
   // subscription above only fires on a *field value* change, so moving to
@@ -39,9 +69,13 @@ function OnboardingInner() {
   // otherwise never flush the new step index to storage until some other
   // field changed, and a refresh would silently drop the user back a step.
   useEffect(() => {
-    saveDraftToStorage(step, methods.getValues());
+    saveDraftToStorage(step, methods.getValues(), preview);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
+  }, [step, preview]);
+
+  if (previewComplete) {
+    return <PreviewComplete />;
+  }
 
   return (
     <div className="flex flex-col items-center pt-20 max-sm:pt-5">
@@ -72,7 +106,7 @@ function OnboardingInner() {
               is triggered programmatically via methods.handleSubmit below,
               not native form submission. */}
           <div>
-            <OnboardingContent step={step} />
+            <OnboardingContent step={step} preview={preview} />
 
             {isSubmitting ? (
               <LoadingCircle className="mx-auto mt-8" />
@@ -84,6 +118,7 @@ function OnboardingInner() {
                 next={nextStep}
                 back={prevStep}
                 onSubmit={() => methods.handleSubmit(handleSubmit)()}
+                submitLabel={preview ? "Finish preview" : "Submit"}
               />
             )}
           </div>
@@ -93,10 +128,10 @@ function OnboardingInner() {
   );
 }
 
-export default function Onboarding() {
+export default function Onboarding({ preview = false }: { preview?: boolean }) {
   return (
-    <OnboardingProvider>
-      <OnboardingInner />
+    <OnboardingProvider preview={preview}>
+      <OnboardingInner preview={preview} />
     </OnboardingProvider>
   );
 }
