@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { showError, showSuccess } from "@mcc/ui";
 import { extractApiError } from "@mcc/api";
-import { getProfile, updateProfile } from "./account.service";
+import { getProfile, updateProfile, uploadProfilePhotoApi } from "./account.service";
 
 const QUERY_KEY = ["teacher", "profile"];
 
@@ -16,5 +16,14 @@ export const useUpdateProfile = () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
     },
     onError: (error) => showError(extractApiError(error, "Couldn't update your profile")),
+  });
+};
+
+export const useUploadProfilePhoto = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: uploadProfilePhotoApi,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
+    onError: (error) => showError(extractApiError(error, "Couldn't upload your photo")),
   });
 };
