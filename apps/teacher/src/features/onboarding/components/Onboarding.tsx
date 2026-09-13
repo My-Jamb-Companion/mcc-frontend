@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "@mcc/features";
 import { Button, Icon, LoadingCircle } from "@mcc/ui";
@@ -13,6 +13,7 @@ import {
   useOnboardingContext,
 } from "../context/OnboardingContext";
 import { OnboardingContent } from "./OnboardingContent";
+import { OnboardingLanding } from "./OnboardingLanding";
 import { StepNavigation } from "./FormStepsNav";
 import ProgressBar from "./progressBar";
 
@@ -129,6 +130,16 @@ function OnboardingInner({ preview }: { preview: boolean }) {
 }
 
 export default function Onboarding({ preview = false }: { preview?: boolean }) {
+  // Previewing always drops straight into the wizard -- there's no real
+  // account behind it to have a status against. A real visit lands on the
+  // status screen first; "Start"/"Complete Onboarding" there switches into
+  // the same wizard below, which resumes from whatever step was saved.
+  const [showWizard, setShowWizard] = useState(preview);
+
+  if (!preview && !showWizard) {
+    return <OnboardingLanding onStart={() => setShowWizard(true)} />;
+  }
+
   return (
     <OnboardingProvider preview={preview}>
       <OnboardingInner preview={preview} />
