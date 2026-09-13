@@ -8,17 +8,29 @@ type ThemeProviderProps = {
 };
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
-  const { setTheme } = useThemeStore();
+  const { setTheme, applyTheme } = useThemeStore();
 
   useEffect(() => {
-    const saved = localStorage.getItem("theme") as "light" | "dark";
+    const saved = localStorage.getItem("theme") as "light" | "dark" | null;
 
     if (saved) {
       setTheme(saved);
-    } else {
-      setTheme("light");
+      return;
     }
-  }, [setTheme]);
+
+    // No explicit choice saved yet -- follow the OS preference without
+    // persisting it, so a live OS change keeps being reflected.
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    applyTheme(mq.matches ? "dark" : "light");
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem("theme")) {
+        applyTheme(e.matches ? "dark" : "light");
+      }
+    };
+    mq.addEventListener("change", handleChange);
+    return () => mq.removeEventListener("change", handleChange);
+  }, [setTheme, applyTheme]);
 
   return children;
 };

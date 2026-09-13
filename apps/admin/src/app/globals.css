@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@source "../../../../packages/ui";
+@source "../../../../packages/features";
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --background: #ffffff;
@@ -30,11 +34,9 @@
   --color-primary-gradient: var(--primary-gradient);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @layer utilities {

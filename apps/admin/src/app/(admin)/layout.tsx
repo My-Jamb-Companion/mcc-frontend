@@ -2,8 +2,9 @@
 
 import BreadcrumbsTopNav from "@/src/components/BreadcrumbsTopNav";
 import SideNav from "@/src/components/SideNav";
-import {Button} from "@mcc/ui";
+import {Button, Icon} from "@mcc/ui";
 import {useAuth} from "@mcc/features";
+import {useThemeStore} from "@mcc/store";
 import {useRouter} from "next/navigation";
 import {useEffect} from "react";
 
@@ -13,6 +14,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const {isAuthenticated, logoutMutation} = useAuth();
+  const {theme, toggleTheme} = useThemeStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -41,14 +43,39 @@ export default function DashboardLayout({
             <div className="shrink-0">
               <BreadcrumbsTopNav
                 rightSlot={
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleLogout}
-                    disabled={logoutMutation.isPending}
-                  >
-                    Log out
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={toggleTheme}
+                      aria-label={
+                        theme === "dark"
+                          ? "Switch to light mode"
+                          : "Switch to dark mode"
+                      }
+                      title={
+                        theme === "dark"
+                          ? "Switch to light mode"
+                          : "Switch to dark mode"
+                      }
+                      className="rounded-full p-2 text-foreground transition-colors hover:bg-muted/20"
+                    >
+                      <Icon
+                        icon={
+                          theme === "dark"
+                            ? "solar:sun-bold-duotone"
+                            : "solar:moon-bold"
+                        }
+                        size={20}
+                      />
+                    </button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleLogout}
+                      disabled={logoutMutation.isPending}
+                    >
+                      Log out
+                    </Button>
+                  </div>
                 }
               />
             </div>

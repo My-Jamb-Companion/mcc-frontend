@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@mcc/features";
-import { Button } from "@mcc/ui";
+import { Button, Icon } from "@mcc/ui";
+import { useThemeStore } from "@mcc/store";
 
 const LINKS = [
   { href: "/dashboard", label: "Sessions" },
@@ -17,6 +18,7 @@ export const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { logoutMutation } = useAuth();
+  const { theme, toggleTheme } = useThemeStore();
 
   const handleLogout = () => {
     logoutMutation.mutate(undefined, {
@@ -44,9 +46,22 @@ export const Header = () => {
           ))}
         </nav>
       </div>
-      <Button variant="ghost" onClick={handleLogout}>
-        Log out
-      </Button>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={toggleTheme}
+          aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          className="rounded-full p-2 text-foreground transition-colors hover:bg-muted/20"
+        >
+          <Icon
+            icon={theme === "dark" ? "solar:sun-bold-duotone" : "solar:moon-bold"}
+            size={20}
+          />
+        </button>
+        <Button variant="ghost" onClick={handleLogout}>
+          Log out
+        </Button>
+      </div>
     </header>
   );
 };
