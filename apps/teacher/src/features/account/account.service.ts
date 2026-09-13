@@ -18,3 +18,16 @@ export const updateProfile = async (
 ): Promise<void> => {
   await apiClient.patch("/user/profile", input);
 };
+
+export const uploadProfilePhotoApi = async (
+  file: File,
+): Promise<{ profile_photo_url: string }> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await apiClient.post<{ success: boolean; data: { profile_photo_url: string } }>(
+    "/user/profile/photo",
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return res.data.data;
+};

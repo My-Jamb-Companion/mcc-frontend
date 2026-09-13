@@ -7,7 +7,7 @@ import { NextResponse, NextRequest } from "next/server";
 // changes.
 const AUTH_COOKIE = `mcc_${process.env.NEXT_PUBLIC_APP_ID || "default"}_auth`;
 
-const AUTH_PAGES = ["/login"];
+const AUTH_PAGES = ["/login", "/signup"];
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -32,6 +32,8 @@ export const config = {
   matcher: [
     "/",
     "/login",
+    "/signup",
+    "/onboarding/:path*",
     "/dashboard/:path*",
     "/availability/:path*",
     "/messages/:path*",
