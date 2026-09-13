@@ -39,7 +39,6 @@ export function FileUploadField({
         <div className="flex items-center justify-between rounded-md border border-muted/20 p-2 text-sm">
           <span className="flex items-center gap-2 truncate">
             {previewUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
               <img src={previewUrl} alt="" className="h-8 w-8 rounded object-cover" />
             ) : (
               <Icon icon="mdi:file-document-outline" size={20} />

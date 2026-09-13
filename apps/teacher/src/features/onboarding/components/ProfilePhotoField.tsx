@@ -35,7 +35,6 @@ export function ProfilePhotoField({
           {uploadMutation.isPending ? (
             <LoadingCircle />
           ) : value ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img src={value} alt="" className="h-full w-full object-cover" />
           ) : (
             <Icon icon="mdi:account-outline" size={28} className="text-muted" />
