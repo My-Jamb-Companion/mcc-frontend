@@ -39,5 +39,6 @@ export function fromApiTeacher(api: ApiTeacher): Teacher {
     rank: api.leaderboard_position ?? 0,
     rating: api.rating != null ? String(api.rating) : "—",
     sessions: {total: api.no_of_sessions ?? 0},
+    status: api.status ?? "approved",
   };
 }

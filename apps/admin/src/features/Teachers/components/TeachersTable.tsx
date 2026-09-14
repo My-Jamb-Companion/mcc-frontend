@@ -18,6 +18,8 @@ interface TeachersTableProps {
   onDisableTeacher?: (teacher: Teacher) => void;
   onAssignProgram?: (teacher: Teacher) => void;
   onAssignCra?: (teacher: Teacher) => void;
+  onApproveTeacher?: (teacher: Teacher) => void;
+  onRejectTeacher?: (teacher: Teacher) => void;
 }
 
 const AVATAR_COLORS = [
@@ -63,6 +65,24 @@ function NameCell({teacher}: {teacher: Teacher}) {
         <p className="text-xs text-gray-500">{teacher.email}</p>
       </div>
     </div>
+  );
+}
+
+const STATUS_STYLES: Record<string, string> = {
+  pending: "bg-amber-50 text-amber-600",
+  approved: "bg-green-50 text-green-600",
+  rejected: "bg-red-50 text-red-600",
+};
+
+function StatusPill({status}: {status: string}) {
+  return (
+    <span
+      className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${
+        STATUS_STYLES[status] ?? "bg-gray-100 text-gray-600"
+      }`}
+    >
+      {status}
+    </span>
   );
 }
 
@@ -258,6 +278,8 @@ function ActionsMenuPortal({
   onDisableTeacher,
   onAssignProgram,
   onAssignCra,
+  onApproveTeacher,
+  onRejectTeacher,
 }: {
   teacher: Teacher;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
@@ -267,6 +289,8 @@ function ActionsMenuPortal({
   onDisableTeacher?: (teacher: Teacher) => void;
   onAssignProgram?: (teacher: Teacher) => void;
   onAssignCra?: (teacher: Teacher) => void;
+  onApproveTeacher?: (teacher: Teacher) => void;
+  onRejectTeacher?: (teacher: Teacher) => void;
 }) {
   const menuRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{top: number; left: number} | null>(
@@ -281,6 +305,24 @@ function ActionsMenuPortal({
       danger: false,
       action: onOpenProfile,
     },
+    ...(teacher.status === "pending"
+      ? [
+          {
+            id: "approve",
+            label: "Approve",
+            icon: "mdi:check-circle-outline",
+            danger: false,
+            action: onApproveTeacher,
+          },
+          {
+            id: "reject",
+            label: "Reject",
+            icon: "mdi:close-circle-outline",
+            danger: true,
+            action: onRejectTeacher,
+          },
+        ]
+      : []),
     {
       id: "assign-program",
       label: "Assign Program",
@@ -385,6 +427,8 @@ function ActionsCell({
   onDisableTeacher,
   onAssignProgram,
   onAssignCra,
+  onApproveTeacher,
+  onRejectTeacher,
 }: {
   teacher: Teacher;
   onOpenProfile?: (teacher: Teacher) => void;
@@ -392,6 +436,8 @@ function ActionsCell({
   onDisableTeacher?: (teacher: Teacher) => void;
   onAssignProgram?: (teacher: Teacher) => void;
   onAssignCra?: (teacher: Teacher) => void;
+  onApproveTeacher?: (teacher: Teacher) => void;
+  onRejectTeacher?: (teacher: Teacher) => void;
 }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -418,6 +464,8 @@ function ActionsCell({
           onDisableTeacher={onDisableTeacher}
           onAssignProgram={onAssignProgram}
           onAssignCra={onAssignCra}
+          onApproveTeacher={onApproveTeacher}
+          onRejectTeacher={onRejectTeacher}
         />
       )}
     </div>
@@ -432,6 +480,8 @@ export default function TeachersTable({
   onMessageTeacher,
   onAssignCra,
   onDisableTeacher,
+  onApproveTeacher,
+  onRejectTeacher,
 }: TeachersTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const {teachers, isLoading} = useAdminTeachers();
@@ -442,6 +492,10 @@ export default function TeachersTable({
         header: "Name of Teacher",
         enableSorting: false,
         cell: (info) => <NameCell teacher={info.row.original} />,
+      }),
+      columnHelper.accessor("status", {
+        header: "Status",
+        cell: (info) => <StatusPill status={info.getValue()} />,
       }),
       columnHelper.accessor((row) => row.programs[0]?.title ?? "", {
         id: "programs",
@@ -509,6 +563,8 @@ export default function TeachersTable({
             onDisableTeacher={onDisableTeacher}
             onAssignProgram={onAssignProgram}
             onAssignCra={onAssignCra}
+            onApproveTeacher={onApproveTeacher}
+            onRejectTeacher={onRejectTeacher}
           />
         ),
       }),
@@ -519,6 +575,8 @@ export default function TeachersTable({
       onDisableTeacher,
       onAssignProgram,
       onAssignCra,
+      onApproveTeacher,
+      onRejectTeacher,
     ],
   );
 
