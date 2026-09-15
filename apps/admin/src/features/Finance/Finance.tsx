@@ -1,10 +1,25 @@
+"use client";
+
 import FinancialOverview from "./Overview";
 import IncomeandPayoutschart from "./IncomeAndPayouts";
 import PerformanceByProgramsChart from "./Performance";
 import FinancialHealthCard from "./Health";
-import {FinanceProgramOverviewTable} from "./FinanceProgramsOverview";
+import {
+  FinanceProgramOverviewTable,
+  ProgramOverviewItem,
+  StudentOverviewItem,
+} from "./FinanceProgramsOverview";
+import {useState} from "react";
+import StudentFinanceViewModal from "./StudentFinanceViewModal";
+import ProgramFinanceViewModal from "./ProgramFinanceViewModal";
 
 export default function Finance() {
+  const [viewStudent, setViewStudent] = useState<StudentOverviewItem | null>(
+    null,
+  );
+  const [viewPrograms, setViewPrograms] = useState<ProgramOverviewItem | null>(
+    null,
+  );
   return (
     <section>
       <FinancialOverview />
@@ -42,7 +57,10 @@ export default function Finance() {
         />
       </div>
       <div className="flex gap-4">
-        <FinanceProgramOverviewTable />
+        <FinanceProgramOverviewTable
+          setViewStudent={setViewStudent}
+          setViewPrograms={setViewPrograms}
+        />
 
         <FinancialHealthCard
           statusLabel="On track"
@@ -59,6 +77,14 @@ export default function Finance() {
           ]}
         />
       </div>
+      <StudentFinanceViewModal
+        student={viewStudent}
+        onClose={() => setViewStudent(null)}
+      />
+      <ProgramFinanceViewModal
+        program={viewPrograms}
+        onClose={() => setViewPrograms(null)}
+      />
     </section>
   );
 }
