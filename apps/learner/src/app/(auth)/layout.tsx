@@ -1,4 +1,4 @@
-import SignUpSlider from "@/src/features/signup/components/SideSlider";
+// import SignUpSlider from "@/src/features/signup/components/SideSlider";
 
 export default function Layout({children}: {children: React.ReactNode}) {
   return (
@@ -19,9 +19,9 @@ export default function Layout({children}: {children: React.ReactNode}) {
         </p>
       </div>
 
-      <div className="rounded-xl w-full max-w-187.5 relative overflow-hidden text-white max-lg:hidden">
+      {/* <div className="rounded-xl w-full max-w-187.5 relative overflow-hidden text-white max-lg:hidden">
         <SignUpSlider />
-      </div>
+      </div> */}
     </div>
   );
 }
