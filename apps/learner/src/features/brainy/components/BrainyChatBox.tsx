@@ -15,7 +15,10 @@ export interface BrainyChatBoxProps {
 
 export function BrainyChatBox({
   onSubmitQuestion,
-  accept = ".pdf,.doc,.docx,.ppt,.pptx,.png,.jpg,.jpeg",
+  // Only what the backend can actually extract text from -- see
+  // app/features/brainy/extraction.py. Offering .docx/.png here just meant
+  // the student picked a file and got nothing back from it.
+  accept = ".pdf,.txt,.md",
   maxFiles = 3,
   className = "",
 }: BrainyChatBoxProps) {
@@ -56,6 +59,11 @@ export function BrainyChatBox({
             ref={textareaRef}
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
+            // Without this, dropping a file straight onto the textarea hits
+            // the browser's default handler, which pastes the file's decoded
+            // bytes in as text -- the "long strings of machine text" students
+            // were seeing, which then got sent as the prompt.
+            onDrop={(e) => e.preventDefault()}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();

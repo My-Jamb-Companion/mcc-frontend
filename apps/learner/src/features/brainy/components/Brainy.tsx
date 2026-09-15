@@ -1,6 +1,7 @@
 "use client";
 import {useEffect, useState} from "react";
-import {AnimatePresence, Icon, motion} from "@mcc/ui";
+import {AnimatePresence, Icon, motion, showError} from "@mcc/ui";
+import {extractApiError} from "@mcc/api";
 import BrainyChatBox from "./BrainyChatBox";
 import AssignmentSubjectSelector from "./AssigmentSubjectScrollBarSelector";
 import BrainyFeatureCard from "./BrainyFeatureCard";
@@ -12,6 +13,7 @@ import BrainyExamActionCardGrid, {
 import FlashcardGenerator from "./FlashcardGenerator";
 import Link from "next/link";
 import {sendChatMessage} from "../services/brainy.service";
+import {uploadAttachments} from "../helper/uploadAttachments";
 
 export interface FeatureCardConfig {
   id: string;
@@ -100,7 +102,7 @@ export default function Brainy() {
           )}
 
           <BrainyChatBox
-            onSubmitQuestion={(question, files) => {
+            onSubmitQuestion={async (question, files) => {
               const firstMessage: ChatMessage = {
                 id: Math.random().toString(36).substring(7),
                 sender: "user" as const,
@@ -108,7 +110,21 @@ export default function Brainy() {
                 file: files,
                 timestamp: new Date(),
               };
-              const sessionId = createNewSession(
+
+              // Extract attachment text before anything else: an unsupported
+              // file should stop the send with a clear message rather than
+              // silently asking the model about a document it never received.
+              let attachments;
+              try {
+                attachments = await uploadAttachments(files);
+              } catch (error) {
+                showError(
+                  extractApiError(error, "That file couldn't be read. Try a PDF or text file."),
+                );
+                return;
+              }
+
+              const sessionId = await createNewSession(
                 question.length > 50
                   ? `${question.slice(0, 47)}...`
                   : question || "New Study Session",
@@ -123,7 +139,7 @@ export default function Brainy() {
               // a hook-bound mutation's onSuccess/onError is not guaranteed
               // to fire once its owning component is gone. This resolves
               // independently of any component's lifecycle.
-              sendChatMessage(question).then(
+              sendChatMessage(question, {sessionId, attachments}).then(
                 (result) => addMessageToSession(sessionId, "ai", result.reply),
                 () =>
                   addMessageToSession(

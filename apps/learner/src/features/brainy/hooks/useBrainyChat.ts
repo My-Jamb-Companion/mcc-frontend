@@ -1,5 +1,14 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import {deleteChat, getChatHistory, sendChatMessage} from "../services/brainy.service";
+import {
+  deleteChat,
+  deleteSession,
+  getChatHistory,
+  getSession,
+  getSessions,
+  sendChatMessage,
+} from "../services/brainy.service";
+
+export const SESSIONS_QUERY_KEY = ["brainy-sessions"];
 
 export const useSendChatMessage = () => {
   return useMutation({
@@ -19,6 +28,36 @@ export const useDeleteChat = () => {
     mutationFn: (chatId: string) => deleteChat(chatId),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ["brainy-chats"]});
+    },
+  });
+};
+
+/** The user's saved threads -- what repopulates the sidebar after a login. */
+export const useSessions = () => {
+  const query = useQuery({queryKey: SESSIONS_QUERY_KEY, queryFn: getSessions});
+  return {...query, sessions: query.data ?? []};
+};
+
+/**
+ * One thread with its messages. Used when landing on /brainy/chat/<id>
+ * directly (a refresh, or a link opened on another device) where the
+ * conversation isn't in context yet.
+ */
+export const useSession = (sessionId: string | undefined) => {
+  return useQuery({
+    queryKey: ["brainy-session", sessionId],
+    queryFn: () => getSession(sessionId as string),
+    enabled: !!sessionId,
+  });
+};
+
+export const useDeleteSession = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (sessionId: string) => deleteSession(sessionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: SESSIONS_QUERY_KEY});
     },
   });
 };
