@@ -140,12 +140,24 @@ export default function Brainy() {
               // to fire once its owning component is gone. This resolves
               // independently of any component's lifecycle.
               sendChatMessage(question, {sessionId, attachments}).then(
-                (result) => addMessageToSession(sessionId, "ai", result.reply),
+                (result) =>
+                  // generated: false -> the provider returned nothing usable;
+                  // flagged so the thread offers a retry rather than passing
+                  // a failure off as Brainy's answer.
+                  addMessageToSession(
+                    sessionId,
+                    "ai",
+                    result.reply,
+                    undefined,
+                    !result.generated,
+                  ),
                 () =>
                   addMessageToSession(
                     sessionId,
                     "ai",
                     "My brain is fuzzy right now. Please try again.",
+                    undefined,
+                    true,
                   ),
               );
             }}

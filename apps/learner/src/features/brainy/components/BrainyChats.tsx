@@ -73,11 +73,11 @@ export default function BrainyChats() {
     if (notFound) router.replace("/brainy/new");
   }, [notFound, router]);
 
-  const handleSend = async () => {
-    const trimmed = question.trim();
+  const handleSend = async (override?: string) => {
+    const trimmed = (override ?? question).trim();
     if (!trimmed && files.length === 0) return;
     const sessionId = currentSessionId;
-    const pending = files;
+    const pending = override ? [] : files;
 
     if (!trimmed || !sessionId) return;
 
@@ -105,16 +105,42 @@ export default function BrainyChats() {
 
     sendChatMessage(trimmed, {sessionId, attachments})
       .then(
-        (result) => addMessageToSession(sessionId, "ai", result.reply),
+        (result) =>
+          // `generated: false` means the provider gave Brainy nothing usable
+          // -- rate-limited, or out of token budget. Flagged so the student
+          // gets a retry instead of a dead end that reads like a real answer.
+          addMessageToSession(
+            sessionId,
+            "ai",
+            result.reply,
+            undefined,
+            !result.generated,
+          ),
         () =>
           addMessageToSession(
             sessionId,
             "ai",
             "My brain is fuzzy right now. Please try again.",
+            undefined,
+            true,
           ),
       )
       .finally(() => setIsSending(false));
   };
+
+  // The question that produced a failed reply is the one immediately before
+  // it, so retrying re-asks exactly what the student asked.
+  const lastQuestionFor = useCallback(
+    (messageId: string) => {
+      const list = activeSession?.messages ?? [];
+      const index = list.findIndex((m) => m.id === messageId);
+      for (let i = index - 1; i >= 0; i--) {
+        if (list[i].sender === "user") return list[i].text;
+      }
+      return undefined;
+    },
+    [activeSession],
+  );
 
   const handleFilesAdded = useCallback((incoming: File[]) => {
     setFiles((prev) => [...prev, ...incoming]);
@@ -177,7 +203,26 @@ export default function BrainyChats() {
                   : "flex w-full flex-col self-start py-1"
               }
             >
-              {msg.sender === "ai" ? (
+              {msg.sender === "ai" && msg.degraded ? (
+                // Not an answer -- Brainy never got one. Say so plainly and
+                // make the retry one tap away, since the usual cause (the
+                // provider's per-minute token ceiling) clears on its own.
+                <div className="flex flex-col items-start gap-2 rounded-xl border border-muted/25 bg-muted/5 p-3">
+                  <p className="text-sm leading-relaxed text-muted">
+                    Brainy couldn&apos;t answer that one — it&apos;s busy right
+                    now. Your question is safe; try again in a moment.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => handleSend(lastQuestionFor(msg.id))}
+                    disabled={isSending}
+                    className="flex items-center gap-1.5 rounded-full border border-muted/30 px-3 py-1 text-xs font-medium text-foreground hover:bg-muted/15 disabled:opacity-40"
+                  >
+                    <Icon icon="ph:arrow-clockwise" size={14} />
+                    Try again
+                  </button>
+                </div>
+              ) : msg.sender === "ai" ? (
                 <MarkdownMessage content={msg.text} />
               ) : (
                 <p className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -293,7 +338,7 @@ export default function BrainyChats() {
 
               <motion.button
                 type="button"
-                onClick={handleSend}
+                onClick={() => handleSend()}
                 whileTap={{scale: 0.95}}
                 // Also disabled while a send is in flight -- attachment
                 // extraction happens first, so there's a real pause here.

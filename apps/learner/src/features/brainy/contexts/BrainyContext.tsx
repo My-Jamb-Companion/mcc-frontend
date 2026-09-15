@@ -18,12 +18,25 @@ import {SESSIONS_QUERY_KEY, useSessions} from "../hooks/useBrainyChat";
 
 export type BrainyMode = "research" | "assignment" | "exam";
 
+/**
+ * Must match AI_UNAVAILABLE_MESSAGE in the backend's brainy/service.py --
+ * stored exchanges carry no "did this succeed" flag, so the text is the only
+ * way to recognise a failed turn when replaying a thread from the server.
+ */
+const AI_UNAVAILABLE_MESSAGE = "My brain is fuzzy right now. Please try again.";
+
 export interface ChatMessage {
   id: string;
   sender: "user" | "ai";
   text: string;
   file?: File[];
   timestamp: Date;
+  /**
+   * True when the backend returned `generated: false` -- Brainy never got a
+   * real answer (provider busy, rate-limited, or out of token budget). Shown
+   * as a recoverable prompt rather than passed off as a tutor's reply.
+   */
+  degraded?: boolean;
 }
 
 export interface StudySession {
@@ -73,6 +86,7 @@ interface BrainyContextType {
     sender: "user" | "ai",
     text: string,
     files?: File[],
+    degraded?: boolean,
   ) => void;
   isSidebarOpen: boolean;
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -192,6 +206,9 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
           sender: "ai",
           text: row.ai_response,
           timestamp: new Date(row.timestamp),
+          // A failure stored on a previous visit should still offer a retry
+          // rather than sitting in the thread looking like a real answer.
+          degraded: row.ai_response === AI_UNAVAILABLE_MESSAGE,
         });
       }
     }
@@ -226,7 +243,13 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
   // addMessageToActiveSession below silently no-ops for exactly the reply
   // that matters most, the first one.
   const addMessageToSession = useCallback(
-    (sessionId: string, sender: "user" | "ai", text: string, files?: File[]) => {
+    (
+      sessionId: string,
+      sender: "user" | "ai",
+      text: string,
+      files?: File[],
+      degraded?: boolean,
+    ) => {
       setMessagesBySession((prev) => ({
         ...prev,
         [sessionId]: [
@@ -237,6 +260,7 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
             text,
             timestamp: new Date(),
             file: files,
+            degraded,
           },
         ],
       }));
