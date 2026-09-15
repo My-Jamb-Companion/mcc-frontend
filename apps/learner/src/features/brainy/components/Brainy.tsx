@@ -150,6 +150,7 @@ export default function Brainy() {
                     result.reply,
                     undefined,
                     !result.generated,
+                    result.usage,
                   ),
                 () =>
                   addMessageToSession(

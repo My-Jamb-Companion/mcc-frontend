@@ -6,6 +6,7 @@ import {
   getSession,
   getSessions,
   sendChatMessage,
+  getUsageSummary,
 } from "../services/brainy.service";
 
 export const SESSIONS_QUERY_KEY = ["brainy-sessions"];
@@ -60,4 +61,15 @@ export const useDeleteSession = () => {
       queryClient.invalidateQueries({queryKey: SESSIONS_QUERY_KEY});
     },
   });
+};
+
+export const USAGE_QUERY_KEY = ["brainy-usage"];
+
+/**
+ * The signed-in user's own Brainy consumption, for the AI log's footer.
+ * Refetched whenever a chat completes, since every answer changes it.
+ */
+export const useUsageSummary = () => {
+  const query = useQuery({queryKey: USAGE_QUERY_KEY, queryFn: getUsageSummary});
+  return {...query, summary: query.data};
 };

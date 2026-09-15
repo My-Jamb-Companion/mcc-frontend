@@ -9,6 +9,9 @@ import {useParams, useRouter} from "next/navigation";
 import {sendChatMessage} from "../services/brainy.service";
 import {uploadAttachments} from "../helper/uploadAttachments";
 import MarkdownMessage from "./MarkdownMessage";
+import AiUsageLog, {MessageUsage} from "./AiUsageLog";
+import {useQueryClient} from "@tanstack/react-query";
+import {USAGE_QUERY_KEY} from "../hooks/useBrainyChat";
 
 export default function BrainyChats() {
   const [question, setQuestion] = useState("");
@@ -16,6 +19,7 @@ export default function BrainyChats() {
   const [isSending, setIsSending] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const {
     sessions,
@@ -115,6 +119,7 @@ export default function BrainyChats() {
             result.reply,
             undefined,
             !result.generated,
+            result.usage,
           ),
         () =>
           addMessageToSession(
@@ -125,7 +130,12 @@ export default function BrainyChats() {
             true,
           ),
       )
-      .finally(() => setIsSending(false));
+      .finally(() => {
+        setIsSending(false);
+        // Every answer moves the day's total, so the log's footer is stale
+        // the moment one lands.
+        queryClient.invalidateQueries({queryKey: USAGE_QUERY_KEY});
+      });
   };
 
   // The question that produced a failed reply is the one immediately before
@@ -223,7 +233,10 @@ export default function BrainyChats() {
                   </button>
                 </div>
               ) : msg.sender === "ai" ? (
-                <MarkdownMessage content={msg.text} />
+                <>
+                  <MarkdownMessage content={msg.text} />
+                  <MessageUsage message={msg} />
+                </>
               ) : (
                 <p className="text-sm leading-relaxed whitespace-pre-wrap">
                   {msg.text}
@@ -235,6 +248,7 @@ export default function BrainyChats() {
       </div>
 
       <div className="absolute bottom-8 w-full max-sm:bottom-3">
+        <AiUsageLog messages={activeSession?.messages ?? []} />
         <div className="flex flex-col w-[90%] mx-auto max-sm:w-full">
           {files.length > 0 && (
             <motion.div

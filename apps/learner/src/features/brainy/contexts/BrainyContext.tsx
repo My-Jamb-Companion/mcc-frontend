@@ -11,6 +11,7 @@ import React, {
 import {useQueryClient} from "@tanstack/react-query";
 import {
   ApiSession,
+  ApiTokenUsage,
   createSession as createSessionApi,
   getSession as getSessionApi,
 } from "../services/brainy.service";
@@ -37,6 +38,12 @@ export interface ChatMessage {
    * as a recoverable prompt rather than passed off as a tutor's reply.
    */
   degraded?: boolean;
+  /**
+   * Token cost of the completion that produced this message, for the AI log.
+   * Absent on the student's own turns, on failed turns, and on exchanges
+   * stored before token accounting existed.
+   */
+  usage?: ApiTokenUsage | null;
 }
 
 export interface StudySession {
@@ -87,6 +94,7 @@ interface BrainyContextType {
     text: string,
     files?: File[],
     degraded?: boolean,
+    usage?: ApiTokenUsage | null,
   ) => void;
   isSidebarOpen: boolean;
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -209,6 +217,7 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
           // A failure stored on a previous visit should still offer a retry
           // rather than sitting in the thread looking like a real answer.
           degraded: row.ai_response === AI_UNAVAILABLE_MESSAGE,
+          usage: row.usage ?? null,
         });
       }
     }
@@ -249,6 +258,7 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
       text: string,
       files?: File[],
       degraded?: boolean,
+      usage?: ApiTokenUsage | null,
     ) => {
       setMessagesBySession((prev) => ({
         ...prev,
@@ -261,6 +271,7 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
             timestamp: new Date(),
             file: files,
             degraded,
+            usage,
           },
         ],
       }));
