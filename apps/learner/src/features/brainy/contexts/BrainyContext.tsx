@@ -8,6 +8,13 @@ import React, {
   useEffect,
   useRef,
 } from "react";
+import {useQueryClient} from "@tanstack/react-query";
+import {
+  ApiSession,
+  createSession as createSessionApi,
+  getSession as getSessionApi,
+} from "../services/brainy.service";
+import {SESSIONS_QUERY_KEY, useSessions} from "../hooks/useBrainyChat";
 
 export type BrainyMode = "research" | "assignment" | "exam";
 
@@ -42,12 +49,20 @@ interface BrainyContextType {
   sessions: StudySession[];
   activeSessionId: string | null;
   setActiveSessionId: (id: string | null) => void;
+  /**
+   * Creates the thread server-side and returns its real session_id.
+   * Async because the id has to come from the server -- a client-minted id
+   * could never be reloaded after a refresh or on another device.
+   */
   createNewSession: (
     title: string,
     mode: BrainyMode,
     subject?: string,
     initialMessages?: ChatMessage[],
-  ) => string;
+  ) => Promise<string>;
+  /** Pulls a thread's messages from the server into context (refresh / deep link). */
+  loadSessionMessages: (sessionId: string) => Promise<void>;
+  sessionsLoading: boolean;
   addMessageToActiveSession: (
     sender: "user" | "ai",
     text: string,
@@ -57,6 +72,7 @@ interface BrainyContextType {
     sessionId: string,
     sender: "user" | "ai",
     text: string,
+    files?: File[],
   ) => void;
   isSidebarOpen: boolean;
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -69,10 +85,43 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
   const [mode, setMode] = useState<BrainyMode>("research");
   const [subject, setSubject] = useState("general");
   const [files, setFiles] = useState<File[]>([]);
-  const [sessions, setSessions] = useState<StudySession[]>([]);
+  // Threads created in this tab, until the sessions query catches up.
+  const [localSessions, setLocalSessions] = useState<StudySession[]>([]);
+  // Messages keyed by session id -- the server owns thread metadata, this owns
+  // the conversation bodies (live ones and any hydrated from the server).
+  const [messagesBySession, setMessagesBySession] = useState<
+    Record<string, ChatMessage[]>
+  >({});
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const queryClient = useQueryClient();
+  const {sessions: remoteSessions, isLoading: sessionsLoading} = useSessions();
+
+  // Threads come from the server (which is what makes them survive logout,
+  // a refresh, or a different device); messages live in a local map keyed by
+  // session id. Deriving the combined list rather than copying the server's
+  // response into state avoids a sync effect that could blank live messages
+  // on every refetch.
+  //
+  // localSessions only holds a thread in the gap between creating it here and
+  // the sessions query refetching, so it can't flicker out of the sidebar.
+  const sessions = React.useMemo<StudySession[]>(() => {
+    const remoteIds = new Set(remoteSessions.map((s: ApiSession) => s.session_id));
+    const fromRemote = remoteSessions.map((remote: ApiSession) => ({
+      id: remote.session_id,
+      title: remote.title,
+      mode: remote.mode as BrainyMode,
+      subject: remote.subject ?? undefined,
+      messages: messagesBySession[remote.session_id] ?? [],
+      createdAt: new Date(remote.created_at),
+    }));
+    const localOnly = localSessions
+      .filter((s) => !remoteIds.has(s.id))
+      .map((s) => ({...s, messages: messagesBySession[s.id] ?? s.messages}));
+    return [...localOnly, ...fromRemote];
+  }, [remoteSessions, localSessions, messagesBySession]);
 
   const toggleSidebar = useCallback(() => {
     setIsSidebarOpen((prev) => !prev);
@@ -88,28 +137,86 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
     setFiles([]);
   }, []);
   const createNewSession = useCallback(
-    (
+    async (
       title: string,
       sessionMode: BrainyMode,
       sessionSubject?: string,
       initialMessages?: ChatMessage[],
     ) => {
-      const newSessionId = Math.random().toString(36).substring(7);
-      const newSession: StudySession = {
-        id: newSessionId,
+      // The id comes from the server, not Math.random(), so the thread can be
+      // reopened after a refresh or from another device.
+      const remote = await createSessionApi({
         title,
         mode: sessionMode,
         subject: sessionSubject,
+      });
+
+      const newSession: StudySession = {
+        id: remote.session_id,
+        title: remote.title,
+        mode: remote.mode as BrainyMode,
+        subject: remote.subject ?? undefined,
         messages: initialMessages || [],
-        createdAt: new Date(),
+        createdAt: new Date(remote.created_at),
       };
-      setSessions((prev) => [newSession, ...prev]);
-      setActiveSessionId(newSessionId);
+      setLocalSessions((prev) => [newSession, ...prev]);
+      if (initialMessages?.length) {
+        setMessagesBySession((prev) => ({
+          ...prev,
+          [remote.session_id]: initialMessages,
+        }));
+      }
+      setActiveSessionId(remote.session_id);
       clearFiles();
-      return newSessionId;
+      queryClient.invalidateQueries({queryKey: SESSIONS_QUERY_KEY});
+      return remote.session_id;
     },
-    [clearFiles],
+    [clearFiles, queryClient],
   );
+
+  const loadSessionMessages = useCallback(async (sessionId: string) => {
+    const detail = await getSessionApi(sessionId);
+
+    // Each stored row is one exchange, so it expands into two chat bubbles.
+    const messages: ChatMessage[] = [];
+    for (const row of detail.messages) {
+      messages.push({
+        id: `${row.chat_id}-q`,
+        sender: "user",
+        text: row.user_message,
+        timestamp: new Date(row.timestamp),
+      });
+      if (row.ai_response) {
+        messages.push({
+          id: `${row.chat_id}-a`,
+          sender: "ai",
+          text: row.ai_response,
+          timestamp: new Date(row.timestamp),
+        });
+      }
+    }
+
+    setMessagesBySession((prev) => ({...prev, [sessionId]: messages}));
+
+    // Covers the gap where the sessions list hasn't landed yet (deep link
+    // straight into a thread) -- the derived list needs its metadata from
+    // somewhere until the query resolves.
+    setLocalSessions((prev) =>
+      prev.some((s) => s.id === sessionId)
+        ? prev
+        : [
+            {
+              id: detail.session_id,
+              title: detail.title,
+              mode: detail.mode as BrainyMode,
+              subject: detail.subject ?? undefined,
+              messages,
+              createdAt: new Date(detail.created_at),
+            },
+            ...prev,
+          ],
+    );
+  }, []);
   // Takes the target session id explicitly rather than reading
   // activeSessionId from this closure -- a callback handed to an async
   // mutation's onSuccess (e.g. after POST /brainy/chats resolves) closes
@@ -120,26 +227,19 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
   // that matters most, the first one.
   const addMessageToSession = useCallback(
     (sessionId: string, sender: "user" | "ai", text: string, files?: File[]) => {
-      setSessions((prev) =>
-        prev.map((session) => {
-          if (session.id === sessionId) {
-            return {
-              ...session,
-              messages: [
-                ...session.messages,
-                {
-                  id: Math.random().toString(36).substring(7),
-                  sender,
-                  text,
-                  timestamp: new Date(),
-                  file: files,
-                },
-              ],
-            };
-          }
-          return session;
-        }),
-      );
+      setMessagesBySession((prev) => ({
+        ...prev,
+        [sessionId]: [
+          ...(prev[sessionId] ?? []),
+          {
+            id: Math.random().toString(36).substring(7),
+            sender,
+            text,
+            timestamp: new Date(),
+            file: files,
+          },
+        ],
+      }));
     },
     [],
   );
@@ -190,6 +290,8 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
         activeSessionId,
         setActiveSessionId,
         createNewSession,
+        loadSessionMessages,
+        sessionsLoading,
         addMessageToActiveSession,
         addMessageToSession,
       }}

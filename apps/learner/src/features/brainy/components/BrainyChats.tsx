@@ -1,38 +1,119 @@
 "use client";
 
-import {Icon, motion} from "@mcc/ui";
-import {useCallback, useState, useRef, useMemo} from "react";
+import {Icon, motion, showError} from "@mcc/ui";
+import {extractApiError} from "@mcc/api";
+import {useCallback, useState, useRef, useMemo, useEffect} from "react";
 import DragImageOverlay, {useGlobalFileDrag} from "./DragFile";
 import {useBrainy} from "../contexts/BrainyContext";
-import {redirect} from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import {sendChatMessage} from "../services/brainy.service";
+import {uploadAttachments} from "../helper/uploadAttachments";
+import MarkdownMessage from "./MarkdownMessage";
 
 export default function BrainyChats() {
   const [question, setQuestion] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [isSending, setIsSending] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
-  const {sessions, activeSessionId, addMessageToActiveSession, addMessageToSession} = useBrainy();
+  const {
+    sessions,
+    activeSessionId,
+    setActiveSessionId,
+    addMessageToSession,
+    loadSessionMessages,
+    sessionsLoading,
+  } = useBrainy();
+
+  // The URL is the source of truth for which thread is open. Context state
+  // resets on a refresh, so without this the page had no id to work from and
+  // bounced to /brainy/new -- part of why conversations looked lost.
+  const params = useParams<{id?: string}>();
+  const routeSessionId = typeof params?.id === "string" ? params.id : undefined;
+
+  useEffect(() => {
+    if (routeSessionId && routeSessionId !== activeSessionId) {
+      setActiveSessionId(routeSessionId);
+    }
+  }, [routeSessionId, activeSessionId, setActiveSessionId]);
+
+  const currentSessionId = routeSessionId ?? activeSessionId;
 
   const activeSession = useMemo(() => {
-    return sessions.find((s) => s.id === activeSessionId);
-  }, [sessions, activeSessionId]);
+    return sessions.find((s) => s.id === currentSessionId);
+  }, [sessions, currentSessionId]);
 
-  const handleSend = () => {
+  // On a refresh or a deep link the thread isn't in context yet -- pull it
+  // from the server instead of bouncing the student back to /brainy/new,
+  // which is what made every conversation look lost after a reload.
+  const hydratedRef = useRef<string | null>(null);
+  const [hydrating, setHydrating] = useState(false);
+  const [notFound, setNotFound] = useState(false);
+
+  // A thread can be listed in the sidebar (metadata from GET /brainy/sessions)
+  // while its messages have never been fetched. Keying hydration off the
+  // session *object* made loading a race: on a hard page load the sessions
+  // query hadn't resolved yet so this ran, but clicking the same thread in the
+  // sidebar found it already present and bailed -- rendering an empty chat.
+  const needsMessages = !activeSession || activeSession.messages.length === 0;
+
+  useEffect(() => {
+    if (!currentSessionId || !needsMessages) return;
+    if (hydratedRef.current === currentSessionId) return;
+
+    hydratedRef.current = currentSessionId;
+    setHydrating(true);
+    loadSessionMessages(currentSessionId)
+      .catch(() => setNotFound(true))
+      .finally(() => setHydrating(false));
+  }, [currentSessionId, needsMessages, loadSessionMessages]);
+
+  useEffect(() => {
+    if (notFound) router.replace("/brainy/new");
+  }, [notFound, router]);
+
+  const handleSend = async () => {
     const trimmed = question.trim();
     if (!trimmed && files.length === 0) return;
-    const sessionId = activeSessionId;
+    const sessionId = currentSessionId;
+    const pending = files;
 
-    addMessageToActiveSession("user", trimmed, files);
+    if (!trimmed || !sessionId) return;
+
+    setIsSending(true);
+    // Extract attachment text first: an unsupported file should stop the
+    // send with a clear message rather than quietly asking about a document
+    // the model never got.
+    let attachments;
+    try {
+      attachments = await uploadAttachments(pending);
+    } catch (error) {
+      setIsSending(false);
+      showError(
+        extractApiError(error, "That file couldn't be read. Try a PDF or text file."),
+      );
+      return;
+    }
+
+    // Explicit id, not addMessageToActiveSession: context's activeSessionId
+    // can still lag the URL on the first render after a deep link, and the
+    // guarded helper silently no-ops when it's null (see BrainyContext).
+    addMessageToSession(sessionId, "user", trimmed, pending);
     setQuestion("");
     setFiles([]);
 
-    if (!trimmed || !sessionId) return;
-    sendChatMessage(trimmed).then(
-      (result) => addMessageToSession(sessionId, "ai", result.reply),
-      () =>
-        addMessageToSession(sessionId, "ai", "My brain is fuzzy right now. Please try again."),
-    );
+    sendChatMessage(trimmed, {sessionId, attachments})
+      .then(
+        (result) => addMessageToSession(sessionId, "ai", result.reply),
+        () =>
+          addMessageToSession(
+            sessionId,
+            "ai",
+            "My brain is fuzzy right now. Please try again.",
+          ),
+      )
+      .finally(() => setIsSending(false));
   };
 
   const handleFilesAdded = useCallback((incoming: File[]) => {
@@ -45,9 +126,20 @@ export default function BrainyChats() {
 
   const isDraggingFile = useGlobalFileDrag(handleFilesAdded);
 
-  if (!activeSession) redirect("/brainy/new");
+  if (!activeSession || (hydrating && needsMessages)) {
+    // Still fetching (refresh / deep link / sidebar click) -- the redirect
+    // only fires once the server has actually said the thread doesn't exist.
+    return (
+      <div className="flex h-full grow items-center justify-center bg-background">
+        <p className="text-sm text-muted">
+          {hydrating || sessionsLoading ? "Loading conversation…" : ""}
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative flex flex-col h-full grow bg-white dark:bg-transparent max-sm:pt-20">
+    <div className="relative flex flex-col h-full grow bg-background max-sm:pt-20">
       <div className="flex-1 w-full overflow-y-auto flex flex-col gap-4 p-6 pb-32 max-sm:px-0">
         {activeSession?.messages.map((msg) => (
           <div key={msg.id} className="flex flex-col gap-1">
@@ -75,16 +167,23 @@ export default function BrainyChats() {
               );
             })}
 
+            {/* Only the student's turn is bubbled. Brainy's answers run full
+                width like Claude's do -- an 80% cap squeezed code blocks and
+                tables into an unreadable column. */}
             <div
-              className={`flex flex-col max-w-[80%] rounded-xl p-3 ${
+              className={
                 msg.sender === "user"
-                  ? "self-end bg-muted/10 text-black rounded-br-none"
-                  : "self-start bg-muted/10 text-foreground border border-muted/20 rounded-bl-none"
-              }`}
+                  ? "flex flex-col max-w-[80%] self-end rounded-xl rounded-br-none bg-muted/10 p-3 text-foreground"
+                  : "flex w-full flex-col self-start py-1"
+              }
             >
-              <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                {msg.text}
-              </p>
+              {msg.sender === "ai" ? (
+                <MarkdownMessage content={msg.text} />
+              ) : (
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                  {msg.text}
+                </p>
+              )}
             </div>
           </div>
         ))}
@@ -163,6 +262,10 @@ export default function BrainyChats() {
                 ref={fileInputRef}
                 type="file"
                 multiple
+                // Matches what extraction.py can actually read; this input
+                // previously had no accept filter at all, so any binary
+                // could be picked.
+                accept=".pdf,.txt,.md"
                 className="hidden"
                 onChange={(e) => {
                   if (e.target.files) {
@@ -174,8 +277,11 @@ export default function BrainyChats() {
               <textarea
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
+                // See BrainyChatBox: stops the browser pasting raw file bytes
+                // into the prompt when a file is dropped on the textarea.
+                onDrop={(e) => e.preventDefault()}
                 placeholder="Ask a follow-up question..."
-                className="w-full resize-none border-none text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none"
+                className="w-full resize-none border-none bg-transparent text-sm text-foreground placeholder:text-muted focus:outline-none"
                 rows={1}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
@@ -189,10 +295,15 @@ export default function BrainyChats() {
                 type="button"
                 onClick={handleSend}
                 whileTap={{scale: 0.95}}
-                disabled={!question.trim() && files.length === 0}
+                // Also disabled while a send is in flight -- attachment
+                // extraction happens first, so there's a real pause here.
+                disabled={isSending || (!question.trim() && files.length === 0)}
                 className="flex items-center justify-center h-10 w-10 rounded-full bg-primary hover:opacity-90 text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-30 shrink-0"
               >
-                <Icon icon="ph:arrow-up" size={16} />
+                <Icon
+                  icon={isSending ? "svg-spinners:180-ring-with-bg" : "ph:arrow-up"}
+                  size={16}
+                />
               </motion.button>
             </div>
           </div>
