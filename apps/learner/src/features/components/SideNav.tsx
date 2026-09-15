@@ -273,6 +273,7 @@ export default function SideNav({
                 <button
                   onClick={() => {
                     setAccountMenuOpen(false);
+                    setAccLinksHovering(false);
                     router.push("/account");
                   }}
                   className="flex items-center gap-3 w-full px-3 py-2 text-xs font-medium text-white hover:bg-white/10 rounded-xl transition-colors cursor-pointer"
@@ -284,7 +285,8 @@ export default function SideNav({
                 <button
                   onClick={() => {
                     setAccountMenuOpen(false);
-                    router.push("/settings");
+                    setAccLinksHovering(false);
+                    router.push("/account?tab=configurations");
                   }}
                   className="flex items-center gap-3 w-full px-3 py-2 text-xs font-medium text-white hover:bg-white/10 rounded-xl transition-colors cursor-pointer"
                 >

@@ -1,6 +1,6 @@
 "use client";
 
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import type {
   ProfileTabKey,
   ProfileUser,
@@ -16,16 +16,37 @@ import {AccountConfigurations} from "./AccountConfiguration";
 import ProfileHeader from "./ProfileHeader";
 import AvatarPicker from "./AvatarPicker";
 import {RankBadge} from "./RankBadge";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 
 export default function AccountSettingsPage() {
-  const [tab, setTab] = useState<ProfileTabKey>("account");
-  const [section, setSection] = useState<SidebarSectionKey>("profileInfo");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const sectionParam = searchParams.get("section");
+  const [tab, setTab] = useState<ProfileTabKey>(
+    (tabParam as ProfileTabKey) || "account",
+  );
+  const [section, setSection] = useState<SidebarSectionKey>(
+    (sectionParam as SidebarSectionKey) || "profileInfo",
+  );
   const [user, setUser] = useState<ProfileUser>(CURRENT_USER);
   const [file, setFile] = useState<File | string>(user.avatar);
 
   const handleFieldChange = (values: PersonalInformationFormValues) => {
     setUser((prev) => ({...prev, ...values}));
   };
+
+  useEffect(() => {
+    const query = new URLSearchParams();
+    if (tab !== "account") query.set("tab", tab);
+    if (section !== "profileInfo") query.set("section", section);
+
+    const nextUrl = query.toString()
+      ? `${pathname}?${query.toString()}`
+      : pathname;
+    router.replace(nextUrl);
+  }, [tab, section, pathname, router]);
 
   return (
     <div className="pb-10">
