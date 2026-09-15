@@ -1,7 +1,7 @@
 "use client";
 
 import FormInputs from "./FormInputs";
-import Link from "next/link";
+// import Link from "next/link";
 import {motion, Icon} from "@mcc/ui";
 import EmailVerify from "./EmailVerify";
 import {useState} from "react";
@@ -9,7 +9,7 @@ import {FieldErrors, useForm, useSignup} from "@mcc/features";
 import {extractApiError} from "@mcc/api";
 
 export default function SignupForm({back}: {back: (value: boolean) => void}) {
-  const {register, formState, watch, getValues, handleSubmit} =
+  const {register, formState, getValues, handleSubmit} =
     useForm<SignUpFormInputs>();
   const [emailVerify, setEmailVerify] = useState(false);
   const errors = formState.errors;
@@ -22,7 +22,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
     );
   };
 
-  const password = watch("password");
+  // const password = watch("password");
   return (
     <>
       {emailVerify ? (

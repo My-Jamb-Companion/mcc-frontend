@@ -1,4 +1,4 @@
-import SignUpSlider from "@/src/features/signup/components/SideSlider";
+// import SignUpSlider from "@/src/features/signup/components/SideSlider";
 
 export default function Layout({children}: {children: React.ReactNode}) {
   return (
