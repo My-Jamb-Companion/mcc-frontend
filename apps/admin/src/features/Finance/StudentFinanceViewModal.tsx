@@ -18,12 +18,9 @@ export default function StudentFinanceViewModal({
 }: StudentFinanceViewModalProps) {
   if (!student) return null;
 
-  console.log(student);
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/40 backdrop-blur-xs">
       <div className="relative flex h-full w-full max-w-xl flex-col rounded-xl bg-white shadow-xl">
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
           <button
             onClick={onClose}
@@ -70,6 +67,7 @@ export default function StudentFinanceViewModal({
           </div>
 
           <PersonalDetails />
+          <StudentOverviewHeader />
         </div>
       </div>
     </div>
@@ -140,4 +138,92 @@ function PersonalDetails({
       </div>
     </div>
   );
+}
+
+function StudentOverviewHeader({
+  title = "Pilates Teacher Training Certification 20...",
+  subtitle = "Moderate level.",
+  badgeIcon = "mdi:information-outline",
+  imageUrl = "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=120&auto=format&fit=crop&q=80",
+  amount = 12880,
+  dateOnboarded = "05 Apr, 2026| 8:30 PM",
+  revenuePrimary = 12880332,
+  revenueSecondary = 9199332,
+  currencySymbol = "₦",
+}: StudentOverviewHeaderProps) {
+  const formatCurrency = (val: number) =>
+    `${currencySymbol}${new Intl.NumberFormat("en-US").format(val)}`;
+
+  return (
+    <div className={`w-full`}>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt=""
+              className="h-10 w-10 shrink-0 rounded-xl object-cover"
+            />
+          ) : (
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+              <Icon icon="mdi:school-outline" size={22} />
+            </div>
+          )}
+
+          <div className="flex flex-col min-w-0">
+            <h3 className="truncate font-bold text-neutral-900 text-sm sm:text-base">
+              {title}
+            </h3>
+            <div className="flex items-center gap-1 text-xs text-neutral-400">
+              {badgeIcon && (
+                <Icon
+                  icon={badgeIcon}
+                  size={15}
+                  className="text-blue-500 shrink-0"
+                />
+              )}
+              <span className="truncate">{subtitle}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-end shrink-0 text-right">
+          <span className="font-bold text-neutral-900 text-sm sm:text-base">
+            {formatCurrency(amount)}
+          </span>
+          <span className="text-xs font-medium text-neutral-400">
+            {dateOnboarded}
+          </span>
+        </div>
+      </div>
+
+      {/* Overview Section */}
+      <div className="mt-6">
+        <h4 className="text-sm font-semibold text-neutral-500">Overview</h4>
+
+        <div className="mt-4">
+          <span className="text-xs font-semibold text-neutral-600">
+            Revenue
+          </span>
+          <p className="mt-1 text-3xl font-extrabold text-neutral-900 tracking-tight">
+            {formatCurrency(revenuePrimary)}
+          </p>
+          <p className="mt-1 text-sm font-semibold text-neutral-400 line-through">
+            {formatCurrency(revenueSecondary)}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+interface StudentOverviewHeaderProps {
+  title?: string;
+  subtitle?: string;
+  badgeIcon?: string;
+  imageUrl?: string;
+  amount?: number;
+  dateOnboarded?: string;
+  revenuePrimary?: number;
+  revenueSecondary?: number;
+  currencySymbol?: string;
 }

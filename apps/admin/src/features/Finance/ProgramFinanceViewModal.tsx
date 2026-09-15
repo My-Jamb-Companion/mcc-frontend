@@ -12,8 +12,6 @@ export default function ProgramFinanceViewModal({
 }: ProgramFinanceViewModalProps) {
   if (!program) return null;
 
-  console.log(program);
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/40 backdrop-blur-xs">
       <div className="relative flex h-full w-full max-w-xl flex-col rounded-xl bg-white shadow-xl">
