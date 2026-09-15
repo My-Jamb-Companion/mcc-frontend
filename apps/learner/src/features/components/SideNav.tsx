@@ -322,7 +322,7 @@ export default function SideNav({
           >
             <div className="relative w-10 h-10 min-w-10 rounded-full border-2 border-white overflow-hidden bg-[#B190B6] shrink-0">
               <Image
-                src={CURRENT_USER.avatar || "/images/avatar-placeholder.png"}
+                src={CURRENT_USER?.avatar || "/images/avatar-placeholder.png"}
                 alt="profile image"
                 fill
                 className="object-cover"
