@@ -98,9 +98,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
                 layoutId="auth-button"
                 className="bg-primary text-white border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/90 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {signupMutation.isPending
-                  ? "Processing..."
-                  : "Create or Login with Email"}
+                {signupMutation.isPending ? "Processing..." : "Continue"}
               </motion.button>
 
               <p
