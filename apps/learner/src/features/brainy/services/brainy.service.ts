@@ -2,10 +2,26 @@ import {apiClient} from "@mcc/api";
 
 export type BrainyModeApi = "research" | "assignment" | "exam";
 
+/**
+ * What one completion cost, as the provider reported it. `attempts` is the
+ * backend's own count -- a call retried past a rate limit took more than one
+ * round trip, which is the only thing that explains a long latency.
+ */
+export interface ApiTokenUsage {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+  model?: string | null;
+  latency_ms?: number | null;
+  attempts?: number;
+}
+
 export interface ApiChatReply {
   chat_id: string;
   reply: string;
   generated: boolean;
+  /** Null when `generated` is false -- there was no completion to bill. */
+  usage?: ApiTokenUsage | null;
 }
 
 export interface ApiChatHistoryItem {
@@ -13,6 +29,16 @@ export interface ApiChatHistoryItem {
   user_message: string;
   ai_response: string;
   timestamp: string;
+  /** Null for exchanges stored before token accounting, and for failed turns. */
+  usage?: ApiTokenUsage | null;
+}
+
+/** Endpoint: GET /brainy/usage -- the caller's own consumption. */
+export interface ApiUsageSummary {
+  tokens_today: number;
+  jobs_today: number;
+  tokens_30d: number;
+  jobs_30d: number;
 }
 
 export interface ApiAttachment {
@@ -115,6 +141,12 @@ export const createSession = async (input: {
   subject?: string;
 }): Promise<ApiSession> => {
   const res = await apiClient.post<{data: ApiSession}>("/brainy/sessions", input);
+  return res.data.data;
+};
+
+/** Endpoint: GET /brainy/usage */
+export const getUsageSummary = async (): Promise<ApiUsageSummary> => {
+  const res = await apiClient.get<{data: ApiUsageSummary}>("/brainy/usage");
   return res.data.data;
 };
 
