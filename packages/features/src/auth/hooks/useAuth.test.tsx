@@ -7,13 +7,20 @@ import { useAuth } from "./useAuth";
 import * as authService from "../services/auth.service";
 import * as sessionService from "../services/session";
 import type { User } from "@mcc/types";
-import { AUTH_COOKIE } from "@mcc/api";
+import { AUTH_COOKIE, refreshSession } from "@mcc/api";
 
 // ─── mock the service layer ───────────────────────────────────────────────────
 vi.mock("../services/auth.service", () => ({
   loginApi: vi.fn(),
   logoutApi: vi.fn(),
   refreshTokenApi: vi.fn(),
+}));
+
+// useAuth refreshes through @mcc/api's shared refreshSession (so it can't race
+// the interceptor or another mounted useAuth); mock just that, keep the rest real.
+vi.mock("@mcc/api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@mcc/api")>()),
+  refreshSession: vi.fn(),
 }));
 
 vi.mock("../services/session", () => ({
@@ -26,7 +33,7 @@ vi.mock("../services/session", () => ({
 // ─── typed mock references ────────────────────────────────────────────────────
 const mockLoginApi = vi.mocked(authService.loginApi);
 const mockLogoutApi = vi.mocked(authService.logoutApi);
-const mockRefreshTokenApi = vi.mocked(authService.refreshTokenApi);
+const mockRefreshSession = vi.mocked(refreshSession);
 const mockGetStoredUser = vi.mocked(sessionService.getStoredUser);
 const mockGetStoredRefreshToken = vi.mocked(sessionService.getStoredRefreshToken);
 const mockSaveSession = vi.mocked(sessionService.saveSession);
@@ -67,12 +74,7 @@ beforeEach(() => {
   // default: nothing stored
   mockGetStoredUser.mockReturnValue(null);
   mockGetStoredRefreshToken.mockReturnValue(null);
-  mockRefreshTokenApi.mockResolvedValue({
-    access_token: "refreshed-tok",
-    refresh_token: "new-refresh-tok",
-    token_type: "Bearer",
-    expires_in: 3600,
-  });
+  mockRefreshSession.mockResolvedValue("refreshed-tok");
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -96,7 +98,8 @@ describe("hydration", () => {
 
     await waitFor(() => expect(result.current.user?.user_id).toBe("user-1"));
 
-    expect(mockRefreshTokenApi).toHaveBeenCalledWith("stored-refresh-tok");
+    await waitFor(() => expect(useAuthStore.getState().accessToken).toBe("refreshed-tok"));
+    expect(mockRefreshSession).toHaveBeenCalledTimes(1);
   });
 
   // TC-6.3
@@ -107,7 +110,7 @@ describe("hydration", () => {
 
     await waitFor(() => expect(result.current.hydrated).toBe(true));
 
-    expect(mockRefreshTokenApi).not.toHaveBeenCalled();
+    expect(mockRefreshSession).not.toHaveBeenCalled();
     expect(result.current.user?.user_id).toBe("user-1");
   });
 
@@ -121,7 +124,7 @@ describe("hydration", () => {
 
     await waitFor(() => expect(result.current.hydrated).toBe(true));
 
-    expect(mockRefreshTokenApi).not.toHaveBeenCalled();
+    expect(mockRefreshSession).not.toHaveBeenCalled();
   });
 
   // TC-6.5
@@ -129,7 +132,7 @@ describe("hydration", () => {
     document.cookie = `${AUTH_COOKIE}=1; path=/`;
     mockGetStoredUser.mockReturnValue(mockUser);
     mockGetStoredRefreshToken.mockReturnValue("stored-refresh-tok");
-    mockRefreshTokenApi.mockRejectedValue(new Error("Refresh failed"));
+    mockRefreshSession.mockRejectedValue(new Error("Refresh failed"));
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 

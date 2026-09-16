@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "@mcc/store";
-import { tokenManager, AUTH_COOKIE } from "@mcc/api";
+import { AUTH_COOKIE, refreshSession } from "@mcc/api";
 import { User } from "@mcc/types";
-import { loginApi, logoutApi, refreshTokenApi } from "../services/auth.service";
+import { loginApi, logoutApi } from "../services/auth.service";
 import {
   saveSession,
   clearSession,
@@ -31,12 +31,16 @@ export const useAuth = () => {
       // Restore user immediately so the UI doesn't flash as logged-out.
       setUser(storedUser);
 
-      // Proactively refresh the access token using the stored refresh token.
+      // Proactively refresh the access token. Through the shared refreshSession
+      // rather than a call of its own: useAuth is mounted in more than one
+      // place (and twice under Strict Mode), and a page's first requests may
+      // already be refreshing via the interceptor -- each used to rotate the
+      // same refresh token independently. refreshSession also keeps the rotated
+      // refresh token, which this call used to throw away.
       // On failure, swallow — the response interceptor will handle 401s on
       // real API calls and redirect to /login if the session is truly invalid.
-      refreshTokenApi(refreshToken)
-        .then(({ access_token }) => {
-          tokenManager.set(access_token);
+      refreshSession()
+        .then((access_token) => {
           setAccessToken(access_token);
         })
         .catch(() => {

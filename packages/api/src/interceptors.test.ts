@@ -2,7 +2,8 @@ import { AxiosHeaders } from "axios";
 import { apiClient } from "./api-client";
 import "./interceptors"; // registers the interceptors as a side effect
 import { tokenManager } from "./token-manager";
-import { REFRESH_COOKIE } from "./session-keys";
+import { AUTH_COOKIE, REFRESH_COOKIE } from "./session-keys";
+import { refreshSession } from "./session-refresh";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── mock the axios adapter so no real network calls happen ──────────────────
@@ -25,6 +26,9 @@ function makeResponse(status: number, data: unknown) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  // clearAllMocks keeps implementations; without a reset, one test's
+  // mockImplementation silently answers the next test's requests.
+  mockAdapter.mockReset();
   tokenManager.clear();
   localStorage.clear();
   document.cookie = `${REFRESH_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
@@ -210,11 +214,17 @@ describe("response interceptor — 401 handling", () => {
       writable: true,
     });
 
-    mockAdapter.mockRejectedValueOnce({
-      response: { status: 401, data: {} },
-      config: { url: "/courses", headers: new AxiosHeaders(), _retry: false },
-      isAxiosError: true,
-    });
+    // Reject with the config axios actually sent (it carries the expired token
+    // the request interceptor attached), not a hand-built one without it.
+    mockAdapter
+      .mockImplementationOnce((config) =>
+        Promise.reject({ response: { status: 401, data: {} }, config, isAxiosError: true }),
+      )
+      // No refresh token anywhere (no stored copy, no server cookie): the
+      // server answers 400, which means the session can't be restored.
+      .mockImplementationOnce((config) =>
+        Promise.reject({ response: { status: 400, data: {} }, config, isAxiosError: true }),
+      );
 
     await apiClient.get("/courses").catch(() => {});
 
@@ -263,5 +273,131 @@ describe("response interceptor — 401 handling", () => {
     await apiClient.get("/courses").catch(() => {});
 
     expect(hrefSetter).toHaveBeenCalledWith("/login");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Refresh race (observed 16 Sep 2026: concurrent refreshes ending a session)
+// ─────────────────────────────────────────────────────────────────────────────
+describe("refresh race", () => {
+  const AUTH_MARKER = `${AUTH_COOKIE}=1; path=/`;
+  const unauthorized = (config: unknown) =>
+    Promise.reject({ response: { status: 401, data: {} }, config, isAxiosError: true });
+
+  let hrefSetter: ReturnType<typeof vi.fn<(href: string) => void>>;
+  beforeEach(() => {
+    document.cookie = `${AUTH_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+    hrefSetter = vi.fn<(href: string) => void>();
+    Object.defineProperty(window, "location", {
+      value: { set href(v: string) { hrefSetter(v); } },
+      configurable: true,
+      writable: true,
+    });
+  });
+
+  it("refreshSession shares one request between concurrent callers", async () => {
+    document.cookie = `${REFRESH_COOKIE}=r1; path=/`;
+    mockAdapter.mockImplementation(async () => {
+      await new Promise((r) => setTimeout(r, 10));
+      return makeResponse(200, { data: { access_token: "a2", refresh_token: "r2" } });
+    });
+
+    const tokens = await Promise.all([refreshSession(), refreshSession(), refreshSession()]);
+
+    expect(tokens).toEqual(["a2", "a2", "a2"]);
+    expect(mockAdapter).toHaveBeenCalledTimes(1);
+  });
+
+  it("refreshSession keeps the rotated refresh token for the next refresh", async () => {
+    document.cookie = `${REFRESH_COOKIE}=r1; path=/`;
+    mockAdapter.mockResolvedValueOnce(makeResponse(200, { data: { access_token: "a2", refresh_token: "r2" } }));
+
+    await refreshSession();
+
+    expect(document.cookie).toContain(`${REFRESH_COOKIE}=r2`);
+  });
+
+  it("refreshSession falls back to the server's own cookie when there is no stored token", async () => {
+    mockAdapter.mockResolvedValueOnce(makeResponse(200, { data: { access_token: "a2" } }));
+
+    await refreshSession();
+
+    // No body token: the browser's httpOnly refresh_token cookie is the credential.
+    expect(JSON.parse(mockAdapter.mock.calls[0][0].data)).toEqual({});
+  });
+
+  it("logs out when the server refuses the refresh token, even with a session marker cookie", async () => {
+    // Previously the marker cookie suppressed the redirect, leaving the user on
+    // pages that could only keep failing.
+    document.cookie = AUTH_MARKER;
+    document.cookie = `${REFRESH_COOKIE}=spent; path=/`;
+    tokenManager.set("expired");
+    mockAdapter.mockImplementation((config: { url: string }) => unauthorized(config));
+
+    await apiClient.get("/courses").catch(() => {});
+
+    expect(hrefSetter).toHaveBeenCalledWith("/login");
+  });
+
+  it("keeps the session when refresh fails for a transient reason", async () => {
+    document.cookie = AUTH_MARKER;
+    document.cookie = `${REFRESH_COOKIE}=r1; path=/`;
+    tokenManager.set("expired");
+    mockAdapter.mockImplementation((config: { url: string }) =>
+      config.url === "/auth/token/refresh"
+        ? Promise.reject(Object.assign(new Error("Network Error"), { isAxiosError: true }))
+        : unauthorized(config),
+    );
+
+    await apiClient.get("/courses").catch(() => {});
+
+    expect(hrefSetter).not.toHaveBeenCalled();
+    expect(document.cookie).toContain(`${AUTH_COOKIE}=1`);
+  });
+
+  it("does not retry waiting requests with an empty token after a failed refresh", async () => {
+    document.cookie = AUTH_MARKER;
+    document.cookie = `${REFRESH_COOKIE}=spent; path=/`;
+    tokenManager.set("expired");
+    let refreshes = 0;
+    mockAdapter.mockImplementation(async (config: { url: string; headers: AxiosHeaders }) => {
+      if (config.url === "/auth/token/refresh") {
+        refreshes++;
+        await new Promise((r) => setTimeout(r, 10));
+        return unauthorized(config);
+      }
+      return unauthorized(config);
+    });
+
+    await Promise.allSettled([apiClient.get("/a"), apiClient.get("/b"), apiClient.get("/c")]);
+
+    // One refresh for all three, and no cascade of refreshes from retries.
+    expect(refreshes).toBe(1);
+    const sentWithEmptyBearer = mockAdapter.mock.calls.filter(
+      ([config]) => String(config.headers?.Authorization ?? "") === "Bearer ",
+    );
+    expect(sentWithEmptyBearer).toHaveLength(0);
+  });
+
+  it("retries with the current token, without refreshing, when a 401 was sent with an older one", async () => {
+    tokenManager.set("old");
+    let refreshes = 0;
+    mockAdapter.mockImplementation((config: { url: string; headers: AxiosHeaders }) => {
+      if (config.url === "/auth/token/refresh") {
+        refreshes++;
+        return Promise.resolve(makeResponse(200, { data: { access_token: "new" } }));
+      }
+      if (String(config.headers.Authorization) === "Bearer old") {
+        // A refresh completes while this request is on its way back.
+        tokenManager.set("new");
+        return unauthorized(config);
+      }
+      return Promise.resolve(makeResponse(200, { data: ["ok"] }));
+    });
+
+    const res = await apiClient.get("/courses");
+
+    expect(res.data).toEqual({ data: ["ok"] });
+    expect(refreshes).toBe(0);
   });
 });
