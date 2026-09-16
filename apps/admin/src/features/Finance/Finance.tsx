@@ -1,3 +1,5 @@
+import Link from "next/link";
+import {Icon} from "@mcc/ui";
 import FinancialOverview from "./Overview";
 import IncomeandPayoutschart from "./IncomeAndPayouts";
 import PerformanceByProgramsChart from "./Performance";
@@ -8,6 +10,15 @@ import {PayoutsAndRefunds} from "./PayoutsAndRefunds";
 export default function Finance() {
   return (
     <section>
+      <div className="mb-6 flex justify-end">
+        <Link
+          href="/finance/pricing"
+          className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50"
+        >
+          <Icon icon="ph:sliders-horizontal" size={16} />
+          Pricing parameters
+        </Link>
+      </div>
       <FinancialOverview />
       <div className="grid grid-cols-2 gap-4 py-6">
         <IncomeandPayoutschart data={monthlyFlowData} currencySymbol="₦" />
