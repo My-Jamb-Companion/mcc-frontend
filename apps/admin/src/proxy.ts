@@ -7,8 +7,21 @@ import { NextResponse, NextRequest } from "next/server";
 // changes.
 const AUTH_COOKIE = `mcc_${process.env.NEXT_PUBLIC_APP_ID || "default"}_auth`;
 
+// Where a signed-in admin belongs instead of the sign-in form.
+const SIGNED_OUT_ONLY = ["/", "/login"];
+
 export function proxy(req: NextRequest) {
   const auth = req.cookies.get(AUTH_COOKIE);
+  const signedOutOnly = SIGNED_OUT_ONLY.includes(req.nextUrl.pathname);
+
+  // A signed-in admin opening the console's root (or a bookmarked /login) was
+  // shown the login form: app/page.tsx redirects to /login unconditionally
+  // and nothing sent a live session onwards. The session was intact, but it
+  // looked exactly like being logged out. The learner, teacher and parent
+  // apps already route this way.
+  if (signedOutOnly) {
+    return auth ? NextResponse.redirect(new URL("/dashboard", req.url)) : NextResponse.next();
+  }
 
   if (!auth) {
     return NextResponse.redirect(new URL("/login", req.url));
@@ -19,6 +32,8 @@ export function proxy(req: NextRequest) {
 
 export const config = {
   matcher: [
+    "/",
+    "/login",
     "/dashboard/:path*",
     // "/courses/:path*" matched nothing -- courses only exists at
     // /dashboard/courses, never at top-level /courses. /finance,
