@@ -20,6 +20,7 @@ import {
 import {ApiPricingParameters, pricingErrorMessage} from "./services/pricing.service";
 import OverheadLinesEditor from "./components/OverheadLinesEditor";
 import VersionHistory from "./components/VersionHistory";
+import PricingNav from "./components/PricingNav";
 import {AccountantNote, ChoiceGroup, NumberField, Section} from "./components/Fields";
 
 const naira = new Intl.NumberFormat("en-NG", {maximumFractionDigits: 0});
@@ -61,6 +62,9 @@ export default function PricingParameters() {
           Active: version {activeVersion}
         </span>
       )}
+      <div className="basis-full">
+        <PricingNav />
+      </div>
     </div>
   );
 

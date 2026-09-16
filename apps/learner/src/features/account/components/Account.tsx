@@ -46,10 +46,10 @@ export default function AccountSettingsPage() {
       parent_name: values.parentName,
       phone_number: values.phoneNumber,
       gender: values.gender,
+      // State and city are deliberately left out: they come from the pricing
+      // city picker, and sending the form's copies would overwrite that choice.
       address: {
         country: values.country,
-        state: values.state,
-        city: values.city,
         street: values.street,
       },
     });
