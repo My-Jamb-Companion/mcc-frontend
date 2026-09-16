@@ -9,9 +9,15 @@ import TeachersTable from "./TeachersTable";
 import ViewTeacher from "./ViewTeacher";
 import Image from "next/image";
 import SendMessage from "./SendMessage";
-import AssignCRAModal, {CraStudent} from "./AssignCRA";
+import AssignCRAModal from "./AssignCRA";
 import AssignProgram from "./AssignProgram";
-import {useApproveTeacher, useDisableTeacher, useRejectTeacher} from "../hooks/useAdminTeachers";
+import {
+  useApproveTeacher,
+  useAssignTeacherToAssignment,
+  useDisableTeacher,
+  useEscalatedAssignments,
+  useRejectTeacher,
+} from "../hooks/useAdminTeachers";
 
 export default function Teachers() {
   const [program, setProgram] = useState("");
@@ -28,6 +34,10 @@ export default function Teachers() {
   const disableTeacherMutation = useDisableTeacher();
   const approveTeacherMutation = useApproveTeacher();
   const rejectTeacherMutation = useRejectTeacher();
+  const assignTeacherMutation = useAssignTeacherToAssignment();
+  const {data: escalatedAssignments = []} = useEscalatedAssignments(
+    isAssignOpen ? teacher?.subject : undefined,
+  );
 
   const handleOpenProfile = (teacher: Teacher) => {
     setViewTeacher(true);
@@ -54,6 +64,21 @@ export default function Teachers() {
   const handleAssignCra = (teacher: Teacher) => {
     setTeacher(teacher);
     setIsAssignOpen(true);
+  };
+
+  const handleAssignToEscalation = (assignmentId: string) => {
+    if (!teacher) return;
+    assignTeacherMutation.mutate(
+      {assignmentId, teacherUserId: teacher.id},
+      {
+        onSuccess: () => {
+          showSuccess(`${teacher.name} was assigned to that student`);
+          setIsAssignOpen(false);
+          setTeacher(null);
+        },
+        onError: (error) => showError(extractApiError(error, "Couldn't assign this teacher")),
+      },
+    );
   };
 
   const handleAssignProgram = (teacher: Teacher) => {
@@ -159,8 +184,9 @@ export default function Teachers() {
           isOpen={isAssignOpen}
           onClose={() => setIsAssignOpen(false)}
           teacher={teacher!}
-          students={Students}
-          onAssign={() => {}}
+          assignments={escalatedAssignments}
+          onAssign={handleAssignToEscalation}
+          isAssigning={assignTeacherMutation.isPending}
         />
 
         <AssignProgram
@@ -332,18 +358,3 @@ export default function Teachers() {
     </section>
   );
 }
-
-const Students: CraStudent[] = [
-  {
-    id: "vusi-tani",
-    name: "Vusi Tani",
-    avatarUrl: "https://i.pravatar.cc/64?img=51",
-    email: "whatever@mail.com",
-  },
-  {
-    id: "kehinde-ajani",
-    name: "Kehinde Ajani",
-    avatarUrl: "https://i.pravatar.cc/64?img=33",
-    email: "however@mail.com",
-  },
-];

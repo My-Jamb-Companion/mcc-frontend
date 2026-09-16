@@ -27,6 +27,7 @@ export interface Teacher {
   };
   location?: string;
   status: "pending" | "approved" | "rejected";
+  subject?: string;
 }
 export interface ProspectiveStudent {
   id: string;
