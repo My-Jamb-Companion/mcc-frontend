@@ -1,7 +1,17 @@
 import {useTeachers} from "@mcc/features";
-import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {fromApiTeacher} from "../helper/teacher.mapper";
 import {approveTeacher, disableTeacher, rejectTeacher} from "../services/teacherActions.service";
+import {
+  assignProgram,
+  getTeacherDetail,
+  searchPrograms,
+  unassignProgram,
+} from "../services/teacherPrograms.service";
+import {
+  assignTeacherToAssignment,
+  getEscalatedAssignments,
+} from "../services/escalatedAssignments.service";
 
 /**
  * Teachers from the live backend (GET /admin/teachers via
@@ -45,6 +55,66 @@ export const useRejectTeacher = () => {
       rejectTeacher(teacherId, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ["teachers"]});
+    },
+  });
+};
+
+export const useTeacherDetail = (teacherId: string | undefined) => {
+  return useQuery({
+    queryKey: ["teacher-detail", teacherId],
+    queryFn: () => getTeacherDetail(teacherId as string),
+    enabled: !!teacherId,
+  });
+};
+
+export const useSearchPrograms = (query: string) => {
+  return useQuery({
+    queryKey: ["program-search", query],
+    queryFn: () => searchPrograms(query),
+    enabled: query.trim().length > 0,
+  });
+};
+
+export const useAssignProgram = (teacherId: string | undefined) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (programId: string) => assignProgram(teacherId as string, programId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["teachers"]});
+      queryClient.invalidateQueries({queryKey: ["teacher-detail", teacherId]});
+    },
+  });
+};
+
+export const useUnassignProgram = (teacherId: string | undefined) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (programId: string) => unassignProgram(teacherId as string, programId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["teachers"]});
+      queryClient.invalidateQueries({queryKey: ["teacher-detail", teacherId]});
+    },
+  });
+};
+
+export const useEscalatedAssignments = (subject: string | undefined) => {
+  return useQuery({
+    queryKey: ["escalated-assignments", subject],
+    queryFn: () => getEscalatedAssignments(subject),
+  });
+};
+
+export const useAssignTeacherToAssignment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({assignmentId, teacherUserId}: {assignmentId: string; teacherUserId: string}) =>
+      assignTeacherToAssignment(assignmentId, teacherUserId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["teachers"]});
+      queryClient.invalidateQueries({queryKey: ["escalated-assignments"]});
     },
   });
 };
