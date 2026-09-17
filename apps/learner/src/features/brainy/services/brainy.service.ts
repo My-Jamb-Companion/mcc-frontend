@@ -16,12 +16,46 @@ export interface ApiTokenUsage {
   attempts?: number;
 }
 
+/** How one answered job was paid for (pricing model build step 6). */
+export interface ApiJobCharge {
+  free_tokens: number;
+  allowance_tokens: number;
+  gem_tokens: number;
+  gems_charged: number;
+  /** Gems the answer needed but the student didn't hold; not taken later. */
+  gems_short: number;
+}
+
+/** Endpoint: GET /brainy/allowance -- what the student has left. */
+export interface ApiAllowance {
+  /** False for non-students, or before pricing is set up: nothing is charged. */
+  metered: boolean;
+  free_daily_tokens?: number | null;
+  free_used_today?: number | null;
+  free_left_today?: number | null;
+  monthly_allowance_tokens?: number | null;
+  paid_enrolments?: number | null;
+  allowance_used_this_month?: number | null;
+  allowance_left_this_month?: number | null;
+  tokens_per_gem?: number | null;
+  gems: number;
+  earned_gems: number;
+  purchased_gems: number;
+  free_resets_at?: string | null;
+  allowance_resets_at?: string | null;
+}
+
+export const getAllowance = async (): Promise<ApiAllowance> =>
+  (await apiClient.get<{data: ApiAllowance}>("/brainy/allowance")).data.data;
+
 export interface ApiChatReply {
   chat_id: string;
   reply: string;
   generated: boolean;
   /** Null when `generated` is false -- there was no completion to bill. */
   usage?: ApiTokenUsage | null;
+  /** Null when nothing was metered. */
+  charge?: ApiJobCharge | null;
 }
 
 export interface ApiChatHistoryItem {
@@ -31,6 +65,7 @@ export interface ApiChatHistoryItem {
   timestamp: string;
   /** Null for exchanges stored before token accounting, and for failed turns. */
   usage?: ApiTokenUsage | null;
+  charge?: ApiJobCharge | null;
 }
 
 /** Endpoint: GET /brainy/usage -- the caller's own consumption. */

@@ -13,6 +13,10 @@ import BrainyExamActionCardGrid, {
 import FlashcardGenerator from "./FlashcardGenerator";
 import Link from "next/link";
 import {sendChatMessage} from "../services/brainy.service";
+import {useQueryClient} from "@tanstack/react-query";
+import AllowanceMeter from "./AllowanceMeter";
+import {isAllowanceUsed} from "../helper/charge";
+import {ALLOWANCE_QUERY_KEY, USAGE_QUERY_KEY} from "../hooks/useBrainyChat";
 import {uploadAttachments} from "../helper/uploadAttachments";
 
 export interface FeatureCardConfig {
@@ -25,6 +29,7 @@ export interface FeatureCardConfig {
 }
 
 export default function Brainy() {
+  const queryClient = useQueryClient();
   const {
     subject,
     setSubject,
@@ -151,18 +156,28 @@ export default function Brainy() {
                     undefined,
                     !result.generated,
                     result.usage,
+                    result.charge,
                   ),
-                () =>
+                (error) =>
                   addMessageToSession(
                     sessionId,
                     "ai",
                     "My brain is fuzzy right now. Please try again.",
                     undefined,
                     true,
+                    null,
+                    null,
+                    isAllowanceUsed(error)
+                      ? extractApiError(error, "You've used your Brainy allowance. Add gems to keep going.")
+                      : undefined,
                   ),
-              );
+              ).finally(() => {
+                queryClient.invalidateQueries({queryKey: USAGE_QUERY_KEY});
+                queryClient.invalidateQueries({queryKey: ALLOWANCE_QUERY_KEY});
+              });
             }}
           />
+          <AllowanceMeter className="mt-2" />
         </AnimatePresence>
       </div>
     </section>

@@ -26,6 +26,7 @@ export interface TemplateForm {
   periods: string;
   enrolmentsPerPeriod: string;
   marketCeiling: string;
+  aiMonths: string;
   overrideOn: boolean;
   overridePct: string;
   overrideReason: string;
@@ -74,6 +75,7 @@ export const emptyTemplateForm = (programType: ProgramType, edition: Edition): T
   periods: programType === "exam" ? "1" : "",
   enrolmentsPerPeriod: "",
   marketCeiling: "",
+  aiMonths: programType === "exam" ? "6" : "12",
   overrideOn: false,
   overridePct: "",
   overrideReason: "",
@@ -93,6 +95,7 @@ export const templateFormFromVersion = (v: ApiTemplateVersion): TemplateForm => 
   periods: plain(v.amortisation_periods),
   enrolmentsPerPeriod: String(v.enrolments_per_period),
   marketCeiling: v.market_ceiling !== null ? plain(v.market_ceiling) : "",
+  aiMonths: String(v.ai_allowance_months ?? 12),
   overrideOn: v.margin_override !== null,
   overridePct: v.margin_override !== null ? fractionToPct(v.margin_override) : "",
   overrideReason: v.margin_override_reason ?? "",
@@ -131,6 +134,9 @@ export const validateTemplate = (form: TemplateForm, edition: Edition): Template
   if (!DECIMAL.test(clean(form.periods)) || Number(clean(form.periods)) <= 0) e.periods = "Enter a number above 0";
   if (!WHOLE.test(clean(form.enrolmentsPerPeriod)) || Number(clean(form.enrolmentsPerPeriod)) <= 0) e.enrolmentsPerPeriod = "Enter a whole number above 0";
 
+  const aiMonths = clean(form.aiMonths);
+  if (!WHOLE.test(aiMonths) || Number(aiMonths) < 1 || Number(aiMonths) > 60) e.aiMonths = "Enter 1 to 60 months";
+
   const ceiling = clean(form.marketCeiling);
   if (ceiling && (!DECIMAL.test(ceiling) || Number(ceiling) <= 0)) e.marketCeiling = "Enter a price above 0, or leave blank";
 
@@ -161,6 +167,7 @@ export const templateInput = (form: TemplateForm, edition: Edition): TemplateInp
     amortisation_periods: clean(form.periods),
     enrolments_per_period: Number(clean(form.enrolmentsPerPeriod)),
     market_ceiling: clean(form.marketCeiling) || null,
+    ai_allowance_months: Number(clean(form.aiMonths)),
     margin_override: form.overrideOn ? pctToFraction(form.overridePct) : null,
     margin_override_reason: form.overrideOn ? form.overrideReason.trim() : null,
   };

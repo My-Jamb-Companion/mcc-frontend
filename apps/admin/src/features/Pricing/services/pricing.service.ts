@@ -67,6 +67,10 @@ export interface ApiPricingParameters {
   fx_reprice_threshold: string;
   price_rounding_step: number;
   max_price_increase_rate: string;
+  ai_usd_per_million_tokens: string;
+  free_daily_tokens: number;
+  tokens_per_gem: number;
+  flat_price_monthly_tokens: number;
   overhead_lines: ApiOverheadLine[];
   derived: ApiDerivedFigures;
 }
@@ -106,6 +110,10 @@ export interface PricingParametersInput {
   fx_reprice_threshold: string;
   price_rounding_step: number;
   max_price_increase_rate: string;
+  ai_usd_per_million_tokens: string;
+  free_daily_tokens: number;
+  tokens_per_gem: number;
+  flat_price_monthly_tokens: number;
 }
 
 /**

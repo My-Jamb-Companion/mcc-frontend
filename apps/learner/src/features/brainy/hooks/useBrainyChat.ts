@@ -6,6 +6,7 @@ import {
   getSession,
   getSessions,
   sendChatMessage,
+  getAllowance,
   getUsageSummary,
 } from "../services/brainy.service";
 
@@ -72,4 +73,12 @@ export const USAGE_QUERY_KEY = ["brainy-usage"];
 export const useUsageSummary = () => {
   const query = useQuery({queryKey: USAGE_QUERY_KEY, queryFn: getUsageSummary});
   return {...query, summary: query.data};
+};
+
+export const ALLOWANCE_QUERY_KEY = ["brainy-allowance"];
+
+/** Free tokens, monthly allowance and gems left. Refetched after every answer. */
+export const useAllowance = () => {
+  const query = useQuery({queryKey: ALLOWANCE_QUERY_KEY, queryFn: getAllowance});
+  return {...query, allowance: query.data};
 };
