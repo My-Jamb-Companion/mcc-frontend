@@ -11,6 +11,7 @@ import Image from "next/image";
 import SendMessage from "./SendMessage";
 import AssignCRAModal from "./AssignCRA";
 import AssignProgram from "./AssignProgram";
+import TeacherAvatar from "./TeacherAvatar";
 import {
   useApproveTeacher,
   useAssignTeacherToAssignment,
@@ -180,7 +181,10 @@ export default function Teachers() {
           }}
         />
 
+        {/* Keyed per teacher and per opening: the selection resets by
+            remounting, rather than by an effect that writes state on render. */}
         <AssignCRAModal
+          key={`cra-${teacher?.id ?? "none"}-${isAssignOpen}`}
           isOpen={isAssignOpen}
           onClose={() => setIsAssignOpen(false)}
           teacher={teacher!}
@@ -208,10 +212,11 @@ export default function Teachers() {
 
               <div className="absolute left-1/2 top-[50%] z-10 -translate-x-1/2 -translate-y-1/2">
                 <div className="relative size-42 overflow-hidden rounded-full border border-white/20 bg-white/10 backdrop-blur-md">
-                  <img
-                    src={teacher?.avatar}
-                    alt="profile"
-                    className="object-cover w-full h-full"
+                  <TeacherAvatar
+                    name={teacher?.name ?? ""}
+                    avatar={teacher?.avatar}
+                    className="w-full h-full rounded-full"
+                    textClassName="text-4xl"
                   />
                 </div>
               </div>

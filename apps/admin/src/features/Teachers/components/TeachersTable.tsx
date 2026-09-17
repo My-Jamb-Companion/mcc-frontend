@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-table";
 import {Icon} from "@mcc/ui";
 import EnhancedTable from "@/src/components/Table";
+import TeacherAvatar, {colorFor} from "./TeacherAvatar";
 import {LeaderboardTier, Teacher} from "../types/types";
 import {useAdminTeachers} from "../hooks/useAdminTeachers";
 
@@ -22,44 +23,10 @@ interface TeachersTableProps {
   onRejectTeacher?: (teacher: Teacher) => void;
 }
 
-const AVATAR_COLORS = [
-  "bg-rose-100 text-rose-600",
-  "bg-amber-100 text-amber-600",
-  "bg-emerald-100 text-emerald-600",
-  "bg-sky-100 text-sky-600",
-  "bg-violet-100 text-violet-600",
-];
-
-function initialsFor(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
-
-function colorFor(seed: string) {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++)
-    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
-}
-
 function NameCell({teacher}: {teacher: Teacher}) {
   return (
     <div className="flex items-center gap-3">
-      <div
-        className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 overflow-hidden ${colorFor(
-          teacher.name,
-        )}`}
-      >
-        {teacher.avatar ? (
-          <img src={teacher.avatar} className="w-full h-full object-cover" />
-        ) : (
-          initialsFor(teacher.name)
-        )}
-      </div>
+      <TeacherAvatar name={teacher.name} avatar={teacher.avatar} className="w-9 h-9 rounded-full" />
       <div className="min-w-0">
         <p className="text-sm font-semibold text-gray-900">{teacher.name}</p>
         <p className="text-xs text-gray-500">{teacher.email}</p>

@@ -9,6 +9,7 @@ import {
   useUnassignProgram,
 } from "../hooks/useAdminTeachers";
 import {TeacherProgram} from "../services/teacherPrograms.service";
+import TeacherAvatar from "./TeacherAvatar";
 
 interface AssignProgramProps {
   teacher: Teacher | null;
@@ -129,13 +130,11 @@ export default function AssignProgram({teacher, isOpen, onClose}: AssignProgramP
                 <div className="absolute right-4 top-2 w-32 h-32 bg-purple-400/20 rounded-full blur-2xl pointer-events-none" />
 
                 <div className="relative z-10">
-                  <img
-                    src={
-                      teacher.avatar ||
-                      "https://api.dicebear.com/7.x/avataaars/svg?seed=Elvis"
-                    }
-                    alt={teacher.name}
-                    className="w-28 h-28 rounded-full border-2 border-white/80 object-cover bg-purple-200"
+                  <TeacherAvatar
+                    name={teacher.name}
+                    avatar={teacher.avatar}
+                    className="w-28 h-28 rounded-full border-2 border-white/80"
+                    textClassName="text-2xl"
                   />
                 </div>
               </div>
