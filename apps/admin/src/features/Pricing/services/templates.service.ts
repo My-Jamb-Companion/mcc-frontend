@@ -53,6 +53,7 @@ export interface ApiTemplateVersion {
   amortisation_periods: string;
   enrolments_per_period: number;
   market_ceiling: string | null;
+  ai_allowance_months: number;
   margin_override: string | null;
   margin_override_reason: string | null;
   change_reason: string;
@@ -106,6 +107,8 @@ export interface ApiPriceQuote {
   contribution: string;
   weighted_multiplier: string;
   expected_average_student_pays: string | null;
+  /** Brainy tokens a month each enrolment includes, from its AI cost. */
+  ai_monthly_tokens: number | null;
   market_ceiling: string | null;
   /** Null without a ceiling; false when any tier is above it. */
   within_market_ceiling: boolean | null;
@@ -131,6 +134,7 @@ export interface TemplateInput {
   amortisation_periods: string;
   enrolments_per_period: number;
   market_ceiling: string | null;
+  ai_allowance_months: number;
   margin_override: string | null;
   margin_override_reason: string | null;
 }

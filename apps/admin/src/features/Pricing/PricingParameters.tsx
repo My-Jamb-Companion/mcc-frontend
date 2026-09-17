@@ -399,6 +399,27 @@ function ParametersEditor({
           </div>
         </Section>
 
+        <Section title="Brainy AI"
+          description="How Brainy usage is paid for. Each course's AI cost buys tokens at the provider price below, spread monthly as that course's allowance. Everyone also gets free tokens each day. Beyond both, answers cost gems. Earned gems are spent first, and only purchased gems can buy courses.">
+          <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
+            <NumberField id="aiUsdPerMillion" label="AI provider price per million tokens" prefix="$"
+              value={form.aiUsdPerMillion} onChange={set("aiUsdPerMillion")}
+              error={shown("aiUsdPerMillion")} readOnly={readOnly}
+              hint="Blended across prompt and answer tokens" />
+            <NumberField id="freeDailyTokens" label="Free tokens per student per day"
+              value={form.freeDailyTokens} onChange={set("freeDailyTokens")}
+              error={shown("freeDailyTokens")} readOnly={readOnly}
+              hint="About 500 tokens a plain question" />
+            <NumberField id="tokensPerGem" label="Tokens one gem buys"
+              value={form.tokensPerGem} onChange={set("tokensPerGem")}
+              error={shown("tokensPerGem")} readOnly={readOnly} />
+            <NumberField id="flatMonthlyTokens" label="Monthly tokens for a course bought at an old flat price"
+              value={form.flatMonthlyTokens} onChange={set("flatMonthlyTokens")}
+              error={shown("flatMonthlyTokens")} readOnly={readOnly}
+              hint="Those purchases have no AI cost on record" />
+          </div>
+        </Section>
+
         <Section title="Rounding and price rises"
           description="Student prices, including VAT, are rounded up to a multiple of the rounding amount. When new prices are published, no tier's price may rise by more than the phase-in cap over the price it replaces; larger rises are reached over several publishes. Decreases apply in full.">
           <div className="grid max-w-xl gap-4 sm:grid-cols-2">

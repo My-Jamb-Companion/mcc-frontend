@@ -43,6 +43,10 @@ export interface PricingForm {
   fxThresholdPct: string;
   roundingStep: string;
   maxIncreasePct: string;
+  aiUsdPerMillion: string;
+  freeDailyTokens: string;
+  tokensPerGem: string;
+  flatMonthlyTokens: string;
 }
 
 export const OVERHEAD_CATEGORIES: {value: OverheadCategory; label: string}[] = [
@@ -93,6 +97,10 @@ export const emptyForm = (): PricingForm => ({
   fxThresholdPct: "",
   roundingStep: "500",
   maxIncreasePct: "15",
+  aiUsdPerMillion: "0.40",
+  freeDailyTokens: "5000",
+  tokensPerGem: "2000",
+  flatMonthlyTokens: "100000",
 });
 
 const DECIMAL = /^\d+(\.\d+)?$/;
@@ -145,6 +153,10 @@ export const fromApi = (p: ApiPricingParameters): PricingForm => ({
   fxThresholdPct: fractionToPct(p.fx_reprice_threshold),
   roundingStep: String(p.price_rounding_step),
   maxIncreasePct: fractionToPct(p.max_price_increase_rate),
+  aiUsdPerMillion: trimAmount(p.ai_usd_per_million_tokens),
+  freeDailyTokens: String(p.free_daily_tokens),
+  tokensPerGem: String(p.tokens_per_gem),
+  flatMonthlyTokens: String(p.flat_price_monthly_tokens),
 });
 
 export type FormErrors = Partial<Record<keyof PricingForm | `line-${string}`, string>>;
@@ -199,6 +211,16 @@ export const validate = (form: PricingForm): FormErrors => {
   const usd = clean(form.usdRate);
   if (!DECIMAL.test(usd) || Number(usd) <= 0) errors.usdRate = "Enter naira per US dollar";
 
+  const aiPrice = clean(form.aiUsdPerMillion);
+  if (!DECIMAL.test(aiPrice) || Number(aiPrice) <= 0) errors.aiUsdPerMillion = "Enter the price in dollars, above 0";
+  const whole = (value: string, positive = false) => {
+    const v = clean(value);
+    return /^\d+$/.test(v) && (!positive || Number(v) > 0);
+  };
+  if (!whole(form.freeDailyTokens)) errors.freeDailyTokens = "Enter a whole number of tokens (0 for none)";
+  if (!whole(form.tokensPerGem, true)) errors.tokensPerGem = "Enter a whole number of tokens above 0";
+  if (!whole(form.flatMonthlyTokens)) errors.flatMonthlyTokens = "Enter a whole number of tokens (0 for none)";
+
   const step = clean(form.roundingStep);
   if (!/^\d+$/.test(step) || Number(step) <= 0) errors.roundingStep = "Enter a whole naira amount above 0";
 
@@ -235,6 +257,10 @@ export const toInput = (
   fx_reprice_threshold: pctToFraction(form.fxThresholdPct),
   price_rounding_step: Number(clean(form.roundingStep)),
   max_price_increase_rate: pctToFraction(form.maxIncreasePct),
+  ai_usd_per_million_tokens: clean(form.aiUsdPerMillion),
+  free_daily_tokens: Number(clean(form.freeDailyTokens)),
+  tokens_per_gem: Number(clean(form.tokensPerGem)),
+  flat_price_monthly_tokens: Number(clean(form.flatMonthlyTokens)),
 });
 
 /** Comparable form of a version's inputs, ignoring the reason and base version. */

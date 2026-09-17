@@ -4,6 +4,7 @@ import {Icon, motion, AnimatePresence} from "@mcc/ui";
 import {useMemo, useState} from "react";
 import {ChatMessage} from "../contexts/BrainyContext";
 import {useUsageSummary} from "../hooks/useBrainyChat";
+import {describeCharge} from "../helper/charge";
 
 /**
  * Per-job token accounting for a thread.
@@ -40,6 +41,11 @@ export function MessageUsage({message}: {message: ChatMessage}) {
         {nf.format(usage.prompt_tokens)} in · {nf.format(usage.completion_tokens)} out
       </span>
       {latency && <span className="opacity-70">{latency}</span>}
+      {describeCharge(message.charge) && (
+        <span className={message.charge?.gems_charged ? "text-primary" : "opacity-70"}>
+          {describeCharge(message.charge)}
+        </span>
+      )}
       {/* Only worth surfacing when it wasn't a clean single call -- that is
           what explains an otherwise inexplicable wait. */}
       {usage.attempts != null && usage.attempts > 1 && (
@@ -107,7 +113,7 @@ export default function AiUsageLog({messages}: {messages: ChatMessage[]}) {
             transition={{duration: 0.18}}
             className="overflow-hidden"
           >
-            <div className="mt-1 rounded-xl border border-muted/20 bg-muted/5 p-2">
+            <div className="mt-1 rounded-xl border border-muted/20 bg-background p-2 shadow-sm">
               {/* Scrolls on its own rather than pushing the composer around. */}
               <div className="max-h-56 overflow-y-auto">
                 <table className="w-full text-left text-[11px]">
@@ -118,6 +124,7 @@ export default function AiUsageLog({messages}: {messages: ChatMessage[]}) {
                       <th className="px-2 py-1 text-right font-medium">Out</th>
                       <th className="px-2 py-1 text-right font-medium">Total</th>
                       <th className="px-2 py-1 text-right font-medium">Time</th>
+                      <th className="px-2 py-1 text-right font-medium">Paid with</th>
                     </tr>
                   </thead>
                   <tbody className="text-foreground">
@@ -140,6 +147,9 @@ export default function AiUsageLog({messages}: {messages: ChatMessage[]}) {
                         </td>
                         <td className="px-2 py-1 text-right tabular-nums text-muted">
                           {formatLatency(m.usage?.latency_ms) ?? "—"}
+                        </td>
+                        <td className="px-2 py-1 text-right text-muted">
+                          {describeCharge(m.charge) ?? "—"}
                         </td>
                       </tr>
                     ))}

@@ -11,7 +11,9 @@ import {uploadAttachments} from "../helper/uploadAttachments";
 import MarkdownMessage from "./MarkdownMessage";
 import AiUsageLog, {MessageUsage} from "./AiUsageLog";
 import {useQueryClient} from "@tanstack/react-query";
-import {USAGE_QUERY_KEY} from "../hooks/useBrainyChat";
+import {ALLOWANCE_QUERY_KEY, USAGE_QUERY_KEY} from "../hooks/useBrainyChat";
+import AllowanceMeter from "./AllowanceMeter";
+import {isAllowanceUsed} from "../helper/charge";
 
 export default function BrainyChats() {
   const [question, setQuestion] = useState("");
@@ -120,14 +122,22 @@ export default function BrainyChats() {
             undefined,
             !result.generated,
             result.usage,
+            result.charge,
           ),
-        () =>
+        (error) =>
           addMessageToSession(
             sessionId,
             "ai",
+            // Out of free tokens, allowance and gems: say so, rather than
+            // blaming Brainy. The retry works once gems are added.
             "My brain is fuzzy right now. Please try again.",
             undefined,
             true,
+            null,
+            null,
+            isAllowanceUsed(error)
+              ? extractApiError(error, "You've used your Brainy allowance. Add gems to keep going.")
+              : undefined,
           ),
       )
       .finally(() => {
@@ -135,6 +145,7 @@ export default function BrainyChats() {
         // Every answer moves the day's total, so the log's footer is stale
         // the moment one lands.
         queryClient.invalidateQueries({queryKey: USAGE_QUERY_KEY});
+        queryClient.invalidateQueries({queryKey: ALLOWANCE_QUERY_KEY});
       });
   };
 
@@ -176,7 +187,7 @@ export default function BrainyChats() {
 
   return (
     <div className="relative flex flex-col h-full grow bg-background max-sm:pt-20">
-      <div className="flex-1 w-full overflow-y-auto flex flex-col gap-4 p-6 pb-32 max-sm:px-0">
+      <div className="flex-1 w-full overflow-y-auto flex flex-col gap-4 p-6 pb-44 max-sm:px-0">
         {activeSession?.messages.map((msg) => (
           <div key={msg.id} className="flex flex-col gap-1">
             {msg?.file?.map((file, i) => {
@@ -219,8 +230,12 @@ export default function BrainyChats() {
                 // provider's per-minute token ceiling) clears on its own.
                 <div className="flex flex-col items-start gap-2 rounded-xl border border-muted/25 bg-muted/5 p-3">
                   <p className="text-sm leading-relaxed text-muted">
-                    Brainy couldn&apos;t answer that one — it&apos;s busy right
-                    now. Your question is safe; try again in a moment.
+                    {msg.notice ?? (
+                      <>
+                        Brainy couldn&apos;t answer that one — it&apos;s busy right
+                        now. Your question is safe; try again in a moment.
+                      </>
+                    )}
                   </p>
                   <button
                     type="button"
@@ -249,6 +264,7 @@ export default function BrainyChats() {
 
       <div className="absolute bottom-8 w-full max-sm:bottom-3">
         <AiUsageLog messages={activeSession?.messages ?? []} />
+        <AllowanceMeter className="mx-auto w-[90%] max-sm:w-full" />
         <div className="flex flex-col w-[90%] mx-auto max-sm:w-full">
           {files.length > 0 && (
             <motion.div

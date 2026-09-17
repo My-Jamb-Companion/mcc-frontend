@@ -1,6 +1,8 @@
 "use client";
 
 import {useState} from "react";
+import {extractApiError} from "@mcc/api";
+import {isAllowanceUsed} from "../helper/charge";
 import {Icon} from "@mcc/ui";
 import {useGenerateFlashcards, useSaveStudySet} from "../hooks/useFlashcards";
 import type {Flashcard} from "../services/flashcards.service";
@@ -35,8 +37,12 @@ export default function FlashcardGenerator({onBack}: FlashcardGeneratorProps) {
         return;
       }
       setFlashcards(result.flashcards);
-    } catch {
-      setError("Something went wrong. Please try again.");
+    } catch (error) {
+      setError(
+        isAllowanceUsed(error)
+          ? extractApiError(error, "You've used your Brainy allowance. Add gems to keep going.")
+          : "Something went wrong. Please try again.",
+      );
     }
   };
 

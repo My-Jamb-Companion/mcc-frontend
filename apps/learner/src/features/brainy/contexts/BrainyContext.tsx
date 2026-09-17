@@ -11,6 +11,7 @@ import React, {
 import {useQueryClient} from "@tanstack/react-query";
 import {
   ApiSession,
+  ApiJobCharge,
   ApiTokenUsage,
   createSession as createSessionApi,
   getSession as getSessionApi,
@@ -44,6 +45,14 @@ export interface ChatMessage {
    * stored before token accounting existed.
    */
   usage?: ApiTokenUsage | null;
+  /** How the answer was paid for: free tokens, the monthly allowance, gems. */
+  charge?: ApiJobCharge | null;
+  /**
+   * Why a failed turn failed, when it's something the student can act on --
+   * e.g. out of free tokens, allowance and gems. Shown instead of the generic
+   * "busy" message.
+   */
+  notice?: string;
 }
 
 export interface StudySession {
@@ -95,6 +104,8 @@ interface BrainyContextType {
     files?: File[],
     degraded?: boolean,
     usage?: ApiTokenUsage | null,
+    charge?: ApiJobCharge | null,
+    notice?: string,
   ) => void;
   isSidebarOpen: boolean;
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -218,6 +229,7 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
           // rather than sitting in the thread looking like a real answer.
           degraded: row.ai_response === AI_UNAVAILABLE_MESSAGE,
           usage: row.usage ?? null,
+          charge: row.charge ?? null,
         });
       }
     }
@@ -259,6 +271,8 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
       files?: File[],
       degraded?: boolean,
       usage?: ApiTokenUsage | null,
+      charge?: ApiJobCharge | null,
+      notice?: string,
     ) => {
       setMessagesBySession((prev) => ({
         ...prev,
@@ -272,6 +286,8 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
             file: files,
             degraded,
             usage,
+            charge,
+            notice,
           },
         ],
       }));

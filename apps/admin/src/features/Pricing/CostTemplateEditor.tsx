@@ -176,6 +176,11 @@ function TemplateEditorForm({detail, programType, programId, edition}: {
         <Section title="Other direct costs per enrolment"
           description="What each additional student costs to serve, besides teaching: Brainy AI usage, messaging, hosting and video, ads per enrolment, mock-exam marking, materials. Dollar amounts convert at the company exchange rate plus buffer.">
           <DirectCostsEditor lines={form.directCosts} onChange={set("directCosts")} errors={showErrors ? errors : {}} />
+          <div className="mt-4 max-w-sm">
+            <NumberField id="aiMonths" label="Months the AI usage cost covers" value={form.aiMonths} onChange={set("aiMonths")}
+              error={err("aiMonths")}
+              hint="Each student's Brainy allowance is the AI cost's tokens spread over these months" />
+          </div>
         </Section>
 
         <Section title="Development"

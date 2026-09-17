@@ -89,6 +89,10 @@ export default function QuotePanel({
         <Figure label="Margin before tax" value={pct(Number(quote.pre_tax_margin))} note={quote.margin_overridden ? "This program's own" : undefined} />
         <Figure label="Hard floor (before VAT)" value={naira(quote.hard_floor)} note="Covers delivery, earns nothing" />
         <Figure label="Full cost (before VAT)" value={naira(quote.full_cost_base)} note="At multiplier 1.00" />
+        {quote.ai_monthly_tokens !== null && (
+          <Figure label="Brainy allowance per student" value={`${new Intl.NumberFormat("en").format(quote.ai_monthly_tokens)} tokens`}
+            note="A month, from the AI cost" />
+        )}
       </dl>
 
       <table className="mt-5 w-full text-left text-sm">
