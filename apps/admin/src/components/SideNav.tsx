@@ -256,10 +256,10 @@ const navs = {
     {icon: "ri:message-2-line", label: "user", href: "/messaging"},
     {icon: "ri:flag-2-line", label: "moderation", href: "/moderation"},
   ],
+  // Only routes that exist: Next prefetches every link in view, so a link to
+  // a missing page 404s on every page load, in the console and the network log.
   bottomNav: [
-    {icon: "stash:question-light", label: "help", href: "/help"},
     {icon: "solar:settings-broken", label: "settings", href: "/settings"},
-    {icon: "solar:settings-broken", label: "profile", href: "/profile"},
   ],
   navAccordions: [
     {

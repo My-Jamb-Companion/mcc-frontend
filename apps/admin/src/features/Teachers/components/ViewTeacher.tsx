@@ -3,6 +3,7 @@ import {AnimatePresence, motion} from "framer-motion";
 import Image from "next/image";
 import {Button, Icon} from "@mcc/ui";
 import {PersonalDetailsProps, Teacher} from "../types/types";
+import TeacherAvatar from "./TeacherAvatar";
 
 interface ViewTeacherProps {
   isOpen: boolean;
@@ -125,10 +126,11 @@ export default function ViewTeacher({
 
                 <div className="absolute left-1/2 top-[50%] z-10 -translate-x-1/2 -translate-y-1/2">
                   <div className="relative size-42 overflow-hidden rounded-full border border-white/20 bg-white/10 backdrop-blur-md">
-                    <img
-                      src={teacher.avatar}
-                      alt="profile"
-                      className="object-cover w-full h-full"
+                    <TeacherAvatar
+                      name={teacher.name}
+                      avatar={teacher.avatar}
+                      className="w-full h-full rounded-full"
+                      textClassName="text-4xl"
                     />
                   </div>
                 </div>

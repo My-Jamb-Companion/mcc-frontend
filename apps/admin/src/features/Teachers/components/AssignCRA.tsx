@@ -2,6 +2,7 @@ import {Icon, Modal} from "@mcc/ui";
 import {useEffect, useState, useRef} from "react";
 import {Teacher} from "../types/types";
 import {EscalatedAssignment} from "../services/escalatedAssignments.service";
+import TeacherAvatar from "./TeacherAvatar";
 
 const WEEKDAY_NAMES = [
   "",
@@ -39,17 +40,6 @@ export default function AssignCRAModal({
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // The modal stays mounted the whole time (Teachers.tsx always renders
-    // it, just toggling `isOpen`), so its selection state doesn't reset on
-    // its own when reopened for a different teacher -- this effect is the
-    // reset, not avoidable via unmounting.
-    if (isOpen) {
-      setSelectedId(undefined);
-      setOpen(false);
-    }
-  }, [isOpen]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -91,10 +81,11 @@ export default function AssignCRAModal({
         </div>
 
         <div className="mt-5 flex items-center gap-3 rounded-2xl border border-neutral-200 px-4 py-3">
-          <img
-            src={teacher.avatar}
-            alt={teacher.name}
-            className="h-11 w-11 rounded-full object-cover"
+          <TeacherAvatar
+            name={teacher.name}
+            avatar={teacher.avatar}
+            className="h-11 w-11 rounded-full"
+            textClassName="text-sm"
           />
           <div>
             <p className="text-sm font-semibold text-neutral-900">
