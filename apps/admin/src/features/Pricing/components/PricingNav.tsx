@@ -8,6 +8,7 @@ const TABS = [
   {href: "/finance/pricing/cities", label: "Cities & tiers"},
   {href: "/finance/pricing/programs", label: "Program pricing"},
   {href: "/finance/pricing/publications", label: "Publications"},
+  {href: "/finance/pricing/finance-summary", label: "Finance summary"},
 ];
 
 /** Switches between the pricing model's admin screens. */

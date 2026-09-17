@@ -67,3 +67,20 @@ export const shareSessionLink = async (
     recipient_id: recipientId,
   });
 };
+
+export interface DeliveryResult {
+  session_id: string;
+  status: "planned" | "completed";
+  enrolments_paid: number;
+  amount_credited: string;
+  enrolments_with_budget_used_up: number;
+  legacy_enrolments: number;
+}
+
+/** Endpoint: POST /admin/live-sessions/{session_id}/delivered -- pays the teacher, as if they'd confirmed it. */
+export const markSessionDelivered = async (sessionId: string): Promise<DeliveryResult> =>
+  (await apiClient.post<{data: DeliveryResult}>(`/admin/live-sessions/${sessionId}/delivered`)).data.data;
+
+/** Endpoint: DELETE /admin/live-sessions/{session_id}/delivered -- reverses the teacher's pay for it. */
+export const undoSessionDelivered = async (sessionId: string): Promise<DeliveryResult> =>
+  (await apiClient.delete<{data: DeliveryResult}>(`/admin/live-sessions/${sessionId}/delivered`)).data.data;
