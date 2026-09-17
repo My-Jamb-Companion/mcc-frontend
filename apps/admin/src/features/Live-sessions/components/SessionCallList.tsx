@@ -9,6 +9,7 @@ import SendMessage from "@/src/components/Modals/SendMessage";
 import {
   useCancelSession,
   useRescheduleSession,
+  useSessionDelivery,
   useShareSessionLink,
   useThisWeekSessions,
 } from "../hooks/useLiveSessions";
@@ -29,6 +30,9 @@ export type CallRowData = {
   action: ActionVariant;
   countdownSeconds?: number;
   meetingUrl?: string;
+  started?: boolean;
+  delivered?: boolean;
+  cancelled?: boolean;
 };
 
 function formatCountdown(totalSeconds: number) {
@@ -129,9 +133,13 @@ function CountdownButton({seconds}: {seconds: number}) {
 function RowMenu({
   onReschedule,
   onCancel,
+  onMarkDelivered,
+  onUndoDelivered,
 }: {
   onReschedule?: () => void;
   onCancel?: () => void;
+  onMarkDelivered?: () => void;
+  onUndoDelivered?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -181,6 +189,32 @@ function RowMenu({
             <Icon icon="mdi:calendar-remove-outline" size={16} />
             Cancel class
           </button>
+          {onMarkDelivered && (
+            <button
+              type="button"
+              onClick={() => {
+                onMarkDelivered();
+                setOpen(false);
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-gray-800 hover:bg-gray-50 transition-colors"
+            >
+              <Icon icon="mdi:check-circle-outline" size={16} />
+              Mark delivered
+            </button>
+          )}
+          {onUndoDelivered && (
+            <button
+              type="button"
+              onClick={() => {
+                onUndoDelivered();
+                setOpen(false);
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-gray-800 hover:bg-gray-50 transition-colors"
+            >
+              <Icon icon="mdi:undo-variant" size={16} />
+              Undo delivery
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -193,6 +227,8 @@ type CallRowProps = {
   onMessage?: (call: CallRowData) => void;
   onReschedule?: (call: CallRowData) => void;
   onCancel?: (call: CallRowData) => void;
+  onMarkDelivered?: (call: CallRowData) => void;
+  onUndoDelivered?: (call: CallRowData) => void;
 };
 
 function CallRow({
@@ -202,6 +238,8 @@ function CallRow({
   onMessage,
   onReschedule,
   onCancel,
+  onMarkDelivered,
+  onUndoDelivered,
 }: CallRowProps) {
   return (
     <div className="flex items-center justify-between py-4 gap-4">
@@ -265,6 +303,12 @@ function CallRow({
         <RowMenu
           onReschedule={() => onReschedule?.(call)}
           onCancel={() => onCancel?.(call)}
+          onMarkDelivered={
+            call.started && !call.delivered && !call.cancelled && onMarkDelivered
+              ? () => onMarkDelivered(call)
+              : undefined
+          }
+          onUndoDelivered={call.delivered && onUndoDelivered ? () => onUndoDelivered(call) : undefined}
         />
       </div>
     </div>
@@ -282,6 +326,7 @@ export default function SessionCallsList({onReplay}: SessionCallsListProps) {
   const rescheduleMutation = useRescheduleSession();
   const cancelMutation = useCancelSession();
   const shareMutation = useShareSessionLink();
+  const delivery = useSessionDelivery();
 
   const [rescheduleCall, setRescheduleCall] = useState<CallRowData | null>(
     null,
@@ -315,6 +360,12 @@ export default function SessionCallsList({onReplay}: SessionCallsListProps) {
             onMessage={(call) => setMessageCall(call)}
             onReschedule={(call) => setRescheduleCall(call)}
             onCancel={(call) => setCancelCall(call)}
+            onMarkDelivered={(call) => delivery.mark.mutate(call.id)}
+            onUndoDelivered={(call) => {
+              if (window.confirm("Undo this delivery? Any pay it gave the teacher is taken back from their earnings.")) {
+                delivery.undo.mutate(call.id);
+              }
+            }}
           />
         ))}
       </div>

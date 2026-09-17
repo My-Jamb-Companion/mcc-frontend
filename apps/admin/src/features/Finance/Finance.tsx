@@ -10,7 +10,14 @@ import {PayoutsAndRefunds} from "./PayoutsAndRefunds";
 export default function Finance() {
   return (
     <section>
-      <div className="mb-6 flex justify-end">
+      <div className="mb-6 flex justify-end gap-2">
+        <Link
+          href="/finance/pricing/finance-summary"
+          className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50"
+        >
+          <Icon icon="ph:receipt" size={16} />
+          Finance summary
+        </Link>
         <Link
           href="/finance/pricing"
           className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50"

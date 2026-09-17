@@ -5,7 +5,7 @@ export default function EarningsPage() {
     <div>
       <h1 className="text-xl font-semibold mb-1">Earnings</h1>
       <p className="text-sm text-muted mb-6">
-        Your share of course and exam-prep program sales, and any payouts you&apos;ve requested.
+        Pay for the live sessions you deliver (and, for programs still on their old price, your share of each sale), and any payouts you&apos;ve requested.
       </p>
       <EarningsView />
     </div>

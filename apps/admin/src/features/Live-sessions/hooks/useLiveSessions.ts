@@ -1,7 +1,11 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {extractApiError} from "@mcc/api";
+import {showError, showSuccess} from "@mcc/ui";
 import {
   ApiLiveSession,
   cancelSession,
+  markSessionDelivered,
+  undoSessionDelivered,
   getLiveSessionsOverview,
   listThisWeekSessions,
   rescheduleSession,
@@ -27,6 +31,9 @@ function toCallRow(api: ApiLiveSession): CallRowData {
     status: api.status === "completed" ? "completed" : "upcoming",
     action: api.status === "planned" ? "share" : "replay",
     meetingUrl: api.meeting_url ?? undefined,
+    started: new Date(api.scheduled_at).getTime() <= Date.now(),
+    delivered: api.status === "completed",
+    cancelled: api.status === "cancelled",
   };
 }
 
@@ -72,4 +79,36 @@ export const useShareSessionLink = () => {
     mutationFn: ({sessionId, recipientId}: {sessionId: string; recipientId: string}) =>
       shareSessionLink(sessionId, recipientId),
   });
+};
+
+const naira = (v: string) => `₦${new Intl.NumberFormat("en-NG", {maximumFractionDigits: 0}).format(Math.abs(Number(v)))}`;
+
+/** Teachers are paid per session delivered (pricing model D1); admins can confirm or correct a delivery. */
+export const useSessionDelivery = () => {
+  const queryClient = useQueryClient();
+  const onError = (e: unknown) => showError(extractApiError(e, "Couldn't update the delivery"));
+  const refresh = () => queryClient.invalidateQueries({queryKey: ["live-sessions"]});
+  const mark = useMutation({
+    mutationFn: markSessionDelivered,
+    onSuccess: (r) => {
+      showSuccess(r.enrolments_paid > 0
+        ? `Marked delivered. The teacher was paid ${naira(r.amount_credited)} for ${r.enrolments_paid} enrolment${r.enrolments_paid === 1 ? "" : "s"}.`
+        : r.legacy_enrolments > 0 && r.enrolments_with_budget_used_up === 0
+          ? "Marked delivered. Its students bought at an old flat price, so the teacher was paid when they bought."
+          : "Marked delivered. No enrolment had paid sessions left to pay the teacher for.");
+      refresh();
+    },
+    onError,
+  });
+  const undo = useMutation({
+    mutationFn: undoSessionDelivered,
+    onSuccess: (r) => {
+      showSuccess(Number(r.amount_credited) !== 0
+        ? `Delivery undone. ${naira(r.amount_credited)} was taken back from the teacher's earnings.`
+        : "Delivery undone. It hadn't paid the teacher anything.");
+      refresh();
+    },
+    onError,
+  });
+  return {mark, undo};
 };
