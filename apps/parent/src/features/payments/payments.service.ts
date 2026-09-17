@@ -31,16 +31,20 @@ export interface ChildPaymentResult {
   billing_email?: string | null;
 }
 
-export const getCourseCatalogue = async (): Promise<CatalogueCourse[]> => {
+// Prices depend on the student's city tier, so the catalogue is asked for the
+// child's prices -- what the checkout below will actually charge.
+export const getCourseCatalogue = async (childId: string): Promise<CatalogueCourse[]> => {
   const res = await apiClient.get<{ success: boolean; data: { courses: CatalogueCourse[] } }>(
     "/courses/",
+    { params: { student_id: childId } },
   );
   return res.data.data.courses;
 };
 
-export const getProgramCatalogue = async (): Promise<CatalogueProgram[]> => {
+export const getProgramCatalogue = async (childId: string): Promise<CatalogueProgram[]> => {
   const res = await apiClient.get<{ success: boolean; data: { programs: CatalogueProgram[] } }>(
     "/exams/programs",
+    { params: { student_id: childId } },
   );
   return res.data.data.programs;
 };

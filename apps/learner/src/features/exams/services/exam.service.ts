@@ -1,4 +1,4 @@
-import {apiClient} from "@mcc/api";
+import {apiClient, whenSessionReady} from "@mcc/api";
 
 export interface ApiExamProgram {
   program_id: string;
@@ -30,8 +30,9 @@ export interface RegisterResult {
   payment_status?: string;
 }
 
-/** Endpoint: GET /exams/programs (public catalogue) */
+/** Endpoint: GET /exams/programs (public catalogue). Waits for the token, as getCourses does. */
 export const getPrograms = async (): Promise<ApiExamProgram[]> => {
+  await whenSessionReady();
   const res = await apiClient.get<{data: {programs: ApiExamProgram[]}}>(
     "/exams/programs",
   );

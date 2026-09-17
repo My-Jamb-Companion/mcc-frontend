@@ -25,6 +25,7 @@ export interface TemplateForm {
   developmentCost: string;
   periods: string;
   enrolmentsPerPeriod: string;
+  marketCeiling: string;
   overrideOn: boolean;
   overridePct: string;
   overrideReason: string;
@@ -72,6 +73,7 @@ export const emptyTemplateForm = (programType: ProgramType, edition: Edition): T
   developmentCost: "",
   periods: programType === "exam" ? "1" : "",
   enrolmentsPerPeriod: "",
+  marketCeiling: "",
   overrideOn: false,
   overridePct: "",
   overrideReason: "",
@@ -90,6 +92,7 @@ export const templateFormFromVersion = (v: ApiTemplateVersion): TemplateForm => 
   developmentCost: plain(v.development_cost),
   periods: plain(v.amortisation_periods),
   enrolmentsPerPeriod: String(v.enrolments_per_period),
+  marketCeiling: v.market_ceiling !== null ? plain(v.market_ceiling) : "",
   overrideOn: v.margin_override !== null,
   overridePct: v.margin_override !== null ? fractionToPct(v.margin_override) : "",
   overrideReason: v.margin_override_reason ?? "",
@@ -128,6 +131,9 @@ export const validateTemplate = (form: TemplateForm, edition: Edition): Template
   if (!DECIMAL.test(clean(form.periods)) || Number(clean(form.periods)) <= 0) e.periods = "Enter a number above 0";
   if (!WHOLE.test(clean(form.enrolmentsPerPeriod)) || Number(clean(form.enrolmentsPerPeriod)) <= 0) e.enrolmentsPerPeriod = "Enter a whole number above 0";
 
+  const ceiling = clean(form.marketCeiling);
+  if (ceiling && (!DECIMAL.test(ceiling) || Number(ceiling) <= 0)) e.marketCeiling = "Enter a price above 0, or leave blank";
+
   if (form.overrideOn) {
     if (!DECIMAL.test(clean(form.overridePct)) || Number(clean(form.overridePct)) >= 100) e.overridePct = "Enter a margin below 100%";
     if (form.overrideReason.trim().length < 3) e.overrideReason = "Record why this program has its own margin";
@@ -154,6 +160,7 @@ export const templateInput = (form: TemplateForm, edition: Edition): TemplateInp
     development_cost: clean(form.developmentCost),
     amortisation_periods: clean(form.periods),
     enrolments_per_period: Number(clean(form.enrolmentsPerPeriod)),
+    market_ceiling: clean(form.marketCeiling) || null,
     margin_override: form.overrideOn ? pctToFraction(form.overridePct) : null,
     margin_override_reason: form.overrideOn ? form.overrideReason.trim() : null,
   };

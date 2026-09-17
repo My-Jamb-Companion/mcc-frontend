@@ -15,6 +15,11 @@ export interface ApiEditionSummary {
   latest_version: number | null;
   updated_at: string | null;
   default_tier_price: string | null;
+  /** What the default tier pays now; null until published. */
+  published_price: string | null;
+  published_number: number | null;
+  /** A publication waiting for a second admin. */
+  pending_publication: number | null;
 }
 
 export interface ApiProgramSummary {
@@ -47,6 +52,7 @@ export interface ApiTemplateVersion {
   development_cost: string;
   amortisation_periods: string;
   enrolments_per_period: number;
+  market_ceiling: string | null;
   margin_override: string | null;
   margin_override_reason: string | null;
   change_reason: string;
@@ -76,6 +82,7 @@ export interface ApiTierPrice {
   is_default: boolean;
   price_before_vat: string;
   student_pays: string;
+  above_market_ceiling: boolean;
   breakdown: ApiBreakdown;
 }
 
@@ -93,10 +100,15 @@ export interface ApiPriceQuote {
   effective_vat_rate: string;
   price_headroom: string;
   hard_floor: string;
+  /** The hard floor with VAT: a published price below it sells at a loss. */
+  hard_floor_student_pays: string;
   full_cost_base: string;
   contribution: string;
   weighted_multiplier: string;
   expected_average_student_pays: string | null;
+  market_ceiling: string | null;
+  /** Null without a ceiling; false when any tier is above it. */
+  within_market_ceiling: boolean | null;
   tiers: ApiTierPrice[];
 }
 
@@ -118,6 +130,7 @@ export interface TemplateInput {
   development_cost: string;
   amortisation_periods: string;
   enrolments_per_period: number;
+  market_ceiling: string | null;
   margin_override: string | null;
   margin_override_reason: string | null;
 }

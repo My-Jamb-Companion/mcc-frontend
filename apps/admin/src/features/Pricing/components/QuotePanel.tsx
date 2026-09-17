@@ -75,6 +75,13 @@ export default function QuotePanel({
 
       {message && <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">{message}</p>}
 
+      {quote.within_market_ceiling === false && (
+        <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">
+          Prices in red are above the market ceiling of {naira(quote.market_ceiling!)}, so this edition can&apos;t be
+          published at these costs.
+        </p>
+      )}
+
       <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
         <Figure label="Direct cost per student" value={naira(quote.direct_cost_per_enrolment)} />
         <Figure label="Development per student" value={naira(quote.development_cost_per_enrolment)} />
@@ -103,7 +110,10 @@ export default function QuotePanel({
                   <span className="font-medium text-neutral-900">{t.name}</span>
                   <span className="ml-1.5 text-xs text-neutral-400">×{Number(t.multiplier)}{t.is_default ? " · default" : ""}</span>
                 </td>
-                <td className="py-2 text-right font-semibold tabular-nums text-neutral-900">{naira(t.student_pays)}</td>
+                <td className={`py-2 text-right font-semibold tabular-nums ${t.above_market_ceiling ? "text-red-600" : "text-neutral-900"}`}>
+                  {naira(t.student_pays)}
+                  {t.above_market_ceiling && <span className="sr-only"> (above the market ceiling)</span>}
+                </td>
                 <td className={`py-2 pr-1 text-right text-xs tabular-nums ${diff === null ? "text-neutral-400" : diff >= 0 ? "text-neutral-600" : "text-amber-700"}`}>
                   {diff === null ? "—" : `${diff >= 0 ? "+" : "−"}${Math.abs(diff * 100).toFixed(0)}%`}
                 </td>

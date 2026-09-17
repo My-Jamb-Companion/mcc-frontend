@@ -42,6 +42,7 @@ export interface PricingForm {
   fxBufferPct: string;
   fxThresholdPct: string;
   roundingStep: string;
+  maxIncreasePct: string;
 }
 
 export const OVERHEAD_CATEGORIES: {value: OverheadCategory; label: string}[] = [
@@ -91,6 +92,7 @@ export const emptyForm = (): PricingForm => ({
   fxBufferPct: "",
   fxThresholdPct: "",
   roundingStep: "500",
+  maxIncreasePct: "15",
 });
 
 const DECIMAL = /^\d+(\.\d+)?$/;
@@ -142,6 +144,7 @@ export const fromApi = (p: ApiPricingParameters): PricingForm => ({
   fxBufferPct: fractionToPct(p.fx_buffer_rate),
   fxThresholdPct: fractionToPct(p.fx_reprice_threshold),
   roundingStep: String(p.price_rounding_step),
+  maxIncreasePct: fractionToPct(p.max_price_increase_rate),
 });
 
 export type FormErrors = Partial<Record<keyof PricingForm | `line-${string}`, string>>;
@@ -183,6 +186,7 @@ export const validate = (form: PricingForm): FormErrors => {
     ["levyPct", pct(form.levyPct)],
     ["fxBufferPct", pct(form.fxBufferPct)],
     ["fxThresholdPct", pct(form.fxThresholdPct, {positive: true})],
+    ["maxIncreasePct", pct(form.maxIncreasePct, {positive: true, allowMax: true})],
   ];
   rateChecks.forEach(([field, error]) => {
     if (error) errors[field] = error;
@@ -230,6 +234,7 @@ export const toInput = (
   fx_buffer_rate: pctToFraction(form.fxBufferPct),
   fx_reprice_threshold: pctToFraction(form.fxThresholdPct),
   price_rounding_step: Number(clean(form.roundingStep)),
+  max_price_increase_rate: pctToFraction(form.maxIncreasePct),
 });
 
 /** Comparable form of a version's inputs, ignoring the reason and base version. */

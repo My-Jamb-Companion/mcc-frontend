@@ -1,6 +1,6 @@
 import { apiClient } from "./api-client";
 import { tokenManager } from "./token-manager";
-import { REFRESH_COOKIE } from "./session-keys";
+import { AUTH_COOKIE, REFRESH_COOKIE } from "./session-keys";
 
 /**
  * The one way this tab exchanges a refresh token for new tokens.
@@ -80,4 +80,20 @@ export const refreshSession = (): Promise<string> => {
     });
   }
   return inFlight;
+};
+
+/**
+ * Resolves once a signed-in tab has an access token to send, refreshing first
+ * if the page has only just loaded and the token isn't back yet.
+ *
+ * For public endpoints whose answer depends on who's asking -- the course and
+ * exam catalogues show each student their city tier's price. Sent without a
+ * token, they answer for a visitor, and that answer would be cached and shown
+ * even though checkout then charges the student's own price. Never rejects: a
+ * failed refresh just means the request goes out as a visitor's.
+ */
+export const whenSessionReady = async (): Promise<void> => {
+  if (tokenManager.get()) return;
+  if (typeof document === "undefined" || !document.cookie.includes(`${AUTH_COOKIE}=1`)) return;
+  await refreshSession().catch(() => undefined);
 };
