@@ -89,7 +89,7 @@ export default function ProgramPricing() {
                 <tr className="border-b border-neutral-100 text-xs uppercase tracking-wide text-neutral-400">
                   <th className="pb-2 pr-3 font-medium">Program</th>
                   <th className="pb-2 pr-3 text-right font-medium">Charged today</th>
-                  <th className="pb-2 pr-3 font-medium">Editions · default tier price</th>
+                  <th className="pb-2 pr-3 font-medium">Editions · default tier price (published / formula)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-50">
@@ -138,8 +138,21 @@ function EditionChip({program, edition}: {program: ApiProgramSummary; edition: A
           {edition.latest_version ? `Version ${edition.latest_version}` : "Not costed yet"}
         </span>
       </span>
-      <span className={`text-sm tabular-nums ${edition.default_tier_price ? "font-semibold text-neutral-900" : "text-violet-700"}`}>
-        {edition.default_tier_price ? naira(edition.default_tier_price) : edition.latest_version ? "—" : "Set up"}
+      <span className="flex flex-col items-end">
+        {edition.published_price ? (
+          <span className="text-sm font-semibold tabular-nums text-green-700" title={`Publication ${edition.published_number} in force`}>
+            {naira(edition.published_price)}
+          </span>
+        ) : null}
+        <span className={`text-sm tabular-nums ${
+          edition.published_price ? "text-xs text-neutral-400" : edition.default_tier_price ? "font-semibold text-neutral-900" : "text-violet-700"}`}>
+          {edition.default_tier_price
+            ? `${edition.published_price ? "formula " : ""}${naira(edition.default_tier_price)}`
+            : edition.latest_version ? "—" : "Set up"}
+        </span>
+        {edition.pending_publication && (
+          <span className="rounded-full bg-amber-50 px-1.5 py-0.5 text-[11px] font-medium text-amber-800">Awaiting 2nd admin</span>
+        )}
       </span>
     </Link>
   );

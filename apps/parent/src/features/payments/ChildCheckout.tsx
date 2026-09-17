@@ -15,8 +15,8 @@ interface ChildCheckoutProps {
 }
 
 export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
-  const { data: courses, isLoading: coursesLoading } = useCourseCatalogue();
-  const { data: programs, isLoading: programsLoading } = useProgramCatalogue();
+  const { data: courses, isLoading: coursesLoading } = useCourseCatalogue(childId);
+  const { data: programs, isLoading: programsLoading } = useProgramCatalogue(childId);
   const enrollInCourse = useEnrollChildInCourse(childId);
   const registerForExam = useRegisterChildForExam(childId);
 

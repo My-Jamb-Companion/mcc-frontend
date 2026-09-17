@@ -66,6 +66,7 @@ export interface ApiPricingParameters {
   fx_buffer_rate: string;
   fx_reprice_threshold: string;
   price_rounding_step: number;
+  max_price_increase_rate: string;
   overhead_lines: ApiOverheadLine[];
   derived: ApiDerivedFigures;
 }
@@ -104,6 +105,7 @@ export interface PricingParametersInput {
   fx_buffer_rate: string;
   fx_reprice_threshold: string;
   price_rounding_step: number;
+  max_price_increase_rate: string;
 }
 
 /**

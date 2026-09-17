@@ -399,11 +399,15 @@ function ParametersEditor({
           </div>
         </Section>
 
-        <Section title="Rounding" description="Student prices, including VAT, are rounded up to a multiple of this amount.">
-          <div className="max-w-xs">
+        <Section title="Rounding and price rises"
+          description="Student prices, including VAT, are rounded up to a multiple of the rounding amount. When new prices are published, no tier's price may rise by more than the phase-in cap over the price it replaces; larger rises are reached over several publishes. Decreases apply in full.">
+          <div className="grid max-w-xl gap-4 sm:grid-cols-2">
             <NumberField id="roundingStep" label="Round prices up to the nearest" prefix="₦"
               value={form.roundingStep} onChange={set("roundingStep")}
               error={shown("roundingStep")} readOnly={readOnly} />
+            <NumberField id="maxIncreasePct" label="Phase-in cap per publish" suffix="%"
+              value={form.maxIncreasePct} onChange={set("maxIncreasePct")}
+              error={shown("maxIncreasePct")} readOnly={readOnly} />
           </div>
         </Section>
       </div>

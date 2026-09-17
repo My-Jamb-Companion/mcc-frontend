@@ -1,4 +1,4 @@
-import {apiClient} from "@mcc/api";
+import {apiClient, whenSessionReady} from "@mcc/api";
 
 export interface ApiCourse {
   course_id: string;
@@ -34,8 +34,14 @@ export interface ApiCourseContentRow {
   thumbnail_url?: string | null;
 }
 
-/** Endpoint: GET /courses/ (public catalogue) */
+/**
+ * Endpoint: GET /courses/ (public catalogue)
+ *
+ * Prices are this student's city tier price, so the request waits for the
+ * session's token rather than going out as a visitor's on a fresh page load.
+ */
 export const getCourses = async (): Promise<ApiCourse[]> => {
+  await whenSessionReady();
   const res = await apiClient.get<{data: {courses: ApiCourse[]}}>("/courses/");
   return res.data.data.courses;
 };

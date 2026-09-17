@@ -4,6 +4,7 @@ import Link from "next/link";
 import {useMemo, useState} from "react";
 import {Icon, showSuccess} from "@mcc/ui";
 import {NumberField, Section} from "./components/Fields";
+import PublishPanel from "./components/PublishPanel";
 import QuotePanel from "./components/QuotePanel";
 import {
   DIRECT_COST_CATEGORIES,
@@ -155,6 +156,7 @@ function TemplateEditorForm({detail, programType, programId, edition}: {
   const perPeriodLabel = programType === "exam" ? "Enrolments per exam cycle" : "Enrolments per year";
 
   return (
+    <>
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
       <div className="flex min-w-0 flex-col gap-6">
         <Section title="Live teaching"
@@ -182,6 +184,14 @@ function TemplateEditorForm({detail, programType, programId, edition}: {
             <NumberField id="developmentCost" label="Development cost" prefix="₦" value={form.developmentCost} onChange={set("developmentCost")} error={err("developmentCost")} />
             <NumberField id="periods" label={periodLabel} value={form.periods} onChange={set("periods")} error={err("periods")} />
             <NumberField id="enrolmentsPerPeriod" label={perPeriodLabel} value={form.enrolmentsPerPeriod} onChange={set("enrolmentsPerPeriod")} error={err("enrolmentsPerPeriod")} />
+          </div>
+        </Section>
+
+        <Section title="Market ceiling"
+          description="The most students will realistically pay for this edition, VAT included. Prices can't be published while any tier's price is above it — a sign to rethink the costs, class size or expected enrolments rather than charge more than the market bears.">
+          <div className="max-w-xs">
+            <NumberField id="marketCeiling" label="Highest viable price" prefix="₦" value={form.marketCeiling}
+              onChange={set("marketCeiling")} error={err("marketCeiling")} hint="Needed before publishing" />
           </div>
         </Section>
 
@@ -236,6 +246,9 @@ function TemplateEditorForm({detail, programType, programId, edition}: {
         </div>
       </aside>
     </div>
+    <PublishPanel programType={programType} programId={programId} edition={edition}
+      savedVersion={detail.version?.version_number ?? null} unsavedChanges={detail.version !== null && !unchanged} />
+    </>
   );
 }
 

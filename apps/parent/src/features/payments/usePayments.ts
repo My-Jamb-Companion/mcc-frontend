@@ -6,11 +6,11 @@ import {
   registerChildForExam,
 } from "./payments.service";
 
-export const useCourseCatalogue = () =>
-  useQuery({ queryKey: ["courses", "catalogue"], queryFn: getCourseCatalogue });
+export const useCourseCatalogue = (childId: string) =>
+  useQuery({ queryKey: ["courses", "catalogue", childId], queryFn: () => getCourseCatalogue(childId) });
 
-export const useProgramCatalogue = () =>
-  useQuery({ queryKey: ["exams", "catalogue"], queryFn: getProgramCatalogue });
+export const useProgramCatalogue = (childId: string) =>
+  useQuery({ queryKey: ["exams", "catalogue", childId], queryFn: () => getProgramCatalogue(childId) });
 
 export const useEnrollChildInCourse = (childId: string) => {
   const queryClient = useQueryClient();

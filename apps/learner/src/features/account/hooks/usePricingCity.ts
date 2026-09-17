@@ -19,8 +19,11 @@ export const useSetMyCity = () => {
     mutationFn: (cityId: string) => setMyCity(cityId),
     onSuccess: (data) => {
       queryClient.setQueryData(MY_CITY, data);
-      // Choosing a city also updates the profile's displayed city and state.
+      // Choosing a city also updates the profile's displayed city and state,
+      // and the catalogue prices, which follow the city's tier.
       queryClient.invalidateQueries({queryKey: ["profile"]});
+      queryClient.invalidateQueries({queryKey: ["courses"]});
+      queryClient.invalidateQueries({queryKey: ["exam-programs"]});
     },
   });
 };
