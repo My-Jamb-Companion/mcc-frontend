@@ -1,5 +1,6 @@
 import {useTeachers} from "@mcc/features";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {useMemo} from "react";
 import {fromApiTeacher} from "../helper/teacher.mapper";
 import {approveTeacher, disableTeacher, rejectTeacher} from "../services/teacherActions.service";
 import {
@@ -17,10 +18,24 @@ import {
  * Teachers from the live backend (GET /admin/teachers via
  * @mcc/features's useTeachers), adapted into the local Teacher shape
  * TeachersTable already renders.
+ *
+ * Memoized on query.data: without this, `teachers` was a brand-new array
+ * (with brand-new nested objects) on every render. That array is TeachersTable's
+ * `data` for @tanstack/react-table, which -- per its own docs -- treats a
+ * `data` reference that changes every render as "the data changed", and
+ * resets internal state in response. Nothing in this tree re-renders
+ * TeachersTable on its own, but the moment anything else does (any dropdown
+ * on the page -- selecting a program, a date, an Actions option -- all bubble
+ * a setState up to Teachers.tsx), that reset-on-every-render kicks in and
+ * never stops: each reset is itself a state update, which is itself a new
+ * render, which is itself "new" data. That's the freeze reported from
+ * production -- confirmed live via a V8 CPU profile showing React's own
+ * scheduler (processRootScheduleInMicrotask -> performSyncWorkOnRoot)
+ * calling back into this exact map(), forever, pinning a render at 100%+ CPU.
  */
 export const useAdminTeachers = () => {
   const query = useTeachers();
-  const teachers = (query.data ?? []).map(fromApiTeacher);
+  const teachers = useMemo(() => (query.data ?? []).map(fromApiTeacher), [query.data]);
 
   return {...query, teachers};
 };
