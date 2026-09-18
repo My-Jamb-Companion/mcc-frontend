@@ -34,7 +34,7 @@ export default function OverheadLinesEditor({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
-            <tr className="text-xs uppercase tracking-wide text-neutral-400">
+            <tr className="text-sm uppercase tracking-wide text-neutral-600">
               <th className="pb-2 pr-2 font-medium">Category</th>
               <th className="pb-2 pr-2 font-medium">Description</th>
               <th className="pb-2 pr-2 font-medium">Annual amount</th>
@@ -76,7 +76,7 @@ export default function OverheadLinesEditor({
                       onChange={(e) => update(line.key, {label: e.target.value})}
                       className={`${cell} w-full min-w-44`}
                     />
-                    {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+                    {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
                   </td>
                   <td className="py-1.5 pr-2">
                     <input
@@ -111,7 +111,7 @@ export default function OverheadLinesEditor({
                       className="mt-2.5 h-4 w-4 accent-violet-600"
                     />
                   </td>
-                  <td className="py-1.5 pr-2 pt-3.5 text-right tabular-nums text-neutral-700">
+                  <td className="py-1.5 pr-2 pt-3.5 text-right tabular-nums text-neutral-900">
                     ₦{naira.format(lineNgn[line.key] ?? 0)}
                   </td>
                   <td className="py-1.5 pt-2">
@@ -136,14 +136,14 @@ export default function OverheadLinesEditor({
         <button
           type="button"
           onClick={() => onChange([...lines, newLine()])}
-          className="inline-flex w-fit items-center gap-1.5 rounded-full border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50"
+          className="inline-flex w-fit items-center gap-1.5 rounded-full border border-neutral-200 px-4 py-2 text-base font-medium text-neutral-900 hover:bg-neutral-50"
         >
           <Icon icon="ph:plus" size={14} />
           Add a cost
         </button>
       )}
       {showVatColumnNote && (
-        <p className="text-xs text-neutral-500">
+        <p className="text-sm text-neutral-700">
           Courses are VAT exempt, so VAT paid on ticked costs can&apos;t be reclaimed and is included
           in their naira figure.
         </p>
