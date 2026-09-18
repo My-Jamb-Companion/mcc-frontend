@@ -227,17 +227,22 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
             )}
           />
 
-          <FormInputs
-            type="number"
-            label="Price"
-            placeholder="0"
-            inputClassName="py-4 rounded-xl"
-            registration={register("price", {
-              required: "Price is required",
-              min: {value: 0, message: "Price must be 0 or more"},
-            })}
-            errors={errors.price}
-          />
+          <div className="flex flex-col gap-1">
+            <FormInputs
+              type="number"
+              label="Price"
+              placeholder="0"
+              inputClassName="py-4 rounded-xl"
+              registration={register("price", {
+                min: {value: 0, message: "Price must be 0 or more"},
+              })}
+              errors={errors.price}
+            />
+            <p className="text-xs text-subtle">
+              Leave as 0 for now — set the real price under Finance &gt;
+              Pricing once the program is created.
+            </p>
+          </div>
         </div>
 
         {/* Level */}

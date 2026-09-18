@@ -1,6 +1,7 @@
 "use client";
 
 import {useState} from "react";
+import Link from "next/link";
 import {Button, confettiCelebrate, Icon, showError, showSuccess} from "@mcc/ui";
 import {useForm, FormProvider} from "@mcc/features";
 import ContentStep, {hasCompleteContent, uid} from "./CreateCoursesSteps/Step2";
@@ -112,6 +113,7 @@ export default function CreateCourseForm() {
   const [apiError, setApiError] = useState<string | null>(null);
 
   const [previewView, setPreviewView] = useState(false);
+  const [pricingBannerDismissed, setPricingBannerDismissed] = useState(false);
 
   // ─────────────────────────────────────────────
   // FORM
@@ -150,6 +152,12 @@ export default function CreateCourseForm() {
   // ─────────────────────────────────────────────
 
   const activeIndex = STEPS.findIndex((step) => step.id === activeStep);
+
+  // uid() generates 7-char strings; an API-issued id is always longer, so
+  // this only becomes true once Step1's "Save & continue" has actually
+  // created the course.
+  const courseId = methods.watch("id");
+  const hasApiId = Boolean(courseId && courseId.length > 7);
 
   const topics = methods.watch("content.topics") ?? [];
 
@@ -414,6 +422,31 @@ export default function CreateCourseForm() {
                   type="button"
                   onClick={() => setApiError(null)}
                   className="font-semibold text-xs text-red-500 hover:text-red-700"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
+            {hasApiId && !pricingBannerDismissed && (
+              <div className="mb-4 flex items-center justify-between rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-800">
+                <div className="flex items-center gap-2">
+                  <Icon icon="lucide:banknote" size={18} className="shrink-0 text-violet-500" />
+                  <span>
+                    This course doesn&apos;t have a real price yet. Set one up in{" "}
+                    <Link
+                      href={`/finance/pricing/programs/course/${encodeURIComponent(courseId)}/standard`}
+                      className="font-semibold underline hover:text-violet-900"
+                    >
+                      Finance &gt; Pricing
+                    </Link>
+                    .
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPricingBannerDismissed(true)}
+                  className="font-semibold text-xs text-violet-500 hover:text-violet-700"
                 >
                   Dismiss
                 </button>

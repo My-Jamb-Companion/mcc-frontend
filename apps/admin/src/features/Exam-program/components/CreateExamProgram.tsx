@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import {useState} from "react";
+import Link from "next/link";
 import {Button, confettiCelebrate, Icon} from "@mcc/ui";
 import {useForm, FormProvider} from "@mcc/features";
 import ContentStep, {
@@ -153,6 +154,8 @@ export default function CreateExamProgramForm() {
 
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
+  const [pricingBannerDismissed, setPricingBannerDismissed] = useState(false);
+  const programId = methods.watch("id");
 
   const activeIndex = STEPS.findIndex((s) => s.id === activeStep);
 
@@ -227,6 +230,31 @@ export default function CreateExamProgramForm() {
   return (
     <FormProvider {...methods}>
       <div className="flex flex-col h-full">
+        {programId && !pricingBannerDismissed && (
+          <div className="mb-4 flex items-center justify-between rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-800">
+            <div className="flex items-center gap-2">
+              <Icon icon="lucide:banknote" size={18} className="shrink-0 text-violet-500" />
+              <span>
+                This exam program doesn&apos;t have a real price yet. Set one up in{" "}
+                <Link
+                  href={`/finance/pricing/programs/exam/${encodeURIComponent(programId)}/standard`}
+                  className="font-semibold underline hover:text-violet-900"
+                >
+                  Finance &gt; Pricing
+                </Link>
+                .
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPricingBannerDismissed(true)}
+              className="font-semibold text-xs text-violet-500 hover:text-violet-700"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-xl font-semibold text-gray-900">

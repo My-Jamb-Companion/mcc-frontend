@@ -2,7 +2,9 @@
 
 import {useState, useEffect, useRef} from "react";
 import {useSearchParams} from "next/navigation";
+import Link from "next/link";
 import {Button, confettiCelebrate, Icon, showError, showSuccess} from "@mcc/ui";
+import {usePricedPrograms} from "@/src/features/Pricing/hooks/useTemplates";
 import {useForm, FormProvider} from "@mcc/features";
 import ContentStep, {hasCompleteContent, uid} from "./CreateCoursesSteps/Step2";
 import CreateDetails from "./CreateCoursesSteps/Step1";
@@ -127,6 +129,14 @@ export default function CreateCourseForm() {
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [pricingBannerDismissed, setPricingBannerDismissed] = useState(false);
+
+  const {data: pricedPrograms} = usePricedPrograms();
+  const priceTemplate = pricedPrograms?.programs
+    .find((p) => p.program_type === "course" && p.program_id === editId)
+    ?.editions.find((e) => e.edition === "standard");
+  const hasPricingSetUp = Boolean(priceTemplate?.latest_version);
+  const isPricePublished = Boolean(priceTemplate?.published_price);
 
   // ─────────────────────────────────────────────
   // COURSE STORE
@@ -393,6 +403,57 @@ export default function CreateCourseForm() {
                   type="button"
                   onClick={() => setApiError(null)}
                   className="font-semibold text-xs text-red-500 hover:text-red-700"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
+            {editId && !pricingBannerDismissed && (
+              <div className="mb-4 flex items-center justify-between rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-800">
+                <div className="flex items-center gap-2">
+                  <Icon icon="lucide:banknote" size={18} className="shrink-0 text-violet-500" />
+                  <span>
+                    {isPricePublished ? (
+                      <>
+                        This course&apos;s price is managed in{" "}
+                        <Link
+                          href={`/finance/pricing/programs/course/${encodeURIComponent(editId)}/standard`}
+                          className="font-semibold underline hover:text-violet-900"
+                        >
+                          Finance &gt; Pricing
+                        </Link>
+                        . The Price field below won&apos;t take effect — update it there instead.
+                      </>
+                    ) : hasPricingSetUp ? (
+                      <>
+                        This course has a pricing draft that isn&apos;t published yet. Finish it in{" "}
+                        <Link
+                          href={`/finance/pricing/programs/course/${encodeURIComponent(editId)}/standard`}
+                          className="font-semibold underline hover:text-violet-900"
+                        >
+                          Finance &gt; Pricing
+                        </Link>
+                        .
+                      </>
+                    ) : (
+                      <>
+                        This course doesn&apos;t have a real price set up yet. Set one up in{" "}
+                        <Link
+                          href={`/finance/pricing/programs/course/${encodeURIComponent(editId)}/standard`}
+                          className="font-semibold underline hover:text-violet-900"
+                        >
+                          Finance &gt; Pricing
+                        </Link>
+                        .
+                      </>
+                    )}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPricingBannerDismissed(true)}
+                  className="font-semibold text-xs text-violet-500 hover:text-violet-700"
                 >
                   Dismiss
                 </button>
