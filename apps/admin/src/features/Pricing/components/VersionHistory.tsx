@@ -16,14 +16,14 @@ export default function VersionHistory({
 
   return (
     <section className="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm">
-      <h2 className="text-base font-bold text-neutral-900">Version history</h2>
-      <p className="mt-1 text-sm text-neutral-500">
+      <h2 className="text-lg font-bold text-neutral-900">Version history</h2>
+      <p className="mt-1 text-base text-neutral-700">
         Saved versions never change. Prices record the version they were built on.
       </p>
       {isLoading ? (
-        <p className="mt-4 text-sm text-neutral-400">Loading…</p>
+        <p className="mt-4 text-base text-neutral-600">Loading…</p>
       ) : !versions?.length ? (
-        <p className="mt-4 text-sm text-neutral-400">No versions saved yet.</p>
+        <p className="mt-4 text-base text-neutral-600">No versions saved yet.</p>
       ) : (
         <ul className="mt-4 divide-y divide-neutral-100">
           {versions.map((v) => {
@@ -33,17 +33,17 @@ export default function VersionHistory({
               <li key={v.version_id} className="flex items-start justify-between gap-4 py-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-neutral-900 tabular-nums">
+                    <span className="text-base font-semibold text-neutral-900 tabular-nums">
                       Version {v.version_number}
                     </span>
                     {isActive && (
-                      <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
+                      <span className="rounded-full bg-green-50 px-2 py-0.5 text-sm font-medium text-green-700">
                         Active
                       </span>
                     )}
                   </div>
-                  <p className="mt-0.5 text-sm text-neutral-600 break-words">{v.change_reason}</p>
-                  <p className="mt-0.5 text-xs text-neutral-400">
+                  <p className="mt-0.5 text-base text-neutral-700 break-words">{v.change_reason}</p>
+                  <p className="mt-0.5 text-sm text-neutral-600">
                     {v.created_by_name ?? "Unknown admin"} · {when(v.created_at)}
                   </p>
                 </div>
@@ -51,7 +51,7 @@ export default function VersionHistory({
                   <button
                     type="button"
                     onClick={() => onView(isActive ? null : v.version_number)}
-                    className="shrink-0 rounded-full border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-800 hover:bg-neutral-50"
+                    className="shrink-0 rounded-full border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-900 hover:bg-neutral-50"
                   >
                     View
                   </button>

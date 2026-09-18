@@ -50,15 +50,15 @@ export default function PricingParameters() {
           <Icon icon="ph:arrow-left" size={14} />
           Finance
         </Link>
-        <h1 className="mt-2 text-2xl font-bold text-neutral-900">Pricing parameters</h1>
-        <p className="mt-1 max-w-2xl text-sm text-neutral-500">
+        <h1 className="mt-2 text-3xl font-bold text-neutral-900">Pricing parameters</h1>
+        <p className="mt-1 max-w-2xl text-base text-neutral-700">
           The company-wide figures every course and exam program price is calculated from. Saving
           creates a new version that applies to prices set from then on; earlier versions stay
           exactly as they were.
         </p>
       </div>
       {activeVersion !== null && (
-        <span className="rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700">
+        <span className="rounded-full bg-green-50 px-3 py-1.5 text-base font-medium text-green-700">
           Active: version {activeVersion}
         </span>
       )}
@@ -72,7 +72,7 @@ export default function PricingParameters() {
     return (
       <section className="flex flex-col gap-6 pb-10">
         {header}
-        <p className="text-sm text-neutral-400">Loading pricing parameters…</p>
+        <p className="text-base text-neutral-600">Loading pricing parameters…</p>
       </section>
     );
   }
@@ -81,7 +81,7 @@ export default function PricingParameters() {
     return (
       <section className="flex flex-col gap-6 pb-10">
         {header}
-        <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-sm text-red-700">
+        <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-base text-red-700">
           {pricingErrorMessage(active.error, "Couldn't load pricing parameters.")}{" "}
           <button type="button" onClick={() => active.refetch()} className="font-semibold underline">
             Try again
@@ -102,7 +102,7 @@ export default function PricingParameters() {
       {header}
 
       {viewingPast && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-violet-100 bg-violet-50 px-5 py-4 text-sm text-violet-900">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-violet-100 bg-violet-50 px-5 py-4 text-base text-violet-900">
           <span>
             Viewing version {viewing}, which is no longer active. It can&apos;t be edited.
           </span>
@@ -131,7 +131,7 @@ export default function PricingParameters() {
       )}
 
       {!viewingPast && seed && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-100 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-100 bg-amber-50 px-5 py-4 text-base text-amber-900">
           <span>
             Editing from version {seed.version_number}. Saving creates version {(activeVersion ?? 0) + 1}.
           </span>
@@ -146,14 +146,14 @@ export default function PricingParameters() {
       )}
 
       {!viewingPast && activeVersion === null && (
-        <div className="rounded-2xl border border-violet-100 bg-violet-50 px-5 py-4 text-sm text-violet-900">
+        <div className="rounded-2xl border border-violet-100 bg-violet-50 px-5 py-4 text-base text-violet-900">
           No pricing parameters have been set yet. Fill in the figures below to create version 1.
           Nothing can be priced until they exist.
         </div>
       )}
 
       {viewingPast && past.isLoading ? (
-        <p className="text-sm text-neutral-400">Loading version {viewing}…</p>
+        <p className="text-base text-neutral-600">Loading version {viewing}…</p>
       ) : (
         <ParametersEditor
           key={editorKey}
@@ -245,7 +245,7 @@ function ParametersEditor({
   };
 
   const headroomTone =
-    !Number.isFinite(figures.headroom) ? "text-neutral-400"
+    !Number.isFinite(figures.headroom) ? "text-neutral-600"
       : figures.headroom <= 0 ? "text-red-600"
         : figures.headroom < 0.5 ? "text-amber-600"
           : "text-green-700";
@@ -435,11 +435,11 @@ function ParametersEditor({
 
       <aside className="flex flex-col gap-4 xl:sticky xl:top-6">
         <div className="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm">
-          <h2 className="text-base font-bold text-neutral-900">What these figures produce</h2>
-          <p className="mt-1 text-xs text-neutral-400">
+          <h2 className="text-lg font-bold text-neutral-900">What these figures produce</h2>
+          <p className="mt-1 text-sm text-neutral-600">
             {readOnly ? "As saved in this version." : "Updates as you type. Saved figures are recalculated by the server."}
           </p>
-          <dl className="mt-4 flex flex-col gap-3 text-sm">
+          <dl className="mt-4 flex flex-col gap-3 text-base">
             <Figure label="Left to cover costs" value={percent(figures.headroom, 1)} valueClass={headroomTone}
               note={figures.headroom <= 0 ? "Fees and margin take every naira. Nothing could be priced." : "Share of each price before VAT"} />
             <Figure label="Lost to fees, referrals, refunds" value={percent(figures.deductions, 3)} />
@@ -455,7 +455,7 @@ function ParametersEditor({
 
         {!readOnly && (
           <div className="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm">
-            <label htmlFor="change-reason" className="text-sm font-semibold text-neutral-900">
+            <label htmlFor="change-reason" className="text-base font-semibold text-neutral-900">
               Why are these changing?
             </label>
             <textarea
@@ -464,13 +464,13 @@ function ParametersEditor({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder={active ? "e.g. Updated hosting costs after the new annual contract" : "e.g. Initial figures from the 2026 budget"}
-              className="mt-2 w-full rounded-xl border border-neutral-200 p-3 text-sm outline-none focus:border-violet-500"
+              className="mt-2 w-full rounded-xl border border-neutral-200 p-3 text-base text-neutral-900 outline-none focus:border-violet-500"
             />
             {showErrors && hasErrors && (
-              <p className="mt-2 text-xs text-red-600">Some figures need fixing before this can be saved.</p>
+              <p className="mt-2 text-sm text-red-600">Some figures need fixing before this can be saved.</p>
             )}
             {saveError && (
-              <div className="mt-2 text-xs text-red-600">
+              <div className="mt-2 text-sm text-red-600">
                 <p>{saveError.message}</p>
                 {saveError.conflict && (
                   <button type="button" onClick={onReloadLatest} className="mt-1 font-semibold underline">
@@ -483,7 +483,7 @@ function ParametersEditor({
               type="button"
               onClick={handleSave}
               disabled={save.isPending || unchanged}
-              className="mt-4 w-full rounded-full bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-700 disabled:opacity-50"
+              className="mt-4 w-full rounded-full bg-violet-600 px-4 py-2.5 text-base font-semibold text-white transition-colors hover:bg-violet-700 disabled:opacity-50"
             >
               {save.isPending
                 ? "Saving…"
@@ -491,7 +491,7 @@ function ParametersEditor({
                   ? "No changes to save"
                   : `Save as version ${(active?.version_number ?? 0) + 1}`}
             </button>
-            <p className="mt-2 text-xs text-neutral-400">
+            <p className="mt-2 text-sm text-neutral-600">
               Applies to prices set after saving. Existing prices keep the version they were built on.
             </p>
           </div>
@@ -505,8 +505,8 @@ function Figure({label, value, note, valueClass = "text-neutral-900"}: {label: s
   return (
     <div className="flex items-start justify-between gap-4">
       <div>
-        <dt className="text-neutral-600">{label}</dt>
-        {note && <p className="text-xs text-neutral-400">{note}</p>}
+        <dt className="text-neutral-800">{label}</dt>
+        {note && <p className="text-sm text-neutral-600">{note}</p>}
       </div>
       <dd className={`font-semibold tabular-nums ${valueClass}`}>{value}</dd>
     </div>

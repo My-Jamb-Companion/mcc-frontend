@@ -15,8 +15,8 @@ export function Section({
     <section className="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="max-w-2xl">
-          <h2 className="text-base font-bold text-neutral-900">{title}</h2>
-          {description && <p className="mt-1 text-sm text-neutral-500">{description}</p>}
+          <h2 className="text-lg font-bold text-neutral-900">{title}</h2>
+          {description && <p className="mt-1 text-base text-neutral-700">{description}</p>}
         </div>
         {aside}
       </div>
@@ -27,7 +27,7 @@ export function Section({
 
 export function AccountantNote({decision}: {decision: string}) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
       Confirm with your accountant · {decision}
     </span>
   );
@@ -58,7 +58,7 @@ export function NumberField({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-neutral-800">
+      <label htmlFor={id} className="text-base font-medium text-neutral-900">
         {label}
       </label>
       <div
@@ -66,7 +66,7 @@ export function NumberField({
           error ? "border-red-300" : "border-neutral-200"
         } ${disabled ? "opacity-50" : ""}`}
       >
-        {prefix && <span className="pr-2 text-sm text-neutral-400">{prefix}</span>}
+        {prefix && <span className="pr-2 text-base text-neutral-600">{prefix}</span>}
         <input
           id={id}
           type="text"
@@ -78,17 +78,17 @@ export function NumberField({
           aria-invalid={!!error}
           aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full bg-transparent py-2.5 text-sm tabular-nums text-neutral-900 outline-none read-only:text-neutral-600"
+          className="w-full bg-transparent py-2.5 text-base tabular-nums text-neutral-900 outline-none read-only:text-neutral-700"
         />
-        {suffix && <span className="pl-2 text-sm text-neutral-400">{suffix}</span>}
+        {suffix && <span className="pl-2 text-base text-neutral-600">{suffix}</span>}
       </div>
       {error ? (
-        <p id={`${id}-error`} className="text-xs text-red-600">
+        <p id={`${id}-error`} className="text-sm text-red-600">
           {error}
         </p>
       ) : (
         hint && (
-          <p id={`${id}-hint`} className="text-xs text-neutral-400">
+          <p id={`${id}-hint`} className="text-sm text-neutral-600">
             {hint}
           </p>
         )
@@ -124,7 +124,7 @@ export function ChoiceGroup<T extends string>({
                 checked ? "border-violet-500 bg-violet-50/60" : "border-neutral-200 hover:border-neutral-300"
               } ${readOnly ? "pointer-events-none" : ""}`}
             >
-              <span className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
+              <span className="flex items-center gap-2 text-base font-semibold text-neutral-900">
                 <input
                   type="radio"
                   name={name}
@@ -136,12 +136,12 @@ export function ChoiceGroup<T extends string>({
                 />
                 {option.label}
               </span>
-              <span className="text-xs text-neutral-500">{option.description}</span>
+              <span className="text-sm text-neutral-700">{option.description}</span>
             </label>
           );
         })}
       </div>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
   );
 }
