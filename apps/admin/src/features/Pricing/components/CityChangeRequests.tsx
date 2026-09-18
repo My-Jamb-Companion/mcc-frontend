@@ -7,7 +7,8 @@ import type {ApiCityChangeRequest, ApiCityOption} from "../services/locations.se
 import {pricingErrorMessage} from "../services/pricing.service";
 import {Section} from "./Fields";
 
-const place = (city: ApiCityOption | null) => (city ? `${city.name}, ${city.state}` : "No city set");
+const place = (city: ApiCityOption | null) =>
+  city ? `${city.name}, ${city.state}${city.country && city.country !== "Nigeria" ? `, ${city.country}` : ""}` : "No city set";
 const when = (iso: string) => new Date(iso).toLocaleDateString("en-NG", {day: "numeric", month: "short", year: "numeric"});
 
 export default function CityChangeRequests() {

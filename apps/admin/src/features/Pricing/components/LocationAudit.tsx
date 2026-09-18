@@ -8,17 +8,20 @@ import {Section} from "./Fields";
 const when = (iso: string) =>
   new Date(iso).toLocaleString("en-NG", {day: "numeric", month: "short", hour: "numeric", minute: "2-digit"});
 
+const place = (d: Record<string, unknown>): string =>
+  `${d.name}, ${d.state}${d.country && d.country !== "Nigeria" ? `, ${d.country}` : ""}`;
+
 const describe = (e: ApiLocationAuditEntry): string => {
   const d = e.details as Record<string, unknown>;
   switch (e.action) {
     case "tiers_updated":
       return `Updated the tiers (weighted multiplier ${Number(d.weighted_multiplier).toFixed(3)})`;
     case "city_added":
-      return `Added ${d.name}, ${d.state}`;
+      return `Added ${place(d)}`;
     case "city_updated": {
       const changes = Object.keys((d.changes as Record<string, unknown>) ?? {});
       const what = changes.map((c) => (c === "tier_id" ? "tier" : c === "is_active" ? "availability" : c)).join(", ");
-      return `Changed ${d.name}, ${d.state} (${what})`;
+      return `Changed ${place(d)} (${what})`;
     }
     case "cities_assigned":
       return `Moved ${d.updated} ${d.updated === 1 ? "city" : "cities"} to a new tier`;

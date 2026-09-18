@@ -40,6 +40,7 @@ export interface ApiPricingCity {
   city_id: string;
   name: string;
   state: string;
+  country: string;
   is_other: boolean;
   is_active: boolean;
   tier_id: string | null;
@@ -52,6 +53,7 @@ export interface ApiCityOption {
   city_id: string;
   name: string;
   state: string;
+  country: string;
   is_other: boolean;
 }
 
@@ -89,6 +91,17 @@ export const NIGERIAN_STATES = [
   "Yobe", "Zamfara",
 ] as const;
 
+/**
+ * For the "Add a city" country field's autocomplete. Free text works for any
+ * country -- the backend only enforces NIGERIAN_STATES when this is Nigeria.
+ */
+export const COUNTRIES = [
+  "Nigeria", "United States", "United Kingdom", "Canada", "Ghana", "South Africa",
+  "Kenya", "Egypt", "United Arab Emirates", "Saudi Arabia", "Qatar", "Germany",
+  "France", "Ireland", "Netherlands", "Australia", "India", "Malaysia", "China",
+  "Cameroon", "Benin", "Togo", "Senegal", "Ivory Coast", "Rwanda", "Uganda", "Other",
+] as const;
+
 /** Endpoint: GET /admin/pricing/tiers */
 export const getTierSet = async (): Promise<ApiTierSet> =>
   (await apiClient.get<{data: ApiTierSet}>("/admin/pricing/tiers")).data.data;
@@ -98,7 +111,7 @@ export const saveTierSet = async (input: TierSetInput): Promise<ApiTierSet> =>
   (await apiClient.put<{data: ApiTierSet}>("/admin/pricing/tiers", input)).data.data;
 
 /** Endpoint: GET /admin/pricing/cities */
-export const listCities = async (filters: {state?: string; tier_id?: string; q?: string}) =>
+export const listCities = async (filters: {country?: string; state?: string; tier_id?: string; q?: string}) =>
   (
     await apiClient.get<{data: {cities: ApiPricingCity[]}}>("/admin/pricing/cities", {
       params: Object.fromEntries(Object.entries(filters).filter(([, v]) => v)),
@@ -106,7 +119,7 @@ export const listCities = async (filters: {state?: string; tier_id?: string; q?:
   ).data.data.cities;
 
 /** Endpoint: POST /admin/pricing/cities */
-export const createCity = async (input: {name: string; state: string; tier_id?: string | null}) =>
+export const createCity = async (input: {name: string; state: string; country?: string; tier_id?: string | null}) =>
   (await apiClient.post<{data: ApiPricingCity}>("/admin/pricing/cities", input)).data.data;
 
 /**
