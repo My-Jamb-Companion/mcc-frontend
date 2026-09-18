@@ -28,7 +28,7 @@ export const useSaveTierSet = () => {
   return useMutation({mutationFn: (input: TierSetInput) => saveTierSet(input), onSuccess: invalidate});
 };
 
-export const useCities = (filters: {state?: string; tier_id?: string; q?: string}) =>
+export const useCities = (filters: {country?: string; state?: string; tier_id?: string; q?: string}) =>
   useQuery({queryKey: [...ROOT, "cities", filters], queryFn: () => listCities(filters)});
 
 export const useCreateCity = () => {

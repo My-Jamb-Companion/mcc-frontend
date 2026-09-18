@@ -3,7 +3,7 @@
 import {useMemo, useState} from "react";
 import {ConfirmModal, Icon, showError, showSuccess} from "@mcc/ui";
 import {useAssignCities, useCities, useCreateCity, useTierSet, useUpdateCity} from "../hooks/useLocations";
-import {NIGERIAN_STATES, type ApiPricingCity, type ApiTier} from "../services/locations.service";
+import {COUNTRIES, NIGERIAN_STATES, type ApiPricingCity, type ApiTier} from "../services/locations.service";
 import {pricingErrorMessage} from "../services/pricing.service";
 import {Section} from "./Fields";
 
@@ -16,6 +16,7 @@ export default function CityList() {
   const tiers = tierSet?.tiers ?? [];
   const defaultTier = tiers.find((t) => t.is_default);
 
+  const [country, setCountry] = useState("");
   const [state, setState] = useState("");
   const [tierFilter, setTierFilter] = useState("");
   const [query, setQuery] = useState("");
@@ -25,17 +26,29 @@ export default function CityList() {
 
   const assign = useAssignCities();
 
+  // Countries and states actually in use, so an overseas city added earlier
+  // shows up as a filter option even though it isn't in NIGERIAN_STATES/COUNTRIES.
+  const countryOptions = useMemo(
+    () => Array.from(new Set([...COUNTRIES.filter((c) => c !== "Other"), ...(cities ?? []).map((c) => c.country)])).sort(),
+    [cities],
+  );
+  const stateOptions = useMemo(
+    () => Array.from(new Set([...NIGERIAN_STATES, ...(cities ?? []).map((c) => c.state)])).sort(),
+    [cities],
+  );
+
   // ~125 rows: filtering in the browser keeps it instant and avoids a request per keystroke.
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return (cities ?? []).filter(
       (c) =>
         (showInactive || c.is_active) &&
+        (!country || c.country === country) &&
         (!state || c.state === state) &&
         (!tierFilter || c.effective_tier_id === tierFilter) &&
-        (!q || c.name.toLowerCase().includes(q) || c.state.toLowerCase().includes(q)),
+        (!q || c.name.toLowerCase().includes(q) || c.state.toLowerCase().includes(q) || c.country.toLowerCase().includes(q)),
     );
-  }, [cities, state, tierFilter, query, showInactive]);
+  }, [cities, country, state, tierFilter, query, showInactive]);
 
   const allVisibleSelected = visible.length > 0 && visible.every((c) => selected.has(c.city_id));
   const toggleAll = () =>
@@ -67,11 +80,15 @@ export default function CityList() {
       aside={<AddCity />}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <input aria-label="Search cities" placeholder="Search city or state" value={query}
+        <input aria-label="Search cities" placeholder="Search city, state or country" value={query}
           onChange={(e) => setQuery(e.target.value)} className={`${control} w-56`} />
+        <select aria-label="Filter by country" value={country} onChange={(e) => setCountry(e.target.value)} className={control}>
+          <option value="">All countries</option>
+          {countryOptions.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
         <select aria-label="Filter by state" value={state} onChange={(e) => setState(e.target.value)} className={control}>
           <option value="">All states</option>
-          {NIGERIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+          {stateOptions.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
         <select aria-label="Filter by tier" value={tierFilter} onChange={(e) => setTierFilter(e.target.value)} className={control}>
           <option value="">All tiers</option>
@@ -102,7 +119,7 @@ export default function CityList() {
         {isLoading ? (
           <p className="py-6 text-sm text-neutral-400">Loading cities…</p>
         ) : (
-          <table className="w-full min-w-[680px] text-left text-sm">
+          <table className="w-full min-w-[780px] text-left text-sm">
             <thead>
               <tr className="border-b border-neutral-100 text-xs uppercase tracking-wide text-neutral-400">
                 <th className="w-8 pb-2">
@@ -110,6 +127,7 @@ export default function CityList() {
                 </th>
                 <th className="pb-2 pr-3 font-medium">City</th>
                 <th className="pb-2 pr-3 font-medium">State</th>
+                <th className="pb-2 pr-3 font-medium">Country</th>
                 <th className="pb-2 pr-3 font-medium">Tier</th>
                 <th className="pb-2 pr-3 text-right font-medium">Students</th>
                 <th className="pb-2" />
@@ -197,6 +215,7 @@ function CityRow({city, tiers, defaultTier, selected, onSelect, control}: {
         {!city.is_active && <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-500">Deactivated</span>}
       </td>
       <td className="py-2 pr-3">{city.state}</td>
+      <td className="py-2 pr-3">{city.country}</td>
       <td className="py-2 pr-3">
         <TierSelect tiers={tiers} defaultTier={defaultTier} value={city.tier_id ?? DEFAULT}
           onChange={moveTo} className={`${control} py-1.5`} label={`Tier for ${city.name}`} />
@@ -233,19 +252,29 @@ function CityRow({city, tiers, defaultTier, selected, onSelect, control}: {
 function AddCity() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
+  const [country, setCountry] = useState<string>("Nigeria");
   const [state, setState] = useState("");
   const create = useCreateCity();
 
+  const isNigeria = country.trim().toLowerCase() === "nigeria";
+  const stateValid = isNigeria ? (NIGERIAN_STATES as readonly string[]).includes(state) : state.trim().length > 0;
+  const canSubmit = name.trim().length > 0 && country.trim().length > 0 && stateValid;
+
+  const reset = () => {
+    setName("");
+    setCountry("Nigeria");
+    setState("");
+    setOpen(false);
+  };
+
   const submit = () => {
-    if (!name.trim() || !state) return;
+    if (!canSubmit) return;
     create.mutate(
-      {name: name.trim(), state},
+      {name: name.trim(), state: state.trim(), country: country.trim()},
       {
         onSuccess: (city) => {
-          showSuccess(`${city.name}, ${city.state} added`);
-          setName("");
-          setState("");
-          setOpen(false);
+          showSuccess(`${city.name}, ${city.state}, ${city.country} added`);
+          reset();
         },
         onError: (err) => showError(pricingErrorMessage(err, "Couldn't add this city")),
       },
@@ -266,15 +295,39 @@ function AddCity() {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <input aria-label="New city name" placeholder="City or town" value={name} onChange={(e) => setName(e.target.value)} className={`${control} w-44`} />
-      <select aria-label="New city state" value={state} onChange={(e) => setState(e.target.value)} className={control}>
-        <option value="">State…</option>
-        {NIGERIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
-      </select>
-      <button type="button" onClick={submit} disabled={!name.trim() || !state || create.isPending}
+      <input
+        aria-label="New city country"
+        list="pricing-city-countries"
+        placeholder="Country"
+        value={country}
+        onChange={(e) => {
+          setCountry(e.target.value);
+          setState("");
+        }}
+        className={`${control} w-40`}
+      />
+      <datalist id="pricing-city-countries">
+        {COUNTRIES.filter((c) => c !== "Other").map((c) => <option key={c} value={c} />)}
+      </datalist>
+      {isNigeria ? (
+        <select aria-label="New city state" value={state} onChange={(e) => setState(e.target.value)} className={control}>
+          <option value="">State…</option>
+          {NIGERIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
+      ) : (
+        <input
+          aria-label="New city state or region"
+          placeholder="State / region"
+          value={state}
+          onChange={(e) => setState(e.target.value)}
+          className={`${control} w-36`}
+        />
+      )}
+      <button type="button" onClick={submit} disabled={!canSubmit || create.isPending}
         className="rounded-full bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700 disabled:opacity-50">
         {create.isPending ? "Adding…" : "Add"}
       </button>
-      <button type="button" onClick={() => setOpen(false)} className="text-sm text-neutral-500 underline">Cancel</button>
+      <button type="button" onClick={reset} className="text-sm text-neutral-500 underline">Cancel</button>
     </div>
   );
 }
