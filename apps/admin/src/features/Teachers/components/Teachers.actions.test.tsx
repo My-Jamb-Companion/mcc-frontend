@@ -135,3 +135,39 @@ describe("Teachers actions menu", () => {
     });
   });
 });
+
+describe("Teachers filter dropdowns", () => {
+  // Reported separately: selecting an option in "Select program" or
+  // "Select date" freezes the page too, the same as the Actions menu -- and
+  // these two only ever touch local, page-level state (setProgram/setDate),
+  // nothing to do with a teacher record. If choosing an option here also
+  // breaks, the bug is in re-rendering Teachers itself, not in any one panel.
+  it("selecting a program option does not break the page", async () => {
+    renderScreen();
+    fireEvent.click(screen.getByText("Select program"));
+    fireEvent.click(await screen.findByText("IELTS"));
+    // The page is still alive: the trigger shows the new value, and other
+    // controls still respond.
+    await waitFor(() => expect(screen.getByText("IELTS")).toBeTruthy());
+    fireEvent.click(screen.getAllByLabelText("More actions")[0]);
+    expect(screen.getByText("Open profile")).toBeTruthy();
+  });
+
+  it("selecting a date option does not break the page", async () => {
+    renderScreen();
+    fireEvent.click(screen.getByText("Select Date"));
+    fireEvent.click(await screen.findByText("Today"));
+    await waitFor(() => expect(screen.getByText("Today")).toBeTruthy());
+    fireEvent.click(screen.getAllByLabelText("More actions")[0]);
+    expect(screen.getByText("Open profile")).toBeTruthy();
+  });
+
+  it("typing in the search box does not break the page", () => {
+    renderScreen();
+    fireEvent.change(screen.getByPlaceholderText("Search for Active student"), {
+      target: {value: "tobi"},
+    });
+    fireEvent.click(screen.getAllByLabelText("More actions")[0]);
+    expect(screen.getByText("Open profile")).toBeTruthy();
+  });
+});
