@@ -8,6 +8,8 @@ import {
   getTeacherDetail,
   searchPrograms,
   unassignProgram,
+  updateTeacherProfile,
+  UpdateTeacherProfilePayload,
 } from "../services/teacherPrograms.service";
 import {
   assignTeacherToAssignment,
@@ -79,6 +81,19 @@ export const useTeacherDetail = (teacherId: string | undefined) => {
     queryKey: ["teacher-detail", teacherId],
     queryFn: () => getTeacherDetail(teacherId as string),
     enabled: !!teacherId,
+  });
+};
+
+export const useUpdateTeacherProfile = (teacherId: string | undefined) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (updates: UpdateTeacherProfilePayload) =>
+      updateTeacherProfile(teacherId as string, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["teachers"]});
+      queryClient.invalidateQueries({queryKey: ["teacher-detail", teacherId]});
+    },
   });
 };
 

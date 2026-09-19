@@ -16,14 +16,52 @@ export interface TeacherProgram {
   students_count: number;
 }
 
+export interface UpcomingSession {
+  session_id: string;
+  program_name: string;
+  session_type: string;
+  scheduled_date: string;
+  duration: string;
+  teacher_names: string[];
+  zoom_url?: string | null;
+  calls_taken: number;
+}
+
+export interface CoTeacher {
+  teacher_id: string;
+  teacher_name: string | null;
+  subject?: string | null;
+  email: string;
+}
+
 export interface TeacherDetail {
   teacher_id: string;
   teacher_name: string | null;
   email: string;
+  // Auto-generated at signup and not editable anywhere in the app yet.
+  username?: string | null;
   // Only the detail endpoint carries these; GET /admin/teachers' list items don't.
   phone?: string | null;
   location?: string | null;
+  avatar_url?: string | null;
+  status: string;
+  rating?: number | null;
+  leaderboard_position?: number | null;
   programs: TeacherProgram[];
+  date_joined: string;
+  no_of_sessions: number;
+  calls_taken: number;
+  upcoming_session?: UpcomingSession | null;
+  co_teachers: CoTeacher[];
+}
+
+export interface UpdateTeacherProfilePayload {
+  teacher_name?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  subject?: string;
+  avatar_url?: string;
 }
 
 /**
@@ -48,6 +86,23 @@ export const searchPrograms = async (query: string): Promise<ProgramSearchResult
 export const getTeacherDetail = async (teacherId: string): Promise<TeacherDetail> => {
   const res = await apiClient.get<{success: boolean; data: TeacherDetail}>(
     `/admin/teachers/${teacherId}`,
+  );
+  return res.data.data;
+};
+
+/**
+ * Updates any of teacher_name, email, phone, location, subject, avatar_url.
+ * Changing email is a real login-identity change on the backend -- it 409s
+ * if another user already has that address, and resets email_verified.
+ * Endpoint: PATCH /admin/teachers/{teacher_id}
+ */
+export const updateTeacherProfile = async (
+  teacherId: string,
+  updates: UpdateTeacherProfilePayload,
+): Promise<{teacher_id: string; updates: Record<string, unknown>}> => {
+  const res = await apiClient.patch<{success: boolean; data: {teacher_id: string; updates: Record<string, unknown>}}>(
+    `/admin/teachers/${teacherId}`,
+    updates,
   );
   return res.data.data;
 };
