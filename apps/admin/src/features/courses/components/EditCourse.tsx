@@ -12,15 +12,13 @@ import PromotionalCoverUpload, {
   hasCompleteUpload,
 } from "./CreateCoursesSteps/Step3";
 import CourseStudentView from "./studentPreview/CourseStudentView";
-import {calculateTotalHours} from "../helper/helper";
+import {calculateTotalHours, toUpdateCoursePayload} from "../helper/helper";
 import {
   AdditionalCourseTypes,
   CoursesFormValues,
   LEVELS,
-  UpdateCoursePayload,
 } from "../types/types";
 import {useCourse} from "../hooks/useCourses";
-import {serializeModulesPayload, toApiLevel} from "../helper/course.mapper";
 import {
   getApiErrorMessage,
   publishCourse,
@@ -252,28 +250,6 @@ export default function CreateCourseForm() {
     };
   }
 
-  function toUpdatePayload(payload: CoursesFormValues): UpdateCoursePayload {
-    return {
-      title: payload.courseName,
-      category: payload.category,
-      teacher_id: payload.instructorName,
-      price: Number(payload.price || 0),
-      level: toApiLevel(payload.level),
-      description: payload.description,
-      learning_outcomes: payload.learnItems,
-      tags: payload.tags,
-      cover_image_url:
-        payload.upload?.coverImageUrl ||
-        payload.upload?.coverImage?.remoteUrl ||
-        payload.upload?.coverImage?.previewUrl,
-      promo_video_url:
-        payload.upload?.promoVideoUrl ||
-        payload.upload?.promoVideo?.remoteUrl ||
-        payload.upload?.promoVideo?.previewUrl,
-      modules: serializeModulesPayload(payload.content.topics),
-    };
-  }
-
   // ─────────────────────────────────────────────
   // SAVE AS DRAFT (PATCH)
   // ─────────────────────────────────────────────
@@ -284,7 +260,7 @@ export default function CreateCourseForm() {
       const finalPayload = buildCoursePayload("draft");
 
       if (finalPayload.id) {
-        await updateCourse(finalPayload.id, toUpdatePayload(finalPayload));
+        await updateCourse(finalPayload.id, toUpdateCoursePayload(finalPayload, activeStep));
       }
 
       methods.reset(finalPayload);
@@ -315,7 +291,7 @@ export default function CreateCourseForm() {
       const finalPayload = buildCoursePayload("published");
 
       if (finalPayload.id) {
-        await updateCourse(finalPayload.id, toUpdatePayload(finalPayload));
+        await updateCourse(finalPayload.id, toUpdateCoursePayload(finalPayload, activeStep));
         await publishCourse(finalPayload.id);
       }
 
