@@ -2,7 +2,6 @@
 
 import {useState} from "react";
 import {showSuccess} from "@mcc/ui";
-import {Section} from "../../Pricing/components/Fields";
 import {useActiveModel, useAvailableModels, useSetActiveModel} from "./hooks/useAiSettings";
 import {aiSettingsErrorMessage} from "./services/aiSettings.service";
 
@@ -54,17 +53,23 @@ export default function AiModelCard() {
   };
 
   return (
-    <Section
-      title="Active AI model"
-      description="The model Brainy chat, flashcards, feedback, help, Admin Copilot and Parent Advisor all use right now. Switching it here takes effect immediately across the whole app -- no redeploy needed."
-      aside={
-        currentModelId && (
+    <section className="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="max-w-2xl">
+          <h2 className="text-lg font-bold text-neutral-900">Active AI model</h2>
+          <p className="mt-1 text-base text-neutral-700">
+            The model Brainy chat, flashcards, feedback, help, Admin Copilot and Parent Advisor all
+            use right now. Switching it here takes effect immediately across the whole app -- no
+            redeploy needed.
+          </p>
+        </div>
+        {currentModelId && (
           <span className="rounded-full bg-violet-50 px-3 py-1.5 text-sm font-semibold text-violet-700">
             {currentModelId}
           </span>
-        )
-      }
-    >
+        )}
+      </div>
+      <div className="mt-5">
       {active.isLoading ? (
         <p className="text-base text-neutral-600">Loading…</p>
       ) : active.isError ? (
@@ -140,6 +145,7 @@ export default function AiModelCard() {
           </div>
         </div>
       )}
-    </Section>
+      </div>
+    </section>
   );
 }
