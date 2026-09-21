@@ -12,6 +12,9 @@ import {Search, SlidersHorizontal} from "lucide-react";
 import EnhancedTable from "@/src/components/Table";
 import {ApiUser} from "./services/users.service";
 import {useUsers} from "./hooks/useUsers";
+import Configurations from "./AiSettings/Configurations";
+
+type SettingsTab = "users" | "configurations";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -22,6 +25,7 @@ function formatDate(iso: string): string {
 }
 
 export default function Settings() {
+  const [tab, setTab] = useState<SettingsTab>("users");
   const {users, isLoading} = useUsers();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -115,45 +119,69 @@ export default function Settings() {
     getSortedRowModel: getSortedRowModel(),
   });
 
+  const tabs: {value: SettingsTab; label: string}[] = [
+    {value: "users", label: "Users"},
+    {value: "configurations", label: "Configurations"},
+  ];
+
   return (
     <div className="h-full ">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-slate-900">Settings</h1>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold text-slate-900">Users</h2>
-          </div>
+      <div className="mb-6 inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white p-1">
+        {tabs.map((t) => (
+          <button
+            key={t.value}
+            type="button"
+            onClick={() => setTab(t.value)}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+              tab === t.value ? "bg-[#6C2BD9] text-white" : "text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-          <div className="flex items-center gap-3">
-            <div className="relative w-72">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-full border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none transition-all focus:border-[#6C2BD9] focus:bg-white focus:ring-1 focus:ring-[#6C2BD9]"
-              />
+      {tab === "configurations" ? (
+        <Configurations />
+      ) : (
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-slate-900">Users</h2>
             </div>
 
-            <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50">
-              <SlidersHorizontal className="h-4 w-4 text-slate-400" />
-              Filter
-            </button>
-          </div>
-        </div>
+            <div className="flex items-center gap-3">
+              <div className="relative w-72">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-full border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none transition-all focus:border-[#6C2BD9] focus:bg-white focus:ring-1 focus:ring-[#6C2BD9]"
+                />
+              </div>
 
-        {isLoading ? (
-          <p className="py-10 text-center text-sm text-slate-400">Loading users…</p>
-        ) : filtered.length === 0 ? (
-          <p className="py-10 text-center text-sm text-slate-400">No users found.</p>
-        ) : (
-          <EnhancedTable table={table} enableSelection={true} enableRowActions={true} />
-        )}
-      </div>
+              <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50">
+                <SlidersHorizontal className="h-4 w-4 text-slate-400" />
+                Filter
+              </button>
+            </div>
+          </div>
+
+          {isLoading ? (
+            <p className="py-10 text-center text-sm text-slate-400">Loading users…</p>
+          ) : filtered.length === 0 ? (
+            <p className="py-10 text-center text-sm text-slate-400">No users found.</p>
+          ) : (
+            <EnhancedTable table={table} enableSelection={true} enableRowActions={true} />
+          )}
+        </div>
+      )}
     </div>
   );
 }
