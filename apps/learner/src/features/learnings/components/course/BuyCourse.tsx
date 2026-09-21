@@ -1,17 +1,53 @@
 "use client";
+import {useState} from "react";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
-import CourseHero from "./CourseHero";
-import CourseDetailsSidebar from "./CourseDetailsSideBar";
-import CourseInfo from "./CourseInfo";
-import {courseDetails} from "@/src/features/constants/demoCourses";
+import {extractApiError} from "@mcc/api";
+import {useAuthStore} from "@mcc/store";
+import {Button, Icon} from "@mcc/ui";
+import {useInitializeCoursePayment} from "@/src/features/courses/hooks/useCourses";
+import {ApiCourse} from "@/src/features/courses/services/course.service";
 
-export default function BuyCourse({
-  course,
-}: {
-  course: (typeof courseDetails)[0];
-}) {
+const FALLBACK_IMAGE = "/assets/images/tower.jpg";
+
+/**
+ * The not-yet-enrolled preview/purchase screen for a real course. Only
+ * title, description, cover image and price actually exist on the real
+ * catalogue (app/features/academics/courses/schemas.py::CatalogueCourse) --
+ * unlike this component's previous demo-data version, this doesn't invent
+ * ratings, curricula, stats or features the backend doesn't provide.
+ */
+export default function BuyCourse({course}: {course: ApiCourse}) {
   const router = useRouter();
+  const email = useAuthStore((s) => s.user?.email);
+  const initializePayment = useInitializeCoursePayment();
+  const [error, setError] = useState<string | null>(null);
+
+  const price = Number(course.price);
+  const isFree = !price;
+
+  const handleEnroll = () => {
+    setError(null);
+    initializePayment.mutate(
+      {
+        courseId: course.course_id,
+        courseType: isFree ? "free" : "paid",
+        email: email || undefined,
+      },
+      {
+        onSuccess: (result) => {
+          if (result.checkout_url) {
+            window.location.href = result.checkout_url;
+            return;
+          }
+          router.push("/learnings");
+        },
+        onError: (err) =>
+          setError(extractApiError(err, "Couldn't start enrollment. Please try again.")),
+      },
+    );
+  };
+
   return (
     <section className="px-4 pb-5">
       <nav className="flex items-center gap-1 text-sm py-8">
@@ -28,38 +64,50 @@ export default function BuyCourse({
 
       <div className="grid grid-cols-2 gap-6 max-sm:grid-cols-1">
         <div className="pb-8">
-          <div className="pb-14">
-            <CourseHero
-              mainImage={course.imgBig}
-              instructorImage={course.imgSmall}
-              rating={course.rating}
-              totalRatings={course.totalRatings}
-              // onPlay={() => setVideoOpen(true)}
+          <div className="w-full aspect-video rounded-2xl overflow-hidden bg-amber-800">
+            <img
+              src={course.cover_image_url || FALLBACK_IMAGE}
+              alt={course.title}
+              className="w-full h-full object-cover"
             />
           </div>
 
-          <CourseInfo
-            instructor={course.instructor}
-            title={course.title}
-            description={course.description}
-            curriculum={course.curriculum}
-          />
+          <div className="mt-8 flex flex-col gap-2 max-w-[60%] max-sm:max-w-full">
+            <h1 className="text-3xl font-bold leading-tight">{course.title}</h1>
+            {course.description && (
+              <p className="text-sm text-subtle leading-relaxed">{course.description}</p>
+            )}
+          </div>
         </div>
 
-        <div>
-          <CourseDetailsSidebar
-            price={course.price}
-            lessons={course.meta.lessons}
-            difficulty={course.meta.difficulty}
-            tags={course.tags}
-            extraTagsCount={course.extraTagsCount}
-            stats={course.stats}
-            features={course.features}
-            onEnroll={() =>
-              router.push(`/learnings/course/${course.slug}/payment`)
-            }
-            onGift={() => {}}
-          />
+        <div className="flex flex-col gap-5 w-full">
+          <p className="text-4xl font-bold">
+            {isFree ? (
+              "Free"
+            ) : (
+              <>
+                <span className="text-2xl align-super font-semibold">₦</span>
+                {price.toLocaleString()}
+              </>
+            )}
+          </p>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <div className="flex items-center gap-3 pt-1">
+            <Button onClick={handleEnroll} disabled={initializePayment.isPending} width="fit">
+              <p className="font-semibold flex items-center gap-2 mx-auto w-fit px-4">
+                <Icon icon="solar:cart-large-2-bold" size={18} color="white" />
+                <span>
+                  {initializePayment.isPending
+                    ? "Starting enrollment…"
+                    : isFree
+                      ? "Enroll for free"
+                      : "Enroll course"}
+                </span>
+              </p>
+            </Button>
+          </div>
         </div>
       </div>
     </section>
