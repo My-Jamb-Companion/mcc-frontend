@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { PendingCourse, useCourseStore } from "@mcc/store";
+import { PendingCourse, useAuthStore, useCourseStore } from "@mcc/store";
 import { extractApiError } from "@mcc/api";
 import { initializeCoursePayment, registerForExamProgram } from "./enrollment.service";
 
@@ -14,6 +14,7 @@ import { initializeCoursePayment, registerForExamProgram } from "./enrollment.se
  */
 export const useCompleteEnrollment = () => {
   const router = useRouter();
+  const email = useAuthStore((s) => s.user?.email);
   const clearPendingCourse = useCourseStore((s) => s.clearPendingCourse);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,10 +25,11 @@ export const useCompleteEnrollment = () => {
     try {
       const result =
         pending.kind === "exam"
-          ? await registerForExamProgram(pending.id)
+          ? await registerForExamProgram(pending.id, email)
           : await initializeCoursePayment(
               pending.id,
               pending.price && pending.price > 0 ? "paid" : "free",
+              email,
             );
 
       clearPendingCourse();
