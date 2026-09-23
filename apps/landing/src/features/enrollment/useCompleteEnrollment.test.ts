@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
-import { useCourseStore } from "@mcc/store";
+import { useAuthStore, useCourseStore } from "@mcc/store";
 import { useCompleteEnrollment } from "./useCompleteEnrollment";
 import * as enrollmentService from "./enrollment.service";
 
@@ -17,6 +17,7 @@ vi.mock("./enrollment.service", () => ({
 beforeEach(() => {
   vi.clearAllMocks();
   useCourseStore.setState({ pendingCourse: null });
+  useAuthStore.setState({ user: null, accessToken: null });
   delete (window as { location?: unknown }).location;
   (window as unknown as { location: { href: string } }).location = { href: "" };
 });
@@ -32,7 +33,7 @@ describe("useCompleteEnrollment", () => {
       await result.current.complete({ id: "c1", title: "Course 1", price: 5000, kind: "course" });
     });
 
-    expect(enrollmentService.initializeCoursePayment).toHaveBeenCalledWith("c1", "paid");
+    expect(enrollmentService.initializeCoursePayment).toHaveBeenCalledWith("c1", "paid", undefined);
   });
 
   it("calls initializeCoursePayment with 'free' when price is 0", async () => {
@@ -45,7 +46,7 @@ describe("useCompleteEnrollment", () => {
       await result.current.complete({ id: "c1", title: "Course 1", price: 0, kind: "course" });
     });
 
-    expect(enrollmentService.initializeCoursePayment).toHaveBeenCalledWith("c1", "free");
+    expect(enrollmentService.initializeCoursePayment).toHaveBeenCalledWith("c1", "free", undefined);
   });
 
   it("calls registerForExamProgram for an exam-prep program", async () => {
@@ -58,8 +59,27 @@ describe("useCompleteEnrollment", () => {
       await result.current.complete({ id: "p1", title: "Program 1", kind: "exam" });
     });
 
-    expect(enrollmentService.registerForExamProgram).toHaveBeenCalledWith("p1");
+    expect(enrollmentService.registerForExamProgram).toHaveBeenCalledWith("p1", undefined);
     expect(enrollmentService.initializeCoursePayment).not.toHaveBeenCalled();
+  });
+
+  it("passes the logged-in user's own email as the billing email", async () => {
+    useAuthStore.setState({
+      user: { user_id: "u1", email: "student@example.com", role: "student" },
+      accessToken: "tok",
+    });
+    vi.mocked(enrollmentService.initializeCoursePayment).mockResolvedValue({
+      enrollment_id: "e1", is_paid: true, checkout_url: "https://checkout.flutterwave.com/x",
+    });
+    const { result } = renderHook(() => useCompleteEnrollment());
+
+    await act(async () => {
+      await result.current.complete({ id: "c1", title: "Course 1", price: 5000, kind: "course" });
+    });
+
+    expect(enrollmentService.initializeCoursePayment).toHaveBeenCalledWith(
+      "c1", "paid", "student@example.com",
+    );
   });
 
   it("redirects the browser to checkout_url when the enrolment is paid", async () => {
