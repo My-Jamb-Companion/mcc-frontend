@@ -10,7 +10,6 @@ import {PaymentStatus} from "@/src/features/payments/payments.service";
 // usually lands within a second or two of the browser's own redirect, but
 // there's no point spinning forever if it never arrives.
 const MAX_WAIT_MS = 30_000;
-const POLL_INTERVAL_MS = 2_000;
 
 const PURPOSE_LABEL: Record<PaymentStatus["purpose"], string> = {
   course_enrollment: "course",
