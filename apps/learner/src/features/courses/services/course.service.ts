@@ -32,6 +32,8 @@ export interface ApiCourseContentRow {
   video_url?: string | null;
   duration_seconds?: number | null;
   thumbnail_url?: string | null;
+  /** e.g. "MP4", "YOUTUBE", "PDF" -- as set by the admin course editor. */
+  file_format?: string | null;
 }
 
 /**
