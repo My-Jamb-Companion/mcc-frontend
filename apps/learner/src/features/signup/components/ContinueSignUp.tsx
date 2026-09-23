@@ -1,7 +1,7 @@
 "use client";
 
 import {Icon, motion} from "@mcc/ui";
-import { useGoogleAuth, useFacebookAuth } from "@mcc/features";
+import {useGoogleAuth, useFacebookAuth} from "@mcc/features";
 
 export default function ContinueWithAccount({
   mail,
@@ -16,13 +16,17 @@ export default function ContinueWithAccount({
   const socialButtons = [
     {
       icon: "material-icon-theme:google",
-      label: googleMutation.isPending ? "Redirecting..." : "Continue with Google",
+      label: googleMutation.isPending
+        ? "Redirecting..."
+        : "Continue with Google",
       onClick: () => googleMutation.mutate(),
       disabled: isRedirecting,
     },
     {
       icon: "logos:facebook",
-      label: facebookMutation.isPending ? "Redirecting..." : "Continue with Facebook",
+      label: facebookMutation.isPending
+        ? "Redirecting..."
+        : "Continue with Facebook",
       onClick: () => facebookMutation.mutate(),
       disabled: isRedirecting,
     },
@@ -46,7 +50,9 @@ export default function ContinueWithAccount({
       <motion.div layoutId="auth-card">
         <div className="mt-8 mb-6">
           <h4 className="text-xl font-semibold">Welcome to MC. Companion</h4>
-          <p className="text-muted text-sm">Sign in and continue learning</p>
+          <p className="text-muted text-sm">
+            Login or sign up to continue your learning journey
+          </p>
         </div>
 
         <motion.div
@@ -55,7 +61,7 @@ export default function ContinueWithAccount({
           animate="show"
           variants={{
             hidden: {},
-            show: { transition: { staggerChildren: 0.06 } },
+            show: {transition: {staggerChildren: 0.06}},
           }}
         >
           {socialButtons.map((item, i) => (
@@ -75,10 +81,12 @@ export default function ContinueWithAccount({
           ))}
 
           <motion.h3
-            className="my-4 text-center"
-            variants={{ hidden: {opacity: 0}, show: {opacity: 1} }}
+            className="my-4 flex items-center gap-3 justify-between"
+            variants={{hidden: {opacity: 0}, show: {opacity: 1}}}
           >
-            OR
+            <hr className="flex-1" />
+            <span>OR</span>
+            <hr className="flex-1" />
           </motion.h3>
 
           <motion.button

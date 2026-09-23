@@ -27,8 +27,9 @@ export default function ProfileHeader({
         <div className="flex flex-col gap-6 lg:flex-row">
           <div className="relative -mt-16 w-fit">
             <button
-              onClick={() => setLightboxOpen(true)}
-              className="relative w-40 h-43 md:h-64 md:w-64 overflow-hidden rounded-[45px] border-2 border-purple-300 bg-white shadow-xl cursor-zoom-in group"
+              // onClick={() => setLightboxOpen(true)}
+              onClick={() => document.getElementById("file-input")?.click()}
+              className="relative w-40 h-43 md:h-64 md:w-64 overflow-hidden rounded-[45px] border-2 border-purple-300 bg-white shadow-xl cursor-pointer group"
             >
               <Image
                 src={avatarSrc}
@@ -37,7 +38,11 @@ export default function ProfileHeader({
                 fill
               />
               <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/20 rounded-[45px]">
-                <Icon icon="material-symbols:zoom-in-rounded" className="text-white drop-shadow-lg" size={32} />
+                <Icon
+                  icon="stash:image-plus"
+                  className="text-white drop-shadow-lg"
+                  size={32}
+                />
               </span>
             </button>
 

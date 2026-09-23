@@ -1,6 +1,7 @@
 "use client";
 
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import type {ProfileTabKey, SidebarSectionKey} from "../constants/types";
 import type {PersonalInformationFormValues} from "./AccountInfo";
 import {ProfileTabs} from "./ProfileTabs";
@@ -17,8 +18,17 @@ import {useMyLeaderboardStanding, useRewardsBalance} from "@/src/features/reward
 import {useDashboardStats} from "@/src/features/dashboard/hooks/useDashboard";
 
 export default function AccountSettingsPage() {
-  const [tab, setTab] = useState<ProfileTabKey>("account");
-  const [section, setSection] = useState<SidebarSectionKey>("profileInfo");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const sectionParam = searchParams.get("section");
+  const [tab, setTab] = useState<ProfileTabKey>(
+    (tabParam as ProfileTabKey) || "account",
+  );
+  const [section, setSection] = useState<SidebarSectionKey>(
+    (sectionParam as SidebarSectionKey) || "profileInfo",
+  );
 
   const {data: apiProfile, isLoading: profileLoading} = useProfile();
   const {data: standing} = useMyLeaderboardStanding();
@@ -54,6 +64,17 @@ export default function AccountSettingsPage() {
       },
     });
   };
+
+  useEffect(() => {
+    const query = new URLSearchParams();
+    if (tab !== "account") query.set("tab", tab);
+    if (section !== "profileInfo") query.set("section", section);
+
+    const nextUrl = query.toString()
+      ? `${pathname}?${query.toString()}`
+      : pathname;
+    router.replace(nextUrl);
+  }, [tab, section, pathname, router]);
 
   const handleAvatarFile = (file: File | string) => {
     if (file instanceof File) {

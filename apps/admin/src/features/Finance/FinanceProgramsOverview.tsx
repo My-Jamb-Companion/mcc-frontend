@@ -146,6 +146,8 @@ interface ProgramOverviewTableProps {
   programData?: ProgramOverviewItem[];
   currencySymbol?: string;
   className?: string;
+  setViewStudent: (row: StudentOverviewItem) => void;
+  setViewPrograms: (row: ProgramOverviewItem) => void;
 }
 
 export function FinanceProgramOverviewTable({
@@ -153,6 +155,8 @@ export function FinanceProgramOverviewTable({
   programData = DEFAULT_PROGRAM_DATA,
   currencySymbol = "₦",
   className = "",
+  setViewStudent,
+  setViewPrograms,
 }: ProgramOverviewTableProps) {
   const [activeTab, setActiveTab] = useState<"Student" | "Programs">("Student");
 
@@ -366,6 +370,13 @@ export function FinanceProgramOverviewTable({
         }
         enableSelection={true}
         enableRowActions={true}
+        onRowAction={(row) => {
+          if ("studentName" in row) {
+            setViewStudent(row);
+          } else {
+            setViewPrograms(row);
+          }
+        }}
         rowActions={
           <div className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition-colors">
             <ChevronRight className="h-5 w-5" />
