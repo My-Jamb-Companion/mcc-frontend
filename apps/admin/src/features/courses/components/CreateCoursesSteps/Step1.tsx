@@ -11,6 +11,7 @@ import {
   getApiErrorMessage,
   updateCourse,
 } from "@/src/features/courses/services/course.service";
+import { useCategoryOptions } from "@/src/features/categories/hooks/useCategories";
 import { useRouter } from "next/navigation";
 
 export default function CreateDetails({
@@ -46,6 +47,7 @@ export default function CreateDetails({
   const [hasCreated, setHasCreated] = useState(!!existingCourseId);
 
   const { data: teachersData = [], isLoading: isLoadingTeachers } = useTeachers();
+  const { options: categoryOptions } = useCategoryOptions();
 
   const instructorOptions = useMemo(() => {
     if (teachersData && teachersData.length > 0) {
@@ -142,7 +144,7 @@ export default function CreateDetails({
                 placeholder="Select category"
                 selectRadius="xl"
                 selectClassName="py-4"
-                options={CATEGORY_OPTIONS}
+                options={categoryOptions}
                 value={field.value}
                 onChange={field.onChange}
                 errors={errors.category}
@@ -183,17 +185,22 @@ export default function CreateDetails({
             )}
           />
 
-          <FormInputs
-            type="number"
-            label="Price"
-            placeholder="0"
-            inputClassName="py-4 rounded-xl"
-            registration={register("price", {
-              required: "Price is required",
-              min: { value: 0, message: "Price must be 0 or more" },
-            })}
-            errors={errors.price}
-          />
+          <div className="flex flex-col gap-1">
+            <FormInputs
+              type="number"
+              label="Price"
+              placeholder="0"
+              inputClassName="py-4 rounded-xl"
+              registration={register("price", {
+                min: { value: 0, message: "Price must be 0 or more" },
+              })}
+              errors={errors.price}
+            />
+            <p className="text-xs text-subtle">
+              Leave as 0 for now — set the real price under Finance &gt;
+              Pricing once the course is created.
+            </p>
+          </div>
         </div>
 
         {/* Level */}
@@ -445,9 +452,3 @@ const LEVELS = [
   { id: "advanced", label: "Advanced", fill: 1 },
 ] as const;
 
-// Placeholder option lists â€” replace with real data when ready
-const CATEGORY_OPTIONS = [
-  { label: "Science", value: "science" },
-  { label: "Arts", value: "arts" },
-  { label: "Commerce", value: "commerce" },
-];

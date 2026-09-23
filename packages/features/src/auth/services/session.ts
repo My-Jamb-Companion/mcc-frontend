@@ -1,9 +1,7 @@
 import { User } from "@mcc/types";
-import { tokenManager } from "@mcc/api";
+import { tokenManager, AUTH_COOKIE, REFRESH_COOKIE, USER_KEY } from "@mcc/api";
 
-const USER_KEY = "mcc_user";
-const AUTH_COOKIE = "mcc_auth";
-export const REFRESH_COOKIE = "mcc_refresh_token";
+export { REFRESH_COOKIE };
 
 const parseCookie = (name: string): string | null => {
   if (typeof document === "undefined") return null;

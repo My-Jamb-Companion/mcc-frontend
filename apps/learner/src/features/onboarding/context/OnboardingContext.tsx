@@ -15,7 +15,7 @@ import {
   getPendingCourseFromStorage,
   PendingCourse,
 } from "@mcc/store";
-import { extractApiError } from "@mcc/api";
+import { extractApiError, USER_KEY } from "@mcc/api";
 import { formSteps } from "../constants/formSteps";
 import { FormValues } from "../types/formTypes";
 
@@ -68,7 +68,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
           if (user) {
             const updated = { ...user, is_onboarded: true };
             setUser(updated);
-            localStorage.setItem("mcc_user", JSON.stringify(updated));
+            localStorage.setItem(USER_KEY, JSON.stringify(updated));
           }
 
           const course = pendingCourse ?? getPendingCourseFromStorage();

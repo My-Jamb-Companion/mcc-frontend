@@ -1,12 +1,12 @@
 export interface ExamItem {
   id: string;
   name: string;
-  icon: string;
-  rating: number;
-  reviewCount: string;
+  icon?: string;
+  rating?: number;
+  reviewCount?: string;
   price: number;
-  originalPrice: number;
-  priceLabel: string;
+  originalPrice?: number;
+  priceLabel?: string;
   currency?: string;
 }
 

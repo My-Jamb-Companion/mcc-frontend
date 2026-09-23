@@ -6,6 +6,13 @@ import SessionCallsList from "./SessionCallList";
 import {FormInputs} from "@mcc/features";
 // import FormInputs from "@/src/components/FormInput";
 
+const DURATION_DAYS: Record<string, number> = {
+  "last month": 30,
+  "last 6 months": 180,
+  "last year": 365,
+  "all time": 3650,
+};
+
 export default function LiveSessions() {
   const [duration, setDuration] = useState("last month");
   return (
@@ -31,7 +38,7 @@ export default function LiveSessions() {
           />
         </div>
 
-        <StatsSummary />
+        <StatsSummary days={DURATION_DAYS[duration]} />
         <SessionCallsList />
       </div>
     </section>

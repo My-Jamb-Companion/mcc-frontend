@@ -98,11 +98,13 @@ export const createCourseDetails = async (
 
   const raw = res.data.data;
 
-  // The backend returns course_id (not id) — normalise so callers
-  // always see a consistent `id` field.
+  // The endpoint returns only {course_id, status} — it does not echo the
+  // payload back. Casting its response to CreateCourseDetailsPayload claimed
+  // fields that are never present; the details the caller expects are the ones
+  // we just sent, so spread those and take only the id from the response.
   return {
-    ...(raw as CreateCourseDetailsPayload),
-    id: (raw.id || raw.course_id || "") as string,
+    ...payload,
+    id: (raw.id ?? raw.course_id ?? "") as string,
   };
 };
 
@@ -164,4 +166,4 @@ export const deleteCourse = async (courseId: string) => {
 
   return res.data;
 };
-
+

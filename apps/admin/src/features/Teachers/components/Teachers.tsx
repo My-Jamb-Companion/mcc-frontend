@@ -1,6 +1,7 @@
 "use client";
 
-import {Icon, Button, Modal} from "@mcc/ui";
+import {Icon, Button, Modal, showError, showSuccess} from "@mcc/ui";
+import {extractApiError} from "@mcc/api";
 import {FormInputs} from "@mcc/features";
 import {useState} from "react";
 import {Teacher} from "../types/types";
@@ -8,8 +9,16 @@ import TeachersTable from "./TeachersTable";
 import ViewTeacher from "./ViewTeacher";
 import Image from "next/image";
 import SendMessage from "./SendMessage";
-import AssignCRAModal, {CraStudent} from "./AssignCRA";
+import AssignCRAModal from "./AssignCRA";
 import AssignProgram from "./AssignProgram";
+import TeacherAvatar from "./TeacherAvatar";
+import {
+  useApproveTeacher,
+  useAssignTeacherToAssignment,
+  useDisableTeacher,
+  useEscalatedAssignments,
+  useRejectTeacher,
+} from "../hooks/useAdminTeachers";
 
 export default function Teachers() {
   const [program, setProgram] = useState("");
@@ -21,6 +30,15 @@ export default function Teachers() {
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [assignProgram, setAssignProgram] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);
+  const [confirmReject, setConfirmReject] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const disableTeacherMutation = useDisableTeacher();
+  const approveTeacherMutation = useApproveTeacher();
+  const rejectTeacherMutation = useRejectTeacher();
+  const assignTeacherMutation = useAssignTeacherToAssignment();
+  const {data: escalatedAssignments = []} = useEscalatedAssignments(
+    isAssignOpen ? teacher?.subject : undefined,
+  );
 
   const handleOpenProfile = (teacher: Teacher) => {
     setViewTeacher(true);
@@ -32,9 +50,36 @@ export default function Teachers() {
     setTeacher(teacher);
   };
 
+  const handleApproveTeacher = (teacher: Teacher) => {
+    approveTeacherMutation.mutate(teacher.id, {
+      onSuccess: () => showSuccess(`${teacher.name} has been approved`),
+      onError: (error) => showError(extractApiError(error, "Couldn't approve this teacher")),
+    });
+  };
+
+  const handleRejectTeacher = (teacher: Teacher) => {
+    setTeacher(teacher);
+    setConfirmReject(true);
+  };
+
   const handleAssignCra = (teacher: Teacher) => {
     setTeacher(teacher);
     setIsAssignOpen(true);
+  };
+
+  const handleAssignToEscalation = (assignmentId: string) => {
+    if (!teacher) return;
+    assignTeacherMutation.mutate(
+      {assignmentId, teacherUserId: teacher.id},
+      {
+        onSuccess: () => {
+          showSuccess(`${teacher.name} was assigned to that student`);
+          setIsAssignOpen(false);
+          setTeacher(null);
+        },
+        onError: (error) => showError(extractApiError(error, "Couldn't assign this teacher")),
+      },
+    );
   };
 
   const handleAssignProgram = (teacher: Teacher) => {
@@ -112,6 +157,8 @@ export default function Teachers() {
           onDisableTeacher={handleDisableTeacher}
           onAssignProgram={handleAssignProgram}
           onAssignCra={handleAssignCra}
+          onApproveTeacher={handleApproveTeacher}
+          onRejectTeacher={handleRejectTeacher}
         />
       </div>
 
@@ -134,12 +181,16 @@ export default function Teachers() {
           }}
         />
 
+        {/* Keyed per teacher and per opening: the selection resets by
+            remounting, rather than by an effect that writes state on render. */}
         <AssignCRAModal
+          key={`cra-${teacher?.id ?? "none"}-${isAssignOpen}`}
           isOpen={isAssignOpen}
           onClose={() => setIsAssignOpen(false)}
           teacher={teacher!}
-          students={Students}
-          onAssign={() => {}}
+          assignments={escalatedAssignments}
+          onAssign={handleAssignToEscalation}
+          isAssigning={assignTeacherMutation.isPending}
         />
 
         <AssignProgram
@@ -161,10 +212,11 @@ export default function Teachers() {
 
               <div className="absolute left-1/2 top-[50%] z-10 -translate-x-1/2 -translate-y-1/2">
                 <div className="relative size-42 overflow-hidden rounded-full border border-white/20 bg-white/10 backdrop-blur-md">
-                  <img
-                    src={teacher?.avatar}
-                    alt="profile"
-                    className="object-cover w-full h-full"
+                  <TeacherAvatar
+                    name={teacher?.name ?? ""}
+                    avatar={teacher?.avatar}
+                    className="w-full h-full rounded-full"
+                    textClassName="text-4xl"
                   />
                 </div>
               </div>
@@ -211,9 +263,27 @@ export default function Teachers() {
               Are you sure you want to disable {teacher?.name}? This action can
               not be undone.
             </p>
+            {disableTeacherMutation.isError && (
+              <p className="text-sm text-red-500 pb-3">
+                Failed to disable teacher. Please try again.
+              </p>
+            )}
             <div className="inline-flex items-center gap-3 pt-6  w-full ">
-              <Button variant="danger" width="full">
-                Disable Teacher
+              <Button
+                variant="danger"
+                width="full"
+                disabled={disableTeacherMutation.isPending}
+                onClick={() => {
+                  if (!teacher) return;
+                  disableTeacherMutation.mutate(teacher.id, {
+                    onSuccess: () => {
+                      setConfirmDisable(false);
+                      setTeacher(null);
+                    },
+                  });
+                }}
+              >
+                {disableTeacherMutation.isPending ? "Disabling…" : "Disable Teacher"}
               </Button>
               <Button
                 variant="outline"
@@ -225,22 +295,71 @@ export default function Teachers() {
             </div>
           </div>
         </Modal>
+
+        <Modal
+          open={confirmReject}
+          onClose={() => {
+            setConfirmReject(false);
+            setRejectReason("");
+          }}
+        >
+          <div className="flex flex-col">
+            <h2 className="text-2xl font-semibold">Reject Application</h2>
+            <p className="text-sm text-muted py-3">
+              Reject {teacher?.name}&apos;s teacher application? They&apos;ll receive this
+              reason by email.
+            </p>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Reason for rejection (required)"
+              rows={4}
+              className="w-full rounded-xl border border-muted/30 p-3 text-sm outline-none focus:border-muted/60"
+            />
+            {rejectTeacherMutation.isError && (
+              <p className="text-sm text-red-500 pt-3">
+                {extractApiError(
+                  rejectTeacherMutation.error,
+                  "Failed to reject application. Please try again.",
+                )}
+              </p>
+            )}
+            <div className="inline-flex items-center gap-3 pt-6 w-full">
+              <Button
+                variant="danger"
+                width="full"
+                disabled={rejectTeacherMutation.isPending || !rejectReason.trim()}
+                onClick={() => {
+                  if (!teacher) return;
+                  rejectTeacherMutation.mutate(
+                    {teacherId: teacher.id, reason: rejectReason.trim()},
+                    {
+                      onSuccess: () => {
+                        showSuccess(`${teacher.name}'s application was rejected`);
+                        setConfirmReject(false);
+                        setTeacher(null);
+                        setRejectReason("");
+                      },
+                    },
+                  );
+                }}
+              >
+                {rejectTeacherMutation.isPending ? "Rejecting…" : "Reject Application"}
+              </Button>
+              <Button
+                variant="outline"
+                width="full"
+                onClick={() => {
+                  setConfirmReject(false);
+                  setRejectReason("");
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </Modal>
       </div>
     </section>
   );
 }
-
-const Students: CraStudent[] = [
-  {
-    id: "vusi-tani",
-    name: "Vusi Tani",
-    avatarUrl: "https://i.pravatar.cc/64?img=51",
-    email: "whatever@mail.com",
-  },
-  {
-    id: "kehinde-ajani",
-    name: "Kehinde Ajani",
-    avatarUrl: "https://i.pravatar.cc/64?img=33",
-    email: "however@mail.com",
-  },
-];

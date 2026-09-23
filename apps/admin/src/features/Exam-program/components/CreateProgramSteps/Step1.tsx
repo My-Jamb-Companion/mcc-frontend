@@ -7,6 +7,7 @@ import {
   createExamProgram,
   getApiErrorMessage,
 } from "@/src/features/Exam-program/services/exam.service";
+import {useCategoryOptions} from "@/src/features/categories/hooks/useCategories";
 
 export default function CreateDetails({onNext}: {onNext: () => void}) {
   const {
@@ -23,6 +24,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {data: teachersData = [], isLoading: isLoadingTeachers} = useTeachers();
+  const {options: categoryOptions} = useCategoryOptions();
 
   const instructorOptions = useMemo(() => {
     if (teachersData && teachersData.length > 0) {
@@ -184,7 +186,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
                 placeholder="Select category"
                 selectRadius="xl"
                 selectClassName="py-4"
-                options={CATEGORY_OPTIONS}
+                options={categoryOptions}
                 value={field.value}
                 onChange={field.onChange}
                 errors={errors.category}
@@ -225,17 +227,22 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
             )}
           />
 
-          <FormInputs
-            type="number"
-            label="Price"
-            placeholder="0"
-            inputClassName="py-4 rounded-xl"
-            registration={register("price", {
-              required: "Price is required",
-              min: {value: 0, message: "Price must be 0 or more"},
-            })}
-            errors={errors.price}
-          />
+          <div className="flex flex-col gap-1">
+            <FormInputs
+              type="number"
+              label="Price"
+              placeholder="0"
+              inputClassName="py-4 rounded-xl"
+              registration={register("price", {
+                min: {value: 0, message: "Price must be 0 or more"},
+              })}
+              errors={errors.price}
+            />
+            <p className="text-xs text-subtle">
+              Leave as 0 for now — set the real price under Finance &gt;
+              Pricing once the program is created.
+            </p>
+          </div>
         </div>
 
         {/* Level */}
@@ -504,9 +511,4 @@ const SUBJECT_OPTIONS = [
   {label: "Mathematics", value: "mathematics"},
   {label: "English", value: "english"},
   {label: "Physics", value: "physics"},
-];
-const CATEGORY_OPTIONS = [
-  {label: "Science", value: "science"},
-  {label: "Arts", value: "arts"},
-  {label: "Commerce", value: "commerce"},
 ];

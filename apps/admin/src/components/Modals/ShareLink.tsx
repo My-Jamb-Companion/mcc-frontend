@@ -1,20 +1,15 @@
 "use client";
 
-import {useMemo, useState} from "react";
+import {useState} from "react";
 import {Icon, Modal} from "@mcc/ui";
+import {useQuery} from "@tanstack/react-query";
+import {searchRecipients} from "@/src/features/Messaging/services/recipients.service";
 
 export type Recipient = {
   id: string;
   name: string;
   role: "Student" | "Teacher";
 };
-
-export const SAMPLE_RECIPIENTS: Recipient[] = [
-  {id: "1", name: "Emmanuel Okafor", role: "Student"},
-  {id: "2", name: "Misturah Bello", role: "Student"},
-  {id: "3", name: "Mo Abiodun", role: "Teacher"},
-  {id: "4", name: "Chiamaka Nwosu", role: "Student"},
-];
 
 function RecipientSelect({
   value,
@@ -26,13 +21,20 @@ function RecipientSelect({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
-  const results = useMemo(
-    () =>
-      SAMPLE_RECIPIENTS.filter((r) =>
-        r.name.toLowerCase().includes(query.toLowerCase()),
+  const {data: results = []} = useQuery({
+    queryKey: ["recipients-search", query],
+    queryFn: () =>
+      searchRecipients(query).then((rows) =>
+        rows.map(
+          (r): Recipient => ({
+            id: r.user_id,
+            name: r.full_name,
+            role: r.role === "teacher" ? "Teacher" : "Student",
+          }),
+        ),
       ),
-    [query],
-  );
+    enabled: open && query.trim().length > 0,
+  });
 
   return (
     <div className="relative">

@@ -5,6 +5,7 @@ import {Button, Icon} from "@mcc/ui";
 import {useState} from "react";
 import StudioTable, {studiodata} from "./StudioTable";
 import {FormInputs} from "@mcc/features";
+import Copilot from "./Copilot";
 
 export default function StudioAnalysis() {
   const [active, setActive] = useState<string>("student");
@@ -20,6 +21,8 @@ export default function StudioAnalysis() {
           <Icon icon="ri:export-line" />
         </Button>
       </div>
+
+      <Copilot />
 
       <div className="flex flex-col h-full border border-muted/20 rounded-2xl px-6 py-8 ">
         <div className="flex items-center gap-3 justify-between">

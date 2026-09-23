@@ -6,8 +6,9 @@ import type {
   ProfileUser,
   SidebarSectionKey,
 } from "../constants/types";
+import {useState} from "react";
+import type {ProfileTabKey, SidebarSectionKey} from "../constants/types";
 import type {PersonalInformationFormValues} from "./AccountInfo";
-import {CURRENT_USER} from "../constants/constants";
 import {ProfileTabs} from "./ProfileTabs";
 import {AccountPersonalInformationForm} from "./AccountInfo";
 import {ProfileSidebar} from "./ProfileSideBar";
@@ -32,9 +33,48 @@ export default function AccountSettingsPage() {
   );
   const [user, setUser] = useState<ProfileUser>(CURRENT_USER);
   const [file, setFile] = useState<File | string>(user.avatar);
+import {useProfile, useUpdatePassword, useUpdateProfile, useUploadProfilePhoto} from "../hooks/useProfile";
+import {fromApiProfile} from "../helper/profile.mapper";
+import {useMyLeaderboardStanding, useRewardsBalance} from "@/src/features/rewards/hooks/useRewards";
+import {useDashboardStats} from "@/src/features/dashboard/hooks/useDashboard";
+
+export default function AccountSettingsPage() {
+  const [tab, setTab] = useState<ProfileTabKey>("account");
+  const [section, setSection] = useState<SidebarSectionKey>("profileInfo");
+
+  const {data: apiProfile, isLoading: profileLoading} = useProfile();
+  const {data: standing} = useMyLeaderboardStanding();
+  const {data: balance} = useRewardsBalance();
+  const {data: dashboardStats} = useDashboardStats();
+
+  const updateProfile = useUpdateProfile();
+  const uploadPhoto = useUploadProfilePhoto();
+  const updatePassword = useUpdatePassword();
+
+  const user = apiProfile
+    ? fromApiProfile(apiProfile, {
+        rank: standing?.rank,
+        points: standing?.total_score ?? balance?.total_points,
+        diamonds: balance?.total_gems,
+        coins: balance?.total_silver,
+        lessons: dashboardStats?.courses_completed,
+      })
+    : null;
 
   const handleFieldChange = (values: PersonalInformationFormValues) => {
-    setUser((prev) => ({...prev, ...values}));
+    updateProfile.mutate({
+      full_name: values.fullName,
+      username: values.username,
+      parent_name: values.parentName,
+      phone_number: values.phoneNumber,
+      gender: values.gender,
+      // State and city are deliberately left out: they come from the pricing
+      // city picker, and sending the form's copies would overwrite that choice.
+      address: {
+        country: values.country,
+        street: values.street,
+      },
+    });
   };
 
   useEffect(() => {
@@ -47,6 +87,17 @@ export default function AccountSettingsPage() {
       : pathname;
     router.replace(nextUrl);
   }, [tab, section, pathname, router]);
+  const handleAvatarFile = (file: File | string) => {
+    if (file instanceof File) {
+      uploadPhoto.mutate(file);
+    } else if (file) {
+      updateProfile.mutate({profile_photo_url: file});
+    }
+  };
+
+  if (profileLoading || !user) {
+    return <div className="pb-10 pt-20 text-center text-sm text-muted">Loading account…</div>;
+  }
 
   return (
     <div className="pb-10">
@@ -56,18 +107,18 @@ export default function AccountSettingsPage() {
           <div className="absolute right-20 top-0 h-40 w-40 rounded-full bg-blue-200/20 blur-3xl" />
 
           <div className="md:hidden absolute right-13 bottom-0 ">
-            <RankBadge rank={10} />
+            <RankBadge rank={user.rank} />
           </div>
           <div className="max-md:hidden absolute right-10 top-7 mr-10">
-            <AvatarPicker setFile={setFile} />
+            <AvatarPicker setFile={handleAvatarFile} />
           </div>
         </div>
 
         <div className="md:ml-30 md:mr-20 max-md:px-4">
-          <ProfileHeader user={user} avatar={file} setFile={setFile} />
+          <ProfileHeader user={user} avatar={user.avatar} setFile={handleAvatarFile} />
 
           <div className="relative md:hidden pt-5">
-            <AvatarPicker setFile={setFile} />
+            <AvatarPicker setFile={handleAvatarFile} />
           </div>
 
           <ProfileTabs active={tab} onChange={setTab} />
@@ -83,7 +134,22 @@ export default function AccountSettingsPage() {
                 />
               ) : (
                 <div className="flex-1 text-sm text-gray-400">
-                  <UpdatePasswordForm />
+                  <UpdatePasswordForm
+                    onSave={(values) =>
+                      updatePassword.mutate({
+                        currentPassword: values.currentPassword,
+                        newPassword: values.newPassword,
+                      })
+                    }
+                  />
+                  {updatePassword.isError && (
+                    <p className="mt-3 text-sm text-red-500">
+                      Failed to update password. Check your current password and try again.
+                    </p>
+                  )}
+                  {updatePassword.isSuccess && (
+                    <p className="mt-3 text-sm text-emerald-600">Password updated.</p>
+                  )}
                 </div>
               )}
             </div>

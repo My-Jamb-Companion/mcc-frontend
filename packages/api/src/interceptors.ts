@@ -1,19 +1,10 @@
 import { apiClient } from "./api-client";
 import { tokenManager } from "./token-manager";
+import { AUTH_COOKIE, REFRESH_COOKIE, USER_KEY } from "./session-keys";
+import { isSessionExpired, refreshSession } from "./session-refresh";
 
 const hasCookieSession = (): boolean =>
-  typeof document !== "undefined" && document.cookie.includes("mcc_auth=1");
-
-const getRefreshTokenCookie = (): string | null => {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(/(?:^|;\s*)mcc_refresh_token=([^;]*)/);
-  return match ? decodeURIComponent(match[1]) : null;
-};
-
-const setRefreshTokenCookie = (token: string): void => {
-  if (typeof document === "undefined") return;
-  document.cookie = `mcc_refresh_token=${encodeURIComponent(token)}; path=/; SameSite=Strict; max-age=${30 * 24 * 60 * 60}`;
-};
+  typeof document !== "undefined" && document.cookie.includes(`${AUTH_COOKIE}=1`);
 
 apiClient.interceptors.request.use(
   (config) => {
@@ -24,20 +15,12 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-let isRefreshing = false;
-let refreshQueue: ((token: string) => void)[] = [];
-
-const drainQueue = (token: string) => {
-  refreshQueue.forEach((cb) => cb(token));
-  refreshQueue = [];
-};
-
 const clearAuthAndRedirect = () => {
   if (typeof window === "undefined") return;
   tokenManager.clear();
-  localStorage.removeItem("mcc_user");
-  document.cookie = "mcc_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  document.cookie = "mcc_refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  localStorage.removeItem(USER_KEY);
+  document.cookie = `${AUTH_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+  document.cookie = `${REFRESH_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
   window.location.href = "/login";
 };
 
@@ -49,52 +32,41 @@ apiClient.interceptors.response.use(
 
     const isRefreshEndpoint = original?.url?.includes("/auth/token/refresh");
 
-    if (status === 401 && !original._retry && !isRefreshEndpoint) {
-      if (isRefreshing) {
-        return new Promise((resolve) => {
-          refreshQueue.push((token) => {
-            original.headers.Authorization = `Bearer ${token}`;
-            resolve(apiClient(original));
-          });
-        });
-      }
-
-      original._retry = true;
-      isRefreshing = true;
-
-      const refreshToken = getRefreshTokenCookie();
-
-      if (!refreshToken) {
-        isRefreshing = false;
-        drainQueue("");
-        clearAuthAndRedirect();
-        return Promise.reject(error);
-      }
-
-      try {
-        const res = await apiClient.post("/auth/token/refresh", {
-          refresh_token: refreshToken,
-        });
-        const { access_token, refresh_token: newRefresh } = res.data.data;
-
-        tokenManager.set(access_token);
-        if (newRefresh) setRefreshTokenCookie(newRefresh);
-        drainQueue(access_token);
-        isRefreshing = false;
-        original.headers.Authorization = `Bearer ${access_token}`;
-        return apiClient(original);
-      } catch {
-        isRefreshing = false;
-        drainQueue("");
-
-        if (!hasCookieSession()) {
-          clearAuthAndRedirect();
-        }
-
-        return Promise.reject(error);
-      }
+    if (status !== 401 || !original || original._retry || isRefreshEndpoint) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    // Marked before waiting, so a request that still fails after the refresh
+    // is rejected rather than triggering yet another refresh. Requests that
+    // used to wait in a queue were never marked, and a failed refresh retried
+    // them with an empty token -- each 401 then started its own refresh.
+    original._retry = true;
+
+    // Sent with an older token than the one we now hold: a refresh finished
+    // while this request was on its way. Retry with the current token rather
+    // than rotating the refresh token again.
+    const sentWith = String(original.headers?.Authorization ?? "").replace(/^Bearer\s+/, "");
+    const current = tokenManager.get();
+    if (current && sentWith !== current) {
+      original.headers.Authorization = `Bearer ${current}`;
+      return apiClient(original);
+    }
+
+    try {
+      // Shared: however many requests 401 together, and whether or not a
+      // page-load session restore is already refreshing, this is one refresh.
+      const accessToken = await refreshSession();
+      original.headers.Authorization = `Bearer ${accessToken}`;
+      return apiClient(original);
+    } catch (refreshError) {
+      // The server refused the refresh token: the session is over, so say so
+      // rather than leaving the user on pages that can only fail. A transient
+      // failure (network, server error) keeps the session and lets the request
+      // fail, unless there's no session marker left to keep.
+      if (isSessionExpired(refreshError) || !hasCookieSession()) {
+        clearAuthAndRedirect();
+      }
+      return Promise.reject(error);
+    }
   },
 );

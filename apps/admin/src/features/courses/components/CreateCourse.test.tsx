@@ -64,6 +64,14 @@ vi.mock("@mcc/features", async (importOriginal) => {
   };
 });
 
+// --- Mock categories hook (GET /admin/categories) ---
+vi.mock("@/src/features/categories/hooks/useCategories", () => ({
+  useCategoryOptions: () => ({
+    options: [{ label: "Science", value: "science" }],
+    isLoading: false,
+  }),
+}));
+
 // --- Mock course hooks ---
 vi.mock("../hooks/useCourse", () => ({
   useCourseData: () => ({

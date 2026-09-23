@@ -1,5 +1,7 @@
 "use client";
-import {AnimatePresence, Icon, motion} from "@mcc/ui";
+import {useEffect, useState} from "react";
+import {AnimatePresence, Icon, motion, showError} from "@mcc/ui";
+import {extractApiError} from "@mcc/api";
 import BrainyChatBox from "./BrainyChatBox";
 import AssignmentSubjectSelector from "./AssigmentSubjectScrollBarSelector";
 import BrainyFeatureCard from "./BrainyFeatureCard";
@@ -8,7 +10,14 @@ import {ChatMessage, useBrainy} from "../contexts/BrainyContext";
 import BrainyExamActionCardGrid, {
   ActionCardConfig,
 } from "./BrainyExamActionCard";
+import FlashcardGenerator from "./FlashcardGenerator";
 import Link from "next/link";
+import {sendChatMessage} from "../services/brainy.service";
+import {useQueryClient} from "@tanstack/react-query";
+import AllowanceMeter from "./AllowanceMeter";
+import {isAllowanceUsed} from "../helper/charge";
+import {ALLOWANCE_QUERY_KEY, USAGE_QUERY_KEY} from "../hooks/useBrainyChat";
+import {uploadAttachments} from "../helper/uploadAttachments";
 
 export interface FeatureCardConfig {
   id: string;
@@ -20,6 +29,7 @@ export interface FeatureCardConfig {
 }
 
 export default function Brainy() {
+  const queryClient = useQueryClient();
   const {
     subject,
     setSubject,
@@ -28,8 +38,14 @@ export default function Brainy() {
     // sessions,
     // activeSessionId,
     createNewSession,
+    addMessageToSession,
   } = useBrainy();
   const router = useRouter();
+
+  const [examView, setExamView] = useState<"actions" | "flashcards">("actions");
+  useEffect(() => {
+    if (mode !== "exam") setExamView("actions");
+  }, [mode]);
 
   return (
     <section className="grow flex flex-col h-full items-center justify-start overflow-y-auto px-4 py-8 max-sm:pb-10 max-sm:pt-20">
@@ -51,17 +67,20 @@ export default function Brainy() {
             </motion.div>
           )}
           {mode === "exam" && (
-            <div key="exam">
-              {" "}
-              <BrainyExamActionCardGrid
-                eyebrow="Exam Preparations"
-                heading="How do you want to prepare for your exams?"
-                subtext="Upload anything and get interactive notes, flashcards, quizzes, and more"
-                actions={EXAM_PREP_ACTIONS}
-                // onSelect={(id) => {
-                // console.log("Action selected:", id);
-                // }}
-              />
+            <div key="exam" className="w-full">
+              {examView === "actions" ? (
+                <BrainyExamActionCardGrid
+                  eyebrow="Exam Preparations"
+                  heading="How do you want to prepare for your exams?"
+                  subtext="Paste your notes and get instant flashcards to study from."
+                  actions={EXAM_PREP_ACTIONS}
+                  onSelect={(id) => {
+                    if (id === "paste") setExamView("flashcards");
+                  }}
+                />
+              ) : (
+                <FlashcardGenerator onBack={() => setExamView("actions")} />
+              )}
             </div>
           )}
 
@@ -88,7 +107,7 @@ export default function Brainy() {
           )}
 
           <BrainyChatBox
-            onSubmitQuestion={(question, files) => {
+            onSubmitQuestion={async (question, files) => {
               const firstMessage: ChatMessage = {
                 id: Math.random().toString(36).substring(7),
                 sender: "user" as const,
@@ -96,7 +115,21 @@ export default function Brainy() {
                 file: files,
                 timestamp: new Date(),
               };
-              const sessionId = createNewSession(
+
+              // Extract attachment text before anything else: an unsupported
+              // file should stop the send with a clear message rather than
+              // silently asking the model about a document it never received.
+              let attachments;
+              try {
+                attachments = await uploadAttachments(files);
+              } catch (error) {
+                showError(
+                  extractApiError(error, "That file couldn't be read. Try a PDF or text file."),
+                );
+                return;
+              }
+
+              const sessionId = await createNewSession(
                 question.length > 50
                   ? `${question.slice(0, 47)}...`
                   : question || "New Study Session",
@@ -105,8 +138,46 @@ export default function Brainy() {
                 [firstMessage],
               );
               router.push(`/brainy/chat/${sessionId}`);
+
+              // Plain promise chain, not the useMutation hook: Brainy.tsx
+              // unmounts the instant router.push above navigates away, and
+              // a hook-bound mutation's onSuccess/onError is not guaranteed
+              // to fire once its owning component is gone. This resolves
+              // independently of any component's lifecycle.
+              sendChatMessage(question, {sessionId, attachments}).then(
+                (result) =>
+                  // generated: false -> the provider returned nothing usable;
+                  // flagged so the thread offers a retry rather than passing
+                  // a failure off as Brainy's answer.
+                  addMessageToSession(
+                    sessionId,
+                    "ai",
+                    result.reply,
+                    undefined,
+                    !result.generated,
+                    result.usage,
+                    result.charge,
+                  ),
+                (error) =>
+                  addMessageToSession(
+                    sessionId,
+                    "ai",
+                    "My brain is fuzzy right now. Please try again.",
+                    undefined,
+                    true,
+                    null,
+                    null,
+                    isAllowanceUsed(error)
+                      ? extractApiError(error, "You've used your Brainy allowance. Add gems to keep going.")
+                      : undefined,
+                  ),
+              ).finally(() => {
+                queryClient.invalidateQueries({queryKey: USAGE_QUERY_KEY});
+                queryClient.invalidateQueries({queryKey: ALLOWANCE_QUERY_KEY});
+              });
             }}
           />
+          <AllowanceMeter className="mt-2" />
         </AnimatePresence>
       </div>
     </section>
@@ -149,10 +220,7 @@ const DEFAULT_FEATURES: FeatureCardConfig[] = [
     id: "exam",
     icon: "ph:exam",
     title: "Prepare for your exam",
-    description:
-      "Transform lecture slides and notes into flashcards, quizzes, and fill-in-the-blank questions instantly.",
-    badge: "Coming soon",
-    disabled: true,
+    description: "Paste your notes and get instant flashcards to study from.",
   },
   {
     id: "assignment",
@@ -162,12 +230,19 @@ const DEFAULT_FEATURES: FeatureCardConfig[] = [
       "Generate summaries and interactive study materials to simplify complex assignments.",
   },
 ];
+// Only "paste" is wired to anything real (POST /brainy/flashcards) --
+// "Upload" (image/file/audio/video) and "Record live lecture" need OCR,
+// transcription, or audio-capture infrastructure the backend doesn't have,
+// so both stay honestly marked "Coming soon" rather than looking clickable
+// with nothing behind them.
 const EXAM_PREP_ACTIONS: ActionCardConfig[] = [
   {
     id: "upload",
     icon: "hugeicons:pencil-ruler",
     title: "Upload",
     description: "Image, file, audio, video.",
+    badge: "Coming soon",
+    disabled: true,
   },
   {
     id: "record",
@@ -181,6 +256,6 @@ const EXAM_PREP_ACTIONS: ActionCardConfig[] = [
     id: "paste",
     icon: "ph:book-open",
     title: "Paste",
-    description: "Youtube, website, text",
+    description: "Paste your notes or study material",
   },
 ];

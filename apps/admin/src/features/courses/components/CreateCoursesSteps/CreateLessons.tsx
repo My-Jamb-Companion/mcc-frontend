@@ -3,9 +3,18 @@ import {Icon} from "@mcc/ui";
 import {InlineRename} from "./Step2";
 import {FileRow} from "@/src/features/courses/types/types";
 import {uploadMedia} from "@/src/features/courses/services/media.service";
+import {isYouTubeUrl} from "@/src/features/courses/helper/video";
 
 function uid() {
   return Math.random().toString(36).slice(2, 9);
+}
+
+const YOUTUBE_FORMAT = "YOUTUBE";
+
+function rowIcon(format: string): string {
+  if (format === YOUTUBE_FORMAT) return "mdi:youtube";
+  if (format.toUpperCase() === "PDF") return "lucide:file-text";
+  return "lucide:play";
 }
 
 // Helper to extract duration from an uploaded video file
@@ -79,7 +88,7 @@ function FileRowItem({
       </span>
       <span className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100">
         {(file.previewUrl || file.src) && (
-          <Icon icon="lucide:play" size={16} className="text-gray-400" />
+          <Icon icon={rowIcon(file.format)} size={16} className="text-gray-400" />
         )}
       </span>
       <div className="relative z-10 min-w-0 flex-1">
@@ -109,7 +118,7 @@ function FileRowItem({
           </div>
         )}
         <p className="text-xs text-gray-400">
-          {file.format} • {file.size}
+          {file.format === YOUTUBE_FORMAT ? "YouTube" : `${file.format} • ${file.size}`}
           {file.duration
             ? ` • ${Math.floor(file.duration / 60)}m ${file.duration % 60}s`
             : ""}
@@ -230,7 +239,9 @@ export default function LessonsCreate({
       fileList.map(async (f) => {
         const id = uid();
         const objectUrl = URL.createObjectURL(f);
-        const duration = await getVideoDuration(f);
+        const duration = f.type.startsWith("video/")
+          ? await getVideoDuration(f)
+          : undefined;
 
         return {
           id,
@@ -272,6 +283,33 @@ export default function LessonsCreate({
     );
   }
 
+  const [addingYoutube, setAddingYoutube] = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [youtubeError, setYoutubeError] = useState<string | null>(null);
+
+  function addYoutubeLink() {
+    const url = youtubeUrl.trim();
+    if (!url) return;
+    if (!isYouTubeUrl(url)) {
+      setYoutubeError("That doesn't look like a YouTube link.");
+      return;
+    }
+    onFilesChange([
+      ...files,
+      {
+        id: uid(),
+        title: "YouTube video",
+        format: YOUTUBE_FORMAT,
+        size: "",
+        previewUrl: url,
+        src: url,
+      },
+    ]);
+    setYoutubeUrl("");
+    setYoutubeError(null);
+    setAddingYoutube(false);
+  }
+
   const displayFiles = files.map((f) => ({
     ...f,
     progress:
@@ -305,17 +343,71 @@ export default function LessonsCreate({
         className="hidden"
         onChange={handleFileChange}
         multiple
-        accept="video/*"
+        accept="video/*,.pdf,application/pdf"
       />
 
-      <button
-        type="button"
-        onClick={() => fileInputRef.current?.click()}
-        className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 px-4 py-3.5 text-left text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors"
-      >
-        <Icon icon="lucide:plus" size={16} className="text-gray-400" />
-        Add {addLabel}
-      </button>
+      {addingYoutube ? (
+        <div className="flex flex-col gap-2 rounded-xl border border-dashed border-gray-200 px-4 py-3.5">
+          <div className="flex items-center gap-2">
+            <input
+              autoFocus
+              value={youtubeUrl}
+              onChange={(e) => setYoutubeUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addYoutubeLink();
+                }
+                if (e.key === "Escape") {
+                  setAddingYoutube(false);
+                  setYoutubeUrl("");
+                  setYoutubeError(null);
+                }
+              }}
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400"
+            />
+            <button
+              type="button"
+              onClick={addYoutubeLink}
+              className="shrink-0 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAddingYoutube(false);
+                setYoutubeUrl("");
+                setYoutubeError(null);
+              }}
+              className="shrink-0 text-sm font-medium text-gray-500 hover:text-gray-700"
+            >
+              Cancel
+            </button>
+          </div>
+          {youtubeError && <p className="text-xs text-danger">{youtubeError}</p>}
+        </div>
+      ) : (
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="flex flex-1 items-center gap-3 rounded-xl border border-dashed border-gray-200 px-4 py-3.5 text-left text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors"
+          >
+            <Icon icon="lucide:plus" size={16} className="text-gray-400" />
+            Add {addLabel}
+          </button>
+          <button
+            type="button"
+            onClick={() => setAddingYoutube(true)}
+            className="flex shrink-0 items-center gap-2 rounded-xl border border-dashed border-gray-200 px-4 py-3.5 text-left text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors"
+          >
+            <Icon icon="mdi:youtube" size={16} className="text-gray-400" />
+            YouTube link
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,8 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import {useMemo, useState} from "react";
+import {useState} from "react";
 import {Icon, Modal} from "@mcc/ui";
+import {useMutation, useQuery} from "@tanstack/react-query";
+import {searchRecipients} from "@/src/features/Messaging/services/recipients.service";
+import {sendMessage} from "@/src/features/Messaging/services/messages.service";
 import "react-quill-new/dist/quill.snow.css";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), {
@@ -17,13 +20,6 @@ type Teacher = {
   name: string;
 };
 
-const SAMPLE_TEACHERS: Teacher[] = [
-  {id: "1", name: "Emmanuel Okafor"},
-  {id: "2", name: "Misturah Bello"},
-  {id: "3", name: "David Adeyemi"},
-  {id: "4", name: "Chiamaka Nwosu"},
-];
-
 function TeacherSelect({
   value,
   onChange,
@@ -34,13 +30,14 @@ function TeacherSelect({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
-  const results = useMemo(
-    () =>
-      SAMPLE_TEACHERS.filter((t) =>
-        t.name.toLowerCase().includes(query.toLowerCase()),
+  const {data: results = []} = useQuery({
+    queryKey: ["recipients-search", "teacher", query],
+    queryFn: () =>
+      searchRecipients(query, "teacher").then((rows) =>
+        rows.map((r): Teacher => ({id: r.user_id, name: r.full_name})),
       ),
-    [query],
-  );
+    enabled: open && query.trim().length > 0,
+  });
 
   return (
     <div className="relative">
@@ -120,6 +117,11 @@ export default function SendMessage({
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [message, setMessage] = useState("");
 
+  const sendMutation = useMutation({
+    mutationFn: (payload: {recipientId: string; body: string}) =>
+      sendMessage({recipient_id: payload.recipientId, body: payload.body}),
+  });
+
   const canProceedStep1 = teacher !== null;
   const messageIsEmpty = message.replace(/<[^>]*>/g, "").trim().length === 0;
   const canSend = !messageIsEmpty;
@@ -128,6 +130,7 @@ export default function SendMessage({
     setStep(1);
     setTeacher(null);
     setMessage("");
+    sendMutation.reset();
     onClose?.();
   };
 
@@ -137,10 +140,17 @@ export default function SendMessage({
       return;
     }
     if (canSend && teacher) {
-      onSend?.({teacher, message});
-      setStep(1);
-      setTeacher(null);
-      setMessage("");
+      sendMutation.mutate(
+        {recipientId: teacher.id, body: message},
+        {
+          onSuccess: () => {
+            onSend?.({teacher, message});
+            setStep(1);
+            setTeacher(null);
+            setMessage("");
+          },
+        },
+      );
     }
   };
 
@@ -236,6 +246,11 @@ export default function SendMessage({
           )}
         </div>
 
+        {sendMutation.isError && (
+          <p className="mt-3 text-sm text-red-500">
+            Failed to send message. Please try again.
+          </p>
+        )}
         <div className="flex items-center gap-3 mt-5">
           <button
             type="button"
@@ -247,10 +262,13 @@ export default function SendMessage({
           <button
             type="button"
             onClick={handlePrimaryClick}
-            disabled={step === 1 ? !canProceedStep1 : !canSend}
+            disabled={
+              (step === 1 ? !canProceedStep1 : !canSend) ||
+              sendMutation.isPending
+            }
             className="flex-1 py-3 rounded-full font-semibold transition-colors bg-violet-600 text-white hover:bg-violet-700 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
           >
-            Send message
+            {step === 2 && sendMutation.isPending ? "Sending…" : "Send message"}
           </button>
         </div>
       </div>

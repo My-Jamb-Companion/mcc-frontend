@@ -1,6 +1,6 @@
-import {MakeModule, Step1Values, Topic, UpdateCoursePayload} from "../types/types";
+import {CoursesFormValues, MakeModule, Step1Values, Topic, UpdateCoursePayload} from "../types/types";
 import {CreateCourseDetailsPayload} from "../services/course.service";
-import {toApiLevel} from "./course.mapper";
+import {serializeModulesPayload, toApiLevel} from "./course.mapper";
 
 export const shuffleArray = <T>(array: T[]) => {
   return [...array].sort(() => Math.random() - 0.5);
@@ -90,4 +90,50 @@ export function toUpdateDetailsPayload(
     learning_outcomes: values.learnItems,
     tags: values.tags,
   };
+}
+
+/**
+ * Maps the whole edit-wizard form to a PATCH /admin/courses/{id} payload —
+ * used by EditCourse.tsx's "Save as draft"/"Update & Publish", which are
+ * reachable from every step and always send this whole form's current local
+ * state.
+ *
+ * `modules` is only included when there's something real to sync, or the
+ * admin is actually on the Content step and may have deliberately emptied
+ * it. The backend refuses an explicit empty `modules` list against a course
+ * that still has content (see update_course_details in
+ * app/features/admin/courses/service.py) — sending it unconditionally from
+ * a Details- or Upload-only save risked hitting that refusal (or, before
+ * that guard existed, silently deleting every lecture and quiz question)
+ * over an edit that was never about content at all.
+ */
+export function toUpdateCoursePayload(
+  payload: CoursesFormValues,
+  activeStep: "details" | "content" | "upload",
+): UpdateCoursePayload {
+  const base: UpdateCoursePayload = {
+    title: payload.courseName,
+    category: payload.category,
+    teacher_id: payload.instructorName,
+    price: Number(payload.price || 0),
+    level: toApiLevel(payload.level),
+    description: payload.description,
+    learning_outcomes: payload.learnItems,
+    tags: payload.tags,
+    cover_image_url:
+      payload.upload?.coverImageUrl ||
+      payload.upload?.coverImage?.remoteUrl ||
+      payload.upload?.coverImage?.previewUrl,
+    promo_video_url:
+      payload.upload?.promoVideoUrl ||
+      payload.upload?.promoVideo?.remoteUrl ||
+      payload.upload?.promoVideo?.previewUrl,
+  };
+
+  const topics = payload.content.topics;
+  if (topics.length > 0 || activeStep === "content") {
+    base.modules = serializeModulesPayload(topics);
+  }
+
+  return base;
 }

@@ -1,8 +1,11 @@
-name: Lint & Build
+name: CI
 
 on:
   push:
-    branches: [main, staging, dev]
+    # `testing` is where feature work lands and `main` is the deployed branch;
+    # both were missing or wrong before, so pushes to the branches that matter
+    # went unchecked.
+    branches: [main, staging, testing]
   pull_request:
 
 concurrency:
@@ -11,7 +14,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build & Lint
+    name: Typecheck, Test, Build & Lint
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -24,6 +27,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
+          # 20.19+ is required: vitest 4 loads an ESM config through require(),
+          # which older 20.x cannot do.
           node-version: 20
           cache: pnpm
 
@@ -38,7 +43,20 @@ jobs:
           restore-keys: |
             turbo-${{ runner.os }}-
 
-      - name: Build (includes typecheck)
+      # Runs first: it is the fastest of the three and the one that had no
+      # coverage at all. `next build` does not typecheck the apps, and
+      # `turbo run typecheck` previously failed because no such task existed.
+      - name: Typecheck
+        run: pnpm turbo run typecheck --concurrency=2
+        env:
+          TURBO_TELEMETRY_DISABLED: 1
+
+      - name: Test
+        run: pnpm turbo run test --concurrency=2
+        env:
+          TURBO_TELEMETRY_DISABLED: 1
+
+      - name: Build
         run: pnpm turbo run build --concurrency=2
         env:
           TURBO_TELEMETRY_DISABLED: 1

@@ -1,71 +1,41 @@
 import {useState} from "react";
 import {Icon, motion, AnimatePresence} from "@mcc/ui";
-import {
-  useLessonsDuration,
-  useLevelProgress,
-  useModuleProgress,
-  formatDuration,
-} from "@/src/features/learnings/hooks/useLesson";
-import {
-  CourseModule,
-  CourseLevel,
-  Lessons,
-  LessonType,
-} from "@/src/features/constants/demoCourses";
+import {useLessonsDuration, useModuleProgress} from "@/src/features/learnings/hooks/useLesson";
+import {Lesson, LessonKind, Module, lessonKind} from "@/src/features/learnings/helper/content.mapper";
 
-interface CourseContentSidebarProps {
-  levels: CourseLevel[];
-  onClose?: () => void;
-  setActiveLessonSrc: (lesson: Lessons) => void;
+interface CourseModulesProps {
+  modules: Module[];
+  completedLessonIds: Set<string>;
+  onSelectLesson: (lesson: Lesson) => void;
   activeLesson?: string | null;
 }
 
-const lessonIconMap: Record<LessonType, {icon: string; className: string}> = {
-  video: {
-    icon: "line-md:youtube",
-    className: "text-primary",
-  },
-  audio: {
-    icon: "hugeicons:audio-wave-01",
-    className: "text-primary",
-  },
-  doc: {
-    icon: "ri:booklet-line",
-    className: "text-primary",
-  },
-  exercise: {
-    icon: "ph:clock",
-    className: "text-blue-500",
-  },
-  practice: {
-    icon: "material-symbols:quiz-outline",
-    className: "text-orange-500",
-  },
-
-  exam: {
-    icon: "mdi:certificate-outline",
-    className: "text-green-500",
-  },
+const kindIconMap: Record<LessonKind, {icon: string; className: string}> = {
+  video: {icon: "solar:play-circle-bold", className: "text-primary"},
+  youtube: {icon: "line-md:youtube", className: "text-red-500"},
+  pdf: {icon: "ri:booklet-line", className: "text-primary"},
 };
 
 export default function CoursePlayModules({
-  levels,
-  setActiveLessonSrc,
+  modules,
+  completedLessonIds,
+  onSelectLesson,
   activeLesson = null,
-}: CourseContentSidebarProps) {
+}: CourseModulesProps) {
   return (
-    <div>
-      {levels.map((level, index) => (
+    <div className="flex flex-col gap-3">
+      {modules.map((module, index) => (
         <motion.div
-          key={level.title}
+          key={module.id}
           initial={{opacity: 0, y: 12}}
           animate={{opacity: 1, y: 0}}
           transition={{delay: index * 0.08, duration: 0.3}}
         >
-          <LevelSection
-            level={level}
+          <ModuleAccordion
+            module={module}
+            completedLessonIds={completedLessonIds}
             activeLesson={activeLesson}
-            setActiveLessonSrc={setActiveLessonSrc}
+            onSelectLesson={onSelectLesson}
           />
         </motion.div>
       ))}
@@ -73,95 +43,25 @@ export default function CoursePlayModules({
   );
 }
 
-function LevelSection({
-  level,
-  activeLesson,
-  setActiveLessonSrc,
-}: {
-  level: CourseLevel;
-  activeLesson: string | null;
-  setActiveLessonSrc: (key: Lessons) => void;
-}) {
-  const progress = useLevelProgress(level.modules);
-  const progressIconMap = {
-    0: "hugeicons:progress-01",
-    1: "ri:progress-2-line",
-    2: "ri:progress-3-line",
-    3: "ri:progress-4-line",
-    4: "ri:progress-5-line",
-    5: "ri:progress-6-line",
-    6: "ri:progress-7-line",
-    7: "ri:progress-8-line",
-  };
-  const iconIndex = (
-    progress <= 0
-      ? 0
-      : progress < 15
-        ? 1
-        : progress < 30
-          ? 2
-          : progress < 45
-            ? 3
-            : progress < 60
-              ? 4
-              : progress < 75
-                ? 5
-                : progress < 90
-                  ? 6
-                  : 7
-  ) as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between pt-6 text-muted py-3 sticky top-0 bg-background z-10">
-        <span className="text-sm font-bold tracking-widest text-subtle uppercase">
-          {level.title}
-        </span>
-        {progress !== 0 ? (
-          <span className="flex items-center justify-center gap-2">
-            <span className="text-primary">
-              <Icon icon={progressIconMap[iconIndex]} size={16} />
-            </span>
-            <span className="text-muted text-xs font-medium translate-y-[1.5px]">
-              {progress}% completed
-            </span>
-          </span>
-        ) : (
-          <span className="flex items-center gap-2 text-xs font-medium text-muted">
-            <Icon icon="octicon:play-16" size={14} />
-            Not Started
-          </span>
-        )}
-      </div>
-
-      {level.modules.map((module) => (
-        <ModuleAccordion
-          key={module.title}
-          module={module}
-          activeLesson={activeLesson}
-          setActiveLessonSrc={setActiveLessonSrc}
-        />
-      ))}
-    </div>
-  );
-}
-
 function ModuleAccordion({
   module,
+  completedLessonIds,
   activeLesson,
-  setActiveLessonSrc,
+  onSelectLesson,
 }: {
-  module: CourseModule;
+  module: Module;
+  completedLessonIds: Set<string>;
   activeLesson: string | null;
-  setActiveLessonSrc: (key: Lessons) => void;
+  onSelectLesson: (lesson: Lesson) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const hasLessons = !!module.lessons?.length;
-  const moduleDuration = useLessonsDuration(module.lessons || []);
-  const moduleProgress = useModuleProgress(module.lessons || []);
+  const hasLessons = !!module.lessons.length;
+  const moduleDuration = useLessonsDuration(module.lessons);
+  const moduleProgress = useModuleProgress(module.lessons, completedLessonIds);
   const isCompleted = moduleProgress === 100;
+
   return (
-    <div className="">
+    <div>
       <button
         type="button"
         onClick={() => hasLessons && setOpen((o) => !o)}
@@ -182,9 +82,7 @@ function ModuleAccordion({
 
         {hasLessons && (
           <div className="flex items-center gap-2">
-            <p className="text-subtle text-xs text-nowrap">
-              {moduleDuration.formatted}
-            </p>
+            <p className="text-subtle text-xs text-nowrap">{moduleDuration.formatted}</p>
             <Icon
               icon="ph:caret-down"
               size={14}
@@ -205,23 +103,20 @@ function ModuleAccordion({
             className="overflow-hidden"
           >
             <div className="pl-4 pt-6 pb-4 flex flex-col gap-4">
-              {module.lessons!.map((lesson, i) => {
-                const key = lesson.id;
-                const isActive = activeLesson === key;
-                const iconConfig = lessonIconMap[lesson.type];
+              {module.lessons.map((lesson, i) => {
+                const isActive = activeLesson === lesson.id;
+                const iconConfig = kindIconMap[lessonKind(lesson)];
 
                 return (
                   <motion.button
-                    key={key}
+                    key={lesson.id}
                     type="button"
                     initial={{opacity: 0, x: -8}}
                     animate={{opacity: 1, x: 0}}
                     transition={{delay: i * 0.04, duration: 0.2}}
-                    onClick={() => {
-                      setActiveLessonSrc(lesson);
-                    }}
+                    onClick={() => onSelectLesson(lesson)}
                     className={`flex gap-2.5 w-full pl-1 pr-3.5 text-left hover:bg-muted/5 transition-colors ${
-                      isActive ? "border-l-primary  border-l-3" : "border-l-0"
+                      isActive ? "border-l-primary border-l-3" : "border-l-0"
                     }`}
                   >
                     <div
@@ -231,32 +126,23 @@ function ModuleAccordion({
                     </div>
                     <div className="min-w-0">
                       <p
-                        className={`text-sm truncate ${
-                          isActive ? "text-primary" : "text-subtle"
-                        }`}
+                        className={`text-sm truncate ${isActive ? "text-primary" : "text-subtle"}`}
                       >
                         {lesson.title}
                       </p>
-                      {lesson.duration && (
+                      {!!lesson.duration && (
                         <p className="text-sm mt-0.5 text-muted">
-                          {formatDuration(lesson.duration)}
-                        </p>
-                      )}
-
-                      {lesson.type === "practice" && (
-                        <p className="text-xs text-orange-500">Practice Quiz</p>
-                      )}
-
-                      {lesson.type === "exercise" && (
-                        <p className="text-xs text-blue-500">Exercise</p>
-                      )}
-
-                      {lesson.type === "exam" && (
-                        <p className="text-xs text-green-500">
-                          Certification Exam
+                          {Math.ceil(lesson.duration / 60)} min
                         </p>
                       )}
                     </div>
+                    {completedLessonIds.has(lesson.id) && (
+                      <Icon
+                        icon="ci:check"
+                        size={16}
+                        className="ml-auto shrink-0 text-primary"
+                      />
+                    )}
                   </motion.button>
                 );
               })}

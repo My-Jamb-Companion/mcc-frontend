@@ -6,6 +6,7 @@ import {
   UploadedFile,
 } from "@/src/features/courses/types/types";
 import {uploadMedia} from "@/src/features/courses/services/media.service";
+import {isYouTubeUrl, youTubeEmbedUrl} from "@/src/features/courses/helper/video";
 import {useRouter} from "next/navigation";
 
 export function hasCompleteUpload(upload: {
@@ -138,6 +139,16 @@ function UploadDropzone({
   const [progress, setProgress] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
 
+  // Video only: pick between uploading a file and pointing at a YouTube
+  // link instead. Kept separate from `value` so switching tabs before
+  // submitting a link doesn't touch the form.
+  const [videoSource, setVideoSource] = useState<"upload" | "youtube">("upload");
+  const [youtubeInput, setYoutubeInput] = useState("");
+  const [youtubeError, setYoutubeError] = useState<string | null>(null);
+
+  const valueUrl = value?.remoteUrl || value?.previewUrl;
+  const valueIsYouTube = kind === "video" && isYouTubeUrl(valueUrl);
+
   async function acceptFile(file: File | undefined) {
     if (!file) return;
     if (!file.type.startsWith(kind === "image" ? "image/" : "video/")) {
@@ -210,7 +221,7 @@ function UploadDropzone({
 
   function handleRemove(e: React.MouseEvent) {
     e.stopPropagation();
-    if (value) URL.revokeObjectURL(value.previewUrl);
+    if (value && !valueIsYouTube) URL.revokeObjectURL(value.previewUrl);
     onChange(null);
     if (kind === "image") {
       setValue("upload.coverImageUrl", undefined, {shouldDirty: true});
@@ -224,6 +235,20 @@ function UploadDropzone({
     abortRef.current?.abort();
     // acceptFile's catch/finally handles clearing pending/progress and
     // revoking the preview URL once the aborted request settles.
+  }
+
+  function submitYouTubeLink() {
+    const url = youtubeInput.trim();
+    if (!url) return;
+    if (!isYouTubeUrl(url)) {
+      setYoutubeError("That doesn't look like a YouTube link.");
+      return;
+    }
+    setYoutubeError(null);
+    setError(null);
+    onChange({previewUrl: url, remoteUrl: url});
+    setValue("upload.promoVideoUrl", url, {shouldDirty: true});
+    setYoutubeInput("");
   }
 
   return (
@@ -243,7 +268,55 @@ function UploadDropzone({
         onChange={handleInputChange}
       />
 
-      {pending ? (
+      {kind === "video" && !pending && !value && (
+        <div className="mb-3 inline-flex rounded-full border border-muted/30 p-0.5 text-xs font-medium">
+          {(["upload", "youtube"] as const).map((source) => (
+            <button
+              key={source}
+              type="button"
+              onClick={() => {
+                setVideoSource(source);
+                setError(null);
+                setYoutubeError(null);
+              }}
+              className={`rounded-full px-3 py-1.5 transition-colors ${
+                videoSource === source
+                  ? "bg-violet-600 text-white"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              {source === "upload" ? "Upload file" : "YouTube link"}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {kind === "video" && !pending && !value && videoSource === "youtube" ? (
+        <div className="flex flex-col gap-3 rounded-xl border border-muted/30 p-6 shadow-sm">
+          <p className="text-sm font-semibold">Paste a YouTube link</p>
+          <div className="flex items-center gap-2">
+            <input
+              value={youtubeInput}
+              onChange={(e) => setYoutubeInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  submitYouTubeLink();
+                }
+              }}
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="w-full rounded-lg border border-muted/30 px-3.5 py-2.5 text-sm outline-none focus:border-violet-400"
+            />
+            <Button type="button" size="sm" className="font-semibold" onClick={submitYouTubeLink}>
+              Use link
+            </Button>
+          </div>
+          {youtubeError && <p className="text-xs text-danger">{youtubeError}</p>}
+          <p className="text-muted text-xs">
+            The video stays on YouTube — students watch it embedded here.
+          </p>
+        </div>
+      ) : pending ? (
         <div className="relative overflow-hidden rounded-xl border border-violet-200 bg-violet-50/60 shadow-sm">
           <div className="relative max-h-80 w-full opacity-40">
             {kind === "image" ? (
@@ -280,7 +353,7 @@ function UploadDropzone({
           </div>
 
           <p className="truncate border-t border-muted/20 bg-white px-4 py-2 text-xs text-muted">
-            {pending.file.name}
+            {pending.file?.name}
           </p>
         </div>
       ) : value ? (
@@ -290,6 +363,14 @@ function UploadDropzone({
               src={value.previewUrl}
               alt={label}
               className="max-h-80 w-full object-cover"
+            />
+          ) : valueIsYouTube ? (
+            <iframe
+              src={youTubeEmbedUrl(valueUrl) ?? undefined}
+              title={label}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="aspect-video max-h-80 w-full bg-black"
             />
           ) : (
             <video
@@ -305,7 +386,9 @@ function UploadDropzone({
               variant="outline"
               size="sm"
               className="bg-white font-semibold"
-              onClick={() => inputRef.current?.click()}
+              onClick={() =>
+                valueIsYouTube ? onChange(null) : inputRef.current?.click()
+              }
             >
               Replace
             </Button>
@@ -319,9 +402,11 @@ function UploadDropzone({
           </div>
 
           <p className="truncate border-t border-muted/20 bg-white px-4 py-2 text-xs text-muted">
-            {value.file?.name ||
-              decodeURIComponent(value.previewUrl.split("/").pop() || "") ||
-              "Uploaded"}
+            {valueIsYouTube
+              ? value.previewUrl
+              : value.file?.name ||
+                decodeURIComponent(value.previewUrl.split("/").pop() || "") ||
+                "Uploaded"}
           </p>
         </div>
       ) : (
@@ -330,16 +415,16 @@ function UploadDropzone({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => inputRef.current?.click()}
-          className={`flex cursor-pointer flex-col items-center justify-center gap-6 rounded-xl border p-6 pt-20 shadow-sm transition-colors ${
+          className={`flex max-h-80 cursor-pointer flex-col items-center justify-center gap-4 rounded-xl border p-6 shadow-sm transition-colors ${
             isDragging ? "border-violet-400 bg-violet-50/50" : "border-muted/30"
           }`}
         >
           <div className="relative">
             <div>
-              <EllcipsIcon />
+              <EllcipsIcon size={72} />
             </div>
-            <div className="absolute bottom-0 left-0 translate-y-5 -translate-x-4">
-              <UploadIcon />
+            <div className="absolute bottom-0 left-0 translate-y-3 -translate-x-2">
+              <UploadIcon size={60} />
             </div>
           </div>
 
@@ -352,7 +437,7 @@ function UploadDropzone({
               type="button"
               variant="outline"
               size="sm"
-              className="font-semibold mt-3"
+              className="font-semibold mt-1"
               onClick={(e) => {
                 e.stopPropagation();
                 inputRef.current?.click();
@@ -362,7 +447,7 @@ function UploadDropzone({
             </Button>
           </div>
 
-          <p className="text-muted text-sm">{hint}</p>
+          <p className="text-muted text-xs">{hint}</p>
         </div>
       )}
 
@@ -405,12 +490,12 @@ function UploadedSuccess() {
   );
 }
 
-function UploadIcon() {
+function UploadIcon({size = 101}: {size?: number}) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="101"
-      height="101"
+      width={size}
+      height={size}
       viewBox="0 0 101 101"
       fill="none"
     >
@@ -449,12 +534,12 @@ function UploadIcon() {
     </svg>
   );
 }
-function EllcipsIcon() {
+function EllcipsIcon({size = 120}: {size?: number}) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="120"
-      height="120"
+      width={size}
+      height={size}
       viewBox="0 0 120 120"
       fill="none"
     >

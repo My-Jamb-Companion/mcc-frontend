@@ -7,6 +7,9 @@
   "scripts": {
     "dev:learner": "pnpm --filter learner dev -p 3000",
     "dev:admin": "pnpm --filter admin dev -p 3001",
+    "dev:teacher": "pnpm --filter teacher dev -p 3002",
+    "dev:parent": "pnpm --filter parent dev -p 3003",
+    "dev:landing": "pnpm --filter landing dev -p 3004",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit --pretty false --diagnostics --extendedDiagnostics",
     "build": "turbo run build",
@@ -19,6 +22,25 @@
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.32.1",
+  "pnpm": {
+    "overrides": {
+      "axios": "1.18.0",
+      "undici": "7.29.0",
+      "brace-expansion@1": "1.1.18",
+      "brace-expansion@5": "5.0.9",
+      "postcss": "8.5.23",
+      "js-yaml": "4.3.2",
+      "nanoid": "3.3.19",
+      "vite": "8.0.16",
+      "turbo": "2.9.14",
+      "browserslist": "4.28.7",
+      "vitest": "4.1.11",
+      "form-data": "4.0.6",
+      "baseline-browser-mapping": "2.11.0",
+      "@vitest/mocker": "4.1.11",
+      "@babel/core": "7.29.6"
+    }
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",

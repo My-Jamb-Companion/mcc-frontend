@@ -4,8 +4,15 @@ import {useEffect, useRef, useState} from "react";
 import {Icon} from "@mcc/ui";
 import RescheduleClass from "./ResheduleSession";
 import CancelClass from "@/src/components/Modals/CancelClass";
-import ShareSessionLink from "@/src/components/Modals/ShareLink";
+import ShareSessionLink, {Recipient} from "@/src/components/Modals/ShareLink";
 import SendMessage from "@/src/components/Modals/SendMessage";
+import {
+  useCancelSession,
+  useRescheduleSession,
+  useSessionDelivery,
+  useShareSessionLink,
+  useThisWeekSessions,
+} from "../hooks/useLiveSessions";
 
 type CallStatus = "completed" | "upcoming";
 type ActionVariant = "replay" | "share" | "countdown";
@@ -22,51 +29,11 @@ export type CallRowData = {
   status: CallStatus;
   action: ActionVariant;
   countdownSeconds?: number;
+  meetingUrl?: string;
+  started?: boolean;
+  delivered?: boolean;
+  cancelled?: boolean;
 };
-
-const CALLS: CallRowData[] = [
-  {
-    id: "1",
-    studentName: "Emmanuel",
-    hostName: "Mo",
-    subject: "Maths: Algebra",
-    time: "09:45 PM",
-    type: "Exam",
-    status: "completed",
-    action: "replay",
-  },
-  {
-    id: "2",
-    studentName: "Emmanuel",
-    hostName: "Mo",
-    subject: "Maths: Algebra",
-    time: "12:45 PM",
-    type: "Exam",
-    status: "upcoming",
-    action: "share",
-  },
-  {
-    id: "3",
-    studentName: "Misturah",
-    hostName: "Mo",
-    subject: "Pilates: Introduction",
-    time: "12:45 PM",
-    type: "Course",
-    status: "upcoming",
-    action: "share",
-  },
-  {
-    id: "4",
-    studentName: "Emmanuel",
-    hostName: "Mo",
-    subject: "Maths: Algebra",
-    time: "12:45 PM",
-    type: "Exam",
-    status: "upcoming",
-    action: "countdown",
-    countdownSeconds: 12 * 3600 + 40 * 60 + 59,
-  },
-];
 
 function formatCountdown(totalSeconds: number) {
   const hours = Math.floor(totalSeconds / 3600);
@@ -166,9 +133,13 @@ function CountdownButton({seconds}: {seconds: number}) {
 function RowMenu({
   onReschedule,
   onCancel,
+  onMarkDelivered,
+  onUndoDelivered,
 }: {
   onReschedule?: () => void;
   onCancel?: () => void;
+  onMarkDelivered?: () => void;
+  onUndoDelivered?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -218,6 +189,32 @@ function RowMenu({
             <Icon icon="mdi:calendar-remove-outline" size={16} />
             Cancel class
           </button>
+          {onMarkDelivered && (
+            <button
+              type="button"
+              onClick={() => {
+                onMarkDelivered();
+                setOpen(false);
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-gray-800 hover:bg-gray-50 transition-colors"
+            >
+              <Icon icon="mdi:check-circle-outline" size={16} />
+              Mark delivered
+            </button>
+          )}
+          {onUndoDelivered && (
+            <button
+              type="button"
+              onClick={() => {
+                onUndoDelivered();
+                setOpen(false);
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-gray-800 hover:bg-gray-50 transition-colors"
+            >
+              <Icon icon="mdi:undo-variant" size={16} />
+              Undo delivery
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -230,6 +227,8 @@ type CallRowProps = {
   onMessage?: (call: CallRowData) => void;
   onReschedule?: (call: CallRowData) => void;
   onCancel?: (call: CallRowData) => void;
+  onMarkDelivered?: (call: CallRowData) => void;
+  onUndoDelivered?: (call: CallRowData) => void;
 };
 
 function CallRow({
@@ -239,6 +238,8 @@ function CallRow({
   onMessage,
   onReschedule,
   onCancel,
+  onMarkDelivered,
+  onUndoDelivered,
 }: CallRowProps) {
   return (
     <div className="flex items-center justify-between py-4 gap-4">
@@ -302,19 +303,31 @@ function CallRow({
         <RowMenu
           onReschedule={() => onReschedule?.(call)}
           onCancel={() => onCancel?.(call)}
+          onMarkDelivered={
+            call.started && !call.delivered && !call.cancelled && onMarkDelivered
+              ? () => onMarkDelivered(call)
+              : undefined
+          }
+          onUndoDelivered={call.delivered && onUndoDelivered ? () => onUndoDelivered(call) : undefined}
         />
       </div>
     </div>
   );
 }
 
-export default function SessionCallsList({
-  onReplay,
-  onShare,
-  onMessage,
-  onReschedule,
-  onCancel,
-}: SessionCallsListProps) {
+/** Converts RescheduleClass's {date: "YYYY-MM-DD", time: "09:00 AM"} selection into an ISO datetime. */
+function toIsoDateTime(date: string, time: string): string {
+  const parsed = new Date(`${date} ${time}`);
+  return parsed.toISOString();
+}
+
+export default function SessionCallsList({onReplay}: SessionCallsListProps) {
+  const {calls, isLoading} = useThisWeekSessions();
+  const rescheduleMutation = useRescheduleSession();
+  const cancelMutation = useCancelSession();
+  const shareMutation = useShareSessionLink();
+  const delivery = useSessionDelivery();
+
   const [rescheduleCall, setRescheduleCall] = useState<CallRowData | null>(
     null,
   );
@@ -322,11 +335,15 @@ export default function SessionCallsList({
   const [shareCall, setShareCall] = useState<CallRowData | null>(null);
   const [messageCall, setMessageCall] = useState<CallRowData | null>(null);
 
+  if (isLoading) {
+    return <p className="py-10 text-center text-sm text-gray-400">Loading calls…</p>;
+  }
+
   return (
     <div className="w-full bg-white pt-10">
       <h2 className="text-base font-semibold text-gray-900">
-        {CALLS.length > 0
-          ? "323 calls happening this week!"
+        {calls.length > 0
+          ? `${calls.length} call${calls.length === 1 ? "" : "s"} happening this week!`
           : "No calls this week"}
       </h2>
       <p className="text-sm text-gray-400 mt-0.5">
@@ -334,7 +351,7 @@ export default function SessionCallsList({
       </p>
 
       <div className="mt-4 divide-y divide-gray-100">
-        {CALLS.map((call) => (
+        {calls.map((call) => (
           <CallRow
             key={call.id}
             call={call}
@@ -343,6 +360,12 @@ export default function SessionCallsList({
             onMessage={(call) => setMessageCall(call)}
             onReschedule={(call) => setRescheduleCall(call)}
             onCancel={(call) => setCancelCall(call)}
+            onMarkDelivered={(call) => delivery.mark.mutate(call.id)}
+            onUndoDelivered={(call) => {
+              if (window.confirm("Undo this delivery? Any pay it gave the teacher is taken back from their earnings.")) {
+                delivery.undo.mutate(call.id);
+              }
+            }}
           />
         ))}
       </div>
@@ -351,8 +374,14 @@ export default function SessionCallsList({
         open={!!rescheduleCall}
         onCancel={() => setRescheduleCall(null)}
         onConfirm={(selection) => {
-          onReschedule?.(rescheduleCall!, selection);
-          setRescheduleCall(null);
+          if (!rescheduleCall) return;
+          rescheduleMutation.mutate(
+            {
+              sessionId: rescheduleCall.id,
+              scheduledAt: toIsoDateTime(selection.date, selection.time),
+            },
+            {onSuccess: () => setRescheduleCall(null)},
+          );
         }}
       />
 
@@ -360,42 +389,31 @@ export default function SessionCallsList({
         open={!!cancelCall}
         onKeepClass={() => setCancelCall(null)}
         onConfirmCancel={() => {
-          onCancel?.(cancelCall!);
-          setCancelCall(null);
+          if (!cancelCall) return;
+          cancelMutation.mutate(cancelCall.id, {
+            onSuccess: () => setCancelCall(null),
+          });
         }}
       />
 
       <ShareSessionLink
         open={!!shareCall}
+        link={shareCall?.meetingUrl}
         onCancel={() => setShareCall(null)}
-        onSendLink={() => {
-          onShare?.(shareCall!);
-          setShareCall(null);
+        onSendLink={({recipient}: {recipient: Recipient}) => {
+          if (!shareCall) return;
+          shareMutation.mutate(
+            {sessionId: shareCall.id, recipientId: recipient.id},
+            {onSuccess: () => setShareCall(null)},
+          );
         }}
       />
 
-      <SendMessage
-        open={!!messageCall}
-        onClose={() => setMessageCall(null)}
-        onSend={() => {
-          onMessage?.(messageCall!);
-          setMessageCall(null);
-        }}
-      />
+      <SendMessage open={!!messageCall} onClose={() => setMessageCall(null)} />
     </div>
   );
 }
 
 type SessionCallsListProps = {
   onReplay?: (call: CallRowData) => void;
-  onShare?: (call: CallRowData) => void;
-  onMessage?: (call: CallRowData) => void;
-  onCancel?: (call: CallRowData) => void;
-  onReschedule?: (
-    call: CallRowData,
-    selection: {
-      date: string;
-      time: string;
-    },
-  ) => void;
 };

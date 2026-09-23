@@ -20,9 +20,14 @@ export interface Teacher {
   rating: string;
   sessions: {
     total: number;
-    completed: number;
+    // Not returned by GET /admin/teachers (only a single no_of_sessions
+    // total) -- undefined when the completed count isn't known, rather
+    // than faked as equal to or 0.
+    completed?: number;
   };
   location?: string;
+  status: "pending" | "approved" | "rejected";
+  subject?: string;
 }
 export interface ProspectiveStudent {
   id: string;

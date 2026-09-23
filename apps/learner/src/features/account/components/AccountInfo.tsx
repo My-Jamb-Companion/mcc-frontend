@@ -1,5 +1,6 @@
 import {useForm, Controller, FormInputs} from "@mcc/features";
 import {ProfileUser} from "../constants/types";
+import PricingCityPicker from "./PricingCityPicker";
 
 export interface PersonalInformationFormValues {
   fullName: string;
@@ -10,8 +11,7 @@ export interface PersonalInformationFormValues {
   phoneNumber: string;
   gender: string;
   country: string;
-  state: string;
-  city: string;
+  // State and city are chosen with PricingCityPicker, which saves them itself.
   street: string;
 }
 
@@ -30,12 +30,6 @@ const COUNTRY_OPTIONS = [
   {label: "🇳🇬 Nigeria", value: "Nigeria"},
   {label: "Ghana", value: "Ghana"},
   {label: "Kenya", value: "Kenya"},
-];
-
-const STATE_OPTIONS = [
-  {label: "Lagos state", value: "Lagos state"},
-  {label: "Ogun state", value: "Ogun state"},
-  {label: "Oyo state", value: "Oyo state"},
 ];
 
 const PHONE_CODE_OPTIONS = [
@@ -63,8 +57,6 @@ export function AccountPersonalInformationForm({
       phoneNumber: user.phoneNumber,
       gender: user.gender,
       country: user.country,
-      state: user.state,
-      city: user.city,
       street: user.street,
     },
   });
@@ -166,25 +158,13 @@ export function AccountPersonalInformationForm({
             />
           )}
         />
-        <Controller
-          name="state"
-          control={control}
-          render={({field}) => (
-            <FormInputs
-              label="Your State"
-              type="select"
-              options={STATE_OPTIONS}
-              value={field.value}
-              onChange={(v) => field.onChange(v)}
-            />
-          )}
-        />
-        <FormInputs
-          label="Your city"
-          placeholder="Ikeja"
-          registration={register("city")}
-          errors={errors.city}
-        />
+      </div>
+
+      {/* Chosen from MCC's city list and saved on its own: prices are set by
+          city, so it follows its own lock-and-review rules rather than this
+          form's Save button. */}
+      <div className="mt-4">
+        <PricingCityPicker />
       </div>
 
       <div className="mt-4 max-w-sm">

@@ -1,87 +1,53 @@
-import {useState, useEffect} from "react";
-import {motion, AnimatePresence, Icon} from "@mcc/ui";
+import {useEffect, useState} from "react";
+import {motion, AnimatePresence, Icon, showError, showSuccess} from "@mcc/ui";
+import {extractApiError} from "@mcc/api";
 import {Teacher} from "../types/types";
+import {
+  useAssignProgram,
+  useSearchPrograms,
+  useTeacherDetail,
+  useUnassignProgram,
+} from "../hooks/useAdminTeachers";
+import {TeacherProgram} from "../services/teacherPrograms.service";
+import TeacherAvatar from "./TeacherAvatar";
 
-interface ProgramItem {
-  id: string;
-  title: string;
-  subtitle: string;
-  levelIcon?: string;
-  image: string;
-  type: "course" | "exam";
-}
-
-interface EnrollStudentModalProps {
+interface AssignProgramProps {
   teacher: Teacher | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const MOCK_AVAILABLE_PROGRAMS: ProgramItem[] = [
-  {
-    id: "c1",
-    title: "Pilates Teacher Training Certification 20 CPD Points",
-    subtitle: "Moderate level.",
-    levelIcon: "ph:pie-chart-duotone",
-    image:
-      "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=100&q=80",
-    type: "course",
-  },
-  {
-    id: "c2",
-    title: "Pilates Teacher Training Certification 20 CPD Points",
-    subtitle: "Advanced level.",
-    levelIcon: "ph:record-fill",
-    image:
-      "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=100&q=80",
-    type: "course",
-  },
-  {
-    id: "c3",
-    title: "Fashion Design & its business",
-    subtitle: "Beginner level.",
-    levelIcon: "ph:clock-duotone",
-    image:
-      "https://images.unsplash.com/photo-1537832816519-689ad163238b?w=100&q=80",
-    type: "course",
-  },
-  {
-    id: "e1",
-    title: "West African Examination Council - WAEC",
-    subtitle: "English, Maths, Physics & 3 more...",
-    image:
-      "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=100&q=80",
-    type: "exam",
-  },
-  {
-    id: "e2",
-    title: "West African Examination Council - WAEC",
-    subtitle: "English, Maths, Physics & 3 more...",
-    image:
-      "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=100&q=80",
-    type: "exam",
-  },
-];
+function useDebouncedValue(value: string, delayMs: number) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(timer);
+  }, [value, delayMs]);
+  return debounced;
+}
 
-export default function AssignProgram({
-  teacher,
-  isOpen,
-  onClose,
-}: EnrollStudentModalProps) {
+function ThumbnailFor({label}: {label: string}) {
+  return (
+    <div className="h-10 w-10 shrink-0 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-semibold">
+      {(label || "?").slice(0, 1).toUpperCase()}
+    </div>
+  );
+}
+
+export default function AssignProgram({teacher, isOpen, onClose}: AssignProgramProps) {
   const [activeTab, setActiveTab] = useState<"courses" | "exams">("courses");
   const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(searchQuery, 300);
 
-  const [assignedCourses, setAssignedCourses] = useState<ProgramItem[]>([
-    MOCK_AVAILABLE_PROGRAMS[0],
-    MOCK_AVAILABLE_PROGRAMS[0],
-  ]);
-
-  const [assignedExams, setAssignedExams] = useState<ProgramItem[]>([
-    MOCK_AVAILABLE_PROGRAMS[3],
-    MOCK_AVAILABLE_PROGRAMS[4],
-  ]);
+  const teacherId = teacher?.id;
+  const {data: detail} = useTeacherDetail(isOpen ? teacherId : undefined);
+  const {data: searchResults, isFetching: isSearching} = useSearchPrograms(
+    isSearchOpen ? debouncedQuery : "",
+  );
+  const assignMutation = useAssignProgram(teacherId);
+  const unassignMutation = useUnassignProgram(teacherId);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -95,31 +61,35 @@ export default function AssignProgram({
 
   if (!isOpen || !teacher) return null;
 
-  const handleUnassignCourse = (indexToRemove: number) => {
-    setAssignedCourses((prev) =>
-      prev.filter((_, idx) => idx !== indexToRemove),
-    );
-  };
+  // Phone and location come from the teacher's detail record: the list the
+  // table is built from doesn't include them.
+  const phone = detail?.phone || (teacher.phone ? String(teacher.phone) : "");
+  const location = detail?.location || teacher.location || "";
 
-  const handleUnassignExam = (indexToRemove: number) => {
-    setAssignedExams((prev) => prev.filter((_, idx) => idx !== indexToRemove));
-  };
-
-  const handleAssignItem = (item: ProgramItem) => {
-    if (item.type === "course") {
-      setAssignedCourses((prev) => [...prev, item]);
-    } else {
-      setAssignedExams((prev) => [...prev, item]);
-    }
-  };
-
-  const activeList = activeTab === "courses" ? assignedCourses : assignedExams;
-
-  const availableItems = MOCK_AVAILABLE_PROGRAMS.filter(
-    (item) => item.type === (activeTab === "courses" ? "course" : "exam"),
-  ).filter((item) =>
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  const assignedPrograms = detail?.programs ?? [];
+  const activeList = assignedPrograms.filter((p) =>
+    activeTab === "courses" ? p.program_type === "course" : p.program_type === "exam",
   );
+
+  const assignedIds = new Set(assignedPrograms.map((p) => p.program_id));
+  const searchType = activeTab === "courses" ? "course" : "exam";
+  const availableItems = (searchResults ?? []).filter(
+    (item) => item.program_type === searchType && !assignedIds.has(item.program_id),
+  );
+
+  const handleAssign = (programId: string) => {
+    assignMutation.mutate(programId, {
+      onSuccess: () => showSuccess("Program assigned"),
+      onError: (error) => showError(extractApiError(error, "Couldn't assign this program")),
+    });
+  };
+
+  const handleUnassign = (program: TeacherProgram) => {
+    unassignMutation.mutate(program.program_id, {
+      onSuccess: () => showSuccess("Program unassigned"),
+      onError: (error) => showError(extractApiError(error, "Couldn't unassign this program")),
+    });
+  };
 
   return (
     <AnimatePresence>
@@ -160,13 +130,11 @@ export default function AssignProgram({
                 <div className="absolute right-4 top-2 w-32 h-32 bg-purple-400/20 rounded-full blur-2xl pointer-events-none" />
 
                 <div className="relative z-10">
-                  <img
-                    src={
-                      teacher.avatar ||
-                      "https://api.dicebear.com/7.x/avataaars/svg?seed=Elvis"
-                    }
-                    alt={teacher.name}
-                    className="w-28 h-28 rounded-full border-2 border-white/80 object-cover bg-purple-200"
+                  <TeacherAvatar
+                    name={teacher.name}
+                    avatar={teacher.avatar}
+                    className="w-28 h-28 rounded-full border-2 border-white/80"
+                    textClassName="text-2xl"
                   />
                 </div>
               </div>
@@ -183,7 +151,9 @@ export default function AssignProgram({
                       size={14}
                       className="text-gray-400"
                     />
-                    <span>{teacher.email || "bright@gmail.com"}</span>
+                    {/* No invented fallbacks: an admin reading a made-up
+                        email or phone number would take it as real. */}
+                    <span>{teacher.email || "No email on file"}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -192,33 +162,28 @@ export default function AssignProgram({
                       size={14}
                       className="text-gray-400"
                     />
-                    <span>
-                      {isPhoneRevealed
-                        ? teacher.phone || "+234 905 123 4567"
-                        : "+234 905 *** ****"}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setIsPhoneRevealed((prev) => !prev)}
-                      className="ml-1 rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600 hover:bg-gray-200 transition"
-                    >
-                      {isPhoneRevealed ? "Hide" : "Reveal"}
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Icon
-                      icon="lucide:user"
-                      size={14}
-                      className="text-gray-400"
-                    />
-                    <span>{teacher.username || "mac"}</span>
+                    {phone ? (
+                      <>
+                        <span>
+                          {isPhoneRevealed ? phone : `${phone.slice(0, 4)} *** ****`}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setIsPhoneRevealed((prev) => !prev)}
+                          className="ml-1 rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600 hover:bg-gray-200 transition"
+                        >
+                          {isPhoneRevealed ? "Hide" : "Reveal"}
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-gray-400">No phone on file</span>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-2">
                     <Icon icon="circle-flags:ng" size={14} />
                     <span className="font-medium text-gray-700">
-                      {teacher.location || "Lagos, NG"}
+                      {location || "Location not set"}
                     </span>
                   </div>
                 </div>
@@ -263,42 +228,35 @@ export default function AssignProgram({
                 </div>
 
                 <div className="space-y-3">
-                  {activeList.map((item, index) => (
+                  {activeList.length === 0 && (
+                    <p className="text-xs text-gray-400 py-1">
+                      No {activeTab === "courses" ? "courses" : "exam programs"} assigned yet.
+                    </p>
+                  )}
+                  {activeList.map((item) => (
                     <div
-                      key={`${item.id}-${index}`}
+                      key={item.program_id}
                       className="flex items-center justify-between gap-3 text-xs"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="h-10 w-10 rounded-lg object-cover flex-shrink-0"
-                        />
+                        <ThumbnailFor label={item.program_name} />
                         <div className="truncate">
                           <h4 className="font-semibold text-gray-800 truncate">
-                            {item.title}
+                            {item.program_name}
                           </h4>
-                          <p className="flex items-center gap-1 text-gray-400 text-[11px]">
-                            {item.levelIcon && (
-                              <Icon
-                                icon={item.levelIcon}
-                                size={12}
-                                className="text-purple-500"
-                              />
-                            )}
-                            <span>{item.subtitle}</span>
-                          </p>
+                          {item.students_count > 0 && (
+                            <p className="text-gray-400 text-[11px]">
+                              {item.students_count} student{item.students_count === 1 ? "" : "s"}
+                            </p>
+                          )}
                         </div>
                       </div>
 
                       <button
                         type="button"
-                        onClick={() =>
-                          activeTab === "courses"
-                            ? handleUnassignCourse(index)
-                            : handleUnassignExam(index)
-                        }
-                        className="flex items-center gap-1 text-red-500 font-medium hover:text-red-600 transition flex-shrink-0"
+                        onClick={() => handleUnassign(item)}
+                        disabled={unassignMutation.isPending}
+                        className="flex items-center gap-1 text-red-500 font-medium hover:text-red-600 transition flex-shrink-0 disabled:opacity-50"
                       >
                         <span>Unassign</span>
                         <Icon icon="lucide:x" size={14} />
@@ -335,7 +293,7 @@ export default function AssignProgram({
                         />
                         <input
                           type="text"
-                          placeholder="Search for programs to enroll"
+                          placeholder="Search for programs to assign"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           className="w-full border-none outline-none text-gray-700 placeholder-gray-400 bg-transparent"
@@ -344,32 +302,39 @@ export default function AssignProgram({
                       </div>
 
                       <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
-                        {availableItems.length > 0 ? (
+                        {!searchQuery.trim() ? (
+                          <p className="text-center text-xs text-gray-400 py-2">
+                            Start typing to search
+                          </p>
+                        ) : isSearching ? (
+                          <p className="text-center text-xs text-gray-400 py-2">
+                            Searching…
+                          </p>
+                        ) : availableItems.length > 0 ? (
                           availableItems.map((item) => (
                             <div
-                              key={item.id}
+                              key={item.program_id}
                               className="flex items-center justify-between gap-2 text-xs"
                             >
                               <div className="flex items-center gap-2.5 min-w-0">
-                                <img
-                                  src={item.image}
-                                  alt={item.title}
-                                  className="h-9 w-9 rounded-lg object-cover flex-shrink-0"
-                                />
+                                <ThumbnailFor label={item.program_name} />
                                 <div className="truncate">
                                   <h5 className="font-semibold text-gray-800 text-[11px] truncate">
-                                    {item.title}
+                                    {item.program_name}
                                   </h5>
-                                  <p className="text-gray-400 text-[10px]">
-                                    {item.subtitle}
-                                  </p>
+                                  {item.teacher_id && (
+                                    <p className="text-gray-400 text-[10px]">
+                                      Already has a teacher
+                                    </p>
+                                  )}
                                 </div>
                               </div>
 
                               <button
                                 type="button"
-                                onClick={() => handleAssignItem(item)}
-                                className="flex items-center gap-1 text-gray-600 font-medium hover:text-purple-600 transition flex-shrink-0"
+                                onClick={() => handleAssign(item.program_id)}
+                                disabled={assignMutation.isPending}
+                                className="flex items-center gap-1 text-gray-600 font-medium hover:text-purple-600 transition flex-shrink-0 disabled:opacity-50"
                               >
                                 <span>Assign</span>
                                 <Icon icon="lucide:plus-circle" size={14} />
@@ -404,13 +369,10 @@ export default function AssignProgram({
             <div className="pt-6">
               <button
                 type="button"
-                className={`w-full py-3 px-4 font-medium text-xs rounded-full transition duration-200 ${
-                  isSearchOpen || activeList.length > 0
-                    ? "bg-purple-600 text-white shadow-md hover:bg-purple-700"
-                    : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                }`}
+                onClick={onClose}
+                className="w-full py-3 px-4 font-medium text-xs rounded-full transition duration-200 bg-purple-600 text-white shadow-md hover:bg-purple-700"
               >
-                Update Assignments
+                Done
               </button>
             </div>
           </motion.section>

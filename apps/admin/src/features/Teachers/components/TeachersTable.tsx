@@ -9,7 +9,9 @@ import {
 } from "@tanstack/react-table";
 import {Icon} from "@mcc/ui";
 import EnhancedTable from "@/src/components/Table";
+import TeacherAvatar, {colorFor} from "./TeacherAvatar";
 import {LeaderboardTier, Teacher} from "../types/types";
+import {useAdminTeachers} from "../hooks/useAdminTeachers";
 
 interface TeachersTableProps {
   onOpenProfile?: (teacher: Teacher) => void;
@@ -17,222 +19,37 @@ interface TeachersTableProps {
   onDisableTeacher?: (teacher: Teacher) => void;
   onAssignProgram?: (teacher: Teacher) => void;
   onAssignCra?: (teacher: Teacher) => void;
-}
-
-const TEACHERS: Teacher[] = [
-  {
-    id: "1",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=35",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "U",
-        title: "Universal Tertiary Matriculation Exam…",
-        subtitle: "Use of English, Maths, & Physics",
-      },
-      {
-        id: "p2",
-        thumbnailLabel: "W",
-        title: "West African Examination Council - WAEC",
-        subtitle: "English, Maths, Physics & 3 more…",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-
-    rank: 1,
-    rating: "4.5 (2.9k)",
-    sessions: {total: 34, completed: 18},
-  },
-  {
-    id: "2",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=6",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "PT",
-        title: "Pilates Teacher Training Certification 20…",
-        subtitle: "Moderate level.",
-      },
-      {
-        id: "p2",
-        thumbnailLabel: "W",
-        title: "West African Examination Council - WAEC",
-        subtitle: "English, Maths, Physics & 3 more…",
-      },
-      {
-        id: "p3",
-        thumbnailLabel: "U",
-        title: "Universal Tertiary Matriculation Exam…",
-        subtitle: "Use of English, Maths, & Physics",
-      },
-      {
-        id: "p4",
-        thumbnailLabel: "N",
-        title: "National Examination Council - NECO",
-        subtitle: "English, Maths, Biology & 2 more…",
-      },
-      {
-        id: "p5",
-        thumbnailLabel: "J",
-        title: "JAMB CBT Practice Series",
-        subtitle: "Full mock exam simulation.",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-
-    rank: 21,
-    rating: "4.5 (2.9k)",
-    sessions: {total: 34, completed: 18},
-  },
-  {
-    id: "3",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=15",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "PT",
-        title: "Pilates Teacher Training Certification 20…",
-        subtitle: "Moderate level.",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-
-    rank: 8,
-    rating: "4.5 (2.9k)",
-    sessions: {total: 34, completed: 18},
-  },
-  {
-    id: "4",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=2",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "U",
-        title: "Universal Tertiary Matriculation Exam…",
-        subtitle: "Use of English, Maths, & Physics",
-      },
-      {
-        id: "p2",
-        thumbnailLabel: "N",
-        title: "National Examination Council - NECO",
-        subtitle: "English, Maths, Biology & 2 more…",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-
-    rank: 1,
-    rating: "4.5 (2.9k)",
-    sessions: {total: 34, completed: 18},
-  },
-  {
-    id: "5",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=7",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "PT",
-        title: "Pilates Teacher Training Certification 20…",
-        subtitle: "Moderate level.",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-
-    rank: 3,
-    rating: "4.5 (2.9k)",
-    sessions: {total: 34, completed: 18},
-  },
-  {
-    id: "6",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    avatar: "https://i.pravatar.cc/300?img=27",
-    programs: [
-      {
-        id: "p1",
-        thumbnailLabel: "W",
-        title: "West African Examination Council - W…",
-        subtitle: "English, Maths, Physics & 2 more…",
-      },
-      {
-        id: "p2",
-        thumbnailLabel: "U",
-        title: "Universal Tertiary Matriculation Exam…",
-        subtitle: "Use of English, Maths, & Physics",
-      },
-      {
-        id: "p3",
-        thumbnailLabel: "N",
-        title: "National Examination Council - NECO",
-        subtitle: "English, Maths, Biology & 2 more…",
-      },
-      {
-        id: "p4",
-        thumbnailLabel: "J",
-        title: "JAMB CBT Practice Series",
-        subtitle: "Full mock exam simulation.",
-      },
-    ],
-    dateJoined: "05 Apr, 2026",
-
-    rank: 12,
-    rating: "4.5 (2.9k)",
-    sessions: {total: 34, completed: 18},
-  },
-];
-
-const AVATAR_COLORS = [
-  "bg-rose-100 text-rose-600",
-  "bg-amber-100 text-amber-600",
-  "bg-emerald-100 text-emerald-600",
-  "bg-sky-100 text-sky-600",
-  "bg-violet-100 text-violet-600",
-];
-
-function initialsFor(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
-
-function colorFor(seed: string) {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++)
-    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+  onApproveTeacher?: (teacher: Teacher) => void;
+  onRejectTeacher?: (teacher: Teacher) => void;
 }
 
 function NameCell({teacher}: {teacher: Teacher}) {
   return (
     <div className="flex items-center gap-3">
-      <div
-        className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 overflow-hidden ${colorFor(
-          teacher.name,
-        )}`}
-      >
-        {teacher.avatar ? (
-          <img src={teacher.avatar} className="w-full h-full object-cover" />
-        ) : (
-          initialsFor(teacher.name)
-        )}
-      </div>
+      <TeacherAvatar name={teacher.name} avatar={teacher.avatar} className="w-9 h-9 rounded-full" />
       <div className="min-w-0">
         <p className="text-sm font-semibold text-gray-900">{teacher.name}</p>
         <p className="text-xs text-gray-500">{teacher.email}</p>
       </div>
     </div>
+  );
+}
+
+const STATUS_STYLES: Record<string, string> = {
+  pending: "bg-amber-50 text-amber-600",
+  approved: "bg-green-50 text-green-600",
+  rejected: "bg-red-50 text-red-600",
+};
+
+function StatusPill({status}: {status: string}) {
+  return (
+    <span
+      className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${
+        STATUS_STYLES[status] ?? "bg-gray-100 text-gray-600"
+      }`}
+    >
+      {status}
+    </span>
   );
 }
 
@@ -428,6 +245,8 @@ function ActionsMenuPortal({
   onDisableTeacher,
   onAssignProgram,
   onAssignCra,
+  onApproveTeacher,
+  onRejectTeacher,
 }: {
   teacher: Teacher;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
@@ -437,6 +256,8 @@ function ActionsMenuPortal({
   onDisableTeacher?: (teacher: Teacher) => void;
   onAssignProgram?: (teacher: Teacher) => void;
   onAssignCra?: (teacher: Teacher) => void;
+  onApproveTeacher?: (teacher: Teacher) => void;
+  onRejectTeacher?: (teacher: Teacher) => void;
 }) {
   const menuRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{top: number; left: number} | null>(
@@ -451,6 +272,24 @@ function ActionsMenuPortal({
       danger: false,
       action: onOpenProfile,
     },
+    ...(teacher.status === "pending"
+      ? [
+          {
+            id: "approve",
+            label: "Approve",
+            icon: "mdi:check-circle-outline",
+            danger: false,
+            action: onApproveTeacher,
+          },
+          {
+            id: "reject",
+            label: "Reject",
+            icon: "mdi:close-circle-outline",
+            danger: true,
+            action: onRejectTeacher,
+          },
+        ]
+      : []),
     {
       id: "assign-program",
       label: "Assign Program",
@@ -555,6 +394,8 @@ function ActionsCell({
   onDisableTeacher,
   onAssignProgram,
   onAssignCra,
+  onApproveTeacher,
+  onRejectTeacher,
 }: {
   teacher: Teacher;
   onOpenProfile?: (teacher: Teacher) => void;
@@ -562,6 +403,8 @@ function ActionsCell({
   onDisableTeacher?: (teacher: Teacher) => void;
   onAssignProgram?: (teacher: Teacher) => void;
   onAssignCra?: (teacher: Teacher) => void;
+  onApproveTeacher?: (teacher: Teacher) => void;
+  onRejectTeacher?: (teacher: Teacher) => void;
 }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -588,6 +431,8 @@ function ActionsCell({
           onDisableTeacher={onDisableTeacher}
           onAssignProgram={onAssignProgram}
           onAssignCra={onAssignCra}
+          onApproveTeacher={onApproveTeacher}
+          onRejectTeacher={onRejectTeacher}
         />
       )}
     </div>
@@ -602,8 +447,11 @@ export default function TeachersTable({
   onMessageTeacher,
   onAssignCra,
   onDisableTeacher,
+  onApproveTeacher,
+  onRejectTeacher,
 }: TeachersTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const {teachers, isLoading} = useAdminTeachers();
 
   const columns = useMemo(
     () => [
@@ -611,6 +459,10 @@ export default function TeachersTable({
         header: "Name of Teacher",
         enableSorting: false,
         cell: (info) => <NameCell teacher={info.row.original} />,
+      }),
+      columnHelper.accessor("status", {
+        header: "Status",
+        cell: (info) => <StatusPill status={info.getValue()} />,
       }),
       columnHelper.accessor((row) => row.programs[0]?.title ?? "", {
         id: "programs",
@@ -629,14 +481,23 @@ export default function TeachersTable({
       columnHelper.accessor("sessions", {
         header: "No of sessions",
 
-        cell: (info) => (
-          <span className="text-sm text-gray-600 whitespace-nowrap">
-            <span className="text-black font-medium">
-              Completed {info.row.original.sessions.completed}
+        cell: (info) => {
+          const {total, completed} = info.row.original.sessions;
+          return (
+            <span className="text-sm text-gray-600 whitespace-nowrap">
+              {completed != null ? (
+                <>
+                  <span className="text-black font-medium">
+                    Completed {completed}
+                  </span>
+                  <sub>/{total}</sub>
+                </>
+              ) : (
+                <span className="text-black font-medium">{total}</span>
+              )}
             </span>
-            <sub className="">/{info.row.original.sessions.total}</sub>
-          </span>
-        ),
+          );
+        },
       }),
       columnHelper.accessor("rank", {
         header: "L. Board",
@@ -669,6 +530,8 @@ export default function TeachersTable({
             onDisableTeacher={onDisableTeacher}
             onAssignProgram={onAssignProgram}
             onAssignCra={onAssignCra}
+            onApproveTeacher={onApproveTeacher}
+            onRejectTeacher={onRejectTeacher}
           />
         ),
       }),
@@ -679,17 +542,27 @@ export default function TeachersTable({
       onDisableTeacher,
       onAssignProgram,
       onAssignCra,
+      onApproveTeacher,
+      onRejectTeacher,
     ],
   );
 
   const table = useReactTable({
-    data: TEACHERS,
+    data: teachers,
     columns,
     state: {sorting},
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
+
+  if (isLoading) {
+    return <p className="py-10 text-center text-sm text-gray-400">Loading teachers…</p>;
+  }
+
+  if (teachers.length === 0) {
+    return <p className="py-10 text-center text-sm text-gray-400">No teachers yet.</p>;
+  }
 
   return <EnhancedTable table={table} enableSelection className="min-w-full" />;
 }

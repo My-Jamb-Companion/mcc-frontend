@@ -168,7 +168,12 @@ describe("getGoogleAuthUrlApi", () => {
 
     const result = await getGoogleAuthUrlApi();
 
-    expect(mockGet).toHaveBeenCalledWith("/auth/authorize/google");
+    // redirect_uri is a required query param per the backend contract
+    // (OAuthAuthorizeQuery); the implementation has always sent it, this
+    // assertion was just written before it existed.
+    expect(mockGet).toHaveBeenCalledWith("/auth/authorize/google", {
+      params: { redirect_uri: `${window.location.origin}/auth/google/success` },
+    });
     expect(result.authorization_url).toBe("https://accounts.google.com/oauth");
     expect(result.state).toBe("random-state-string");
   });

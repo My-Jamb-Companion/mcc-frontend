@@ -8,6 +8,7 @@ export interface Teacher {
   programs?: any[];
   rating?: number | null;
   leaderboard_position?: number | null;
+  status?: "pending" | "approved" | "rejected";
   // Backward compatibility fields
   id?: string;
   name?: string;

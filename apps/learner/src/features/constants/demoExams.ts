@@ -76,7 +76,8 @@ export interface ExamLesson {
   id: string;
   title: string;
   icon: string;
-  about: {
+  /** Not populated on any demo lesson today; UnitDetailView falls back when absent. */
+  about?: {
     intro: string;
     note: string;
   };
@@ -105,9 +106,9 @@ interface TopicNode {
   practice?: Practice;
 }
 
-interface CheckpointNode {
+export interface CheckpointNode {
   id: string;
-  type: "quiz" | "test" | "doc" | "video";
+  type: "quiz" | "test" | "doc" | "video" | "practice";
   title: string;
   description?: string;
   document?: string;

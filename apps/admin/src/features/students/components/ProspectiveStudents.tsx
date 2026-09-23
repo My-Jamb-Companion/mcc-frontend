@@ -7,6 +7,7 @@ import CreateStudentModal from "./CreateStudent";
 import ViewProspectiveStudent from "./ViewProspectiveStudent";
 import Image from "next/image";
 import {ProspectiveStudent} from "../types/types";
+import {useRejectProspectiveStudent} from "../hooks/useProspectiveStudents";
 
 export default function ProspectiveStudents() {
   const [program, setProgram] = useState("");
@@ -15,6 +16,7 @@ export default function ProspectiveStudents() {
   const [student, setStudent] = useState<ProspectiveStudent | null>(null);
   const [viewStudent, setViewStudent] = useState(false);
   const [rejectStudent, setRejectStudent] = useState(false);
+  const rejectStudentMutation = useRejectProspectiveStudent();
 
   const handleOpenProfile = (student: ProspectiveStudent) => {
     setViewStudent(true);
@@ -159,9 +161,30 @@ export default function ProspectiveStudents() {
               Are you sure you want to reject {student?.name}? This action can
               not be undone.
             </p>
+            {rejectStudentMutation.isError && (
+              <p className="text-sm text-red-500 pb-3">
+                Failed to reject student. Please try again.
+              </p>
+            )}
             <div className="inline-flex items-center gap-3 pt-6  w-full ">
-              <Button variant="danger" width="full">
-                Reject Student
+              <Button
+                variant="danger"
+                width="full"
+                disabled={rejectStudentMutation.isPending}
+                onClick={() => {
+                  if (!student) return;
+                  rejectStudentMutation.mutate(
+                    {userId: student.id},
+                    {
+                      onSuccess: () => {
+                        setRejectStudent(false);
+                        setStudent(null);
+                      },
+                    },
+                  );
+                }}
+              >
+                {rejectStudentMutation.isPending ? "Rejecting…" : "Reject Student"}
               </Button>
               <Button
                 variant="outline"

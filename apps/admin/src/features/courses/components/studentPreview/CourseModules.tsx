@@ -28,10 +28,14 @@ function getContentIcon(item: ModuleContent): {
   className: string;
 } {
   switch (item.type) {
-    case "lesson":
-      return VIDEO_EXTENSIONS.has((item.format || "").toUpperCase())
+    case "lesson": {
+      const format = (item.format || "").toUpperCase();
+      if (format === "YOUTUBE") return {icon: "mdi:youtube", className: "text-red-600"};
+      if (format === "PDF") return {icon: "lucide:file-text", className: "text-primary"};
+      return VIDEO_EXTENSIONS.has(format)
         ? {icon: "line-md:youtube", className: "text-primary"}
         : {icon: "ri:booklet-line", className: "text-primary"};
+    }
     case "practice":
       return {
         icon: "material-symbols:quiz-outline",

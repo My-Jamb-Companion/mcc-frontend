@@ -78,7 +78,12 @@ export type PracticeSet = {
 };
 
 // A lesson entry in a module's content IS the file itself.
-export type LessonModuleContent = FileRow & {type: "lesson"};
+export type LessonModuleContent = FileRow & {
+  type: "lesson";
+  /** Playback progress, read by calculateModuleProgress in hooks/useLesson.ts. */
+  completed?: boolean;
+  currentTime?: number;
+};
 
 // A practice entry in a module's content IS the named practice set itself.
 export type PracticeModuleContent = PracticeSet & {type: "practice"};

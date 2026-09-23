@@ -43,7 +43,11 @@ vi.mock("../services/session", () => ({
   saveSession: vi.fn(),
   clearSession: vi.fn(),
   getStoredUser: vi.fn().mockReturnValue(null),
-  getStoredAccessToken: vi.fn().mockReturnValue(null),
+  // useAuth() reads this unconditionally on mount (useAuth.ts:28). It was
+  // added after this mock was written and the mock was never updated, so
+  // every test here failed on an "is not a function" render crash — masked
+  // until now because CI never ran the test suite.
+  getStoredRefreshToken: vi.fn().mockReturnValue(null),
 }));
 
 const mockLoginApi = vi.mocked(authService.loginApi);

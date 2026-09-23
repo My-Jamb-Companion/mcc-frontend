@@ -9,6 +9,7 @@ import CreateStudentModal from "./CreateStudent";
 import EnrollStudentModal from "./EnrollStudent";
 import {Student} from "../types/types";
 import Image from "next/image";
+import {useDisableActiveStudent} from "../hooks/useActiveStudents";
 
 export default function ActiveStudents() {
   const [program, setProgram] = useState("");
@@ -20,6 +21,7 @@ export default function ActiveStudents() {
   const [createStudent, setCreateStudent] = useState(false);
   const [enrollStudent, setEnrollStudent] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);
+  const disableStudent = useDisableActiveStudent();
 
   const handleOpenProfile = (student: Student) => {
     setViewStudent(true);
@@ -216,9 +218,27 @@ export default function ActiveStudents() {
               Are you sure you want to disable {student?.name}? This action can
               not be undone.
             </p>
+            {disableStudent.isError && (
+              <p className="text-sm text-red-500 pb-3">
+                Failed to disable student. Please try again.
+              </p>
+            )}
             <div className="inline-flex items-center gap-3 pt-6  w-full ">
-              <Button variant="danger" width="full">
-                Disable Student
+              <Button
+                variant="danger"
+                width="full"
+                disabled={disableStudent.isPending}
+                onClick={() => {
+                  if (!student) return;
+                  disableStudent.mutate(student.id, {
+                    onSuccess: () => {
+                      setConfirmDisable(false);
+                      setStudent(null);
+                    },
+                  });
+                }}
+              >
+                {disableStudent.isPending ? "Disabling…" : "Disable Student"}
               </Button>
               <Button
                 variant="outline"

@@ -6,6 +6,13 @@ export interface PendingCourse {
   image?: string;
   price?: number;
   originalPrice?: number;
+  // "course" (default, omitted by every pre-existing caller) or "exam" for an
+  // exam-prep program — added for the Landing Page's enrolment flow
+  // (backend/docs/multi-portal-plan.md Phase 2), which needs to remember
+  // which of the two POST /courses/enroll vs POST /exams/register to resume
+  // after the browse → signup/login round trip. Optional so every existing
+  // course-only caller is unaffected.
+  kind?: "course" | "exam";
 }
 
 const STORAGE_KEY = "mcc_pending_course";

@@ -20,6 +20,43 @@ export interface ProgramListRowData {
   link: string;
 }
 
+/** Stats shown on the program detail sidebar. */
+export interface ProgramStats {
+  students: number;
+  hoursOfVideo: number;
+  practiceTests: number;
+  additionalResources: number;
+  downloadableResources: number;
+}
+
+/** Feature flags shown on the program detail sidebar. */
+export interface ProgramFeatures {
+  assignments: boolean;
+  mobileAndTVAccess: boolean;
+  fullLifetimeAccess: boolean;
+  certificateOnCompletion: boolean;
+}
+
+/**
+ * A program as shown on its own detail page.
+ *
+ * The list row carries only what the table renders; the detail view needs
+ * copy and imagery on top of it. These are optional because the list endpoint
+ * does not return them — `OpenProgram` falls back when they are absent.
+ */
+export interface ProgramDetailData extends ProgramListRowData {
+  instructor?: string;
+  description?: string;
+  imgBig?: string;
+  imgSmall?: string;
+  meta?: {
+    lessons: number;
+    difficulty: "Beginner" | "Moderate" | "Advanced";
+  };
+  stats?: ProgramStats;
+  features?: ProgramFeatures;
+}
+
 interface ProgramOptionsMenuProps {
   onOpenProgram?: () => void;
   onEditProgram?: () => void;

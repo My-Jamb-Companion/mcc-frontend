@@ -133,7 +133,7 @@ export function UnitList({unit}: {unit: ExamUnit}) {
                   {lesson.subLessons
                     .filter(
                       (s) =>
-                        s.type === "topic" || (s.type as string) === "practice",
+                        s.type === "topic" || s.type === "practice",
                     )
                     .map((sub) => (
                       <p key={sub.id} className="text-[13.5px] text-slate-600">

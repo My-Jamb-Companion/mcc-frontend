@@ -17,6 +17,7 @@ import {
 } from "@/src/features/courses/types/types";
 import {useAllModuleContents} from "@/src/features/courses/hooks/useLesson";
 import CourseExercise from "./CourseExcercise";
+import {youTubeEmbedUrl} from "@/src/features/courses/helper/video";
 
 export interface CourseStudentViewProps {
   course: CoursesFormValues & Partial<AdditionalCourseTypes>;
@@ -73,11 +74,27 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
                   exit={{opacity: 0, scale: 0.98}}
                   transition={{duration: 0.25}}
                 >
-                  <CoursePlayer
-                    src={activeContent.previewUrl}
-                    onEnded={handleContentEnded}
-                    onTimeUpdate={setCurrentVideoTime}
-                  />
+                  {activeContent.format?.toUpperCase() === "YOUTUBE" ? (
+                    <iframe
+                      src={youTubeEmbedUrl(activeContent.previewUrl) ?? undefined}
+                      title={activeContent.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="aspect-video w-full rounded-xl bg-black"
+                    />
+                  ) : activeContent.format?.toUpperCase() === "PDF" ? (
+                    <iframe
+                      src={activeContent.previewUrl}
+                      title={activeContent.title}
+                      className="aspect-video w-full rounded-xl border border-muted/20 bg-white"
+                    />
+                  ) : (
+                    <CoursePlayer
+                      src={activeContent.previewUrl}
+                      onEnded={handleContentEnded}
+                      onTimeUpdate={setCurrentVideoTime}
+                    />
+                  )}
                 </motion.div>
               )}
 

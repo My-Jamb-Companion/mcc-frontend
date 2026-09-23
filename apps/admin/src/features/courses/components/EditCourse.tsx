@@ -2,7 +2,9 @@
 
 import {useState, useEffect, useRef} from "react";
 import {useSearchParams} from "next/navigation";
+import Link from "next/link";
 import {Button, confettiCelebrate, Icon, showError, showSuccess} from "@mcc/ui";
+import {usePricedPrograms} from "@/src/features/Pricing/hooks/useTemplates";
 import {useForm, FormProvider} from "@mcc/features";
 import ContentStep, {hasCompleteContent, uid} from "./CreateCoursesSteps/Step2";
 import CreateDetails from "./CreateCoursesSteps/Step1";
@@ -10,15 +12,13 @@ import PromotionalCoverUpload, {
   hasCompleteUpload,
 } from "./CreateCoursesSteps/Step3";
 import CourseStudentView from "./studentPreview/CourseStudentView";
-import {calculateTotalHours} from "../helper/helper";
+import {calculateTotalHours, toUpdateCoursePayload} from "../helper/helper";
 import {
   AdditionalCourseTypes,
   CoursesFormValues,
   LEVELS,
-  UpdateCoursePayload,
 } from "../types/types";
 import {useCourse} from "../hooks/useCourses";
-import {serializeModulesPayload, toApiLevel} from "../helper/course.mapper";
 import {
   getApiErrorMessage,
   publishCourse,
@@ -127,6 +127,14 @@ export default function CreateCourseForm() {
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [pricingBannerDismissed, setPricingBannerDismissed] = useState(false);
+
+  const {data: pricedPrograms} = usePricedPrograms();
+  const priceTemplate = pricedPrograms?.programs
+    .find((p) => p.program_type === "course" && p.program_id === editId)
+    ?.editions.find((e) => e.edition === "standard");
+  const hasPricingSetUp = Boolean(priceTemplate?.latest_version);
+  const isPricePublished = Boolean(priceTemplate?.published_price);
 
   // ─────────────────────────────────────────────
   // COURSE STORE
@@ -242,28 +250,6 @@ export default function CreateCourseForm() {
     };
   }
 
-  function toUpdatePayload(payload: CoursesFormValues): UpdateCoursePayload {
-    return {
-      title: payload.courseName,
-      category: payload.category,
-      teacher_id: payload.instructorName,
-      price: Number(payload.price || 0),
-      level: toApiLevel(payload.level),
-      description: payload.description,
-      learning_outcomes: payload.learnItems,
-      tags: payload.tags,
-      cover_image_url:
-        payload.upload?.coverImageUrl ||
-        payload.upload?.coverImage?.remoteUrl ||
-        payload.upload?.coverImage?.previewUrl,
-      promo_video_url:
-        payload.upload?.promoVideoUrl ||
-        payload.upload?.promoVideo?.remoteUrl ||
-        payload.upload?.promoVideo?.previewUrl,
-      modules: serializeModulesPayload(payload.content.topics),
-    };
-  }
-
   // ─────────────────────────────────────────────
   // SAVE AS DRAFT (PATCH)
   // ─────────────────────────────────────────────
@@ -274,7 +260,7 @@ export default function CreateCourseForm() {
       const finalPayload = buildCoursePayload("draft");
 
       if (finalPayload.id) {
-        await updateCourse(finalPayload.id, toUpdatePayload(finalPayload));
+        await updateCourse(finalPayload.id, toUpdateCoursePayload(finalPayload, activeStep));
       }
 
       methods.reset(finalPayload);
@@ -305,7 +291,7 @@ export default function CreateCourseForm() {
       const finalPayload = buildCoursePayload("published");
 
       if (finalPayload.id) {
-        await updateCourse(finalPayload.id, toUpdatePayload(finalPayload));
+        await updateCourse(finalPayload.id, toUpdateCoursePayload(finalPayload, activeStep));
         await publishCourse(finalPayload.id);
       }
 
@@ -393,6 +379,57 @@ export default function CreateCourseForm() {
                   type="button"
                   onClick={() => setApiError(null)}
                   className="font-semibold text-xs text-red-500 hover:text-red-700"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
+            {editId && !pricingBannerDismissed && (
+              <div className="mb-4 flex items-center justify-between rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-800">
+                <div className="flex items-center gap-2">
+                  <Icon icon="lucide:banknote" size={18} className="shrink-0 text-violet-500" />
+                  <span>
+                    {isPricePublished ? (
+                      <>
+                        This course&apos;s price is managed in{" "}
+                        <Link
+                          href={`/finance/pricing/programs/course/${encodeURIComponent(editId)}/standard`}
+                          className="font-semibold underline hover:text-violet-900"
+                        >
+                          Finance &gt; Pricing
+                        </Link>
+                        . The Price field below won&apos;t take effect — update it there instead.
+                      </>
+                    ) : hasPricingSetUp ? (
+                      <>
+                        This course has a pricing draft that isn&apos;t published yet. Finish it in{" "}
+                        <Link
+                          href={`/finance/pricing/programs/course/${encodeURIComponent(editId)}/standard`}
+                          className="font-semibold underline hover:text-violet-900"
+                        >
+                          Finance &gt; Pricing
+                        </Link>
+                        .
+                      </>
+                    ) : (
+                      <>
+                        This course doesn&apos;t have a real price set up yet. Set one up in{" "}
+                        <Link
+                          href={`/finance/pricing/programs/course/${encodeURIComponent(editId)}/standard`}
+                          className="font-semibold underline hover:text-violet-900"
+                        >
+                          Finance &gt; Pricing
+                        </Link>
+                        .
+                      </>
+                    )}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPricingBannerDismissed(true)}
+                  className="font-semibold text-xs text-violet-500 hover:text-violet-700"
                 >
                   Dismiss
                 </button>

@@ -5,7 +5,7 @@ import {
   getStoredUser,
   getStoredRefreshToken,
 } from "./session";
-import { tokenManager } from "@mcc/api";
+import { tokenManager, AUTH_COOKIE, REFRESH_COOKIE, USER_KEY } from "@mcc/api";
 import type { User } from "@mcc/types";
 
 // ─── mock user matching the real User interface ───────────────────────────────
@@ -16,11 +16,14 @@ const mockUser: User = {
 };
 
 // ─── reset storage before every test ─────────────────────────────────────────
+// Keys are app-scoped (NEXT_PUBLIC_APP_ID) — assert against the real
+// exported constants rather than a hardcoded "mcc_auth"/"mcc_user", which
+// would silently stop matching once that env var is set.
 beforeEach(() => {
   localStorage.clear();
   tokenManager.clear();
-  document.cookie = "mcc_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  document.cookie = "mcc_refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.cookie = `${AUTH_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+  document.cookie = `${REFRESH_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -39,23 +42,23 @@ describe("saveSession", () => {
     saveSession(mockUser, "access-tok", "refresh-tok");
 
     expect(localStorage.getItem("mcc_access_token")).toBeNull();
-    expect(localStorage.getItem("mcc_refresh_token")).toBeNull();
+    expect(localStorage.getItem(REFRESH_COOKIE)).toBeNull();
   });
 
   // TC-4.3
   it("writes the user as a JSON string to localStorage", () => {
     saveSession(mockUser, "access-tok", "refresh-tok");
 
-    const stored = JSON.parse(localStorage.getItem("mcc_user")!);
+    const stored = JSON.parse(localStorage.getItem(USER_KEY)!);
     expect(stored.user_id).toBe(mockUser.user_id);
     expect(stored.email).toBe(mockUser.email);
   });
 
   // TC-4.4
-  it("sets the mcc_auth cookie", () => {
+  it("sets the auth cookie", () => {
     saveSession(mockUser, "access-tok", "refresh-tok");
 
-    expect(document.cookie).toContain("mcc_auth=1");
+    expect(document.cookie).toContain(`${AUTH_COOKIE}=1`);
   });
 
   // TC-4.5
@@ -76,21 +79,21 @@ describe("clearSession", () => {
 
     clearSession();
 
-    expect(localStorage.getItem("mcc_user")).toBeNull();
+    expect(localStorage.getItem(USER_KEY)).toBeNull();
     expect(tokenManager.get()).toBeNull();
   });
 
   // TC-4.7
-  it("expires the mcc_auth cookie", () => {
+  it("expires the auth cookie", () => {
     saveSession(mockUser, "access-tok", "refresh-tok");
 
     clearSession();
 
-    expect(document.cookie).not.toContain("mcc_auth=1");
+    expect(document.cookie).not.toContain(`${AUTH_COOKIE}=1`);
   });
 
   // TC-4.8
-  it("expires the mcc_refresh_token cookie", () => {
+  it("expires the refresh token cookie", () => {
     saveSession(mockUser, "access-tok", "refresh-tok");
 
     clearSession();
@@ -110,7 +113,7 @@ describe("getStoredUser", () => {
 
   // TC-4.10
   it("returns the parsed user object when one is stored", () => {
-    localStorage.setItem("mcc_user", JSON.stringify(mockUser));
+    localStorage.setItem(USER_KEY, JSON.stringify(mockUser));
 
     const result = getStoredUser();
 

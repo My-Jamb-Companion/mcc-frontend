@@ -10,6 +10,7 @@ import {
 import {Icon} from "@mcc/ui";
 import EnhancedTable from "@/src/components/Table";
 import {Method, ProspectiveStudent} from "../types/types";
+import {useProspectiveStudents} from "../hooks/useProspectiveStudents";
 
 interface ProspectiveStudentsTableProps {
   onOpenProfile?: (student: ProspectiveStudent) => void;
@@ -18,78 +19,6 @@ interface ProspectiveStudentsTableProps {
   onAssignCra?: (student: ProspectiveStudent) => void;
   onRejectStudent?: (student: ProspectiveStudent) => void;
 }
-
-const STUDENTS: ProspectiveStudent[] = [
-  {
-    id: "1",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    dateJoined: "05 Apr, 2026",
-    time: "8:30 PM",
-    avatar: "",
-    method: {type: "badge", label: "Free Exam program"},
-  },
-  {
-    id: "2",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    dateJoined: "05 Apr, 2026",
-    time: "8:30 PM",
-    avatar: "",
-    method: {
-      type: "course",
-      thumbnailLabel: "PT",
-      title: "Pilates Teacher Training Certification 20…",
-      subtitle: "Moderate level.",
-    },
-  },
-  {
-    id: "3",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    dateJoined: "05 Apr, 2026",
-    time: "8:30 PM",
-    avatar: "",
-    method: {type: "badge", label: "Free Exam program"},
-  },
-  {
-    id: "4",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    dateJoined: "05 Apr, 2026",
-    time: "8:30 PM",
-    avatar: "",
-    method: {
-      type: "course",
-      thumbnailLabel: "W",
-      title: "West African Examination Council - WAEC",
-      subtitle: "English, Maths, Physics & 3 more…",
-    },
-  },
-  {
-    id: "5",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    dateJoined: "05 Apr, 2026",
-    time: "8:30 PM",
-    avatar: "",
-    method: {type: "badge", label: "Free Exam program"},
-  },
-  {
-    id: "6",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    dateJoined: "05 Apr, 2026",
-    time: "8:30 PM",
-    avatar: "",
-    method: {
-      type: "course",
-      thumbnailLabel: "W",
-      title: "West African Examination Council - WAEC",
-      subtitle: "English, Maths, Physics & 3 more…",
-    },
-  },
-];
 
 const AVATAR_COLORS = [
   "bg-rose-100 text-rose-600",
@@ -369,6 +298,7 @@ export default function ProspectiveStudentsTable({
   onRejectStudent,
 }: ProspectiveStudentsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const {students, isLoading} = useProspectiveStudents();
 
   const columns = useMemo(
     () => [
@@ -415,13 +345,21 @@ export default function ProspectiveStudentsTable({
   );
 
   const table = useReactTable({
-    data: STUDENTS,
+    data: students,
     columns,
     state: {sorting},
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
+
+  if (isLoading) {
+    return <p className="py-10 text-center text-sm text-gray-400">Loading students…</p>;
+  }
+
+  if (students.length === 0) {
+    return <p className="py-10 text-center text-sm text-gray-400">No prospective students yet.</p>;
+  }
 
   return <EnhancedTable table={table} enableSelection className="min-w-full" />;
 }
