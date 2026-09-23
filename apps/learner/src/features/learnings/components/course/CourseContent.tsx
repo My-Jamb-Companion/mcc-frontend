@@ -11,10 +11,12 @@ import CommunityTab from "./tabs/CommunityTab";
 import NotesTab from "./tabs/NotesTab";
 import FacilitatorTab from "./tabs/FacilitatorTab";
 import OverviewTab from "./tabs/OverviewTab";
+import {CoursePractice} from "./CoursePractice";
 import {Lesson, Module, lessonKind} from "@/src/features/learnings/helper/content.mapper";
 import {youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import {useAllLessons, useLessonsDuration, formatDuration} from "@/src/features/learnings/hooks/useLesson";
 import {useCertificates, useUpdateCourseProgress} from "@/src/features/courses/hooks/useCourses";
+import {useModuleQuestions} from "@/src/features/learnings/hooks/useModuleQuiz";
 import {sendChatMessage} from "@/src/features/brainy/services/brainy.service";
 import {calculateProgress} from "@/src/features/learnings/hooks/useLesson";
 
@@ -50,7 +52,9 @@ export default function CourseContent({
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(allLessons[0] ?? null);
+  const [activeQuizModuleId, setActiveQuizModuleId] = useState<string | null>(null);
   const [currentVideoTime, setCurrentVideoTime] = useState(0);
+  const quizQuestions = useModuleQuestions(courseId, activeQuizModuleId);
 
   const tabQuery = searchParams.get("tab");
   const activeTab = tabQuery && TABS.includes(tabQuery) ? tabQuery : "overview";
@@ -66,7 +70,12 @@ export default function CourseContent({
 
   const handleSelectLesson = (lesson: Lesson) => {
     setActiveLesson(lesson);
+    setActiveQuizModuleId(null);
     setCurrentVideoTime(0);
+  };
+
+  const handleSelectQuiz = (moduleId: string) => {
+    setActiveQuizModuleId(moduleId);
   };
 
   const markComplete = useCallback(
@@ -129,7 +138,25 @@ export default function CourseContent({
       >
         <motion.div layout transition={{type: "spring", stiffness: 120, damping: 20}} className="pb-8">
           <div className="w-full min-w-full overflow-hidden">
-            {!activeLesson ? (
+            {activeQuizModuleId ? (
+              quizQuestions.isLoading ? (
+                <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
+                  Loading practice quiz…
+                </div>
+              ) : quizQuestions.questions.length === 0 ? (
+                <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl bg-muted/10 px-8 text-center text-sm text-muted">
+                  No practice questions for this module yet.
+                </div>
+              ) : (
+                <CoursePractice
+                  key={activeQuizModuleId}
+                  courseId={courseId}
+                  moduleId={activeQuizModuleId}
+                  questions={quizQuestions.questions}
+                  onDone={() => setActiveQuizModuleId(null)}
+                />
+              )
+            ) : !activeLesson ? (
               <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
                 This course has no lessons yet.
               </div>
@@ -155,7 +182,7 @@ export default function CourseContent({
             )}
           </div>
 
-          {activeLesson && (
+          {!activeQuizModuleId && activeLesson && (
             <div className="mt-4 flex items-center justify-between px-1">
               <div>
                 <p className="text-lg font-semibold">{activeLesson.title}</p>
@@ -210,7 +237,9 @@ export default function CourseContent({
                   modules={modules}
                   completedLessonIds={completedLessonIds}
                   activeLesson={activeLesson?.id ?? null}
+                  activeQuizModuleId={activeQuizModuleId}
                   onSelectLesson={handleSelectLesson}
+                  onSelectQuiz={handleSelectQuiz}
                 />
               )}
               {activeTab === "ai" && isMobile && (
@@ -299,7 +328,9 @@ export default function CourseContent({
                   modules={modules}
                   completedLessonIds={completedLessonIds}
                   activeLesson={activeLesson?.id ?? null}
+                  activeQuizModuleId={activeQuizModuleId}
                   onSelectLesson={handleSelectLesson}
+                  onSelectQuiz={handleSelectQuiz}
                 />
               )}
 

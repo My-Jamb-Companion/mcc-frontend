@@ -47,9 +47,15 @@ export function groupContentRows(rows: ApiCourseContentRow[]): Module[] {
       byId.set(row.module_id, module);
       modules.push(module);
     }
+
+    // A module with no lectures of its own (e.g. quiz-only) still produces
+    // one row from the backend's LEFT JOIN, with every lecture field null --
+    // that's what creates the Module above; there's no lesson to add.
+    if (!row.lesson_id) continue;
+
     module.lessons.push({
       id: row.lesson_id,
-      title: row.lesson_title,
+      title: row.lesson_title ?? "Untitled lesson",
       videoUrl: row.video_url ?? null,
       duration: row.duration_seconds ?? 0,
       thumbnailUrl: row.thumbnail_url ?? null,

@@ -27,8 +27,11 @@ export interface ApiCertificate {
 export interface ApiCourseContentRow {
   module_id: string;
   module_title: string;
-  lesson_id: string;
-  lesson_title: string;
+  /** Null when the module has no lectures of its own (e.g. quiz-only) --
+   * a LEFT JOIN, so such a module still produces one row instead of being
+   * dropped from the listing entirely. */
+  lesson_id: string | null;
+  lesson_title: string | null;
   video_url?: string | null;
   duration_seconds?: number | null;
   thumbnail_url?: string | null;
