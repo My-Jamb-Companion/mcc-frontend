@@ -115,12 +115,19 @@ export const sendChatMessage = async (
     context?: Record<string, unknown>;
   } = {},
 ): Promise<ApiChatReply> => {
-  const res = await apiClient.post<{data: ApiChatReply}>("/brainy/chats", {
-    message,
-    context: options.context ?? {},
-    session_id: options.sessionId,
-    attachments: options.attachments ?? [],
-  });
+  const res = await apiClient.post<{data: ApiChatReply}>(
+    "/brainy/chats",
+    {
+      message,
+      context: options.context ?? {},
+      session_id: options.sessionId,
+      attachments: options.attachments ?? [],
+    },
+    // apiClient's default 10s timeout is sized for ordinary CRUD calls, not
+    // a real LLM completion -- gpt-5.6-luna alone can take ~9s, before any
+    // retry. 30s gives real headroom without hanging a failed request forever.
+    {timeout: 30000},
+  );
   return res.data.data;
 };
 

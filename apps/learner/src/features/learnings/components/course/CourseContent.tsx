@@ -1,49 +1,59 @@
 "use client";
 
-import {CourseDetail, Lessons} from "@/src/features/constants/demoCourses";
-import CoursePlayModules from "./CourseModules";
+import {useCallback, useState, useEffect} from "react";
 import Link from "next/link";
-import CoursePlayer from "./CoursePlayer";
-import {useState, useCallback, useEffect} from "react";
-import {useAllLessons} from "@/src/features/learnings/hooks/useLesson";
-import {Button, Icon} from "@mcc/ui";
 import {useRouter, usePathname, useSearchParams} from "next/navigation";
+import {Button, Icon, motion, AnimatePresence} from "@mcc/ui";
+import CoursePlayModules from "./CourseModules";
+import CoursePlayer from "./CoursePlayer";
+import BrainyCourseSidePanel from "./BrainyCourseSidePanel";
 import CommunityTab from "./tabs/CommunityTab";
 import NotesTab from "./tabs/NotesTab";
 import FacilitatorTab from "./tabs/FacilitatorTab";
 import OverviewTab from "./tabs/OverviewTab";
-import BrainyCourseSidePanel from "./BrainyCourseSidePanel";
-import {motion, AnimatePresence} from "@mcc/ui";
-import {CoursePractice} from "./CoursePractice";
-import CourseTestFlow from "./CourseExamFlow";
-import CourseExercise from "./CourseExcercise";
+import {Lesson, Module, lessonKind} from "@/src/features/learnings/helper/content.mapper";
+import {youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
+import {useAllLessons, useLessonsDuration, formatDuration} from "@/src/features/learnings/hooks/useLesson";
+import {useCertificates, useUpdateCourseProgress} from "@/src/features/courses/hooks/useCourses";
+import {sendChatMessage} from "@/src/features/brainy/services/brainy.service";
+import {calculateProgress} from "@/src/features/learnings/hooks/useLesson";
 
-export default function CourseContent({course}: {course: CourseDetail}) {
-  const allLessons = useAllLessons(course);
+interface CourseContentProps {
+  courseId: string;
+  title: string;
+  description?: string | null;
+  coverImageUrl?: string | null;
+  modules: Module[];
+}
+
+const TABS = ["content", "ai", "overview", "community", "notes", "facilitator"];
+
+export default function CourseContent({
+  courseId,
+  title,
+  description,
+  coverImageUrl,
+  modules,
+}: CourseContentProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const updateProgress = useUpdateCourseProgress();
+  const {certificates} = useCertificates();
+
+  const allLessons = useAllLessons(modules);
+  const totalDuration = useLessonsDuration(allLessons);
+  const certificate = certificates.find((c) => c.course_id === courseId) ?? null;
 
   const [isMobile, setIsMobile] = useState(false);
-
-  const tabQuery = searchParams.get("tab");
-  const tabs = [
-    "content",
-    "ai",
-    "overview",
-    "community",
-    "notes",
-    "facilitator",
-  ];
   const [sidePanel, setSidePanel] = useState<"course" | "ai">("course");
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
-
-  const activeTab = tabQuery && tabs.includes(tabQuery) ? tabQuery : "overview";
-
-  const [activeLesson, setActiveLesson] = useState<Lessons | null>(
-    allLessons[0] || null,
-  );
+  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
+  const [activeLesson, setActiveLesson] = useState<Lesson | null>(allLessons[0] ?? null);
   const [currentVideoTime, setCurrentVideoTime] = useState(0);
+
+  const tabQuery = searchParams.get("tab");
+  const activeTab = tabQuery && TABS.includes(tabQuery) ? tabQuery : "overview";
 
   const handleTabChange = useCallback(
     (name: string, value: string) => {
@@ -54,30 +64,55 @@ export default function CourseContent({course}: {course: CourseDetail}) {
     [searchParams, pathname, router],
   );
 
-  const handleVideoEnded = () => {
+  const handleSelectLesson = (lesson: Lesson) => {
+    setActiveLesson(lesson);
+    setCurrentVideoTime(0);
+  };
+
+  const markComplete = useCallback(
+    (lessonId: string) => {
+      setCompletedLessonIds((prev) => {
+        if (prev.has(lessonId)) return prev;
+        const next = new Set(prev);
+        next.add(lessonId);
+        if (allLessons.length) {
+          updateProgress.mutate({courseId, progressPercent: calculateProgress(allLessons, next)});
+        }
+        return next;
+      });
+    },
+    [allLessons, courseId, updateProgress],
+  );
+
+  const handleLessonEnded = () => {
     if (!activeLesson) return;
-    const currentIndex = allLessons.findIndex(
-      (item) => item.id === activeLesson.id,
-    );
+    markComplete(activeLesson.id);
+    const currentIndex = allLessons.findIndex((item) => item.id === activeLesson.id);
     if (currentIndex >= 0 && currentIndex < allLessons.length - 1) {
-      setActiveLesson(allLessons[currentIndex + 1]);
+      handleSelectLesson(allLessons[currentIndex + 1]);
     }
   };
 
+  const handleBrainySend = async (message: string): Promise<string> => {
+    const result = await sendChatMessage(message, {
+      context: {course_id: courseId, course_title: title, lesson_title: activeLesson?.title},
+    });
+    return result.reply;
+  };
+
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
-    if (!isMobile) {
-      handleTabChange("tab", "overview");
-    }
+    if (!isMobile) handleTabChange("tab", "overview");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile]);
+
+  const kind = activeLesson ? lessonKind(activeLesson) : null;
 
   return (
     <section className="flex flex-col">
@@ -85,131 +120,63 @@ export default function CourseContent({course}: {course: CourseDetail}) {
         <Link href="/learnings" className="text-subtle hover:underline">
           Course
         </Link>
-
         <span className="text-subtle">/</span>
-
-        <span className="text-muted/50 cursor-default text-nowrap truncate">
-          {course.title}
-        </span>
+        <span className="text-muted/50 cursor-default text-nowrap truncate">{title}</span>
       </nav>
 
       <div
         className={`grid grid-cols-1 ${isSidePanelOpen ? "lg:grid-cols-[1fr_.1fr]" : "lg:grid-cols-[1fr_2rem]"} gap-6 transition-[grid-template-columns] duration-400 ease-in-out`}
       >
-        <motion.div
-          layout
-          transition={{
-            type: "spring",
-            stiffness: 120,
-            damping: 20,
-          }}
-          className="pb-8"
-        >
+        <motion.div layout transition={{type: "spring", stiffness: 120, damping: 20}} className="pb-8">
           <div className="w-full min-w-full overflow-hidden">
-            <AnimatePresence mode="wait">
-              {activeLesson?.type === "video" && (
-                <motion.div
-                  key={`video-${activeLesson?.id}`}
-                  initial={{opacity: 0, scale: 0.98}}
-                  animate={{opacity: 1, scale: 1}}
-                  exit={{opacity: 0, scale: 0.98}}
-                  transition={{duration: 0.25}}
-                >
-                  <CoursePlayer
-                    src={activeLesson?.src}
-                    poster={course.imgBig}
-                    onEnded={handleVideoEnded}
-                    onTimeUpdate={setCurrentVideoTime}
-                  />
-                </motion.div>
-              )}
-
-              {activeLesson?.type === "audio" && (
-                <motion.div
-                  key={`audio-${activeLesson?.id}`}
-                  initial={{opacity: 0, scale: 0.98}}
-                  animate={{opacity: 1, scale: 1}}
-                  exit={{opacity: 0, scale: 0.98}}
-                  transition={{duration: 0.25}}
-                >
-                  <CoursePlayer
-                    src={activeLesson?.src}
-                    isAudio={true}
-                    onEnded={handleVideoEnded}
-                    onTimeUpdate={setCurrentVideoTime}
-                  />
-                </motion.div>
-              )}
-
-              {activeLesson?.type === "doc" && (
-                <motion.div
-                  key={`doc-${activeLesson?.id}`}
-                  initial={{opacity: 0, scale: 0.98}}
-                  animate={{opacity: 1, scale: 1}}
-                  exit={{opacity: 0, scale: 0.98}}
-                  transition={{duration: 0.25}}
-                >
-                  Document...
-                </motion.div>
-              )}
-
-              {activeLesson?.type === "practice" && (
-                <motion.div
-                  key={`practice-${activeLesson?.id}`}
-                  initial={{opacity: 0, scale: 0.98}}
-                  animate={{opacity: 1, scale: 1}}
-                  exit={{opacity: 0, scale: 0.98}}
-                  transition={{duration: 0.25}}
-                >
-                  <CoursePractice
-                    questions={activeLesson?.practice?.questions || []}
-                    // onComplete={(answers) => console.log("Correct!", answers)}
-                    onDone={() => handleVideoEnded()}
-                  />
-                </motion.div>
-              )}
-
-              {activeLesson?.type === "exercise" && (
-                <motion.div
-                  key={`exercise-${activeLesson?.id}`}
-                  initial={{opacity: 0, scale: 0.98}}
-                  animate={{opacity: 1, scale: 1}}
-                  exit={{opacity: 0, scale: 0.98}}
-                  transition={{duration: 0.25}}
-                >
-                  <CourseExercise
-                    questions={activeLesson?.exercise?.questions || []}
-                    title={course?.title}
-                    // onComplete={(answers) => {
-                    //   console.log("answers", answers);
-                    // }}
-                  />
-                </motion.div>
-              )}
-
-              {activeLesson?.type === "exam" && (
-                <motion.div
-                  key={`exam-${activeLesson?.id}`}
-                  initial={{opacity: 0, scale: 0.98}}
-                  animate={{opacity: 1, scale: 1}}
-                  exit={{opacity: 0, scale: 0.98}}
-                  transition={{duration: 0.25}}
-                >
-                  <CourseTestFlow
-                    questions={activeLesson?.exam?.questions || []}
-                    // onCorrect={(problem, index) =>
-                    //   console.log("Correct!", problem.id, index)
-                    // }
-                    // onUpNext={() => handleVideoEnded()}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {!activeLesson ? (
+              <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
+                This course has no lessons yet.
+              </div>
+            ) : kind === "youtube" ? (
+              <iframe
+                src={youTubeEmbedUrl(activeLesson.videoUrl) ?? undefined}
+                className="aspect-video w-full rounded-2xl"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : kind === "pdf" ? (
+              <iframe
+                src={activeLesson.videoUrl ?? undefined}
+                className="aspect-video w-full rounded-2xl border border-muted/20"
+              />
+            ) : (
+              <CoursePlayer
+                src={activeLesson.videoUrl ?? undefined}
+                poster={activeLesson.thumbnailUrl ?? coverImageUrl ?? undefined}
+                onEnded={handleLessonEnded}
+                onTimeUpdate={setCurrentVideoTime}
+              />
+            )}
           </div>
+
+          {activeLesson && (
+            <div className="mt-4 flex items-center justify-between px-1">
+              <div>
+                <p className="text-lg font-semibold">{activeLesson.title}</p>
+                {!!activeLesson.duration && (
+                  <p className="text-sm text-muted">{formatDuration(activeLesson.duration)}</p>
+                )}
+              </div>
+              <Button
+                variant={completedLessonIds.has(activeLesson.id) ? "outline" : "primary"}
+                width="fit"
+                onClick={() => markComplete(activeLesson.id)}
+                disabled={completedLessonIds.has(activeLesson.id)}
+              >
+                {completedLessonIds.has(activeLesson.id) ? "Completed" : "Mark as complete"}
+              </Button>
+            </div>
+          )}
 
           <div className="flex items-center justify-between my-8">
             <div className="flex items-center gap-6 p-4 max-lg:overflow-x-auto">
-              {tabs.map((tab) => (
+              {TABS.map((tab) => (
                 <Button
                   key={tab}
                   variant={activeTab === tab ? "outline" : "ghost"}
@@ -221,14 +188,8 @@ export default function CourseContent({course}: {course: CourseDetail}) {
                   onClick={() => handleTabChange("tab", tab)}
                 >
                   <span className="flex items-center gap-2">
-                    {tab === "ai" && (
-                      <Icon icon={"mingcute:ai-fill"} size={14} />
-                    )}
-                    {tab === "ai"
-                      ? "AI Assistant"
-                      : tab === "content"
-                        ? "Course Content"
-                        : tab}
+                    {tab === "ai" && <Icon icon={"mingcute:ai-fill"} size={14} />}
+                    {tab === "ai" ? "AI Assistant" : tab === "content" ? "Course Content" : tab}
                   </span>
                 </Button>
               ))}
@@ -246,55 +207,41 @@ export default function CourseContent({course}: {course: CourseDetail}) {
             >
               {activeTab === "content" && isMobile && (
                 <CoursePlayModules
-                  levels={course.curriculums}
-                  setActiveLessonSrc={setActiveLesson}
-                  activeLesson={activeLesson?.id}
+                  modules={modules}
+                  completedLessonIds={completedLessonIds}
+                  activeLesson={activeLesson?.id ?? null}
+                  onSelectLesson={handleSelectLesson}
                 />
               )}
               {activeTab === "ai" && isMobile && (
                 <div className="h-[550px] w-full">
-                  <BrainyCourseSidePanel className="h-full" />
+                  <BrainyCourseSidePanel className="h-full" onSend={handleBrainySend} />
                 </div>
               )}
               {activeTab === "overview" && (
                 <OverviewTab
-                  title={course.title}
-                  description={course.description}
-                  rating={course.rating}
-                  reviewCount={course.reviewCount}
-                  enrolledStudents={course.enrolledStudents}
-                  hours={course.hours}
-                  lastUpdated={course.lastUpdated}
-                  certificate={course.certificate}
-                  instructor={course.instructor}
-                  instructorBio={course.instructorBio}
-                  instructorAvatar={course.instructorAvatar}
-                  instructorSocial={course.instructorSocial}
-                  availableLanguage={course.availableLanguage}
-                  instructorRole={course.instructorRole}
+                  title={title}
+                  description={description}
+                  totalLessons={allLessons.length}
+                  totalDurationLabel={totalDuration.formatted}
+                  certificateEarnedAt={certificate?.issued_at ?? null}
                 />
               )}
-              {activeTab === "community" && (
-                <CommunityTab
-                // currentVideoTime={currentVideoTime}
-                />
-              )}
+              {activeTab === "community" && <CommunityTab courseId={courseId} />}
               {activeTab === "notes" && (
-                <NotesTab currentTimestamp={currentVideoTime} />
+                <NotesTab
+                  courseId={courseId}
+                  activeLessonId={activeLesson?.id ?? null}
+                  currentTimestamp={currentVideoTime}
+                />
               )}
               {activeTab === "facilitator" && (
-                <FacilitatorTab
-                  instructorName={course.instructor}
-                  courseDescription={course.description}
-                  instructorAvatar={course.instructorAvatar}
-                  currentTime={currentVideoTime}
-                />
+                <FacilitatorTab courseId={courseId} currentTime={currentVideoTime} />
               )}
             </motion.div>
           </AnimatePresence>
         </motion.div>
 
-        {/* side panel */}
         <AnimatePresence mode="wait">
           {!isSidePanelOpen ? (
             <motion.button
@@ -328,12 +275,8 @@ export default function CourseContent({course}: {course: CourseDetail}) {
                       className={`text-nowrap py-1!  ${sidePanel == tab ? "" : "opacity-60"}`}
                     >
                       <p className="flex items-center gap-2">
-                        {tab === "ai" && (
-                          <Icon icon={"mingcute:ai-fill"} size={14} />
-                        )}
-                        <span>
-                          {tab === "course" ? "Course content" : "AI assistant"}
-                        </span>
+                        {tab === "ai" && <Icon icon={"mingcute:ai-fill"} size={14} />}
+                        <span>{tab === "course" ? "Course content" : "AI assistant"}</span>
                       </p>
                     </Button>
                   ))}
@@ -353,13 +296,14 @@ export default function CourseContent({course}: {course: CourseDetail}) {
 
               {sidePanel === "course" && (
                 <CoursePlayModules
-                  levels={course.curriculums}
-                  setActiveLessonSrc={setActiveLesson}
-                  activeLesson={activeLesson?.id}
+                  modules={modules}
+                  completedLessonIds={completedLessonIds}
+                  activeLesson={activeLesson?.id ?? null}
+                  onSelectLesson={handleSelectLesson}
                 />
               )}
 
-              {sidePanel === "ai" && <BrainyCourseSidePanel />}
+              {sidePanel === "ai" && <BrainyCourseSidePanel onSend={handleBrainySend} />}
             </motion.div>
           )}
         </AnimatePresence>

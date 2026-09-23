@@ -81,6 +81,9 @@ export const useUpdateCourseProgress = () => {
       updateCourseProgress(courseId, progressPercent),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ["courses", "enrolled"]});
+      // A progress push that completes the course issues a certificate
+      // server-side -- refetch so it shows up without a reload.
+      queryClient.invalidateQueries({queryKey: ["courses", "certificates"]});
     },
   });
 };
