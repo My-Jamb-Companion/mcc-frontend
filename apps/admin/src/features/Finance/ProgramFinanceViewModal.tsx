@@ -26,13 +26,11 @@ export default function ProgramFinanceViewModal({
         </div>
 
         <ProgramDetailCard
-          title={program.title}
-          imageUrl={program.imageUrl}
-          numberSold={program.numberSold}
+          title={program.programTitle}
+          imageUrl={program.programIconUrl}
+          numberSold={program.number}
           revenuePrimary={program.revenuePrimary}
           revenueSecondary={program.revenueSecondary}
-          currencySymbol={program.currencySymbol}
-          teachers={program.teachers}
         />
       </div>
     </div>

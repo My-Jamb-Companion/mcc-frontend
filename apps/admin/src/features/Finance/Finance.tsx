@@ -14,7 +14,6 @@ import {
 import {useState} from "react";
 import StudentFinanceViewModal from "./StudentFinanceViewModal";
 import ProgramFinanceViewModal from "./ProgramFinanceViewModal";
-import {FinanceProgramOverviewTable} from "./FinanceProgramsOverview";
 import {PayoutsAndRefunds} from "./PayoutsAndRefunds";
 
 export default function Finance() {

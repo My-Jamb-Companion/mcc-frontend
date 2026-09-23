@@ -6,6 +6,7 @@ import {useEffect, useRef, useState} from "react";
 import {sideBarLinks} from "../dashboard/constants/NavLinks";
 import {usePathname, useRouter} from "next/navigation";
 import Image from "next/image";
+import {useAuth} from "@mcc/features";
 import {CURRENT_USER} from "../account/constants/constants";
 
 const LANGUAGES = [
@@ -24,6 +25,7 @@ export default function SideNav({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const {logoutMutation} = useAuth();
   const [linksHovering, setLinksHovering] = useState(false);
   const [accLinksHovering, setAccLinksHovering] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -81,7 +83,12 @@ export default function SideNav({
 
   const handleLogout = () => {
     setAccountMenuOpen(false);
-    router.push("/signup");
+    // Clears the session server-side and locally, same as admin's logout --
+    // just navigating away left the access token/cookie valid, so the user
+    // was never actually signed out.
+    logoutMutation.mutate(undefined, {
+      onSettled: () => router.replace("/login"),
+    });
   };
 
   return (
@@ -322,7 +329,11 @@ export default function SideNav({
           >
             <div className="relative w-10 h-10 min-w-10 rounded-full border-2 border-white overflow-hidden bg-[#B190B6] shrink-0">
               <Image
-                src={CURRENT_USER?.avatar || "/images/avatar-placeholder.png"}
+                src={
+                  typeof CURRENT_USER?.avatar === "string" && CURRENT_USER.avatar
+                    ? CURRENT_USER.avatar
+                    : "/images/avatar-placeholder.png"
+                }
                 alt="profile image"
                 fill
                 className="object-cover"

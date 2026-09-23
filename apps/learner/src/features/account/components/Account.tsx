@@ -1,12 +1,7 @@
 "use client";
 
 import {useEffect, useState} from "react";
-import type {
-  ProfileTabKey,
-  ProfileUser,
-  SidebarSectionKey,
-} from "../constants/types";
-import {useState} from "react";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import type {ProfileTabKey, SidebarSectionKey} from "../constants/types";
 import type {PersonalInformationFormValues} from "./AccountInfo";
 import {ProfileTabs} from "./ProfileTabs";
@@ -17,7 +12,10 @@ import {AccountConfigurations} from "./AccountConfiguration";
 import ProfileHeader from "./ProfileHeader";
 import AvatarPicker from "./AvatarPicker";
 import {RankBadge} from "./RankBadge";
-import {usePathname, useRouter, useSearchParams} from "next/navigation";
+import {useProfile, useUpdatePassword, useUpdateProfile, useUploadProfilePhoto} from "../hooks/useProfile";
+import {fromApiProfile} from "../helper/profile.mapper";
+import {useMyLeaderboardStanding, useRewardsBalance} from "@/src/features/rewards/hooks/useRewards";
+import {useDashboardStats} from "@/src/features/dashboard/hooks/useDashboard";
 
 export default function AccountSettingsPage() {
   const router = useRouter();
@@ -31,16 +29,6 @@ export default function AccountSettingsPage() {
   const [section, setSection] = useState<SidebarSectionKey>(
     (sectionParam as SidebarSectionKey) || "profileInfo",
   );
-  const [user, setUser] = useState<ProfileUser>(CURRENT_USER);
-  const [file, setFile] = useState<File | string>(user.avatar);
-import {useProfile, useUpdatePassword, useUpdateProfile, useUploadProfilePhoto} from "../hooks/useProfile";
-import {fromApiProfile} from "../helper/profile.mapper";
-import {useMyLeaderboardStanding, useRewardsBalance} from "@/src/features/rewards/hooks/useRewards";
-import {useDashboardStats} from "@/src/features/dashboard/hooks/useDashboard";
-
-export default function AccountSettingsPage() {
-  const [tab, setTab] = useState<ProfileTabKey>("account");
-  const [section, setSection] = useState<SidebarSectionKey>("profileInfo");
 
   const {data: apiProfile, isLoading: profileLoading} = useProfile();
   const {data: standing} = useMyLeaderboardStanding();
@@ -87,6 +75,7 @@ export default function AccountSettingsPage() {
       : pathname;
     router.replace(nextUrl);
   }, [tab, section, pathname, router]);
+
   const handleAvatarFile = (file: File | string) => {
     if (file instanceof File) {
       uploadPhoto.mutate(file);

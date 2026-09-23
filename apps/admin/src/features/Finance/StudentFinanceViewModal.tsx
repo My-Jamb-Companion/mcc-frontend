@@ -66,8 +66,15 @@ export default function StudentFinanceViewModal({
             </div>
           </div>
 
-          <PersonalDetails />
-          <StudentOverviewHeader />
+          <PersonalDetails email={student.studentEmail} />
+          <StudentOverviewHeader
+            title={student.programTitle}
+            subtitle={student.programSubtitle}
+            badgeIcon={student.programBadgeIcon}
+            imageUrl={student.programIconUrl}
+            amount={student.amount}
+            dateOnboarded={student.dateOnboarded}
+          />
         </div>
       </div>
     </div>
