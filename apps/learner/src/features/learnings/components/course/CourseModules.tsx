@@ -7,7 +7,9 @@ interface CourseModulesProps {
   modules: Module[];
   completedLessonIds: Set<string>;
   onSelectLesson: (lesson: Lesson) => void;
+  onSelectQuiz: (moduleId: string) => void;
   activeLesson?: string | null;
+  activeQuizModuleId?: string | null;
 }
 
 const kindIconMap: Record<LessonKind, {icon: string; className: string}> = {
@@ -20,7 +22,9 @@ export default function CoursePlayModules({
   modules,
   completedLessonIds,
   onSelectLesson,
+  onSelectQuiz,
   activeLesson = null,
+  activeQuizModuleId = null,
 }: CourseModulesProps) {
   return (
     <div className="flex flex-col gap-3">
@@ -35,7 +39,9 @@ export default function CoursePlayModules({
             module={module}
             completedLessonIds={completedLessonIds}
             activeLesson={activeLesson}
+            activeQuizModuleId={activeQuizModuleId}
             onSelectLesson={onSelectLesson}
+            onSelectQuiz={onSelectQuiz}
           />
         </motion.div>
       ))}
@@ -47,24 +53,29 @@ function ModuleAccordion({
   module,
   completedLessonIds,
   activeLesson,
+  activeQuizModuleId,
   onSelectLesson,
+  onSelectQuiz,
 }: {
   module: Module;
   completedLessonIds: Set<string>;
   activeLesson: string | null;
+  activeQuizModuleId: string | null;
   onSelectLesson: (lesson: Lesson) => void;
+  onSelectQuiz: (moduleId: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const hasLessons = !!module.lessons.length;
   const moduleDuration = useLessonsDuration(module.lessons);
   const moduleProgress = useModuleProgress(module.lessons, completedLessonIds);
-  const isCompleted = moduleProgress === 100;
+  const isCompleted = hasLessons && moduleProgress === 100;
+  const isQuizActive = activeQuizModuleId === module.id;
 
   return (
     <div>
       <button
         type="button"
-        onClick={() => hasLessons && setOpen((o) => !o)}
+        onClick={() => setOpen((o) => !o)}
         className="border border-muted/20 rounded-2xl flex items-center justify-between w-full px-3.5 py-5.5 hover:bg-muted/5 transition-colors text-left gap-2"
       >
         <div className="flex items-center gap-2 min-w-0">
@@ -80,20 +91,18 @@ function ModuleAccordion({
           <span className="text-sm font-medium truncate">{module.title}</span>
         </div>
 
-        {hasLessons && (
-          <div className="flex items-center gap-2">
-            <p className="text-subtle text-xs text-nowrap">{moduleDuration.formatted}</p>
-            <Icon
-              icon="ph:caret-down"
-              size={14}
-              className={`text-subtle shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-            />
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {hasLessons && <p className="text-subtle text-xs text-nowrap">{moduleDuration.formatted}</p>}
+          <Icon
+            icon="ph:caret-down"
+            size={14}
+            className={`text-subtle shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          />
+        </div>
       </button>
 
       <AnimatePresence initial={false}>
-        {hasLessons && open && (
+        {open && (
           <motion.div
             key="lessons"
             initial={{height: 0, opacity: 0}}
@@ -146,6 +155,26 @@ function ModuleAccordion({
                   </motion.button>
                 );
               })}
+
+              <motion.button
+                type="button"
+                initial={{opacity: 0, x: -8}}
+                animate={{opacity: 1, x: 0}}
+                transition={{delay: module.lessons.length * 0.04, duration: 0.2}}
+                onClick={() => onSelectQuiz(module.id)}
+                className={`flex gap-2.5 w-full pl-1 pr-3.5 text-left hover:bg-muted/5 transition-colors ${
+                  isQuizActive ? "border-l-primary border-l-3" : "border-l-0"
+                }`}
+              >
+                <div className="flex items-center justify-center size-5.5 rounded shrink-0 text-[13px] text-orange-500">
+                  <Icon icon="material-symbols:quiz-outline" size={16} />
+                </div>
+                <div className="min-w-0">
+                  <p className={`text-sm truncate ${isQuizActive ? "text-primary" : "text-subtle"}`}>
+                    Practice quiz
+                  </p>
+                </div>
+              </motion.button>
             </div>
           </motion.div>
         )}
