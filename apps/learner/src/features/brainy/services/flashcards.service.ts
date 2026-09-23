@@ -17,9 +17,14 @@ export interface FlashcardGenerateResult {
  * fallback string like every other Brainy endpoint.
  */
 export const generateFlashcards = async (content: string): Promise<FlashcardGenerateResult> => {
-  const res = await apiClient.post<{data: FlashcardGenerateResult}>("/brainy/flashcards", {
-    content,
-  });
+  const res = await apiClient.post<{data: FlashcardGenerateResult}>(
+    "/brainy/flashcards",
+    {content},
+    // apiClient's default 10s timeout is sized for ordinary CRUD calls, not
+    // a real LLM completion -- gpt-5.6-luna alone can take ~9s, before any
+    // retry. 30s gives real headroom without hanging a failed request forever.
+    {timeout: 30000},
+  );
   return res.data.data;
 };
 
