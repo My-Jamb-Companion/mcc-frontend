@@ -5,10 +5,12 @@ import {
   useContext,
   useState,
   useCallback,
+  useRef,
   ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
-import { showSuccess } from "@mcc/ui";
+import { showSuccess, showError } from "@mcc/ui";
+import { extractApiError } from "@mcc/api";
 import { formSteps } from "../constants/formSteps";
 import { FormValues } from "../types/formTypes";
 import { getDraftFromStorage, clearDraftFromStorage } from "../constants/storage";
@@ -23,6 +25,11 @@ interface OnboardingContextValue {
   handleSubmit: (data: FormValues) => void;
   isSubmitting: boolean;
   previewComplete: boolean;
+  /** File objects for "file" fields (id_document, teaching_certificate,
+   * selfie_verification) aren't part of FormValues -- see FileUploadField's
+   * comment on why. Stored here, outside RHF/localStorage, keyed by field id,
+   * and read back only at final submit. */
+  setFileValue: (fieldId: string, file: File | null) => void;
 }
 
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
@@ -36,6 +43,7 @@ export function OnboardingProvider({
 }) {
   const [step, setStep] = useState(() => getDraftFromStorage(preview)?.step ?? 0);
   const [previewComplete, setPreviewComplete] = useState(false);
+  const filesRef = useRef<Record<string, File | null>>({});
 
   const router = useRouter();
   const { completeMutation } = useOnboardingComplete();
@@ -50,21 +58,31 @@ export function OnboardingProvider({
     [],
   );
 
+  const setFileValue = useCallback((fieldId: string, file: File | null) => {
+    filesRef.current[fieldId] = file;
+  }, []);
+
   const handleSubmit = useCallback(
     (data: FormValues) => {
-      completeMutation.mutate(data, {
+      // Preview has no real teacher account behind it -- nothing is ever
+      // sent to the backend here, matching PreviewComplete's own copy
+      // ("Nothing here was saved").
+      if (preview) {
+        clearDraftFromStorage(preview);
+        setPreviewComplete(true);
+        return;
+      }
+
+      completeMutation.mutate({ data, files: filesRef.current }, {
         onSuccess: () => {
           clearDraftFromStorage(preview);
-          if (preview) {
-            setPreviewComplete(true);
-            return;
-          }
           saveCompletionToStorage(data);
           showSuccess(
             "Your teacher profile is complete! We'll notify you once everything is verified.",
           );
           router.push("/dashboard");
         },
+        onError: (error) => showError(extractApiError(error, "Couldn't complete onboarding")),
       });
     },
     [completeMutation, router, preview],
@@ -80,6 +98,7 @@ export function OnboardingProvider({
         handleSubmit,
         isSubmitting: completeMutation.isPending,
         previewComplete,
+        setFileValue,
       }}
     >
       {children}

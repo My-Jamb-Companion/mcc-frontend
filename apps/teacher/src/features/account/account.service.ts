@@ -6,6 +6,8 @@ export interface TeacherProfile {
   full_name: string | null;
   phone_number: string | null;
   teaching_subject: string | null;
+  self_description: string | null;
+  teaching_style: string[];
 }
 
 export const getProfile = async (): Promise<TeacherProfile> => {
@@ -14,7 +16,9 @@ export const getProfile = async (): Promise<TeacherProfile> => {
 };
 
 export const updateProfile = async (
-  input: Partial<Pick<TeacherProfile, "full_name" | "phone_number" | "teaching_subject">>,
+  input: Partial<
+    Pick<TeacherProfile, "full_name" | "phone_number" | "teaching_subject" | "self_description" | "teaching_style">
+  >,
 ): Promise<void> => {
   await apiClient.patch("/user/profile", input);
 };

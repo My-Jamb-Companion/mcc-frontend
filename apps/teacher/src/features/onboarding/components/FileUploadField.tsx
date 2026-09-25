@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { Icon } from "@mcc/ui";
 import { FileField } from "../types/formTypes";
+import { useOnboardingContext } from "../context/OnboardingContext";
 
-// Mocked: no backend endpoint accepts a real upload for any of these fields
-// (see backend/docs/teacher-onboarding-backend-todo.md). The RHF/localStorage
-// value is the filename string, never the File object -- Files aren't
-// JSON-serializable. The object-URL preview is session-local only and is
-// intentionally lost on refresh.
+// The RHF/localStorage value is the filename string, never the File object
+// -- Files aren't JSON-serializable and the wizard persists drafts to
+// localStorage on every change. The real File is reported separately via
+// OnboardingContext.setFileValue for use at final submit (see
+// OnboardingContext.tsx). The object-URL preview is session-local only and
+// is intentionally lost on refresh.
 export function FileUploadField({
   field,
   value,
@@ -19,16 +21,19 @@ export function FileUploadField({
   onChange: (filename: string) => void;
 }) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const { setFileValue } = useOnboardingContext();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setPreviewUrl(URL.createObjectURL(file));
+    setFileValue(field.id, file);
     onChange(file.name);
   };
 
   const handleRemove = () => {
     setPreviewUrl(null);
+    setFileValue(field.id, null);
     onChange("");
   };
 
