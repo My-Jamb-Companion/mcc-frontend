@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { FormValues } from "../types/formTypes";
-import { updateProfile } from "../../account/account.service";
+import { updateProfile } from "@/src/features/account/account.service";
 import {
   submitVerification,
   updateSubjects,
