@@ -25,11 +25,12 @@ export const useCompleteEnrollment = () => {
     try {
       const result =
         pending.kind === "exam"
-          ? await registerForExamProgram(pending.id, email)
+          ? await registerForExamProgram(pending.id, email, pending.tierId)
           : await initializeCoursePayment(
               pending.id,
               pending.price && pending.price > 0 ? "paid" : "free",
               email,
+              pending.tierId,
             );
 
       clearPendingCourse();

@@ -33,7 +33,7 @@ describe("useCompleteEnrollment", () => {
       await result.current.complete({ id: "c1", title: "Course 1", price: 5000, kind: "course" });
     });
 
-    expect(enrollmentService.initializeCoursePayment).toHaveBeenCalledWith("c1", "paid", undefined);
+    expect(enrollmentService.initializeCoursePayment).toHaveBeenCalledWith("c1", "paid", undefined, undefined);
   });
 
   it("calls initializeCoursePayment with 'free' when price is 0", async () => {
@@ -46,7 +46,7 @@ describe("useCompleteEnrollment", () => {
       await result.current.complete({ id: "c1", title: "Course 1", price: 0, kind: "course" });
     });
 
-    expect(enrollmentService.initializeCoursePayment).toHaveBeenCalledWith("c1", "free", undefined);
+    expect(enrollmentService.initializeCoursePayment).toHaveBeenCalledWith("c1", "free", undefined, undefined);
   });
 
   it("calls registerForExamProgram for an exam-prep program", async () => {
@@ -59,7 +59,7 @@ describe("useCompleteEnrollment", () => {
       await result.current.complete({ id: "p1", title: "Program 1", kind: "exam" });
     });
 
-    expect(enrollmentService.registerForExamProgram).toHaveBeenCalledWith("p1", undefined);
+    expect(enrollmentService.registerForExamProgram).toHaveBeenCalledWith("p1", undefined, undefined);
     expect(enrollmentService.initializeCoursePayment).not.toHaveBeenCalled();
   });
 
@@ -78,8 +78,21 @@ describe("useCompleteEnrollment", () => {
     });
 
     expect(enrollmentService.initializeCoursePayment).toHaveBeenCalledWith(
-      "c1", "paid", "student@example.com",
+      "c1", "paid", "student@example.com", undefined,
     );
+  });
+
+  it("passes the tier picked on the catalogue card", async () => {
+    vi.mocked(enrollmentService.initializeCoursePayment).mockResolvedValue({
+      enrollment_id: "e1", is_paid: true, checkout_url: "https://checkout.flutterwave.com/x",
+    });
+    const { result } = renderHook(() => useCompleteEnrollment());
+
+    await act(async () => {
+      await result.current.complete({ id: "c1", title: "Course 1", price: 5000, kind: "course", tierId: "tier-1" });
+    });
+
+    expect(enrollmentService.initializeCoursePayment).toHaveBeenCalledWith("c1", "paid", undefined, "tier-1");
   });
 
   it("redirects the browser to checkout_url when the enrolment is paid", async () => {

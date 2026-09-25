@@ -24,8 +24,8 @@ export default function TierEditor() {
 
   return (
     <Section
-      title="City tiers"
-      description="Each tier's multiplier scales only the part of a price above its hard floor — development, overheads and profit — so no tier can sell below cost. 1.00 is full cost; below 1 is a discount, above 1 a premium."
+      title="Purchasing-power tiers"
+      description="Each tier's multiplier scales only the part of a price above its hard floor — development, overheads and profit — so no tier can sell below cost. 1.00 is full cost; below 1 is a discount, above 1 a premium. A buyer picks a tier directly at checkout."
     >
       {isLoading ? (
         <p className="text-sm text-neutral-400">Loading tiers…</p>
@@ -141,8 +141,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
               <th className="pb-2 pr-3 font-medium">Tier</th>
               <th className="pb-2 pr-3 font-medium">Multiplier</th>
               <th className="pb-2 pr-3 font-medium">Expected share of sales</th>
-              <th className="pb-2 pr-3 font-medium">Default</th>
-              <th className="pb-2 text-right font-medium">Cities</th>
+              <th className="pb-2 font-medium">Default</th>
             </tr>
           </thead>
           <tbody>
@@ -166,7 +165,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
                     <span className="text-neutral-400">%</span>
                   </div>
                 </td>
-                <td className="py-1.5 pr-3 pt-3.5">
+                <td className="py-1.5 pt-3.5">
                   <input
                     type="radio"
                     name="default-tier"
@@ -176,19 +175,13 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
                     className="h-4 w-4 accent-violet-600"
                   />
                 </td>
-                {/* Read from the server data, not form state: moving cities
-                    changes these without changing the tier revision, so the
-                    form wouldn't re-initialise to pick them up. */}
-                <td className="py-1.5 pt-3.5 text-right tabular-nums text-neutral-700">
-                  {tierSet.tiers.find((t) => t.tier_id === r.tier_id)?.city_count ?? 0}
-                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       <p className="text-xs text-neutral-500">
-        The default tier prices every city that hasn&apos;t been assigned one, including cities added later.
+        The default tier is used for any checkout where no tier is chosen.
       </p>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -228,7 +221,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
           Why are these changing?
         </label>
         <textarea id="tier-change-reason" rows={2} value={reason} onChange={(e) => setReason(e.target.value)}
-          placeholder="e.g. Rebalanced after the first term's sales by city"
+          placeholder="e.g. Rebalanced after the first term's sales mix"
           className="rounded-xl border border-neutral-200 p-3 text-sm outline-none focus:border-violet-500" />
       </div>
 

@@ -1,11 +1,19 @@
 import { apiClient } from "@mcc/api";
 
+export interface CatalogueTierPrice {
+  tier_id: string;
+  tier_name: string;
+  price: string;
+}
+
 export interface CatalogueCourse {
   course_id: string;
   title: string;
   description: string | null;
   cover_image_url: string | null;
   price: string;
+  /** Every published tier's price, for a tier picker; empty if nothing is published. */
+  tier_prices: CatalogueTierPrice[];
 }
 
 export interface CatalogueProgram {
@@ -16,6 +24,7 @@ export interface CatalogueProgram {
   price: string;
   level: string;
   cover_image_url: string | null;
+  tier_prices: CatalogueTierPrice[];
 }
 
 export interface ChildPaymentResult {
@@ -31,20 +40,18 @@ export interface ChildPaymentResult {
   billing_email?: string | null;
 }
 
-// Prices depend on the student's city tier, so the catalogue is asked for the
-// child's prices -- what the checkout below will actually charge.
-export const getCourseCatalogue = async (childId: string): Promise<CatalogueCourse[]> => {
+// The catalogue is the same for every viewer now -- price depends on the
+// tier chosen at checkout below, not on who's asking.
+export const getCourseCatalogue = async (): Promise<CatalogueCourse[]> => {
   const res = await apiClient.get<{ success: boolean; data: { courses: CatalogueCourse[] } }>(
     "/courses/",
-    { params: { student_id: childId } },
   );
   return res.data.data.courses;
 };
 
-export const getProgramCatalogue = async (childId: string): Promise<CatalogueProgram[]> => {
+export const getProgramCatalogue = async (): Promise<CatalogueProgram[]> => {
   const res = await apiClient.get<{ success: boolean; data: { programs: CatalogueProgram[] } }>(
     "/exams/programs",
-    { params: { student_id: childId } },
   );
   return res.data.data.programs;
 };
@@ -53,10 +60,11 @@ export const enrollChildInCourse = async (
   childId: string,
   courseId: string,
   price: string,
+  tierId?: string,
 ): Promise<ChildPaymentResult> => {
   const res = await apiClient.post<{ success: boolean; data: ChildPaymentResult }>(
     `/parent/children/${childId}/courses/enroll`,
-    { course_id: courseId, course_type: Number(price) > 0 ? "paid" : "free" },
+    { course_id: courseId, course_type: Number(price) > 0 ? "paid" : "free", tier_id: tierId },
   );
   return res.data.data;
 };
@@ -64,10 +72,11 @@ export const enrollChildInCourse = async (
 export const registerChildForExam = async (
   childId: string,
   programId: string,
+  tierId?: string,
 ): Promise<ChildPaymentResult> => {
   const res = await apiClient.post<{ success: boolean; data: ChildPaymentResult }>(
     `/parent/children/${childId}/exams/register`,
-    { program_id: programId },
+    { program_id: programId, tier_id: tierId },
   );
   return res.data.data;
 };

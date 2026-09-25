@@ -5,7 +5,7 @@ import {usePathname} from "next/navigation";
 
 const TABS = [
   {href: "/finance/pricing", label: "Company parameters"},
-  {href: "/finance/pricing/cities", label: "Cities & tiers"},
+  {href: "/finance/pricing/tiers", label: "Tiers"},
   {href: "/finance/pricing/programs", label: "Program pricing"},
   {href: "/finance/pricing/publications", label: "Publications"},
   {href: "/finance/pricing/finance-summary", label: "Finance summary"},

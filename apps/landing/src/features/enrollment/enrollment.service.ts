@@ -18,11 +18,12 @@ export interface EnrollmentResult {
 export const initializeCoursePayment = async (
   courseId: string,
   courseType: "free" | "paid",
-  email?: string
+  email?: string,
+  tierId?: string
 ): Promise<EnrollmentResult> => {
   const res = await apiClient.post<{ success: boolean; data: EnrollmentResult }>(
     "/payments/initialize",
-    { course_id: courseId, course_type: courseType, email }
+    { course_id: courseId, course_type: courseType, email, tier_id: tierId }
   );
   return res.data.data;
 };
@@ -30,11 +31,12 @@ export const initializeCoursePayment = async (
 /** POST /exams/register — free or paid exam-prep program. */
 export const registerForExamProgram = async (
   programId: string,
-  email?: string
+  email?: string,
+  tierId?: string
 ): Promise<EnrollmentResult> => {
   const res = await apiClient.post<{ success: boolean; data: EnrollmentResult }>(
     "/exams/register",
-    { program_id: programId, email }
+    { program_id: programId, email, tier_id: tierId }
   );
   return res.data.data;
 };

@@ -1,6 +1,5 @@
 import {useForm, Controller, FormInputs} from "@mcc/features";
 import {ProfileUser} from "../constants/types";
-import PricingCityPicker from "./PricingCityPicker";
 
 export interface PersonalInformationFormValues {
   fullName: string;
@@ -11,7 +10,8 @@ export interface PersonalInformationFormValues {
   phoneNumber: string;
   gender: string;
   country: string;
-  // State and city are chosen with PricingCityPicker, which saves them itself.
+  state: string;
+  city: string;
   street: string;
 }
 
@@ -57,6 +57,8 @@ export function AccountPersonalInformationForm({
       phoneNumber: user.phoneNumber,
       gender: user.gender,
       country: user.country,
+      state: user.state,
+      city: user.city,
       street: user.street,
     },
   });
@@ -158,13 +160,18 @@ export function AccountPersonalInformationForm({
             />
           )}
         />
-      </div>
-
-      {/* Chosen from MCC's city list and saved on its own: prices are set by
-          city, so it follows its own lock-and-review rules rather than this
-          form's Save button. */}
-      <div className="mt-4">
-        <PricingCityPicker />
+        <FormInputs
+          label="Your State"
+          placeholder="Enter your state"
+          registration={register("state")}
+          errors={errors.state}
+        />
+        <FormInputs
+          label="Your City"
+          placeholder="Enter your city"
+          registration={register("city")}
+          errors={errors.city}
+        />
       </div>
 
       <div className="mt-4 max-w-sm">

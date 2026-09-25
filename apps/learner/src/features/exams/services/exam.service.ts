@@ -1,5 +1,11 @@
 import {apiClient, whenSessionReady} from "@mcc/api";
 
+export interface ApiTierPrice {
+  tier_id: string;
+  tier_name: string;
+  price: number | string;
+}
+
 export interface ApiExamProgram {
   program_id: string;
   exam_name?: string | null;
@@ -8,6 +14,8 @@ export interface ApiExamProgram {
   price: number | string;
   level: string;
   cover_image_url?: string | null;
+  /** Every published tier's price, for a tier picker; empty if nothing is published. */
+  tier_prices: ApiTierPrice[];
 }
 
 export interface ApiEnrolledProgram {
@@ -52,10 +60,12 @@ export const getEnrolledPrograms = async (): Promise<ApiEnrolledProgram[]> => {
 export const registerForProgram = async (
   programId: string,
   email?: string,
+  tierId?: string,
 ): Promise<RegisterResult> => {
   const res = await apiClient.post<{data: RegisterResult}>("/exams/register", {
     program_id: programId,
     email,
+    tier_id: tierId,
   });
   return res.data.data;
 };

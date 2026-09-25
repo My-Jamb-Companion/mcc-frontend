@@ -1,11 +1,19 @@
 import {apiClient, whenSessionReady} from "@mcc/api";
 
+export interface ApiTierPrice {
+  tier_id: string;
+  tier_name: string;
+  price: number | string;
+}
+
 export interface ApiCourse {
   course_id: string;
   title: string;
   description?: string | null;
   cover_image_url?: string | null;
   price: number | string;
+  /** Every published tier's price, for a tier picker; empty if nothing is published. */
+  tier_prices: ApiTierPrice[];
 }
 
 export interface ApiEnrolledCourse {
@@ -109,10 +117,11 @@ export const initializeCoursePayment = async (
   courseId: string,
   courseType: "free" | "paid",
   email?: string,
+  tierId?: string,
 ): Promise<EnrollResult & {checkout_url?: string; tx_ref?: string}> => {
   const res = await apiClient.post<{
     data: EnrollResult & {checkout_url?: string; tx_ref?: string};
-  }>("/payments/initialize", {course_id: courseId, course_type: courseType, email});
+  }>("/payments/initialize", {course_id: courseId, course_type: courseType, email, tier_id: tierId});
   return res.data.data;
 };
 
