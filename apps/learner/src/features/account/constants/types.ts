@@ -25,7 +25,7 @@ export interface AvatarOption {
   imageUrl: string;
 }
 
-export type ProfileTabKey = "account" | "configurations";
+export type ProfileTabKey = "account" | "configurations" | "bookmarks";
 
 export type SidebarSectionKey = "profileInfo" | "password";
 

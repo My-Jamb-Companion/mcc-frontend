@@ -1,6 +1,7 @@
 "use client";
 import {useEffect, useMemo, useState} from "react";
 import Link from "next/link";
+import {useSearchParams} from "next/navigation";
 import {Icon} from "@mcc/ui";
 import {youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import CoursePlayer from "../course/CoursePlayer";
@@ -52,6 +53,7 @@ function findLecture(topics: ApiExamTopic[], lectureId: string): ApiExamLecture 
  * GET /exams/<id>/content and session endpoints.
  */
 export default function ExamProgramContent({programId, program}: ExamProgramContentProps) {
+  const searchParams = useSearchParams();
   const {topics, isLoading} = useProgramContent(programId);
   const updateProgress = useUpdateProgramProgress();
   const startModuleSession = useStartModuleSession();
@@ -81,7 +83,10 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
   }, [allLectures.length]);
 
   useEffect(() => {
-    if (!active && allLectures[0]) setActive({kind: "lecture", lectureId: allLectures[0].lecture_id});
+    if (active || !allLectures.length) return;
+    const lectureParam = searchParams.get("lecture");
+    const matched = lectureParam && allLectures.find((l) => l.lecture_id === lectureParam);
+    setActive({kind: "lecture", lectureId: matched ? matched.lecture_id : allLectures[0].lecture_id});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allLectures.length]);
 
