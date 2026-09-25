@@ -51,7 +51,10 @@ export default function CourseContent({
   const [sidePanel, setSidePanel] = useState<"course" | "ai">("course");
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
-  const [activeLesson, setActiveLesson] = useState<Lesson | null>(allLessons[0] ?? null);
+  const lectureParam = searchParams.get("lecture");
+  const [activeLesson, setActiveLesson] = useState<Lesson | null>(
+    (lectureParam && allLessons.find((l) => l.id === lectureParam)) || allLessons[0] || null,
+  );
   const [activeQuizModuleId, setActiveQuizModuleId] = useState<string | null>(null);
   const [currentVideoTime, setCurrentVideoTime] = useState(0);
   const quizQuestions = useModuleQuestions(courseId, activeQuizModuleId);

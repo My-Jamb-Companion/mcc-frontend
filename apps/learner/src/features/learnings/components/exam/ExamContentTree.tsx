@@ -2,6 +2,7 @@
 import {useState} from "react";
 import {Icon} from "@mcc/ui";
 import {ApiExamModule, ApiExamSubTopic, ApiExamTopic} from "@/src/features/exams/services/exam.service";
+import BookmarkButton from "@/src/features/bookmarks/BookmarkButton";
 
 export type ActiveNode =
   | {kind: "lecture"; lectureId: string}
@@ -152,20 +153,22 @@ function ModuleAccordion({
           {mod.lectures.map((lecture) => {
             const isActive = active?.kind === "lecture" && active.lectureId === lecture.lecture_id;
             return (
-              <button
-                key={lecture.lecture_id}
-                type="button"
-                onClick={() => onSelect({kind: "lecture", lectureId: lecture.lecture_id})}
-                className={`flex items-center gap-2 pl-1 pr-2 py-1.5 text-left rounded-lg transition-colors ${
-                  isActive ? "border-l-primary border-l-3 bg-primary/5" : "border-l-0 hover:bg-muted/5"
-                }`}
-              >
-                <Icon icon="solar:play-circle-bold" size={15} className={isActive ? "text-primary" : "text-subtle"} />
-                <span className={`text-sm truncate ${isActive ? "text-primary" : "text-subtle"}`}>{lecture.title}</span>
-                {completedLectureIds.has(lecture.lecture_id) && (
-                  <Icon icon="ci:check" size={14} className="ml-auto shrink-0 text-primary" />
-                )}
-              </button>
+              <div key={lecture.lecture_id} className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => onSelect({kind: "lecture", lectureId: lecture.lecture_id})}
+                  className={`flex items-center gap-2 flex-1 min-w-0 pl-1 pr-2 py-1.5 text-left rounded-lg transition-colors ${
+                    isActive ? "border-l-primary border-l-3 bg-primary/5" : "border-l-0 hover:bg-muted/5"
+                  }`}
+                >
+                  <Icon icon="solar:play-circle-bold" size={15} className={isActive ? "text-primary" : "text-subtle"} />
+                  <span className={`text-sm truncate ${isActive ? "text-primary" : "text-subtle"}`}>{lecture.title}</span>
+                  {completedLectureIds.has(lecture.lecture_id) && (
+                    <Icon icon="ci:check" size={14} className="ml-auto shrink-0 text-primary" />
+                  )}
+                </button>
+                <BookmarkButton contentType="exam_lecture" contentId={lecture.lecture_id} />
+              </div>
             );
           })}
 

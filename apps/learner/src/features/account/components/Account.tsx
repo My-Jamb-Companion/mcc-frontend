@@ -9,6 +9,7 @@ import {AccountPersonalInformationForm} from "./AccountInfo";
 import {ProfileSidebar} from "./ProfileSideBar";
 import {UpdatePasswordForm} from "./UpadatePassword";
 import {AccountConfigurations} from "./AccountConfiguration";
+import Bookmarks from "@/src/features/bookmarks/Bookmarks";
 import ProfileHeader from "./ProfileHeader";
 import AvatarPicker from "./AvatarPicker";
 import {RankBadge} from "./RankBadge";
@@ -141,6 +142,10 @@ export default function AccountSettingsPage() {
                   )}
                 </div>
               )}
+            </div>
+          ) : tab === "bookmarks" ? (
+            <div className="mt-6 md:max-w-[80%]">
+              <Bookmarks />
             </div>
           ) : (
             <div className="mt-6 text-sm text-gray-400 md:max-w-[80%]">

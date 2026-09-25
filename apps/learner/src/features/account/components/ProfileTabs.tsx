@@ -1,11 +1,14 @@
+import type {ProfileTabKey} from "../constants/types";
+
 interface ProfileTabsProps {
-  active: "account" | "configurations";
-  onChange: (key: "account" | "configurations") => void;
+  active: ProfileTabKey;
+  onChange: (key: ProfileTabKey) => void;
 }
 
 export function ProfileTabs({active, onChange}: ProfileTabsProps) {
-  const tabs: {key: "account" | "configurations"; label: string}[] = [
+  const tabs: {key: ProfileTabKey; label: string}[] = [
     {key: "account", label: "Account Details"},
+    {key: "bookmarks", label: "Bookmarks"},
     {key: "configurations", label: "Configurations"},
   ];
 
