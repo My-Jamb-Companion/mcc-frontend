@@ -13,6 +13,10 @@ export interface PendingCourse {
   // after the browse → signup/login round trip. Optional so every existing
   // course-only caller is unaffected.
   kind?: "course" | "exam";
+  // The pricing tier picked on the catalogue card, remembered across the
+  // same browse → signup/login round trip as `kind` (docs/pricing-model.md
+  // §4, D2/D3 revised in the backend repo). Omitted -> the default tier.
+  tierId?: string;
 }
 
 const STORAGE_KEY = "mcc_pending_course";

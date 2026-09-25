@@ -41,7 +41,7 @@ export default function LocationAudit() {
   return (
     <Section
       title="Change history"
-      description="Every change to tiers, cities and city change requests, with who made it and why."
+      description="Every tier-set edit, with who made it and why. Older entries from the removed city-pricing layer still show here too."
       aside={
         <button type="button" onClick={() => setOpen((v) => !v)}
           className="rounded-full border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50">

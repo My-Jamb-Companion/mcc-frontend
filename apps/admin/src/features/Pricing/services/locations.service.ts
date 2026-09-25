@@ -1,8 +1,12 @@
 import {apiClient} from "@mcc/api";
 
 /**
- * City pricing -- docs/pricing-model.md build step 2 (§4, D2, D3).
+ * Purchasing-power tiers -- docs/pricing-model.md build step 2 (§4, D2).
  * Multipliers and shares arrive as Decimal strings; shares are fractions.
+ *
+ * Tiers used to be derived from a city a student chose and locked into; that
+ * layer was removed (D3, revised) once the admin console's own tier pricing
+ * made it redundant -- a tier is now picked directly at checkout instead.
  */
 
 export interface ApiTier {
@@ -13,7 +17,6 @@ export interface ApiTier {
   expected_sales_share: string;
   is_default: boolean;
   sort_order: number;
-  city_count: number;
   updated_at: string;
 }
 
@@ -36,44 +39,6 @@ export interface TierSetInput {
   }[];
 }
 
-export interface ApiPricingCity {
-  city_id: string;
-  name: string;
-  state: string;
-  country: string;
-  is_other: boolean;
-  is_active: boolean;
-  tier_id: string | null;
-  effective_tier_id: string;
-  effective_tier_name: string;
-  student_count: number;
-}
-
-export interface ApiCityOption {
-  city_id: string;
-  name: string;
-  state: string;
-  country: string;
-  is_other: boolean;
-}
-
-export interface ApiCityChangeRequest {
-  request_id: string;
-  user_id: string;
-  student_name: string | null;
-  student_email: string | null;
-  from_city: ApiCityOption | null;
-  from_tier_name: string | null;
-  to_city: ApiCityOption;
-  to_tier_name: string | null;
-  reason: string;
-  status: "pending" | "approved" | "rejected";
-  resolution_note: string | null;
-  resolved_by_name: string | null;
-  created_at: string;
-  resolved_at: string | null;
-}
-
 export interface ApiLocationAuditEntry {
   audit_id: string;
   action: string;
@@ -83,25 +48,6 @@ export interface ApiLocationAuditEntry {
   created_at: string;
 }
 
-export const NIGERIAN_STATES = [
-  "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno",
-  "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "FCT", "Gombe", "Imo",
-  "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa",
-  "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba",
-  "Yobe", "Zamfara",
-] as const;
-
-/**
- * For the "Add a city" country field's autocomplete. Free text works for any
- * country -- the backend only enforces NIGERIAN_STATES when this is Nigeria.
- */
-export const COUNTRIES = [
-  "Nigeria", "United States", "United Kingdom", "Canada", "Ghana", "South Africa",
-  "Kenya", "Egypt", "United Arab Emirates", "Saudi Arabia", "Qatar", "Germany",
-  "France", "Ireland", "Netherlands", "Australia", "India", "Malaysia", "China",
-  "Cameroon", "Benin", "Togo", "Senegal", "Ivory Coast", "Rwanda", "Uganda", "Other",
-] as const;
-
 /** Endpoint: GET /admin/pricing/tiers */
 export const getTierSet = async (): Promise<ApiTierSet> =>
   (await apiClient.get<{data: ApiTierSet}>("/admin/pricing/tiers")).data.data;
@@ -110,54 +56,12 @@ export const getTierSet = async (): Promise<ApiTierSet> =>
 export const saveTierSet = async (input: TierSetInput): Promise<ApiTierSet> =>
   (await apiClient.put<{data: ApiTierSet}>("/admin/pricing/tiers", input)).data.data;
 
-/** Endpoint: GET /admin/pricing/cities */
-export const listCities = async (filters: {country?: string; state?: string; tier_id?: string; q?: string}) =>
-  (
-    await apiClient.get<{data: {cities: ApiPricingCity[]}}>("/admin/pricing/cities", {
-      params: Object.fromEntries(Object.entries(filters).filter(([, v]) => v)),
-    })
-  ).data.data.cities;
-
-/** Endpoint: POST /admin/pricing/cities */
-export const createCity = async (input: {name: string; state: string; country?: string; tier_id?: string | null}) =>
-  (await apiClient.post<{data: ApiPricingCity}>("/admin/pricing/cities", input)).data.data;
-
 /**
- * Endpoint: PATCH /admin/pricing/cities/{id}
- * Pass tier_id: null explicitly to return a city to the default tier.
+ * Endpoint: GET /admin/pricing/location-audit -- despite the name (kept for
+ * the sake of not renaming a live table), this now only ever logs tier-set
+ * edits going forward; older entries from the removed city-pricing layer
+ * still appear here for their own history.
  */
-export const updateCity = async (
-  cityId: string,
-  input: {name?: string; tier_id?: string | null; is_active?: boolean},
-) => (await apiClient.patch<{data: ApiPricingCity}>(`/admin/pricing/cities/${cityId}`, input)).data.data;
-
-/** Endpoint: POST /admin/pricing/cities/assign */
-export const assignCities = async (input: {city_ids: string[]; tier_id: string | null}) =>
-  (await apiClient.post<{data: {updated: number}}>("/admin/pricing/cities/assign", input)).data.data;
-
-/** Endpoint: GET /admin/pricing/city-change-requests */
-export const listCityChangeRequests = async (status?: string) =>
-  (
-    await apiClient.get<{data: {requests: ApiCityChangeRequest[]}}>(
-      "/admin/pricing/city-change-requests",
-      {params: status ? {status} : undefined},
-    )
-  ).data.data.requests;
-
-/** Endpoint: PATCH /admin/pricing/city-change-requests/{id}/approve|reject */
-export const resolveCityChangeRequest = async (
-  requestId: string,
-  decision: "approve" | "reject",
-  note?: string,
-) =>
-  (
-    await apiClient.patch<{data: ApiCityChangeRequest}>(
-      `/admin/pricing/city-change-requests/${requestId}/${decision}`,
-      {note: note || null},
-    )
-  ).data.data;
-
-/** Endpoint: GET /admin/pricing/location-audit */
 export const listLocationAudit = async () =>
   (await apiClient.get<{data: {entries: ApiLocationAuditEntry[]}}>("/admin/pricing/location-audit"))
     .data.data.entries;

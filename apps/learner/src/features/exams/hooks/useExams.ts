@@ -23,8 +23,8 @@ export const useRegisterForProgram = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({programId, email}: {programId: string; email?: string}) =>
-      registerForProgram(programId, email),
+    mutationFn: ({programId, email, tierId}: {programId: string; email?: string; tierId?: string}) =>
+      registerForProgram(programId, email, tierId),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ["exam-programs", "enrolled"]});
     },

@@ -7,14 +7,15 @@ import {useAuthStore} from "@mcc/store";
 import {Button, Icon} from "@mcc/ui";
 import {useInitializeCoursePayment} from "@/src/features/courses/hooks/useCourses";
 import {ApiCourse} from "@/src/features/courses/services/course.service";
+import {TierPicker} from "@/src/features/components/TierPicker";
 
 const FALLBACK_IMAGE = "/assets/images/tower.jpg";
 
 /**
  * The not-yet-enrolled preview/purchase screen for a real course. Only
- * title, description, cover image and price actually exist on the real
- * catalogue (app/features/academics/courses/schemas.py::CatalogueCourse) --
- * unlike this component's previous demo-data version, this doesn't invent
+ * title, description, cover image, price and tier_prices actually exist on
+ * the real catalogue (app/features/academics/courses/schemas.py::CatalogueCourse)
+ * -- unlike this component's previous demo-data version, this doesn't invent
  * ratings, curricula, stats or features the backend doesn't provide.
  */
 export default function BuyCourse({course}: {course: ApiCourse}) {
@@ -25,6 +26,13 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
 
   const price = Number(course.price);
   const isFree = !price;
+  const tiers = course.tier_prices ?? [];
+  // The catalogue's flat price is always the default tier's price, so that's
+  // the sensible pre-selected choice.
+  const [selectedTierId, setSelectedTierId] = useState<string | null>(
+    () => tiers.find((t) => Number(t.price) === price)?.tier_id ?? tiers[0]?.tier_id ?? null,
+  );
+  const selectedPrice = tiers.find((t) => t.tier_id === selectedTierId)?.price ?? price;
 
   const handleEnroll = () => {
     setError(null);
@@ -33,6 +41,7 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
         courseId: course.course_id,
         courseType: isFree ? "free" : "paid",
         email: email || undefined,
+        tierId: selectedTierId ?? undefined,
       },
       {
         onSuccess: (result) => {
@@ -87,10 +96,14 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
             ) : (
               <>
                 <span className="text-2xl align-super font-semibold">₦</span>
-                {price.toLocaleString()}
+                {Number(selectedPrice).toLocaleString()}
               </>
             )}
           </p>
+
+          {!isFree && (
+            <TierPicker tiers={tiers} selectedTierId={selectedTierId} onSelect={setSelectedTierId} />
+          )}
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 

@@ -65,8 +65,17 @@ export const useInitializeCoursePayment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({courseId, courseType, email}: {courseId: string; courseType: "free" | "paid"; email?: string}) =>
-      initializeCoursePayment(courseId, courseType, email),
+    mutationFn: ({
+      courseId,
+      courseType,
+      email,
+      tierId,
+    }: {
+      courseId: string;
+      courseType: "free" | "paid";
+      email?: string;
+      tierId?: string;
+    }) => initializeCoursePayment(courseId, courseType, email, tierId),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ["courses", "enrolled"]});
     },
