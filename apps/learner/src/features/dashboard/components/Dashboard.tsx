@@ -81,6 +81,15 @@ export default function Dashboard() {
               if (nextSession.meeting_url) window.open(nextSession.meeting_url, "_blank");
             }}
           />
+          {nextSession.series_id && (
+            <button
+              onClick={() => router.push(`/messages/series/${nextSession.series_id}`)}
+              className="mt-2 flex items-center gap-1 text-xs font-medium text-btn-primary hover:underline"
+            >
+              <Icon icon="ph:chat-circle-text" size={14} />
+              Message {nextSession.teacher_name || "your teacher"}
+            </button>
+          )}
         </div>
       )}
 

@@ -7,6 +7,8 @@ export interface TeacherSession {
   duration_minutes: number;
   meeting_url: string | null;
   student_id: string | null;
+  student_name: string | null;
+  series_id: string | null;
   program_type: string | null;
   program_id: string | null;
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useUpcomingSessions } from "./useSessions";
 import { Button } from "@mcc/ui";
 
@@ -46,11 +47,20 @@ export const SessionsList = () => {
               {session.student_id ? "1:1 session" : "Cohort class"}
             </span>
           </div>
-          {session.meeting_url && (
-            <Button size="sm" width="fit" onClick={() => window.open(session.meeting_url!, "_blank")}>
-              Join
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {session.series_id && (
+              <Link href={`/messages/series/${session.series_id}`}>
+                <Button size="sm" width="fit" variant="ghost">
+                  Message{session.student_name ? ` ${session.student_name}` : ""}
+                </Button>
+              </Link>
+            )}
+            {session.meeting_url && (
+              <Button size="sm" width="fit" onClick={() => window.open(session.meeting_url!, "_blank")}>
+                Join
+              </Button>
+            )}
+          </div>
         </li>
       ))}
     </ul>
