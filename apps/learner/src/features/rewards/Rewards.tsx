@@ -6,6 +6,7 @@ import GoalsProgressPage from "./Goals";
 import RewardsPage from "./Reward";
 import {Icon} from "@mcc/ui";
 import BannerCarousel from "../components/BannerCarousel";
+import Referrals from "../referrals/Referrals";
 
 export default function Rewards() {
   const [tab, setTab] = useState("goals");
@@ -18,6 +19,7 @@ export default function Rewards() {
         {tab === "goals" && <GoalsProgressPage />}
         {tab === "leaderboard" && <Leaderboard />}
         {tab === "rewards" && <RewardsPage />}
+        {tab === "invite" && <Referrals />}
       </div>
     </section>
   );
@@ -34,6 +36,7 @@ function TopNav({
     {key: "goals", label: "Goals & Progress", icon: "ri:progress-5-line"},
     {key: "leaderboard", label: "Leaderboard", icon: "ri:bard-fill"},
     {key: "rewards", label: "Rewards", icon: "ri:trophy-fill"},
+    {key: "invite", label: "Invite Friends", icon: "ri:user-add-fill"},
   ];
   return (
     <div className="flex justify-center gap-6 py-4 mb-7 max-md:overflow-x-auto max-md:pl-30">
