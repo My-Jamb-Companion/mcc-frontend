@@ -1,5 +1,6 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
+  CourseListFilters,
   enrollCourse,
   getCertificates,
   getCourseContent,
@@ -10,11 +11,14 @@ import {
   updateCourseProgress,
 } from "../services/course.service";
 
-/** The full public catalogue, GET /courses/. */
-export const useCourses = () => {
+/** The public catalogue, GET /courses/ -- optionally filtered by
+ * search/category_id/level. Each distinct filter combination is its own
+ * query-cache entry, so switching filters triggers a real new request
+ * rather than filtering an already-fetched list client-side. */
+export const useCourses = (filters: CourseListFilters = {}) => {
   const query = useQuery({
-    queryKey: ["courses"],
-    queryFn: getCourses,
+    queryKey: ["courses", filters],
+    queryFn: () => getCourses(filters),
   });
 
   return {...query, courses: query.data ?? []};

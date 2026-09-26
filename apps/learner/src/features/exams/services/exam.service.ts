@@ -10,12 +10,19 @@ export interface ApiExamProgram {
   program_id: string;
   exam_name?: string | null;
   subject_name?: string | null;
+  subject_id?: string | null;
   description?: string | null;
   price: number | string;
   level: string;
   cover_image_url?: string | null;
   /** Every published tier's price, for a tier picker; empty if nothing is published. */
   tier_prices: ApiTierPrice[];
+}
+
+export interface ProgramListFilters {
+  search?: string;
+  subject_id?: string;
+  level?: string;
 }
 
 export interface ApiEnrolledProgram {
@@ -168,11 +175,20 @@ export const submitExamSession = async (
   return res.data.data;
 };
 
-/** Endpoint: GET /exams/programs (public catalogue). Waits for the token, as getCourses does. */
-export const getPrograms = async (): Promise<ApiExamProgram[]> => {
+/**
+ * Endpoint: GET /exams/programs (public catalogue). Waits for the token, as
+ * getCourses does. search/subject_id/level are all optional and
+ * independent -- omitting all three is the full unfiltered catalogue.
+ */
+export const getPrograms = async (filters: ProgramListFilters = {}): Promise<ApiExamProgram[]> => {
   await whenSessionReady();
+  const params = new URLSearchParams();
+  if (filters.search) params.set("search", filters.search);
+  if (filters.subject_id) params.set("subject_id", filters.subject_id);
+  if (filters.level) params.set("level", filters.level);
+  const qs = params.toString();
   const res = await apiClient.get<{data: {programs: ApiExamProgram[]}}>(
-    "/exams/programs",
+    `/exams/programs${qs ? `?${qs}` : ""}`,
   );
   return res.data.data.programs;
 };
