@@ -1,16 +1,16 @@
-import {useState, useEffect} from "react";
+"use client";
+
+import {useState, useEffect, useMemo} from "react";
 import {motion, AnimatePresence} from "framer-motion";
 import {Icon} from "@mcc/ui";
 import {Student} from "../types/types";
-
-interface ProgramItem {
-  id: string;
-  title: string;
-  subtitle: string;
-  levelIcon?: string;
-  image: string;
-  type: "course" | "exam";
-}
+import {
+  useActiveStudentPrograms,
+  useEnrollActiveStudent,
+  useUnenrollActiveStudent,
+} from "../hooks/useActiveStudents";
+import {useCourses} from "@/src/features/courses/hooks/useCourses";
+import {useExamPrograms} from "@/src/features/Exam-program/hooks/useExamPrograms";
 
 interface EnrollStudentModalProps {
   student: Student | null;
@@ -18,51 +18,13 @@ interface EnrollStudentModalProps {
   onClose: () => void;
 }
 
-const MOCK_AVAILABLE_PROGRAMS: ProgramItem[] = [
-  {
-    id: "c1",
-    title: "Pilates Teacher Training Certification 20 CPD Points",
-    subtitle: "Moderate level.",
-    levelIcon: "ph:pie-chart-duotone",
-    image:
-      "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=100&q=80",
-    type: "course",
-  },
-  {
-    id: "c2",
-    title: "Pilates Teacher Training Certification 20 CPD Points",
-    subtitle: "Advanced level.",
-    levelIcon: "ph:record-fill",
-    image:
-      "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=100&q=80",
-    type: "course",
-  },
-  {
-    id: "c3",
-    title: "Fashion Design & its business",
-    subtitle: "Beginner level.",
-    levelIcon: "ph:clock-duotone",
-    image:
-      "https://images.unsplash.com/photo-1537832816519-689ad163238b?w=100&q=80",
-    type: "course",
-  },
-  {
-    id: "e1",
-    title: "West African Examination Council - WAEC",
-    subtitle: "English, Maths, Physics & 3 more...",
-    image:
-      "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=100&q=80",
-    type: "exam",
-  },
-  {
-    id: "e2",
-    title: "West African Examination Council - WAEC",
-    subtitle: "English, Maths, Physics & 3 more...",
-    image:
-      "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=100&q=80",
-    type: "exam",
-  },
-];
+interface AvailableItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  image: string | null;
+  type: "course" | "exam";
+}
 
 export default function EnrollStudentModal({
   student,
@@ -73,17 +35,15 @@ export default function EnrollStudentModal({
   const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
-  // Track enrolled items
-  const [enrolledCourses, setEnrolledCourses] = useState<ProgramItem[]>([
-    MOCK_AVAILABLE_PROGRAMS[0],
-    MOCK_AVAILABLE_PROGRAMS[0],
-  ]);
-
-  const [enrolledExams, setEnrolledExams] = useState<ProgramItem[]>([
-    MOCK_AVAILABLE_PROGRAMS[3],
-    MOCK_AVAILABLE_PROGRAMS[4],
-  ]);
+  const {programPerformance} = useActiveStudentPrograms(
+    isOpen ? student?.id : undefined,
+  );
+  const {courses} = useCourses({status: "published", limit: 100});
+  const {programs: examPrograms} = useExamPrograms({status: "published", limit: 100});
+  const enrollMutation = useEnrollActiveStudent();
+  const unenrollMutation = useUnenrollActiveStudent();
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -95,33 +55,55 @@ export default function EnrollStudentModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
+  // Courses have a real cover image; exam programs don't return one at all
+  // (ApiExamProgramSummary has no cover_image_url field), so their rows
+  // fall back to an icon placeholder instead of a fabricated stock photo.
+  const courseImageById = useMemo(
+    () => new Map(courses.map((c) => [c.id, c.upload?.coverImageUrl ?? null])),
+    [courses],
+  );
+
   if (!isOpen || !student) return null;
 
-  const handleUnenrollCourse = (indexToRemove: number) => {
-    setEnrolledCourses((prev) =>
-      prev.filter((_, idx) => idx !== indexToRemove),
+  const enrolledCourses = programPerformance.filter((p) => p.program_type === "course");
+  const enrolledExams = programPerformance.filter((p) => p.program_type === "exam");
+  const activeEnrolled = activeTab === "courses" ? enrolledCourses : enrolledExams;
+  const enrolledIds = new Set(programPerformance.map((p) => p.program_id));
+
+  const availableCourses: AvailableItem[] = courses.map((c) => ({
+    id: c.id,
+    title: c.courseName,
+    subtitle: c.level ? `${c.level} level.` : "",
+    image: c.upload?.coverImageUrl ?? null,
+    type: "course",
+  }));
+  const availableExams: AvailableItem[] = examPrograms.map((p) => ({
+    id: p.id,
+    title: p.title,
+    subtitle: p.tags.filter(Boolean).join(", "),
+    image: null,
+    type: "exam",
+  }));
+
+  const availableItems = (activeTab === "courses" ? availableCourses : availableExams)
+    .filter((item) => !enrolledIds.has(item.id))
+    .filter((item) => item.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  const handleEnroll = (item: AvailableItem) => {
+    setPendingId(item.id);
+    enrollMutation.mutate(
+      {userId: student.id, programId: item.id, programType: item.type},
+      {onSettled: () => setPendingId(null)},
     );
   };
 
-  const handleUnenrollExam = (indexToRemove: number) => {
-    setEnrolledExams((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  const handleUnenroll = (programId: string, programType: "course" | "exam") => {
+    setPendingId(programId);
+    unenrollMutation.mutate(
+      {userId: student.id, programId, programType},
+      {onSettled: () => setPendingId(null)},
+    );
   };
-
-  const handleEnrollItem = (item: ProgramItem) => {
-    if (item.type === "course") {
-      setEnrolledCourses((prev) => [...prev, item]);
-    } else {
-      setEnrolledExams((prev) => [...prev, item]);
-    }
-  };
-
-  const activeList = activeTab === "courses" ? enrolledCourses : enrolledExams;
-
-  const availableItems = MOCK_AVAILABLE_PROGRAMS.filter(
-    (item) => item.type === (activeTab === "courses" ? "course" : "exam"),
-  ).filter((item) =>
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
 
   return (
     <AnimatePresence>
@@ -171,14 +153,6 @@ export default function EnrollStudentModal({
                     className="w-18 h-18 rounded-full border-2 border-white/80 object-cover bg-purple-200"
                   />
                 </div>
-
-                <button
-                  type="button"
-                  className="relative z-10 mt-2 text-white/90 text-xs font-medium flex items-center gap-1.5 hover:text-white transition"
-                >
-                  <Icon icon="lucide:refresh-cw" size={12} />
-                  <span>Replace photo</span>
-                </button>
               </div>
 
               <div className="space-y-3">
@@ -273,49 +247,72 @@ export default function EnrollStudentModal({
                 </div>
 
                 <div className="space-y-3">
-                  {activeList.map((item, index) => (
-                    <div
-                      key={`${item.id}-${index}`}
-                      className="flex items-center justify-between gap-3 text-xs"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="h-10 w-10 rounded-lg object-cover flex-shrink-0"
-                        />
-                        <div className="truncate">
-                          <h4 className="font-semibold text-gray-800 truncate">
-                            {item.title}
-                          </h4>
-                          <p className="flex items-center gap-1 text-gray-400 text-[11px]">
-                            {item.levelIcon && (
+                  {activeEnrolled.length === 0 && (
+                    <p className="text-xs text-gray-400">
+                      Not enrolled in any {activeTab === "courses" ? "courses" : "exam programs"} yet.
+                    </p>
+                  )}
+                  {activeEnrolled.map((item) => {
+                    const image =
+                      item.program_type === "course"
+                        ? courseImageById.get(item.program_id) ?? null
+                        : null;
+                    return (
+                      <div
+                        key={item.program_id}
+                        className="flex items-center justify-between gap-3 text-xs"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          {image ? (
+                            <img
+                              src={image}
+                              alt={item.program_name}
+                              className="h-10 w-10 rounded-lg object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="h-10 w-10 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
                               <Icon
-                                icon={item.levelIcon}
-                                size={12}
+                                icon={
+                                  item.program_type === "course"
+                                    ? "ph:book-open-duotone"
+                                    : "ph:exam-duotone"
+                                }
+                                size={18}
                                 className="text-purple-500"
                               />
+                            </div>
+                          )}
+                          <div className="truncate">
+                            <h4 className="font-semibold text-gray-800 truncate">
+                              {item.program_name}
+                            </h4>
+                            {item.level && (
+                              <p className="text-gray-400 text-[11px]">{item.level} level</p>
                             )}
-                            <span>{item.subtitle}</span>
-                          </p>
+                          </div>
                         </div>
-                      </div>
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          activeTab === "courses"
-                            ? handleUnenrollCourse(index)
-                            : handleUnenrollExam(index)
-                        }
-                        className="flex items-center gap-1 text-red-500 font-medium hover:text-red-600 transition flex-shrink-0"
-                      >
-                        <span>Unenroll</span>
-                        <Icon icon="lucide:x" size={14} />
-                      </button>
-                    </div>
-                  ))}
+                        <button
+                          type="button"
+                          disabled={pendingId === item.program_id}
+                          onClick={() => handleUnenroll(item.program_id, item.program_type)}
+                          className="flex items-center gap-1 text-red-500 font-medium hover:text-red-600 transition flex-shrink-0 disabled:opacity-50"
+                        >
+                          <span>
+                            {pendingId === item.program_id ? "Unenrolling…" : "Unenroll"}
+                          </span>
+                          <Icon icon="lucide:x" size={14} />
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
+
+                {(enrollMutation.isError || unenrollMutation.isError) && (
+                  <p className="text-xs text-red-500">
+                    That didn&apos;t go through. Please try again.
+                  </p>
+                )}
 
                 <div className="relative pt-2">
                   {!isSearchOpen ? (
@@ -361,11 +358,25 @@ export default function EnrollStudentModal({
                               className="flex items-center justify-between gap-2 text-xs"
                             >
                               <div className="flex items-center gap-2.5 min-w-0">
-                                <img
-                                  src={item.image}
-                                  alt={item.title}
-                                  className="h-9 w-9 rounded-lg object-cover flex-shrink-0"
-                                />
+                                {item.image ? (
+                                  <img
+                                    src={item.image}
+                                    alt={item.title}
+                                    className="h-9 w-9 rounded-lg object-cover flex-shrink-0"
+                                  />
+                                ) : (
+                                  <div className="h-9 w-9 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
+                                    <Icon
+                                      icon={
+                                        item.type === "course"
+                                          ? "ph:book-open-duotone"
+                                          : "ph:exam-duotone"
+                                      }
+                                      size={16}
+                                      className="text-purple-500"
+                                    />
+                                  </div>
+                                )}
                                 <div className="truncate">
                                   <h5 className="font-semibold text-gray-800 text-[11px] truncate">
                                     {item.title}
@@ -378,10 +389,13 @@ export default function EnrollStudentModal({
 
                               <button
                                 type="button"
-                                onClick={() => handleEnrollItem(item)}
-                                className="flex items-center gap-1 text-gray-600 font-medium hover:text-purple-600 transition flex-shrink-0"
+                                disabled={pendingId === item.id}
+                                onClick={() => handleEnroll(item)}
+                                className="flex items-center gap-1 text-gray-600 font-medium hover:text-purple-600 transition flex-shrink-0 disabled:opacity-50"
                               >
-                                <span>Enroll</span>
+                                <span>
+                                  {pendingId === item.id ? "Enrolling…" : "Enroll"}
+                                </span>
                                 <Icon icon="lucide:plus-circle" size={14} />
                               </button>
                             </div>
@@ -414,13 +428,10 @@ export default function EnrollStudentModal({
             <div className="pt-6">
               <button
                 type="button"
-                className={`w-full py-3 px-4 font-medium text-xs rounded-full transition duration-200 ${
-                  isSearchOpen || activeList.length > 0
-                    ? "bg-purple-600 text-white shadow-md hover:bg-purple-700"
-                    : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                }`}
+                onClick={onClose}
+                className="w-full py-3 px-4 font-medium text-xs rounded-full transition duration-200 bg-purple-600 text-white shadow-md hover:bg-purple-700"
               >
-                Update Enrollment
+                Done
               </button>
             </div>
           </motion.section>
