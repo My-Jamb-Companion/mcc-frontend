@@ -5,6 +5,7 @@ import {FormInputs} from "@mcc/features";
 import {useState} from "react";
 import CreateStudentModal from "./CreateStudent";
 import ViewProspectiveStudent from "./ViewProspectiveStudent";
+import SendMessage from "@/src/features/Teachers/components/SendMessage";
 import Image from "next/image";
 import {ProspectiveStudent} from "../types/types";
 import {
@@ -22,6 +23,7 @@ export default function ProspectiveStudents() {
   const [rejectStudent, setRejectStudent] = useState(false);
   const [assignCra, setAssignCra] = useState(false);
   const [selectedCraId, setSelectedCraId] = useState("");
+  const [messageStudent, setMessageStudent] = useState(false);
   const rejectStudentMutation = useRejectProspectiveStudent();
   const assignCraMutation = useAssignCraToProspectiveStudent();
   const {cras, isLoading: crasLoading} = useCras();
@@ -38,6 +40,10 @@ export default function ProspectiveStudents() {
     setStudent(student);
     setSelectedCraId("");
     setAssignCra(true);
+  };
+  const handleMessageStudent = (student: ProspectiveStudent) => {
+    setStudent(student);
+    setMessageStudent(true);
   };
   return (
     <section className="flex flex-col gap-6 h-full">
@@ -92,6 +98,7 @@ export default function ProspectiveStudents() {
           onOpenProfile={handleOpenProfile}
           onRejectStudent={handleRejectStudent}
           onAssignCra={handleAssignCra}
+          onMessageStudent={handleMessageStudent}
         />
 
         <CreateStudentModal
@@ -106,6 +113,15 @@ export default function ProspectiveStudents() {
             setStudent(null);
           }}
           onRejectStudent={handleRejectStudent}
+        />
+
+        <SendMessage
+          open={messageStudent}
+          initialRecipient={
+            student ? {id: student.id, name: student.name} : undefined
+          }
+          onClose={() => setMessageStudent(false)}
+          onSend={() => setMessageStudent(false)}
         />
 
         <Modal open={rejectStudent} onClose={() => setRejectStudent(false)}>

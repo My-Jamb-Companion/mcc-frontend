@@ -108,14 +108,39 @@ export default function SendMessage({
   open,
   onClose,
   onSend,
+  initialRecipient,
 }: {
   open: boolean;
   onClose?: () => void;
   onSend?: (payload: {teacher: Teacher; message: string}) => void;
+  /** Skips the recipient-search step and addresses the message to this
+   * recipient directly -- used when the compose action already comes from
+   * a specific row (e.g. a student's "Message" button) rather than a
+   * generic "send to anyone" entry point. */
+  initialRecipient?: Teacher;
 }) {
-  const [step, setStep] = useState<1 | 2>(1);
-  const [teacher, setTeacher] = useState<Teacher | null>(null);
+  const [step, setStep] = useState<1 | 2>(initialRecipient ? 2 : 1);
+  const [teacher, setTeacher] = useState<Teacher | null>(
+    initialRecipient ?? null,
+  );
   const [message, setMessage] = useState("");
+
+  // Re-address the modal when it reopens for a different recipient (or the
+  // generic compose flow). Adjusting state during render, rather than in an
+  // effect, per https://react.dev/learn/you-might-not-need-an-effect --
+  // this stays mounted across opens, so its state would otherwise carry
+  // over from whichever recipient was last selected.
+  const [openedFor, setOpenedFor] = useState<{
+    open: boolean;
+    recipientId?: string;
+  }>({open, recipientId: initialRecipient?.id});
+  if (open !== openedFor.open || initialRecipient?.id !== openedFor.recipientId) {
+    setOpenedFor({open, recipientId: initialRecipient?.id});
+    if (open) {
+      setTeacher(initialRecipient ?? null);
+      setStep(initialRecipient ? 2 : 1);
+    }
+  }
 
   const sendMutation = useMutation({
     mutationFn: (payload: {recipientId: string; body: string}) =>
@@ -169,30 +194,32 @@ export default function SendMessage({
         </div>
 
         <div className="mt-4 bg-gray-50 rounded-2xl p-4">
-          <div className="flex items-center justify-between mb-4">
-            {step === 2 ? (
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="text-gray-500 hover:text-gray-800 transition-colors"
-                aria-label="Back"
-              >
-                <Icon icon="mdi:arrow-left" size={18} />
-              </button>
-            ) : (
-              <span />
-            )}
+          {!initialRecipient && (
+            <div className="flex items-center justify-between mb-4">
+              {step === 2 ? (
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="text-gray-500 hover:text-gray-800 transition-colors"
+                  aria-label="Back"
+                >
+                  <Icon icon="mdi:arrow-left" size={18} />
+                </button>
+              ) : (
+                <span />
+              )}
 
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400">Step {step} of 2</span>
-              <div className="w-24 h-1.5 rounded-full bg-gray-200 overflow-hidden">
-                <div
-                  className="h-full bg-violet-600 rounded-full transition-all duration-300"
-                  style={{width: step === 1 ? "50%" : "100%"}}
-                />
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400">Step {step} of 2</span>
+                <div className="w-24 h-1.5 rounded-full bg-gray-200 overflow-hidden">
+                  <div
+                    className="h-full bg-violet-600 rounded-full transition-all duration-300"
+                    style={{width: step === 1 ? "50%" : "100%"}}
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {step === 1 ? (
             <div>
