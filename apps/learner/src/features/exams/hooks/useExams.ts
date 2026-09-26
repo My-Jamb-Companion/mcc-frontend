@@ -3,6 +3,7 @@ import {
   getEnrolledPrograms,
   getPrograms,
   getProgramContent,
+  ProgramListFilters,
   registerForProgram,
   startMockExam,
   startModuleSession,
@@ -10,10 +11,13 @@ import {
   updateProgramProgress,
 } from "../services/exam.service";
 
-export const usePrograms = () => {
+/** The public catalogue, GET /exams/programs -- optionally filtered by
+ * search/subject_id/level. Each distinct filter combination is its own
+ * query-cache entry, matching useCourses' pattern. */
+export const usePrograms = (filters: ProgramListFilters = {}) => {
   const query = useQuery({
-    queryKey: ["exam-programs"],
-    queryFn: getPrograms,
+    queryKey: ["exam-programs", filters],
+    queryFn: () => getPrograms(filters),
   });
 
   return {...query, programs: query.data ?? []};

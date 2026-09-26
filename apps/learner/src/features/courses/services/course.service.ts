@@ -12,8 +12,17 @@ export interface ApiCourse {
   description?: string | null;
   cover_image_url?: string | null;
   price: number | string;
+  level: string;
+  category_id?: string | null;
+  category_name?: string | null;
   /** Every published tier's price, for a tier picker; empty if nothing is published. */
   tier_prices: ApiTierPrice[];
+}
+
+export interface CourseListFilters {
+  search?: string;
+  category_id?: string;
+  level?: string;
 }
 
 export interface ApiEnrolledCourse {
@@ -52,10 +61,17 @@ export interface ApiCourseContentRow {
  *
  * Prices are this student's city tier price, so the request waits for the
  * session's token rather than going out as a visitor's on a fresh page load.
+ * search/category_id/level are all optional and independent -- omitting
+ * all three is the full unfiltered catalogue, same as calling with no args.
  */
-export const getCourses = async (): Promise<ApiCourse[]> => {
+export const getCourses = async (filters: CourseListFilters = {}): Promise<ApiCourse[]> => {
   await whenSessionReady();
-  const res = await apiClient.get<{data: {courses: ApiCourse[]}}>("/courses/");
+  const params = new URLSearchParams();
+  if (filters.search) params.set("search", filters.search);
+  if (filters.category_id) params.set("category_id", filters.category_id);
+  if (filters.level) params.set("level", filters.level);
+  const qs = params.toString();
+  const res = await apiClient.get<{data: {courses: ApiCourse[]}}>(`/courses/${qs ? `?${qs}` : ""}`);
   return res.data.data.courses;
 };
 
