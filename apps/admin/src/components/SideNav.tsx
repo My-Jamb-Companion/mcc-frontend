@@ -4,13 +4,32 @@ import {AnimatePresence, Button, Icon, motion} from "@mcc/ui";
 import Image from "next/image";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 
 export default function SideNav() {
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set(["programs"]));
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
 
   const pathname = usePathname();
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (moreRef.current?.contains(e.target as Node)) return;
+      setMoreOpen(false);
+    }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setMoreOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [moreOpen]);
 
   const isDashboardRoute = pathname?.startsWith("/dashboard") ?? false;
 
@@ -63,21 +82,75 @@ export default function SideNav() {
           </div>
 
           <div className="flex flex-col items-center gap-4">
-            {navs.bottomNav.map((item, idx) => (
-              <Link
-                href={item.href}
-                key={idx}
-                className={`flex justify-center rounded-lg p-2.5 transition-all duration-300 ease-out cursor-pointer w-fit`}
-              >
-                {item.label === "profile" ? (
-                  <div className="relative rounded-full h-8 w-8 border border-muted/30">
-                    <Image src="" fill alt="profile-pic" />
+            {navs.bottomNav.map((item, idx) => {
+              if (item.expandable) {
+                const hasActiveChild = item.children?.some(
+                  (child) => pathname === child.href,
+                );
+
+                return (
+                  <div key={idx} ref={moreRef} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setMoreOpen((prev) => !prev)}
+                      aria-label={item.label}
+                      aria-expanded={moreOpen}
+                      className={`flex justify-center rounded-lg p-2.5 transition-all duration-300 ease-out cursor-pointer w-fit ${
+                        moreOpen || hasActiveChild ? "bg-white shadow-sm" : ""
+                      }`}
+                    >
+                      <Icon icon={item.icon} />
+                    </button>
+
+                    <AnimatePresence>
+                      {moreOpen && (
+                        <motion.div
+                          initial={{opacity: 0, y: 6}}
+                          animate={{opacity: 1, y: 0}}
+                          exit={{opacity: 0, y: 6}}
+                          transition={{duration: 0.15}}
+                          className="absolute bottom-0 left-full ml-2 w-44 rounded-xl border border-muted/20 bg-white shadow-lg py-1 z-50"
+                        >
+                          {item.children?.map((child) => {
+                            const isChildActive = pathname === child.href;
+                            return (
+                              <Link
+                                key={child.key}
+                                href={child.href}
+                                onClick={() => setMoreOpen(false)}
+                                className={`block px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors ${
+                                  isChildActive
+                                    ? "bg-black text-white"
+                                    : "text-gray-700 hover:bg-gray-100"
+                                }`}
+                              >
+                                {child.label}
+                              </Link>
+                            );
+                          })}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                ) : (
-                  <Icon icon={item.icon} />
-                )}
-              </Link>
-            ))}
+                );
+              }
+
+              return (
+                <Link
+                  href={item.href!}
+                  key={idx}
+                  className={`flex justify-center rounded-lg p-2.5 transition-all duration-300 ease-out cursor-pointer w-fit`}
+                >
+                  {item.label === "profile" ? (
+                    <div className="relative rounded-full h-8 w-8 border border-muted/30">
+                      <Image src="" fill alt="profile-pic" />
+                    </div>
+                  ) : (
+                    <Icon icon={item.icon} />
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -241,6 +314,14 @@ export default function SideNav() {
   );
 }
 
+interface NavIconItem {
+  icon: string;
+  label: string;
+  href?: string;
+  expandable?: boolean;
+  children?: {label: string; key: string; href: string}[];
+}
+
 const navs = {
   routenav: [
     {
@@ -259,8 +340,13 @@ const navs = {
   // Only routes that exist: Next prefetches every link in view, so a link to
   // a missing page 404s on every page load, in the console and the network log.
   bottomNav: [
-    {icon: "solar:settings-broken", label: "settings", href: "/settings"},
-  ],
+    {
+      icon: "solar:settings-broken",
+      label: "more",
+      expandable: true,
+      children: [{label: "Settings", key: "settings", href: "/settings"}],
+    },
+  ] as NavIconItem[],
   navAccordions: [
     {
       label: "Performance Overview",
@@ -308,6 +394,5 @@ const navs = {
         },
       ],
     },
-    // {label: "More", key: "more", expandable: true, children: []},
   ],
 };
