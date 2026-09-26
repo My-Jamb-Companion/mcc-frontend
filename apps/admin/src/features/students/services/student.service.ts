@@ -13,6 +13,20 @@ export interface ApiActiveStudent {
   location: string;
 }
 
+export interface ApiProgramPerformance {
+  program_id: string;
+  program_name: string;
+  program_type: "course" | "exam";
+  level: string;
+  average_performance: number;
+  total_points: number;
+}
+
+export interface ApiActiveStudentDetail {
+  user_id: string;
+  program_performance: ApiProgramPerformance[];
+}
+
 export interface ApiProspectiveStudent {
   user_id: string;
   full_name: string | null;
@@ -58,6 +72,51 @@ export const listActiveStudents = async (
  */
 export const disableActiveStudent = async (userId: string): Promise<void> => {
   await apiClient.post(`/admin/active-students/${userId}/disable`);
+};
+
+/**
+ * Fetches one active student's full detail, including per-program performance
+ * (used to build the "currently enrolled" list in EnrollStudentModal).
+ * Endpoint: GET /admin/active-students/{user_id}
+ */
+export const getActiveStudent = async (
+  userId: string,
+): Promise<ApiActiveStudentDetail> => {
+  const res = await apiClient.get<{data: ApiActiveStudentDetail}>(
+    `/admin/active-students/${userId}`,
+  );
+  return res.data.data;
+};
+
+/**
+ * Admin-comp enrollment into an additional course or exam program --
+ * always active and free, regardless of the program's real price.
+ * Endpoint: POST /admin/active-students/{user_id}/enroll
+ */
+export const enrollActiveStudent = async (
+  userId: string,
+  programId: string,
+  programType: "course" | "exam",
+): Promise<void> => {
+  await apiClient.post(`/admin/active-students/${userId}/enroll`, {
+    program_id: programId,
+    program_type: programType,
+  });
+};
+
+/**
+ * Cancels a student's enrollment/exam_access row for one program.
+ * Endpoint: POST /admin/active-students/{user_id}/unenroll
+ */
+export const unenrollActiveStudent = async (
+  userId: string,
+  programId: string,
+  programType: "course" | "exam",
+): Promise<void> => {
+  await apiClient.post(`/admin/active-students/${userId}/unenroll`, {
+    program_id: programId,
+    program_type: programType,
+  });
 };
 
 /**
