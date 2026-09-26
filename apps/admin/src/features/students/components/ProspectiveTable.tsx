@@ -10,9 +10,13 @@ import {
 import {Icon} from "@mcc/ui";
 import EnhancedTable from "@/src/components/Table";
 import {Method, ProspectiveStudent} from "../types/types";
-import {useProspectiveStudents} from "../hooks/useProspectiveStudents";
+import {
+  ProspectiveStudentsFilters,
+  useProspectiveStudents,
+} from "../hooks/useProspectiveStudents";
 
 interface ProspectiveStudentsTableProps {
+  filters?: ProspectiveStudentsFilters;
   onOpenProfile?: (student: ProspectiveStudent) => void;
   onOnboardStudent?: (student: ProspectiveStudent) => void;
   onMessageStudent?: (student: ProspectiveStudent) => void;
@@ -291,6 +295,7 @@ function ActionsCell({
 const columnHelper = createColumnHelper<ProspectiveStudent>();
 
 export default function ProspectiveStudentsTable({
+  filters,
   onOpenProfile,
   onOnboardStudent,
   onMessageStudent,
@@ -298,7 +303,7 @@ export default function ProspectiveStudentsTable({
   onRejectStudent,
 }: ProspectiveStudentsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const {students, isLoading} = useProspectiveStudents();
+  const {students, isLoading} = useProspectiveStudents(filters);
 
   const columns = useMemo(
     () => [

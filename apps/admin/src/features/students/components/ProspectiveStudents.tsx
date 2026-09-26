@@ -13,10 +13,19 @@ import {
   useCras,
   useRejectProspectiveStudent,
 } from "../hooks/useProspectiveStudents";
+import {useDebouncedValue} from "../hooks/useDebouncedValue";
+
+const SIGNUP_METHOD_OPTIONS = [
+  {value: "email", label: "Email"},
+  {value: "google", label: "Google"},
+  {value: "facebook", label: "Facebook"},
+  {value: "whatsapp", label: "WhatsApp"},
+];
 
 export default function ProspectiveStudents() {
-  const [program, setProgram] = useState("");
+  const [method, setMethod] = useState("");
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search);
   const [createStudent, setCreateStudent] = useState(false);
   const [student, setStudent] = useState<ProspectiveStudent | null>(null);
   const [viewStudent, setViewStudent] = useState(false);
@@ -66,19 +75,11 @@ export default function ProspectiveStudents() {
           <div className="flex items-center gap-3">
             <FormInputs
               type="select"
-              placeholder="Select method"
-              icon="ri:book-shelf-line"
-              options={[
-                {value: "free_class", label: "Free Class"},
-                {value: "ielts", label: "IELTS"},
-                {value: "jamb", label: "JAMB"},
-                {value: "waec", label: "WAEC"},
-                {value: "toefl", label: "TOEFL"},
-                {value: "pmp", label: "PMP"},
-                {value: "pim", label: "PIM"},
-              ]}
-              value={program}
-              onChange={setProgram}
+              placeholder="Signup method"
+              icon="ri:login-circle-line"
+              options={SIGNUP_METHOD_OPTIONS}
+              value={method}
+              onChange={setMethod}
               selectRadius="full"
               selectClassName="py-1.5! text-nowrap gap-2"
             />
@@ -95,6 +96,7 @@ export default function ProspectiveStudents() {
           </div>
         </div>
         <ProspectiveTable
+          filters={{search: debouncedSearch || undefined, method: method || undefined}}
           onOpenProfile={handleOpenProfile}
           onRejectStudent={handleRejectStudent}
           onAssignCra={handleAssignCra}

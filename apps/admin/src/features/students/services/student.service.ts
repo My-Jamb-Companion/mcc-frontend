@@ -43,7 +43,12 @@ interface ListParams {
  * Endpoint: GET /admin/active-students
  */
 export const listActiveStudents = async (
-  params?: ListParams & {program?: string; location?: string},
+  params?: ListParams & {
+    program?: string;
+    location?: string;
+    date_from?: string;
+    date_to?: string;
+  },
 ): Promise<ApiActiveStudent[]> => {
   const res = await apiClient.get<{
     data: {students: ApiActiveStudent[]; total: number};

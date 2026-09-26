@@ -7,16 +7,27 @@ import {
 import {fromApiProspectiveStudent} from "../helper/student.mapper";
 import {listUsers} from "@/src/features/Settings/services/users.service";
 
+export interface ProspectiveStudentsFilters {
+  search?: string;
+  /** Signup method -- matches users.auth_provider (email/google/facebook/whatsapp). */
+  method?: string;
+}
+
 /**
  * Lists prospective students from the live backend
  * (GET /admin/prospective-students), adapted into the local
- * ProspectiveStudent shape ProspectiveTable already renders.
+ * ProspectiveStudent shape ProspectiveTable already renders. Filters are
+ * part of the query key so changing one is a real new request, not
+ * client-side filtering of an already-fetched page.
  */
-export const useProspectiveStudents = () => {
+export const useProspectiveStudents = (filters: ProspectiveStudentsFilters = {}) => {
   const query = useQuery({
-    queryKey: ["prospective-students"],
+    queryKey: ["prospective-students", filters],
     queryFn: () =>
-      listProspectiveStudents().then((rows) => rows.map(fromApiProspectiveStudent)),
+      listProspectiveStudents({
+        search: filters.search || undefined,
+        method: filters.method || undefined,
+      }).then((rows) => rows.map(fromApiProspectiveStudent)),
   });
 
   return {...query, students: query.data ?? []};
