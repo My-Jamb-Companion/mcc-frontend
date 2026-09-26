@@ -7,6 +7,7 @@ import {useState} from "react";
 import ViewActiveStudent from "./ViewActiveStudent";
 import CreateStudentModal from "./CreateStudent";
 import EnrollStudentModal from "./EnrollStudent";
+import SendMessage from "@/src/features/Teachers/components/SendMessage";
 import {Student} from "../types/types";
 import Image from "next/image";
 import {useDisableActiveStudent} from "../hooks/useActiveStudents";
@@ -21,6 +22,7 @@ export default function ActiveStudents() {
   const [createStudent, setCreateStudent] = useState(false);
   const [enrollStudent, setEnrollStudent] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);
+  const [messageStudent, setMessageStudent] = useState(false);
   const disableStudent = useDisableActiveStudent();
 
   const handleOpenProfile = (student: Student) => {
@@ -28,10 +30,10 @@ export default function ActiveStudents() {
     setStudent(student);
   };
 
-  // const handleMessageStudent = (student: Student) => {
-  //   // Open message modal
-  //   console.log("Messaging:", student.email);
-  // };
+  const handleMessageStudent = (student: Student) => {
+    setStudent(student);
+    setMessageStudent(true);
+  };
 
   const handleDisableStudent = (student: Student) => {
     setConfirmDisable(true);
@@ -123,7 +125,7 @@ export default function ActiveStudents() {
         </div>
         <ActiveTable
           onOpenProfile={handleOpenProfile}
-          // onMessageStudent={handleMessageStudent}
+          onMessageStudent={handleMessageStudent}
           onDisableStudent={handleDisableStudent}
           onEnrollStudent={handleEnrollStudent}
         />
@@ -149,6 +151,15 @@ export default function ActiveStudents() {
           student={student}
           isOpen={enrollStudent}
           onClose={() => setEnrollStudent(false)}
+        />
+
+        <SendMessage
+          open={messageStudent}
+          initialRecipient={
+            student ? {id: student.id, name: student.name} : undefined
+          }
+          onClose={() => setMessageStudent(false)}
+          onSend={() => setMessageStudent(false)}
         />
 
         <Modal open={confirmDisable} onClose={() => setConfirmDisable(false)}>
