@@ -7,7 +7,11 @@ import CreateStudentModal from "./CreateStudent";
 import ViewProspectiveStudent from "./ViewProspectiveStudent";
 import Image from "next/image";
 import {ProspectiveStudent} from "../types/types";
-import {useRejectProspectiveStudent} from "../hooks/useProspectiveStudents";
+import {
+  useAssignCraToProspectiveStudent,
+  useCras,
+  useRejectProspectiveStudent,
+} from "../hooks/useProspectiveStudents";
 
 export default function ProspectiveStudents() {
   const [program, setProgram] = useState("");
@@ -16,7 +20,11 @@ export default function ProspectiveStudents() {
   const [student, setStudent] = useState<ProspectiveStudent | null>(null);
   const [viewStudent, setViewStudent] = useState(false);
   const [rejectStudent, setRejectStudent] = useState(false);
+  const [assignCra, setAssignCra] = useState(false);
+  const [selectedCraId, setSelectedCraId] = useState("");
   const rejectStudentMutation = useRejectProspectiveStudent();
+  const assignCraMutation = useAssignCraToProspectiveStudent();
+  const {cras, isLoading: crasLoading} = useCras();
 
   const handleOpenProfile = (student: ProspectiveStudent) => {
     setViewStudent(true);
@@ -25,6 +33,11 @@ export default function ProspectiveStudents() {
   const handleRejectStudent = (student: ProspectiveStudent) => {
     setStudent(student);
     setRejectStudent(true);
+  };
+  const handleAssignCra = (student: ProspectiveStudent) => {
+    setStudent(student);
+    setSelectedCraId("");
+    setAssignCra(true);
   };
   return (
     <section className="flex flex-col gap-6 h-full">
@@ -78,6 +91,7 @@ export default function ProspectiveStudents() {
         <ProspectiveTable
           onOpenProfile={handleOpenProfile}
           onRejectStudent={handleRejectStudent}
+          onAssignCra={handleAssignCra}
         />
 
         <CreateStudentModal
@@ -190,6 +204,76 @@ export default function ProspectiveStudents() {
                 variant="outline"
                 width="full"
                 onClick={() => setRejectStudent(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        <Modal
+          open={assignCra}
+          onClose={() => {
+            setAssignCra(false);
+            setStudent(null);
+          }}
+        >
+          <div className="flex flex-col gap-5">
+            <div>
+              <h2 className="text-2xl font-semibold">Assign CRA</h2>
+              <p className="text-sm text-muted pt-2">
+                Choose a Customer Relationship Associate to onboard{" "}
+                {student?.name}.
+              </p>
+            </div>
+
+            <FormInputs
+              type="select"
+              label="CRA"
+              placeholder={crasLoading ? "Loading CRAs…" : "Select a CRA"}
+              options={cras.map((cra) => ({
+                value: cra.user_id,
+                label: cra.full_name || cra.email,
+              }))}
+              value={selectedCraId}
+              onChange={setSelectedCraId}
+            />
+
+            {!crasLoading && cras.length === 0 && (
+              <p className="text-sm text-muted">
+                No active CRA accounts found.
+              </p>
+            )}
+
+            {assignCraMutation.isError && (
+              <p className="text-sm text-red-500">
+                Failed to assign CRA. Please try again.
+              </p>
+            )}
+
+            <div className="inline-flex items-center gap-3 w-full">
+              <Button
+                width="full"
+                disabled={!selectedCraId || assignCraMutation.isPending}
+                onClick={() => {
+                  if (!student || !selectedCraId) return;
+                  assignCraMutation.mutate(
+                    {userId: student.id, craId: selectedCraId},
+                    {
+                      onSuccess: () => {
+                        setAssignCra(false);
+                        setStudent(null);
+                      },
+                    },
+                  );
+                }}
+              >
+                {assignCraMutation.isPending ? "Assigning…" : "Assign CRA"}
+              </Button>
+              <Button
+                variant="outline"
+                width="full"
+                onClick={() => setAssignCra(false)}
               >
                 Cancel
               </Button>

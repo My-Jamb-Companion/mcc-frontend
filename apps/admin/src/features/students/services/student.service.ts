@@ -86,3 +86,16 @@ export const rejectProspectiveStudent = async (
     reason,
   });
 };
+
+/**
+ * Assigns a prospective student to a CRA (Customer Relationship Associate).
+ * Endpoint: POST /admin/prospective-students/{user_id}/assign-cra
+ */
+export const assignCraToProspectiveStudent = async (
+  userId: string,
+  craId: string,
+): Promise<void> => {
+  await apiClient.post(`/admin/prospective-students/${userId}/assign-cra`, {
+    cra_id: craId,
+  });
+};

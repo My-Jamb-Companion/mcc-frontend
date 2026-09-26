@@ -3,7 +3,7 @@ import {apiClient} from "@mcc/api";
 export interface ApiUser {
   user_id: string;
   email: string;
-  role: "student" | "teacher" | "admin" | "parent";
+  role: "student" | "teacher" | "admin" | "parent" | "cra";
   is_active: boolean;
   email_verified: boolean;
   auth_provider: string;
