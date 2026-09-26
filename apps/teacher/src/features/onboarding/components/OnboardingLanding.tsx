@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "@mcc/features";
 import { Button, Icon } from "@mcc/ui";
 import {
   getCompletionFromStorage,
@@ -33,6 +34,8 @@ export function OnboardingLanding({ onStart }: { onStart: () => void }) {
   // available on the server, and reading it synchronously here would make
   // the client's first render diverge from the server-rendered shell -- the
   // same hydration-mismatch class fixed in (onboarding)/layout.tsx.
+  const { user } = useAuth();
+  const userId = user?.user_id;
   const [status, setStatus] = useState<OnboardingStatus>("not_started");
   const [completion, setCompletion] = useState<OnboardingCompletion | null>(null);
   const [checked, setChecked] = useState(false);
@@ -41,12 +44,12 @@ export function OnboardingLanding({ onStart }: { onStart: () => void }) {
     // Deliberately deferred, not derived during render: reading localStorage
     // synchronously here would reintroduce the hydration mismatch this
     // pattern exists to avoid (see the comment above).
-    const currentStatus = getOnboardingStatus();
+    const currentStatus = getOnboardingStatus(userId);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setStatus(currentStatus);
-    setCompletion(currentStatus === "completed" ? getCompletionFromStorage() : null);
+    setCompletion(currentStatus === "completed" ? getCompletionFromStorage(userId) : null);
     setChecked(true);
-  }, []);
+  }, [userId]);
 
   if (!checked) return null;
 

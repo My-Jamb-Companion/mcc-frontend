@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FormProvider, useForm } from "@mcc/features";
+import { FormProvider, useAuth, useForm } from "@mcc/features";
 import { Button, Icon, LoadingCircle } from "@mcc/ui";
 import { formSteps } from "../constants/formSteps";
 import { extractDefaults } from "../constants/extract";
@@ -50,19 +50,24 @@ function OnboardingInner({ preview }: { preview: boolean }) {
     previewComplete,
   } = useOnboardingContext();
 
+  const { user } = useAuth();
+  const userId = user?.user_id;
+
   const methods = useForm<FormValues>({
     defaultValues: {
       ...extractDefaults(formSteps),
-      ...(getDraftFromStorage(preview)?.values ?? {}),
+      ...(getDraftFromStorage(preview, userId)?.values ?? {}),
     },
     mode: "onChange",
   });
 
   useEffect(() => {
-    const subscription = methods.watch((values) => saveDraftToStorage(step, values, preview));
+    const subscription = methods.watch((values) =>
+      saveDraftToStorage(step, values, preview, userId),
+    );
     return () => subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, preview]);
+  }, [step, preview, userId]);
 
   // Persist the step number immediately on navigation too -- the watch
   // subscription above only fires on a *field value* change, so moving to
@@ -70,9 +75,9 @@ function OnboardingInner({ preview }: { preview: boolean }) {
   // otherwise never flush the new step index to storage until some other
   // field changed, and a refresh would silently drop the user back a step.
   useEffect(() => {
-    saveDraftToStorage(step, methods.getValues(), preview);
+    saveDraftToStorage(step, methods.getValues(), preview, userId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, preview]);
+  }, [step, preview, userId]);
 
   if (previewComplete) {
     return <PreviewComplete />;

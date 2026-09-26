@@ -9,6 +9,7 @@ import {
   ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@mcc/features";
 import { showSuccess, showError } from "@mcc/ui";
 import { extractApiError } from "@mcc/api";
 import { formSteps } from "../constants/formSteps";
@@ -41,7 +42,9 @@ export function OnboardingProvider({
   children: ReactNode;
   preview?: boolean;
 }) {
-  const [step, setStep] = useState(() => getDraftFromStorage(preview)?.step ?? 0);
+  const { user } = useAuth();
+  const userId = user?.user_id;
+  const [step, setStep] = useState(() => getDraftFromStorage(preview, userId)?.step ?? 0);
   const [previewComplete, setPreviewComplete] = useState(false);
   const filesRef = useRef<Record<string, File | null>>({});
 
@@ -68,15 +71,15 @@ export function OnboardingProvider({
       // sent to the backend here, matching PreviewComplete's own copy
       // ("Nothing here was saved").
       if (preview) {
-        clearDraftFromStorage(preview);
+        clearDraftFromStorage(preview, userId);
         setPreviewComplete(true);
         return;
       }
 
       completeMutation.mutate({ data, files: filesRef.current }, {
         onSuccess: () => {
-          clearDraftFromStorage(preview);
-          saveCompletionToStorage(data);
+          clearDraftFromStorage(preview, userId);
+          saveCompletionToStorage(data, userId);
           showSuccess(
             "Your teacher profile is complete! We'll notify you once everything is verified.",
           );
@@ -85,7 +88,7 @@ export function OnboardingProvider({
         onError: (error) => showError(extractApiError(error, "Couldn't complete onboarding")),
       });
     },
-    [completeMutation, router, preview],
+    [completeMutation, router, preview, userId],
   );
 
   return (
