@@ -3,6 +3,7 @@ import {Icon, motion, AnimatePresence} from "@mcc/ui";
 import {useLessonsDuration, useModuleProgress} from "@/src/features/learnings/hooks/useLesson";
 import {Lesson, LessonKind, Module, lessonKind} from "@/src/features/learnings/helper/content.mapper";
 import BookmarkButton from "@/src/features/bookmarks/BookmarkButton";
+import DownloadButton from "../DownloadButton";
 
 interface CourseModulesProps {
   modules: Module[];
@@ -154,6 +155,7 @@ function ModuleAccordion({
                         />
                       )}
                     </motion.button>
+                    <DownloadButton url={lesson.videoUrl} filename={lesson.title} />
                     <BookmarkButton contentType="course_lecture" contentId={lesson.id} />
                   </div>
                 );

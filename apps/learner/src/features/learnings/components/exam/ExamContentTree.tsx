@@ -3,6 +3,7 @@ import {useState} from "react";
 import {Icon} from "@mcc/ui";
 import {ApiExamModule, ApiExamSubTopic, ApiExamTopic} from "@/src/features/exams/services/exam.service";
 import BookmarkButton from "@/src/features/bookmarks/BookmarkButton";
+import DownloadButton from "../DownloadButton";
 
 export type ActiveNode =
   | {kind: "lecture"; lectureId: string}
@@ -167,6 +168,7 @@ function ModuleAccordion({
                     <Icon icon="ci:check" size={14} className="ml-auto shrink-0 text-primary" />
                   )}
                 </button>
+                <DownloadButton url={lecture.video_url} filename={lecture.title} />
                 <BookmarkButton contentType="exam_lecture" contentId={lecture.lecture_id} />
               </div>
             );
