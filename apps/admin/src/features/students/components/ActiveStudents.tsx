@@ -10,7 +10,11 @@ import EnrollStudentModal from "./EnrollStudent";
 import SendMessage from "@/src/features/Teachers/components/SendMessage";
 import {Student} from "../types/types";
 import Image from "next/image";
-import {useDisableActiveStudent} from "../hooks/useActiveStudents";
+import {
+  useAssignCraToActiveStudent,
+  useDisableActiveStudent,
+} from "../hooks/useActiveStudents";
+import {useCras} from "../hooks/useProspectiveStudents";
 import {useDebouncedValue} from "../hooks/useDebouncedValue";
 import {useCourses} from "@/src/features/courses/hooks/useCourses";
 import {useExamPrograms} from "@/src/features/Exam-program/hooks/useExamPrograms";
@@ -67,7 +71,11 @@ export default function ActiveStudents() {
   const [enrollStudent, setEnrollStudent] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);
   const [messageStudent, setMessageStudent] = useState(false);
+  const [assignCra, setAssignCra] = useState(false);
+  const [selectedCraId, setSelectedCraId] = useState("");
   const disableStudent = useDisableActiveStudent();
+  const assignCraMutation = useAssignCraToActiveStudent();
+  const {cras, isLoading: crasLoading} = useCras();
 
   const handleOpenProfile = (student: Student) => {
     setViewStudent(true);
@@ -87,6 +95,12 @@ export default function ActiveStudents() {
   const handleEnrollStudent = (student: Student) => {
     setStudent(student);
     setEnrollStudent(true);
+  };
+
+  const handleAssignCra = (student: Student) => {
+    setStudent(student);
+    setSelectedCraId(student.assignedCraId || "");
+    setAssignCra(true);
   };
   return (
     <section className="flex flex-col gap-6 h-full">
@@ -172,6 +186,7 @@ export default function ActiveStudents() {
           onMessageStudent={handleMessageStudent}
           onDisableStudent={handleDisableStudent}
           onEnrollStudent={handleEnrollStudent}
+          onAssignCra={handleAssignCra}
         />
       </div>
 
@@ -205,6 +220,97 @@ export default function ActiveStudents() {
           onClose={() => setMessageStudent(false)}
           onSend={() => setMessageStudent(false)}
         />
+
+        <Modal
+          open={assignCra}
+          onClose={() => {
+            setAssignCra(false);
+            setStudent(null);
+          }}
+        >
+          <div className="flex flex-col gap-5">
+            <div>
+              <h2 className="text-2xl font-semibold">
+                {student?.assignedCraName ? "Reassign CRA" : "Assign CRA"}
+              </h2>
+              <p className="text-sm text-muted pt-2">
+                {student?.assignedCraName ? (
+                  <>
+                    {student.name} is currently assigned to{" "}
+                    <span className="font-medium text-foreground">
+                      {student.assignedCraName}
+                    </span>
+                    . Choose a new CRA to reassign them.
+                  </>
+                ) : (
+                  <>
+                    Choose a Customer Relationship Associate for {student?.name}.
+                  </>
+                )}
+              </p>
+            </div>
+
+            <FormInputs
+              type="select"
+              label="CRA"
+              placeholder={crasLoading ? "Loading CRAs…" : "Select a CRA"}
+              options={cras.map((cra) => ({
+                value: cra.user_id,
+                label: cra.full_name || cra.email,
+              }))}
+              value={selectedCraId}
+              onChange={setSelectedCraId}
+            />
+
+            {!crasLoading && cras.length === 0 && (
+              <p className="text-sm text-muted">
+                No active CRA accounts found.
+              </p>
+            )}
+
+            {assignCraMutation.isError && (
+              <p className="text-sm text-red-500">
+                Failed to assign CRA. Please try again.
+              </p>
+            )}
+
+            <div className="inline-flex items-center gap-3 w-full">
+              <Button
+                width="full"
+                disabled={
+                  !selectedCraId ||
+                  selectedCraId === student?.assignedCraId ||
+                  assignCraMutation.isPending
+                }
+                onClick={() => {
+                  if (!student || !selectedCraId) return;
+                  assignCraMutation.mutate(
+                    {userId: student.id, craId: selectedCraId},
+                    {
+                      onSuccess: () => {
+                        setAssignCra(false);
+                        setStudent(null);
+                      },
+                    },
+                  );
+                }}
+              >
+                {assignCraMutation.isPending
+                  ? "Saving…"
+                  : student?.assignedCraName
+                    ? "Reassign CRA"
+                    : "Assign CRA"}
+              </Button>
+              <Button
+                variant="outline"
+                width="full"
+                onClick={() => setAssignCra(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </Modal>
 
         <Modal open={confirmDisable} onClose={() => setConfirmDisable(false)}>
           <div className="flex flex-col ">

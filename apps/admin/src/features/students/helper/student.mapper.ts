@@ -38,6 +38,8 @@ export function fromApiActiveStudent(api: ApiActiveStudent): Student {
     dateOnboardedTime: formatTime(api.date_onboarded),
     rank: api.leaderboard_position ?? 0,
     location: api.location,
+    assignedCraId: api.assigned_cra_id ?? null,
+    assignedCraName: api.assigned_cra_name ?? null,
   };
 }
 
