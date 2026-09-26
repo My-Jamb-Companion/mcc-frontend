@@ -11,12 +11,56 @@ import SendMessage from "@/src/features/Teachers/components/SendMessage";
 import {Student} from "../types/types";
 import Image from "next/image";
 import {useDisableActiveStudent} from "../hooks/useActiveStudents";
+import {useDebouncedValue} from "../hooks/useDebouncedValue";
+import {useCourses} from "@/src/features/courses/hooks/useCourses";
+import {useExamPrograms} from "@/src/features/Exam-program/hooks/useExamPrograms";
+
+type DatePreset = "" | "today" | "yesterday" | "week" | "month" | "year";
+
+/** Local calendar date as YYYY-MM-DD, not UTC-shifted like toISOString(). */
+const isoDate = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+/**
+ * date_to is exclusive (see backend/app/features/admin/students/active/repository.py),
+ * so every preset's upper bound is "the day after" the range's last included day.
+ */
+function dateRangeFor(preset: DatePreset): {dateFrom?: string; dateTo?: string} {
+  if (!preset) return {};
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const addDays = (n: number) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() + n);
+    return d;
+  };
+  switch (preset) {
+    case "today":
+      return {dateFrom: isoDate(today), dateTo: isoDate(addDays(1))};
+    case "yesterday":
+      return {dateFrom: isoDate(addDays(-1)), dateTo: isoDate(today)};
+    case "week":
+      return {dateFrom: isoDate(addDays(-7)), dateTo: isoDate(addDays(1))};
+    case "month":
+      return {dateFrom: isoDate(addDays(-30)), dateTo: isoDate(addDays(1))};
+    case "year":
+      return {dateFrom: isoDate(addDays(-365)), dateTo: isoDate(addDays(1))};
+  }
+}
 
 export default function ActiveStudents() {
   const [program, setProgram] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState<DatePreset>("");
   const [location, setLocation] = useState("");
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search);
+  const {courses} = useCourses({limit: 100});
+  const {programs: examPrograms} = useExamPrograms({limit: 100});
+  const programOptions = [
+    ...courses.map((c) => ({value: c.id, label: c.courseName})),
+    ...examPrograms.map((p) => ({value: p.id, label: p.title})),
+  ];
+  const {dateFrom, dateTo} = dateRangeFor(date);
   const [student, setStudent] = useState<Student | null>(null);
   const [viewStudent, setViewStudent] = useState(false);
   const [createStudent, setCreateStudent] = useState(false);
@@ -67,14 +111,7 @@ export default function ActiveStudents() {
               type="select"
               placeholder="Select program"
               icon="ri:book-shelf-line"
-              options={[
-                {value: "ielts", label: "IELTS"},
-                {value: "jamb", label: "JAMB"},
-                {value: "waec", label: "WAEC"},
-                {value: "toefl", label: "TOEFL"},
-                {value: "pmp", label: "PMP"},
-                {value: "pim", label: "PIM"},
-              ]}
+              options={programOptions}
               value={program}
               onChange={setProgram}
               selectRadius="full"
@@ -92,7 +129,7 @@ export default function ActiveStudents() {
                 {value: "year", label: "This Year"},
               ]}
               value={date}
-              onChange={setDate}
+              onChange={(value: string) => setDate(value as DatePreset)}
               selectRadius="full"
               selectClassName="py-1.5! text-nowrap gap-2"
             />
@@ -124,6 +161,13 @@ export default function ActiveStudents() {
           </div>
         </div>
         <ActiveTable
+          filters={{
+            search: debouncedSearch || undefined,
+            location: location || undefined,
+            program: program || undefined,
+            dateFrom,
+            dateTo,
+          }}
           onOpenProfile={handleOpenProfile}
           onMessageStudent={handleMessageStudent}
           onDisableStudent={handleDisableStudent}

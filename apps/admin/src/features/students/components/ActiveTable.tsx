@@ -10,9 +10,13 @@ import {
 import {Icon} from "@mcc/ui";
 import EnhancedTable from "@/src/components/Table";
 import {LeaderboardTier, Student} from "../types/types";
-import {useActiveStudents} from "../hooks/useActiveStudents";
+import {
+  ActiveStudentsFilters,
+  useActiveStudents,
+} from "../hooks/useActiveStudents";
 
 interface ActiveTableProps {
+  filters?: ActiveStudentsFilters;
   onOpenProfile?: (student: Student) => void;
   onMessageStudent?: (student: Student) => void;
   onDisableStudent?: (student: Student) => void;
@@ -438,6 +442,7 @@ function ActionsCell({
 const columnHelper = createColumnHelper<Student>();
 
 export default function ActiveTable({
+  filters,
   onOpenProfile,
   onEnrollStudent,
   onMessageStudent,
@@ -445,7 +450,7 @@ export default function ActiveTable({
   onDisableStudent,
 }: ActiveTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const {students, isLoading} = useActiveStudents();
+  const {students, isLoading} = useActiveStudents(filters);
 
   const columns = useMemo(
     () => [
