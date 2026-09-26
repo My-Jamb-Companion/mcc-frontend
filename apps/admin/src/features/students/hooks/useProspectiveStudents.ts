@@ -1,9 +1,11 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
+  assignCraToProspectiveStudent,
   listProspectiveStudents,
   rejectProspectiveStudent,
 } from "../services/student.service";
 import {fromApiProspectiveStudent} from "../helper/student.mapper";
+import {listUsers} from "@/src/features/Settings/services/users.service";
 
 /**
  * Lists prospective students from the live backend
@@ -26,6 +28,28 @@ export const useRejectProspectiveStudent = () => {
   return useMutation({
     mutationFn: ({userId, reason}: {userId: string; reason?: string}) =>
       rejectProspectiveStudent(userId, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["prospective-students"]});
+    },
+  });
+};
+
+/** Active CRAs to populate the "Assign CRA" picker -- GET /admin/users?role=cra. */
+export const useCras = () => {
+  const query = useQuery({
+    queryKey: ["users", {role: "cra", is_active: "true"}],
+    queryFn: () => listUsers({role: "cra", is_active: "true"}),
+  });
+
+  return {...query, cras: query.data ?? []};
+};
+
+export const useAssignCraToProspectiveStudent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({userId, craId}: {userId: string; craId: string}) =>
+      assignCraToProspectiveStudent(userId, craId),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ["prospective-students"]});
     },
