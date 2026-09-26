@@ -1,5 +1,6 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
+  assignCraToActiveStudent,
   disableActiveStudent,
   enrollActiveStudent,
   getActiveStudent,
@@ -36,6 +37,19 @@ export const useActiveStudents = (filters: ActiveStudentsFilters = {}) => {
   });
 
   return {...query, students: query.data ?? []};
+};
+
+export const useAssignCraToActiveStudent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({userId, craId}: {userId: string; craId: string}) =>
+      assignCraToActiveStudent(userId, craId),
+    onSuccess: (_data, {userId}) => {
+      queryClient.invalidateQueries({queryKey: ["active-student", userId]});
+      queryClient.invalidateQueries({queryKey: ["active-students"]});
+    },
+  });
 };
 
 export const useDisableActiveStudent = () => {

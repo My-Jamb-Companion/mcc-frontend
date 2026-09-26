@@ -11,6 +11,8 @@ export interface ApiActiveStudent {
   date_onboarded?: string | null;
   leaderboard_position?: number | null;
   location: string;
+  assigned_cra_id?: string | null;
+  assigned_cra_name?: string | null;
 }
 
 export interface ApiProgramPerformance {
@@ -121,6 +123,22 @@ export const unenrollActiveStudent = async (
   await apiClient.post(`/admin/active-students/${userId}/unenroll`, {
     program_id: programId,
     program_type: programType,
+  });
+};
+
+/**
+ * Assigns or changes the CRA (Customer Relationship Associate) for an
+ * already-onboarded student. Distinct from assignCraToProspectiveStudent --
+ * see backend app/features/admin/students/prospective/repository.py::reassign_cra
+ * for why the prospective-students endpoint cannot be reused here.
+ * Endpoint: POST /admin/active-students/{user_id}/assign-cra
+ */
+export const assignCraToActiveStudent = async (
+  userId: string,
+  craId: string,
+): Promise<void> => {
+  await apiClient.post(`/admin/active-students/${userId}/assign-cra`, {
+    cra_id: craId,
   });
 };
 

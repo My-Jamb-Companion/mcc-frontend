@@ -21,6 +21,8 @@ export interface Student {
   dateOnboardedTime?: string;
   rank: number;
   location: string;
+  assignedCraId?: string | null;
+  assignedCraName?: string | null;
 }
 export interface ProspectiveStudent {
   id: string;
