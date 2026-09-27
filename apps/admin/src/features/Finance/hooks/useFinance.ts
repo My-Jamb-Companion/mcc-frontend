@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   approvePayout,
+  getMonthlyFlow,
+  getProgramRevenue,
+  getRecentPayments,
   listPayments,
   listPayouts,
   refundPayment,
@@ -42,3 +45,21 @@ export const useRefundPayment = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "payments"] }),
   });
 };
+
+export const useMonthlyFlow = (months = 12) =>
+  useQuery({
+    queryKey: ["admin", "finance", "monthly-flow", months],
+    queryFn: () => getMonthlyFlow(months),
+  });
+
+export const useProgramRevenue = (limit = 10) =>
+  useQuery({
+    queryKey: ["admin", "finance", "programs", limit],
+    queryFn: () => getProgramRevenue(limit),
+  });
+
+export const useRecentPayments = (limit = 20) =>
+  useQuery({
+    queryKey: ["admin", "finance", "payments", limit],
+    queryFn: () => getRecentPayments(limit),
+  });

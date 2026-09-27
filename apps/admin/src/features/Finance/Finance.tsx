@@ -15,6 +15,17 @@ import {useState} from "react";
 import StudentFinanceViewModal from "./StudentFinanceViewModal";
 import ProgramFinanceViewModal from "./ProgramFinanceViewModal";
 import {PayoutsAndRefunds} from "./PayoutsAndRefunds";
+import {
+  useMonthlyFlow,
+  useProgramRevenue,
+  useRecentPayments,
+} from "./hooks/useFinance";
+import {
+  fromApiMonthlyFlow,
+  fromApiProgramRevenueToOverview,
+  fromApiProgramRevenueToPerformance,
+  fromApiRecentPayments,
+} from "./helper/finance.mapper";
 
 export default function Finance() {
   const [viewStudent, setViewStudent] = useState<StudentOverviewItem | null>(
@@ -23,6 +34,23 @@ export default function Finance() {
   const [viewPrograms, setViewPrograms] = useState<ProgramOverviewItem | null>(
     null,
   );
+
+  const {data: monthlyFlow, isLoading: monthlyFlowLoading} = useMonthlyFlow(12);
+  const {data: programRevenue, isLoading: programRevenueLoading} =
+    useProgramRevenue(10);
+  const {data: recentPayments} = useRecentPayments(20);
+
+  const monthlyFlowData = monthlyFlow ? fromApiMonthlyFlow(monthlyFlow) : [];
+  const programOverviewData = programRevenue
+    ? fromApiProgramRevenueToOverview(programRevenue)
+    : [];
+  const programPerformanceData = programRevenue
+    ? fromApiProgramRevenueToPerformance(programRevenue)
+    : [];
+  const studentOverviewData = recentPayments
+    ? fromApiRecentPayments(recentPayments)
+    : [];
+
   return (
     <section>
       <div className="mb-6 flex justify-end gap-2">
@@ -43,36 +71,14 @@ export default function Finance() {
       </div>
       <FinancialOverview />
       <div className="grid grid-cols-2 gap-4 py-6">
-        <IncomeandPayoutschart data={monthlyFlowData} currencySymbol="₦" />
-        <PerformanceByProgramsChart
-          //   isLoading={isPending}
+        <IncomeandPayoutschart
+          data={monthlyFlowLoading ? [] : monthlyFlowData}
           currencySymbol="₦"
-          data={[
-            {id: "1", label: "Maths", sublabel: "UTME", value: 20_810_000},
-            {id: "2", label: "English", sublabel: "WAEC", value: 12_220_000},
-            {id: "3", label: "Biology", sublabel: "UTME", value: 9_370_000},
-            {
-              id: "4",
-              label: "Pilates Teacher Training Certi...",
-              sublabel: "Pilates",
-              value: 10_220_000,
-              iconUrl: "/avatars/trainer1.jpg",
-            },
-            {
-              id: "6",
-              label: "Pilates Teacher Training Certi...",
-              sublabel: "Pilates",
-              value: 12_220_000,
-              iconUrl: "/avatars/trainer1.jpg",
-            },
-            {
-              id: "5",
-              label: "Pilates Teacher Training Certif...",
-              sublabel: "Acrobatics",
-              value: 9_920_000,
-              iconUrl: "/avatars/trainer2.jpg",
-            },
-          ]}
+        />
+        <PerformanceByProgramsChart
+          isLoading={programRevenueLoading}
+          currencySymbol="₦"
+          data={programPerformanceData}
         />
       </div>
       <div className="py-2">
@@ -81,6 +87,8 @@ export default function Finance() {
 
       <div className="flex gap-4">
         <FinanceProgramOverviewTable
+          studentData={studentOverviewData}
+          programData={programOverviewData}
           setViewStudent={setViewStudent}
           setViewPrograms={setViewPrograms}
         />
@@ -111,18 +119,3 @@ export default function Finance() {
     </section>
   );
 }
-
-const monthlyFlowData = [
-  {month: "Jan", income: 18_400_000, payout: 24_100_000},
-  {month: "Feb", income: 16_900_000, payout: 22_600_000},
-  {month: "Mar", income: 12_300_000, payout: 21_800_000},
-  {month: "Apr", income: 20_800_000, payout: 32_500_000},
-  {month: "May", income: 15_700_000, payout: 26_400_000},
-  {month: "Jun", income: 19_600_000, payout: 25_900_000},
-  {month: "Jul", income: 16_500_000, payout: 26_700_000},
-  {month: "Aug", income: 21_200_000, payout: 27_100_000},
-  {month: "Sep", income: 14_800_000, payout: 21_500_000},
-  {month: "Oct", income: 14_500_000, payout: 21_200_000},
-  {month: "Nov", income: 14_900_000, payout: 21_800_000},
-  {month: "Dec", income: 18_800_000, payout: 23_600_000},
-];
