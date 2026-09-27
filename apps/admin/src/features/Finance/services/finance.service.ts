@@ -66,3 +66,59 @@ export const refundPayment = async (txRef: string): Promise<ApiPaymentIntent> =>
   );
   return res.data.data;
 };
+
+export interface ApiMonthlyFlowItem {
+  month: string;
+  income: number | string;
+  payout: number | string;
+}
+
+export interface ApiProgramRevenueItem {
+  program_id: string;
+  program_type: "course" | "exam";
+  title: string;
+  subtitle: string | null;
+  icon_url: string | null;
+  enrollment_count: number;
+  revenue_gross: number | string;
+  revenue_net: number | string;
+}
+
+export interface ApiRecentPaymentItem {
+  tx_ref: string;
+  student_name: string;
+  student_email: string;
+  avatar_url: string | null;
+  program_title: string;
+  program_subtitle: string | null;
+  program_icon_url: string | null;
+  amount: number | string;
+  completed_at: string | null;
+}
+
+/** Endpoint: GET /admin/finance/monthly-flow */
+export const getMonthlyFlow = async (months = 12): Promise<ApiMonthlyFlowItem[]> => {
+  const res = await apiClient.get<{ data: { items: ApiMonthlyFlowItem[] } }>(
+    "/admin/finance/monthly-flow",
+    { params: { months } },
+  );
+  return res.data.data.items;
+};
+
+/** Endpoint: GET /admin/finance/programs */
+export const getProgramRevenue = async (limit = 10): Promise<ApiProgramRevenueItem[]> => {
+  const res = await apiClient.get<{ data: { items: ApiProgramRevenueItem[] } }>(
+    "/admin/finance/programs",
+    { params: { limit } },
+  );
+  return res.data.data.items;
+};
+
+/** Endpoint: GET /admin/finance/payments */
+export const getRecentPayments = async (limit = 20): Promise<ApiRecentPaymentItem[]> => {
+  const res = await apiClient.get<{ data: { items: ApiRecentPaymentItem[] } }>(
+    "/admin/finance/payments",
+    { params: { limit } },
+  );
+  return res.data.data.items;
+};
