@@ -51,6 +51,8 @@ export interface ApiExamLecture {
   lecture_id: string;
   title: string;
   video_url: string | null;
+  /** Admin-authored lesson HTML. Mutually exclusive with video_url. */
+  content?: string | null;
   order_index: number;
 }
 

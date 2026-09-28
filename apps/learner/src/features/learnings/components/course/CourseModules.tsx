@@ -18,6 +18,7 @@ const kindIconMap: Record<LessonKind, {icon: string; className: string}> = {
   video: {icon: "solar:play-circle-bold", className: "text-primary"},
   youtube: {icon: "line-md:youtube", className: "text-red-500"},
   pdf: {icon: "ri:booklet-line", className: "text-primary"},
+  html: {icon: "lucide:align-left", className: "text-primary"},
 };
 
 export default function CoursePlayModules({

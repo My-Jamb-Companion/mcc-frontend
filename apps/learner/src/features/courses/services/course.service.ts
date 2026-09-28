@@ -54,6 +54,8 @@ export interface ApiCourseContentRow {
   thumbnail_url?: string | null;
   /** e.g. "MP4", "YOUTUBE", "PDF" -- as set by the admin course editor. */
   file_format?: string | null;
+  /** Admin-authored lesson HTML. Mutually exclusive with video_url. */
+  content?: string | null;
 }
 
 /**

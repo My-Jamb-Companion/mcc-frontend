@@ -7,6 +7,7 @@ import {Button, Icon, motion, AnimatePresence} from "@mcc/ui";
 import CoursePlayModules from "./CourseModules";
 import CoursePlayer from "./CoursePlayer";
 import BrainyCourseSidePanel from "./BrainyCourseSidePanel";
+import InteractiveLessonContent from "../InteractiveLessonContent";
 import CommunityTab from "./tabs/CommunityTab";
 import NotesTab from "./tabs/NotesTab";
 import FacilitatorTab from "./tabs/FacilitatorTab";
@@ -175,6 +176,12 @@ export default function CourseContent({
                 src={activeLesson.videoUrl ?? undefined}
                 className="aspect-video w-full rounded-2xl border border-muted/20"
               />
+            ) : kind === "html" ? (
+              <InteractiveLessonContent
+                html={activeLesson.content ?? ""}
+                lessonTitle={activeLesson.title}
+                onComplete={handleLessonEnded}
+              />
             ) : (
               <CoursePlayer
                 src={activeLesson.videoUrl ?? undefined}
@@ -193,14 +200,16 @@ export default function CourseContent({
                   <p className="text-sm text-muted">{formatDuration(activeLesson.duration)}</p>
                 )}
               </div>
-              <Button
-                variant={completedLessonIds.has(activeLesson.id) ? "outline" : "primary"}
-                width="fit"
-                onClick={() => markComplete(activeLesson.id)}
-                disabled={completedLessonIds.has(activeLesson.id)}
-              >
-                {completedLessonIds.has(activeLesson.id) ? "Completed" : "Mark as complete"}
-              </Button>
+              {kind !== "html" && (
+                <Button
+                  variant={completedLessonIds.has(activeLesson.id) ? "outline" : "primary"}
+                  width="fit"
+                  onClick={() => markComplete(activeLesson.id)}
+                  disabled={completedLessonIds.has(activeLesson.id)}
+                >
+                  {completedLessonIds.has(activeLesson.id) ? "Completed" : "Mark as complete"}
+                </Button>
+              )}
             </div>
           )}
 
