@@ -1,18 +1,22 @@
 "use client";
-// import FormInputs from "@/src/components/FormInput";
-import TabbedButton from "@/src/components/TabbedButton";
+
 import {Button, Icon} from "@mcc/ui";
 import {useState} from "react";
-import StudioTable, {studiodata} from "./StudioTable";
+import StudioTable from "./StudioTable";
+import ConversationDetailModal from "./ConversationDetailModal";
 import {FormInputs} from "@mcc/features";
 import Copilot from "./Copilot";
+import {useConversations} from "../hooks/useAiStudio";
+import {useDebouncedValue} from "@/src/features/students/hooks/useDebouncedValue";
+import {ApiConversationItem} from "../services/ai-studio.service";
 
 export default function StudioAnalysis() {
-  const [active, setActive] = useState<string>("student");
   const [search, setSearch] = useState("");
-  const [program, setProgram] = useState("");
-  const [date, setDate] = useState("");
-  const [quality, setQuality] = useState("");
+  const debouncedSearch = useDebouncedValue(search);
+  const [selected, setSelected] = useState<ApiConversationItem | null>(null);
+
+  const {data, isLoading} = useConversations(debouncedSearch);
+
   return (
     <section className="flex flex-col gap-6  h-full">
       <div className="flex items-center justify-between">
@@ -26,57 +30,13 @@ export default function StudioAnalysis() {
 
       <div className="flex flex-col h-full border border-muted/20 rounded-2xl px-6 py-8 ">
         <div className="flex items-center gap-3 justify-between">
-          <div className="flex items-center gap-3 ">
-            <TabbedButton
-              tabs={[
-                {key: "student", label: "Student"},
-                {key: "teachers", label: "Teachers"},
-              ]}
-              active={active}
-              onChange={setActive}
-            />
-
-            <FormInputs
-              type="select"
-              placeholder="Select program"
-              icon="ri:book-shelf-line"
-              options={[
-                {value: "jamb", label: "JAMB"},
-                {value: "waec", label: "WAEC"},
-              ]}
-              value={program}
-              onChange={setProgram}
-              selectRadius="full"
-              selectClassName="py-1.5! text-nowrap gap-2"
-            />
-            <FormInputs
-              type="date"
-              placeholder="Date"
-              icon="uil:calender"
-              value={date}
-              onChange={setDate}
-              selectRadius="sm"
-              selectClassName="py-1.5! text-nowrap gap-2 rounded-full!"
-            />
-            <FormInputs
-              type="select"
-              placeholder="Select quality"
-              icon="line-md:star"
-              options={[
-                {value: "excellent", label: "Excellent"},
-                {value: "average", label: "Average"},
-                {value: "poor", label: "Poor"},
-              ]}
-              value={quality}
-              onChange={setQuality}
-              selectRadius="full"
-              selectClassName="py-1.5! text-nowrap gap-2"
-            />
-          </div>
+          <h2 className="text-sm font-semibold text-subtle">
+            Brainy conversations
+          </h2>
 
           <div className="w-full max-w-[20%]">
             <FormInputs
-              placeholder="Search for conversation/program"
+              placeholder="Search for student or conversation"
               type="text"
               icon={<Icon icon="ri:search-line" size={18} />}
               value={search}
@@ -88,256 +48,17 @@ export default function StudioAnalysis() {
 
         <div className="flex-1 min-h-0 mt-3">
           <StudioTable
-            active={active}
-            data={active == "student" ? students : teachers}
+            data={data?.items ?? []}
+            isLoading={isLoading}
+            onRowClick={setSelected}
           />
         </div>
       </div>
+
+      <ConversationDetailModal
+        conversation={selected}
+        onClose={() => setSelected(null)}
+      />
     </section>
   );
 }
-
-const students: studiodata[] = [
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "excellent",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "excellent",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "excellent",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Bright Mba",
-    email: "bright@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "excellent",
-  },
-];
-const teachers: studiodata[] = [
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "poor",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "excellent",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "average",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "excellent",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "poor",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "excellent",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "average",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "excellent",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "poor",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "excellent",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "average",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "excellent",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "poor",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "excellent",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "average",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "excellent",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "poor",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "excellent",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "average",
-  },
-  {
-    id: 1,
-    avatar: "/avatar.png",
-    name: "Kelvin forester",
-    email: "foresterKev@gmail.com",
-    conversation: "Universal Tertiary Matriculation Exam...",
-    date: "05 Apr, 2026 | 8:30 PM",
-    tool: "Brainy AI",
-    quality: "excellent",
-  },
-];
