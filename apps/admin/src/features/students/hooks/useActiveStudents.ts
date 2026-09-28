@@ -63,14 +63,22 @@ export const useDisableActiveStudent = () => {
   });
 };
 
-/** One active student's per-program performance -- the enrolled programs
- * EnrollStudentModal renders as the "Enrollment List". */
-export const useActiveStudentPrograms = (userId: string | null | undefined) => {
-  const query = useQuery({
+/** One active student's full detail (GET /admin/active-students/{id}) --
+ * personal details, performance, upcoming sessions, program teachers, all
+ * in one query. Used by ViewActiveStudent for the profile panel and by
+ * EnrollStudentModal (via useActiveStudentPrograms below) for its
+ * "currently enrolled" list. */
+export const useActiveStudentDetail = (userId: string | null | undefined) =>
+  useQuery({
     queryKey: ["active-student", userId],
     queryFn: () => getActiveStudent(userId as string),
     enabled: !!userId,
   });
+
+/** One active student's per-program performance -- the enrolled programs
+ * EnrollStudentModal renders as the "Enrollment List". */
+export const useActiveStudentPrograms = (userId: string | null | undefined) => {
+  const query = useActiveStudentDetail(userId);
 
   return {...query, programPerformance: query.data?.program_performance ?? []};
 };

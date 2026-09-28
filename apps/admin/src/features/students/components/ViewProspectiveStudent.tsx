@@ -1,8 +1,12 @@
+"use client";
+
 import {AnimatePresence, Button, Icon, motion} from "@mcc/ui";
 
 import Image from "next/image";
 import {useEffect, useState} from "react";
-import {Method, PersonalDetailsProps, ProspectiveStudent} from "../types/types";
+import {Method, ProspectiveStudent} from "../types/types";
+import {useProspectiveStudentDetail} from "../hooks/useProspectiveStudents";
+import {ApiProspectiveStudent} from "../services/student.service";
 
 export default function ViewProspectiveStudent({
   isOpen,
@@ -24,6 +28,10 @@ export default function ViewProspectiveStudent({
     }
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [student, onClose]);
+
+  const {data: detail, isLoading} = useProspectiveStudentDetail(
+    isOpen ? student?.id : undefined,
+  );
 
   return (
     <AnimatePresence>
@@ -111,7 +119,9 @@ export default function ViewProspectiveStudent({
                         <p className="text-gray-400 text-xs">
                           Onboarding level
                         </p>
-                        <p className="text-white text-xs font-medium">94%</p>
+                        <p className="text-white text-xs font-medium">
+                          {isLoading ? "…" : `${detail?.onboarding_level ?? 0}%`}
+                        </p>
                       </div>
 
                       <div className="relative flex items-center justify-center h-3">
@@ -122,8 +132,9 @@ export default function ViewProspectiveStudent({
                           }}
                         >
                           <div
-                            className="absolute left-0 z-10 w-[78%] rounded-tr-xs rounded-br-xs bg-white h-full"
+                            className="absolute left-0 z-10 rounded-tr-xs rounded-br-xs bg-white h-full"
                             style={{
+                              width: `${detail?.onboarding_level ?? 0}%`,
                               transform: "skewX(1deg)",
                             }}
                           />
@@ -135,12 +146,12 @@ export default function ViewProspectiveStudent({
               </div>
 
               <div className="flex flex-col gap-8">
-                <PersonalDetails />
+                <PersonalDetails detail={detail} fallbackEmail={student.email} />
                 <div>
                   <h3 className="text-sm text-subtle font-semibold pb-4">
                     Program of choice
                   </h3>
-                  <ProgramCard method={student.method} />
+                  <ProgramCard method={student.method} zoomUrl={detail?.zoom_meeting_url} />
                 </div>
               </div>
             </div>
@@ -161,14 +172,17 @@ export default function ViewProspectiveStudent({
 }
 
 function PersonalDetails({
-  email = "bright@gmail.com",
-  phone = "+234 905 123 4567",
-  username = "mac",
-  location = "Lagos, NG",
-}: PersonalDetailsProps) {
+  detail,
+  fallbackEmail,
+}: {
+  detail: ApiProspectiveStudent | undefined;
+  fallbackEmail: string;
+}) {
   const [revealed, setRevealed] = useState(false);
-
-  const maskedPhone = "+234 905 *** ****";
+  const phone = detail?.phone;
+  const maskedPhone = phone
+    ? `${phone.slice(0, 7)}${"*".repeat(Math.max(phone.length - 7, 0))}`
+    : null;
 
   return (
     <div className="w-[80%]">
@@ -184,7 +198,7 @@ function PersonalDetails({
             className="text-gray-500 shrink-0"
           />
           <span className="text-sm font-medium text-gray-600 truncate">
-            {email}
+            {detail?.email ?? fallbackEmail}
           </span>
         </div>
 
@@ -195,29 +209,33 @@ function PersonalDetails({
             className="text-gray-500 shrink-0"
           />
           <span className="text-sm font-medium text-gray-600 whitespace-nowrap">
-            {revealed ? phone : maskedPhone}
+            {phone ? (revealed ? phone : maskedPhone) : "Not on file"}
           </span>
-          <button
-            onClick={() => setRevealed((prev) => !prev)}
-            className="ml-auto rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition-colors"
-          >
-            {revealed ? "Hide" : "Reveal"}
-          </button>
+          {phone && (
+            <button
+              onClick={() => setRevealed((prev) => !prev)}
+              className="ml-auto rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition-colors"
+            >
+              {revealed ? "Hide" : "Reveal"}
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
           <Icon
-            icon="lucide:user-check"
+            icon="lucide:graduation-cap"
             size={18}
             className="text-gray-500 shrink-0"
           />
-          <span className="text-sm font-medium text-gray-600">{username}</span>
+          <span className="text-sm font-medium text-gray-600">
+            {detail?.education_level || "—"}
+          </span>
         </div>
 
         <div className="flex items-center gap-3">
           <Icon icon="emojione:flag-for-nigeria" />
           <span className="text-sm font-semibold text-gray-800">
-            {location}
+            {detail?.location || "—"}
           </span>
         </div>
       </div>
@@ -225,79 +243,36 @@ function PersonalDetails({
   );
 }
 
-function ProgramCard({
-  logoUrl = "https://upload.wikimedia.org/wikipedia/commons/e/eb/JAMB_Logo.png",
-  instructorName = "Matthew James",
-  instructorAvatar = "https://i.pravatar.cc/100?img=33",
-  rating = 4.7,
-  reviewsCount = "5.2k",
-  method,
-}: ProgramCardProps) {
+function ProgramCard({method, zoomUrl}: {method: Method; zoomUrl?: string | null}) {
   return (
-    <div className="flex items-center gap-4 p-2 bg-white rounded-2xl max-w-2xl font-sans">
-      <div className="relative flex items-center justify-center w-28 h-28 rounded-2xl border border-gray-100 bg-gradient-to-br from-emerald-50/40 via-teal-50/20 to-gray-50/50 p-3 shrink-0 overflow-hidden shadow-xs">
-        <div
-          className="absolute inset-0 opacity-15 pointer-events-none"
-          style={{
-            backgroundImage: `radial-gradient(circle at center, #10b981 10%, transparent 70%)`,
-          }}
-        />
-        <img
-          src={logoUrl}
-          // alt={name}
-          className="w-full h-full object-contain relative z-10"
-        />
-      </div>
-
-      <div className="flex flex-col gap-1.5 min-w-0 flex-1">
-        <div className="flex items-center gap-4 text-xs text-gray-600">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <img
-              src={instructorAvatar}
-              alt={instructorName}
-              className="w-5 h-5 rounded-full object-cover shrink-0"
-            />
-            <span className="font-medium text-gray-700 truncate">
-              {instructorName}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1 shrink-0">
-            <Icon icon="ri:star-fill" size={14} className="text-gray-800" />
-            <span className="font-semibold text-gray-800">{rating}</span>
-            <span className="text-gray-400">({reviewsCount})</span>
-          </div>
+    <div className="flex items-center justify-between gap-4 p-4 bg-white rounded-2xl border border-gray-100 max-w-2xl font-sans">
+      {method.type == "badge" ? (
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+          <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+          {method.label}
+        </span>
+      ) : (
+        <div className="min-w-0">
+          <p className="text-lg font-bold text-gray-900 tracking-tight leading-snug line-clamp-1">
+            {method.title}
+          </p>
+          <p className="text-xs text-gray-500 truncate max-w-55">
+            {method.subtitle}
+          </p>
         </div>
+      )}
 
-        {method.type == "badge" ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-            <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
-            {method.label}
-          </span>
-        ) : (
-          <div className="flex items-center gap-2.5">
-            <div className="min-w-0">
-              <p className="text-lg font-bold text-gray-900 tracking-tight leading-snug line-clamp-1">
-                {method.title}
-              </p>
-              <p className="text-xs text-gray-500 truncate max-w-55">
-                {method.subtitle}
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
+      {zoomUrl && (
+        <a
+          href={zoomUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-2 rounded-full bg-[#111318] px-4 py-2 text-xs font-medium text-white hover:bg-gray-800 transition-colors shrink-0"
+        >
+          <Icon icon="lucide:video" size={15} />
+          Join Zoom
+        </a>
+      )}
     </div>
   );
-}
-
-interface ProgramCardProps {
-  logoUrl?: string;
-  instructorName?: string;
-  instructorAvatar?: string;
-  rating?: number;
-  reviewsCount?: string;
-  title?: string;
-  badgeLabel?: string;
-  method: Method;
 }
