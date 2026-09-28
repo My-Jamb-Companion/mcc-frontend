@@ -3,7 +3,6 @@ import {Icon, Modal, Button} from "@mcc/ui";
 import ProspectiveTable from "./ProspectiveTable";
 import {FormInputs} from "@mcc/features";
 import {useState} from "react";
-import CreateStudentModal from "./CreateStudent";
 import ViewProspectiveStudent from "./ViewProspectiveStudent";
 import SendMessage from "@/src/features/Teachers/components/SendMessage";
 import Image from "next/image";
@@ -26,7 +25,6 @@ export default function ProspectiveStudents() {
   const [method, setMethod] = useState("");
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search);
-  const [createStudent, setCreateStudent] = useState(false);
   const [student, setStudent] = useState<ProspectiveStudent | null>(null);
   const [viewStudent, setViewStudent] = useState(false);
   const [rejectStudent, setRejectStudent] = useState(false);
@@ -58,16 +56,6 @@ export default function ProspectiveStudents() {
     <section className="flex flex-col gap-6 h-full">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Prospective Students</h1>
-        <div className="relative">
-          <Button
-            width="fit"
-            className="p-2! pr-4!"
-            leftIcon={<Icon icon="line-md:plus" />}
-            onClick={() => setCreateStudent(true)}
-          >
-            <p>Create Student</p>
-          </Button>
-        </div>
       </div>
 
       <div className="flex flex-col h-full border border-muted/20 rounded-2xl px-6 py-8 ">
@@ -103,10 +91,6 @@ export default function ProspectiveStudents() {
           onMessageStudent={handleMessageStudent}
         />
 
-        <CreateStudentModal
-          isOpen={createStudent}
-          onClose={() => setCreateStudent(false)}
-        />
         <ViewProspectiveStudent
           isOpen={viewStudent}
           student={student}

@@ -5,7 +5,6 @@ import ActiveTable from "./ActiveTable";
 import {FormInputs} from "@mcc/features";
 import {useState} from "react";
 import ViewActiveStudent from "./ViewActiveStudent";
-import CreateStudentModal from "./CreateStudent";
 import EnrollStudentModal from "./EnrollStudent";
 import SendMessage from "@/src/features/Teachers/components/SendMessage";
 import {Student} from "../types/types";
@@ -67,7 +66,6 @@ export default function ActiveStudents() {
   const {dateFrom, dateTo} = dateRangeFor(date);
   const [student, setStudent] = useState<Student | null>(null);
   const [viewStudent, setViewStudent] = useState(false);
-  const [createStudent, setCreateStudent] = useState(false);
   const [enrollStudent, setEnrollStudent] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);
   const [messageStudent, setMessageStudent] = useState(false);
@@ -106,16 +104,6 @@ export default function ActiveStudents() {
     <section className="flex flex-col gap-6 h-full">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Active Students</h1>
-        <div className="relative">
-          <Button
-            width="fit"
-            className="p-2! pr-4!"
-            leftIcon={<Icon icon="line-md:plus" />}
-            onClick={() => setCreateStudent(true)}
-          >
-            <p>Create Student</p>
-          </Button>
-        </div>
       </div>
 
       <div className="flex flex-col h-full border border-muted/20 rounded-2xl px-6 py-8 ">
@@ -199,11 +187,6 @@ export default function ActiveStudents() {
             setViewStudent(false);
             setStudent(null);
           }}
-        />
-
-        <CreateStudentModal
-          isOpen={createStudent}
-          onClose={() => setCreateStudent(false)}
         />
 
         <EnrollStudentModal
