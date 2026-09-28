@@ -1,18 +1,21 @@
 import {useEffect, useRef, useState} from "react";
-import {Icon} from "@mcc/ui";
+import {Icon, Modal} from "@mcc/ui";
 import {InlineRename} from "./Step2";
 import {FileRow} from "@/src/features/courses/types/types";
 import {uploadMedia} from "@/src/features/courses/services/media.service";
 import {isYouTubeUrl} from "@/src/features/courses/helper/video";
+import LessonHtmlEditor from "@/src/components/LessonHtmlEditor";
 
 function uid() {
   return Math.random().toString(36).slice(2, 9);
 }
 
 const YOUTUBE_FORMAT = "YOUTUBE";
+const HTML_FORMAT = "HTML";
 
 function rowIcon(format: string): string {
   if (format === YOUTUBE_FORMAT) return "mdi:youtube";
+  if (format === HTML_FORMAT) return "lucide:align-left";
   if (format.toUpperCase() === "PDF") return "lucide:file-text";
   return "lucide:play";
 }
@@ -43,6 +46,7 @@ function FileRowItem({
   onRemove,
   onRename,
   onRetry,
+  onEditContent,
   index,
   onDragStart,
   onDragEnter,
@@ -54,12 +58,14 @@ function FileRowItem({
   onRemove?: (id: string) => void;
   onRename?: (id: string, newTitle: string) => void;
   onRetry?: (id: string) => void;
+  onEditContent?: (id: string) => void;
   index: number;
   onDragStart?: (e: React.DragEvent, index: number) => void;
   onDragEnter?: (e: React.DragEvent, index: number) => void;
   onDragEnd?: (e: React.DragEvent) => void;
   onDrop?: (e: React.DragEvent) => void;
 }) {
+  const isHtml = file.format === HTML_FORMAT;
   const uploading = file.progress !== undefined;
   const [isRenaming, setIsRenaming] = useState(false);
 
@@ -87,7 +93,7 @@ function FileRowItem({
         <Icon icon="lucide:grip-vertical" size={16} />
       </span>
       <span className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100">
-        {(file.previewUrl || file.src) && (
+        {(file.previewUrl || file.src || isHtml) && (
           <Icon icon={rowIcon(file.format)} size={16} className="text-gray-400" />
         )}
       </span>
@@ -109,8 +115,9 @@ function FileRowItem({
             {!uploading && (
               <button
                 type="button"
-                onClick={() => setIsRenaming(true)}
+                onClick={() => (isHtml ? onEditContent?.(file.id) : setIsRenaming(true))}
                 className="text-gray-400 hover:text-gray-600"
+                aria-label={isHtml ? "Edit content" : "Rename"}
               >
                 <Icon icon="lucide:pencil" size={12} />
               </button>
@@ -118,7 +125,11 @@ function FileRowItem({
           </div>
         )}
         <p className="text-xs text-gray-400">
-          {file.format === YOUTUBE_FORMAT ? "YouTube" : `${file.format} • ${file.size}`}
+          {file.format === YOUTUBE_FORMAT
+            ? "YouTube"
+            : isHtml
+              ? "Text lesson"
+              : `${file.format} • ${file.size}`}
           {file.duration
             ? ` • ${Math.floor(file.duration / 60)}m ${file.duration % 60}s`
             : ""}
@@ -310,6 +321,43 @@ export default function LessonsCreate({
     setAddingYoutube(false);
   }
 
+  const [contentEditorOpen, setContentEditorOpen] = useState(false);
+  const [editingContentId, setEditingContentId] = useState<string | null>(null);
+  const [draftContent, setDraftContent] = useState("");
+
+  function openNewContentEditor() {
+    setEditingContentId(null);
+    setDraftContent("");
+    setContentEditorOpen(true);
+  }
+
+  function openExistingContentEditor(id: string) {
+    const row = files.find((f) => f.id === id);
+    setEditingContentId(id);
+    setDraftContent(row?.content ?? "");
+    setContentEditorOpen(true);
+  }
+
+  function saveContentEditor() {
+    if (editingContentId) {
+      onFilesChange(
+        files.map((f) => (f.id === editingContentId ? {...f, content: draftContent} : f)),
+      );
+    } else {
+      onFilesChange([
+        ...files,
+        {
+          id: uid(),
+          title: "Lesson content",
+          format: HTML_FORMAT,
+          size: "",
+          content: draftContent,
+        },
+      ]);
+    }
+    setContentEditorOpen(false);
+  }
+
   const displayFiles = files.map((f) => ({
     ...f,
     progress:
@@ -327,6 +375,7 @@ export default function LessonsCreate({
           onRemove={(id) => onFilesChange(files.filter((x) => x.id !== id))}
           onRename={handleRenameFile}
           onRetry={retryUpload}
+          onEditContent={openExistingContentEditor}
           onDragStart={(_, idx) => setDragItemIndex(idx)}
           onDragEnter={(_, idx) => setDragOverItemIndex(idx)}
           onDragEnd={() => {
@@ -406,8 +455,43 @@ export default function LessonsCreate({
             <Icon icon="mdi:youtube" size={16} className="text-gray-400" />
             YouTube link
           </button>
+          <button
+            type="button"
+            onClick={openNewContentEditor}
+            className="flex shrink-0 items-center gap-2 rounded-xl border border-dashed border-gray-200 px-4 py-3.5 text-left text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors"
+          >
+            <Icon icon="lucide:align-left" size={16} className="text-gray-400" />
+            Write content
+          </button>
         </div>
       )}
+
+      <Modal
+        open={contentEditorOpen}
+        title={editingContentId ? "Edit lesson content" : "Write lesson content"}
+        maxWidth="max-w-2xl"
+      >
+        <div className="flex flex-col gap-4">
+          <LessonHtmlEditor value={draftContent} onChange={setDraftContent} />
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setContentEditorOpen(false)}
+              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={saveContentEditor}
+              disabled={!draftContent.trim()}
+              className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

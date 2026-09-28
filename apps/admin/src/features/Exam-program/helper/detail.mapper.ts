@@ -46,12 +46,13 @@ function toUiLecture(lecture: ApiExamModule["lectures"][number]): FileRow {
     id: lecture.lecture_id ?? uid(),
     title: lecture.title,
     // Not returned by this endpoint — the player only needs the URL.
-    format: "MP4",
+    format: lecture.content ? "HTML" : "MP4",
     size: lecture.file_size_bytes
       ? `${(lecture.file_size_bytes / (1024 * 1024)).toFixed(1)}mb`
       : "0mb",
     src: lecture.video_url,
     previewUrl: lecture.video_url,
+    content: lecture.content ?? undefined,
   };
 }
 

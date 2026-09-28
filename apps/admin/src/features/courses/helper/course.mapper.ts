@@ -53,6 +53,7 @@ export function serializeModulesPayload(topics: Topic[]): ApiModulePayload[] {
 
     const lectures: ApiLecturePayload[] = lessons.map((lesson) => ({
       title: lesson.title,
+      content: lesson.content || undefined,
       video_url: lesson.src || lesson.previewUrl || undefined,
       file_format: lesson.format || "MP4",
       file_size_bytes: lesson.fileSizeBytes ?? lesson.file?.size ?? undefined,
@@ -109,7 +110,7 @@ export function deserializeModulesPayload(
         id: uid(),
         type: "lesson" as const,
         title: lec.title,
-        format: lec.file_format || "MP4",
+        format: lec.content ? "HTML" : lec.file_format || "MP4",
         size: lec.file_size_bytes
           ? `${(lec.file_size_bytes / (1024 * 1024)).toFixed(1)}mb`
           : "0mb",
@@ -118,6 +119,7 @@ export function deserializeModulesPayload(
         previewUrl: lec.video_url,
         thumbnailUrl: lec.thumbnail_url,
         duration: lec.duration_seconds,
+        content: lec.content,
       }),
     );
 
