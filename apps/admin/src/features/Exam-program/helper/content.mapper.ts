@@ -18,6 +18,7 @@ export interface ApiQuestionPayload {
 
 export interface ApiLecturePayload {
   title: string;
+  content?: string;
   video_url?: string;
   file_size_bytes?: number;
 }
@@ -62,6 +63,7 @@ function toApiQuestion(q: CreatPracticeQuestionType): ApiQuestionPayload {
 function toApiLecture(file: FileRow): ApiLecturePayload {
   return {
     title: file.title,
+    content: file.content || undefined,
     // No dedicated media-upload flow is wired up for exam lectures yet, so
     // this falls back to the local blob preview URL — same stopgap used by
     // the courses feature's module mapper until real upload lands.

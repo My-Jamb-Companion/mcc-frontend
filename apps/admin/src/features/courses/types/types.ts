@@ -147,6 +147,9 @@ export type FileRow = {
   thumbnailUrl?: string;
   duration?: number;
   file?: File;
+  /** Admin-authored lesson HTML (format === "HTML"). Mutually exclusive
+   * with src/previewUrl -- a lesson is either media or text, never both. */
+  content?: string;
 };
 
 // Course structure strictly matching Step2 data models
@@ -229,6 +232,7 @@ export type CreatPracticeQuestionType = {
 // API PAYLOAD TYPES MATCHING BACKEND SCHEMA
 export interface ApiLecturePayload {
   title: string;
+  content?: string;
   video_url?: string;
   file_format?: string;
   file_size_bytes?: number;

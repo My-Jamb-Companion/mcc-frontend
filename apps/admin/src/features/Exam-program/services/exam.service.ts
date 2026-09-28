@@ -96,6 +96,7 @@ export interface ApiExamLecture {
   module_id: string;
   title: string;
   video_url: string;
+  content?: string | null;
   file_size_bytes: number;
   order_index: number;
   created_at: string;
