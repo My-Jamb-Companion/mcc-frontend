@@ -24,9 +24,50 @@ export interface ApiProgramPerformance {
   total_points: number;
 }
 
+export interface ApiUpcomingSession {
+  session_id: string;
+  title: string;
+  teacher_id: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  meeting_url?: string | null;
+  program_type?: string | null;
+  program_id?: string | null;
+}
+
+export interface ApiProgramTeacher {
+  teacher_id: string;
+  teacher_name: string;
+  subject: string;
+  email: string;
+}
+
 export interface ApiActiveStudentDetail {
   user_id: string;
+  full_name: string;
+  email: string;
+  phone?: string | null;
+  username?: string | null;
+  status: string;
+  location: string;
+  onboarding_progress: number;
+  onboarded_at?: string | null;
+  leaderboard_position?: number | null;
+  average_performance_per_course: number;
+  total_points: number;
+  total_points_all_time: number;
+  enrolled_program_id: string;
+  program_name: string;
+  program_level: string;
+  program_courses: string[];
+  date_joined: string;
+  date_onboarded?: string | null;
+  assigned_cra_id?: string | null;
+  assigned_cra_name?: string | null;
   program_performance: ApiProgramPerformance[];
+  badges: unknown[];
+  upcoming_sessions: ApiUpcomingSession[];
+  program_teachers: ApiProgramTeacher[];
 }
 
 export interface ApiProspectiveStudent {
@@ -34,6 +75,7 @@ export interface ApiProspectiveStudent {
   full_name: string | null;
   email: string;
   education_level?: string | null;
+  phone?: string | null;
   location?: string | null;
   status: string;
   avatar_url?: string | null;
@@ -154,6 +196,21 @@ export const listProspectiveStudents = async (
   }>("/admin/prospective-students", {params});
 
   return res.data.data.students;
+};
+
+/**
+ * Fetches one prospective student's full detail (same field set as the
+ * list row -- there is no separate enrichment for a prospective student,
+ * since they hold no enrollment/exam_access row to join against).
+ * Endpoint: GET /admin/prospective-students/{user_id}
+ */
+export const getProspectiveStudent = async (
+  userId: string,
+): Promise<ApiProspectiveStudent> => {
+  const res = await apiClient.get<{data: ApiProspectiveStudent}>(
+    `/admin/prospective-students/${userId}`,
+  );
+  return res.data.data;
 };
 
 /**

@@ -1,6 +1,7 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
   assignCraToProspectiveStudent,
+  getProspectiveStudent,
   listProspectiveStudents,
   rejectProspectiveStudent,
 } from "../services/student.service";
@@ -32,6 +33,16 @@ export const useProspectiveStudents = (filters: ProspectiveStudentsFilters = {})
 
   return {...query, students: query.data ?? []};
 };
+
+/** One prospective student's full detail (GET /admin/prospective-students/{id}) --
+ * used by ViewProspectiveStudent to show a real phone number, since the list
+ * endpoint's row shape doesn't carry it. */
+export const useProspectiveStudentDetail = (userId: string | null | undefined) =>
+  useQuery({
+    queryKey: ["prospective-student", userId],
+    queryFn: () => getProspectiveStudent(userId as string),
+    enabled: !!userId,
+  });
 
 export const useRejectProspectiveStudent = () => {
   const queryClient = useQueryClient();
