@@ -16,6 +16,9 @@ export interface Lesson {
   thumbnailUrl: string | null;
   /** "MP4", "YOUTUBE", "PDF", etc. Null/unrecognized falls back to the plain video player. */
   format: string | null;
+  /** Admin-authored lesson HTML. Mutually exclusive with videoUrl -- a
+   * lesson is either media or text, never both. */
+  content: string | null;
 }
 
 export interface Module {
@@ -24,9 +27,10 @@ export interface Module {
   lessons: Lesson[];
 }
 
-export type LessonKind = "video" | "youtube" | "pdf";
+export type LessonKind = "video" | "youtube" | "pdf" | "html";
 
 export function lessonKind(lesson: Lesson): LessonKind {
+  if (lesson.content) return "html";
   const format = lesson.format?.toUpperCase();
   if (format === "YOUTUBE" || youTubeEmbedUrl(lesson.videoUrl)) return "youtube";
   if (format === "PDF") return "pdf";
@@ -60,6 +64,7 @@ export function groupContentRows(rows: ApiCourseContentRow[]): Module[] {
       duration: row.duration_seconds ?? 0,
       thumbnailUrl: row.thumbnail_url ?? null,
       format: row.file_format ?? null,
+      content: row.content ?? null,
     });
   }
 

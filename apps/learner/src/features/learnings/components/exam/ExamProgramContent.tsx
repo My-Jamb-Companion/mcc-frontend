@@ -5,6 +5,7 @@ import {useSearchParams} from "next/navigation";
 import {Icon} from "@mcc/ui";
 import {youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import CoursePlayer from "../course/CoursePlayer";
+import InteractiveLessonContent from "../InteractiveLessonContent";
 import ExamContentTree, {ActiveNode} from "./ExamContentTree";
 import ExamQuiz from "./ExamQuiz";
 import {
@@ -171,6 +172,12 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
                 ? "This program has no content yet."
                 : "Pick a lecture, quiz, practice or test from the content list."}
             </div>
+          ) : activeLecture.content ? (
+            <InteractiveLessonContent
+              html={activeLecture.content}
+              lessonTitle={activeLecture.title}
+              onComplete={() => markLectureComplete(activeLecture.lecture_id)}
+            />
           ) : youTubeEmbedUrl(activeLecture.video_url) ? (
             <iframe
               src={youTubeEmbedUrl(activeLecture.video_url) ?? undefined}
@@ -188,18 +195,20 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
           {!session && activeLecture && (
             <div className="mt-4 flex items-center justify-between px-1">
               <p className="text-lg font-semibold">{activeLecture.title}</p>
-              <button
-                type="button"
-                onClick={() => markLectureComplete(activeLecture.lecture_id)}
-                disabled={completedLectureIds.has(activeLecture.lecture_id)}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                  completedLectureIds.has(activeLecture.lecture_id)
-                    ? "border border-muted/20 text-subtle"
-                    : "bg-primary text-white"
-                }`}
-              >
-                {completedLectureIds.has(activeLecture.lecture_id) ? "Completed" : "Mark as complete"}
-              </button>
+              {!activeLecture.content && (
+                <button
+                  type="button"
+                  onClick={() => markLectureComplete(activeLecture.lecture_id)}
+                  disabled={completedLectureIds.has(activeLecture.lecture_id)}
+                  className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                    completedLectureIds.has(activeLecture.lecture_id)
+                      ? "border border-muted/20 text-subtle"
+                      : "bg-primary text-white"
+                  }`}
+                >
+                  {completedLectureIds.has(activeLecture.lecture_id) ? "Completed" : "Mark as complete"}
+                </button>
+              )}
             </div>
           )}
         </div>
