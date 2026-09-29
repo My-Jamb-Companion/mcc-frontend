@@ -1,6 +1,20 @@
-import {ChevronDown, Coins} from "lucide-react";
-import {useLeaderboard, useMyLeaderboardStanding} from "./hooks/useRewards";
+import {ChevronDown, Coins, Trophy} from "lucide-react";
+import {useState} from "react";
+import {
+  useGamificationRules,
+  useLeaderboard,
+  useLeaderboardStatus,
+  useMyLeaderboardStanding,
+} from "./hooks/useRewards";
 import {useProfile} from "../account/hooks/useProfile";
+
+const RULE_LABEL: Record<string, string> = {
+  daily_login: "Log in each day",
+  quiz_completion: "Complete a quiz",
+  practice_test: "Complete a practice test",
+  exam_pass: "Pass an exam",
+  referral_sign_up: "A referral signs up",
+};
 
 function ordinal(n: number): string {
   const s = ["th", "st", "nd", "rd"];
@@ -12,6 +26,9 @@ export default function Leaderboard() {
   const {entries, isLoading} = useLeaderboard();
   const {data: mine} = useMyLeaderboardStanding();
   const {data: profile} = useProfile();
+  const {data: status} = useLeaderboardStatus();
+  const {data: rules} = useGamificationRules();
+  const [rulesOpen, setRulesOpen] = useState(false);
 
   return (
     <div className="mx-auto max-w-6xl  p-8 max-md:p-0">
@@ -52,11 +69,33 @@ export default function Leaderboard() {
         </div>
       </div>
 
+      {status && (
+        <div className="mt-6 flex items-center gap-3 rounded-2xl border border-yellow-200 bg-yellow-50 px-4 py-3">
+          <Trophy size={20} className="shrink-0 text-yellow-500" />
+          <div>
+            <p className="text-sm font-medium text-gray-800">{status.status_message}</p>
+            {status.can_claim && (
+              <p className="text-xs text-gray-500">
+                You have a prize ready to claim -- find it under your pending rewards.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Rankings Header */}
       <div className="mt-12 flex flex-wrap items-center justify-between gap-4">
         <h3 className="font-semibold">All rankings</h3>
 
         <div className="flex gap-6">
+          <button
+            onClick={() => setRulesOpen((v) => !v)}
+            className="flex items-center gap-2 text-gray-500 hover:text-gray-700"
+          >
+            How points work
+            <ChevronDown size={16} className={rulesOpen ? "rotate-180" : ""} />
+          </button>
+
           <button className="flex items-center gap-2 text-gray-500">
             Location
             <ChevronDown size={16} />
@@ -68,6 +107,20 @@ export default function Leaderboard() {
           </button>
         </div>
       </div>
+
+      {rulesOpen && rules && (
+        <ul className="mt-4 space-y-2 rounded-2xl border border-gray-200 bg-white p-4">
+          {Object.entries(rules).map(([key, points]) => (
+            <li key={key} className="flex items-center justify-between text-sm">
+              <span className="text-gray-600">{RULE_LABEL[key] ?? key}</span>
+              <span className="flex items-center gap-1 font-semibold text-gray-800">
+                <Coins size={14} className="text-yellow-400" />
+                {points}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {/* List */}
       <div className="mt-8 space-y-5">

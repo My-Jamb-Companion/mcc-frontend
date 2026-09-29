@@ -1,8 +1,10 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
   claimReward,
+  getGamificationRules,
   getGoalsSummary,
   getLeaderboard,
+  getLeaderboardStatus,
   getMonthlyGoal,
   getMyLeaderboardStanding,
   getPendingRewards,
@@ -18,6 +20,12 @@ export const useLeaderboard = () => {
 
 export const useMyLeaderboardStanding = () =>
   useQuery({queryKey: ["leaderboard", "me"], queryFn: getMyLeaderboardStanding});
+
+export const useLeaderboardStatus = () =>
+  useQuery({queryKey: ["leaderboard", "status"], queryFn: getLeaderboardStatus});
+
+export const useGamificationRules = () =>
+  useQuery({queryKey: ["gamification", "rules"], queryFn: getGamificationRules});
 
 export const useGoalsSummary = () =>
   useQuery({queryKey: ["goals", "summary"], queryFn: getGoalsSummary});

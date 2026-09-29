@@ -12,6 +12,17 @@ export interface ApiLeaderboardMe {
   total_score: number;
 }
 
+export interface ApiLeaderboardStatus {
+  percentile: number;
+  can_claim: boolean;
+  // Not "message" -- api_success (backend) treats any data["message"] key
+  // as the response envelope's own message and strips it out of data, so
+  // the service returns this field as status_message instead.
+  status_message: string;
+}
+
+export type ApiGamificationRules = Record<string, number>;
+
 export interface ApiGoalPeriod {
   target: number;
   earned: number;
@@ -93,6 +104,21 @@ export const getLeaderboard = async (): Promise<ApiLeaderboardEntry[]> => {
 /** Endpoint: GET /leaderboard/me */
 export const getMyLeaderboardStanding = async (): Promise<ApiLeaderboardMe> => {
   const res = await apiClient.get<{data: ApiLeaderboardMe}>("/leaderboard/me");
+  return res.data.data;
+};
+
+/** Endpoint: GET /leaderboard/status -- the caller's percentile and prize
+ * eligibility. can_claim has no corresponding claim action anywhere in the
+ * backend (leaderboard_prizes has no claim endpoint, unlike the unrelated
+ * pending-rewards flow below) -- informational only. */
+export const getLeaderboardStatus = async (): Promise<ApiLeaderboardStatus> => {
+  const res = await apiClient.get<{data: ApiLeaderboardStatus}>("/leaderboard/status");
+  return res.data.data;
+};
+
+/** Endpoint: GET /gamification/rules -- static, not personalised. */
+export const getGamificationRules = async (): Promise<ApiGamificationRules> => {
+  const res = await apiClient.get<{data: ApiGamificationRules}>("/gamification/rules");
   return res.data.data;
 };
 
