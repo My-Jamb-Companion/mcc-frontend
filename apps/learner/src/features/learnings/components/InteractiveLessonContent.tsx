@@ -75,7 +75,7 @@ export default function InteractiveLessonContent({
   }
 
   return (
-    <div className="w-full rounded-2xl border border-muted/20 overflow-hidden">
+    <div className="w-full min-w-0 max-w-full rounded-2xl border border-muted/20 overflow-hidden">
       <div className="h-1 w-full bg-muted/20">
         <div
           className="h-full bg-primary transition-all duration-300"
@@ -83,35 +83,35 @@ export default function InteractiveLessonContent({
         />
       </div>
 
-      <div className="min-h-[320px] px-6 py-8 md:px-10 md:py-10">
+      <div className="min-h-[320px] min-w-0 px-4 py-6 sm:px-6 sm:py-8 md:px-10 md:py-10">
         {block.heading && (
-          <h2 className="mb-4 text-lg font-semibold text-primary">{block.heading}</h2>
+          <h2 className="mb-4 text-lg font-semibold text-primary break-words">{block.heading}</h2>
         )}
         <div
-          className="prose prose-sm max-w-none text-gray-800 [&_p]:mb-4 [&_p:last-child]:mb-0"
+          className="prose prose-sm max-w-none break-words text-gray-800 [&_img]:max-w-full [&_img]:rounded-lg [&_p]:mb-4 [&_p:last-child]:mb-0"
           dangerouslySetInnerHTML={{__html: block.html}}
         />
       </div>
 
-      <div className="flex items-center justify-between border-t border-muted/20 px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-muted/20 px-3 py-3 sm:px-4">
         <Button variant="outline" size="sm" onClick={goBack} disabled={index === 0}>
           <Icon icon="lucide:chevron-left" size={16} />
           Back
         </Button>
 
-        <div className="relative">
+        <div className="relative order-last w-full sm:order-none sm:w-auto">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setAskOpen((v) => !v)}
-            className="text-primary border-primary/40"
+            className="w-full text-primary border-primary/40 sm:w-auto"
           >
             <Icon icon="mingcute:ai-fill" size={14} />
             Ask Brainy
           </Button>
 
           {askOpen && (
-            <div className="absolute bottom-full left-1/2 z-20 mb-3 w-80 -translate-x-1/2 rounded-2xl border border-muted/30 bg-background p-4 shadow-xl">
+            <div className="absolute bottom-full left-1/2 z-20 mb-3 w-[min(20rem,calc(100vw-2rem))] -translate-x-1/2 rounded-2xl border border-muted/30 bg-background p-4 shadow-xl">
               <div className="mb-2 flex items-center justify-between">
                 <p className="text-xs font-medium text-subtle">Ask about this section</p>
                 <button
@@ -139,7 +139,7 @@ export default function InteractiveLessonContent({
                     }
                   }}
                   placeholder="Type a question..."
-                  className="w-full rounded-lg border border-muted/30 px-3 py-2 text-sm outline-none focus:border-primary/50"
+                  className="w-full min-w-0 rounded-lg border border-muted/30 px-3 py-2 text-sm outline-none focus:border-primary/50"
                   disabled={asking}
                 />
                 <Button

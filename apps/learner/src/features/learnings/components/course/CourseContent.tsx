@@ -140,8 +140,8 @@ export default function CourseContent({
       <div
         className={`grid grid-cols-1 ${isSidePanelOpen ? "lg:grid-cols-[1fr_.1fr]" : "lg:grid-cols-[1fr_2rem]"} gap-6 transition-[grid-template-columns] duration-400 ease-in-out`}
       >
-        <motion.div layout transition={{type: "spring", stiffness: 120, damping: 20}} className="pb-8">
-          <div className="w-full min-w-full overflow-hidden">
+        <motion.div layout transition={{type: "spring", stiffness: 120, damping: 20}} className="min-w-0 pb-8">
+          <div className="w-full min-w-0 overflow-hidden">
             {activeQuizModuleId ? (
               quizQuestions.isLoading ? (
                 <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">

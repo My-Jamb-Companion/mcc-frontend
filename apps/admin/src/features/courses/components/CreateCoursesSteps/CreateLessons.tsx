@@ -92,7 +92,13 @@ function FileRowItem({
       <span className="relative z-10 text-gray-300 cursor-grab active:cursor-grabbing">
         <Icon icon="lucide:grip-vertical" size={16} />
       </span>
-      <span className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100">
+      <span
+        className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100 ${
+          isHtml ? "cursor-pointer hover:bg-gray-200" : ""
+        }`}
+        onClick={isHtml ? () => onEditContent?.(file.id) : undefined}
+        title={isHtml ? "Edit content" : undefined}
+      >
         {(file.previewUrl || file.src || isHtml) && (
           <Icon icon={rowIcon(file.format)} size={16} className="text-gray-400" />
         )}
@@ -109,15 +115,18 @@ function FileRowItem({
           />
         ) : (
           <div className="flex items-center gap-2">
-            <p className="truncate text-sm font-medium text-gray-900">
+            <p
+              className={`truncate text-sm font-medium text-gray-900 ${isHtml ? "cursor-pointer hover:underline" : ""}`}
+              onClick={isHtml ? () => onEditContent?.(file.id) : undefined}
+            >
               {file.title}
             </p>
             {!uploading && (
               <button
                 type="button"
-                onClick={() => (isHtml ? onEditContent?.(file.id) : setIsRenaming(true))}
+                onClick={() => setIsRenaming(true)}
                 className="text-gray-400 hover:text-gray-600"
-                aria-label={isHtml ? "Edit content" : "Rename"}
+                aria-label="Rename"
               >
                 <Icon icon="lucide:pencil" size={12} />
               </button>
