@@ -1,6 +1,8 @@
 "use client";
 
 import {useMemo, useState} from "react";
+import Link from "next/link";
+import {Icon} from "@mcc/ui";
 import ScrollRow from "@/src/features/components/RowScroll";
 import LearningsHeader from "./LearningsHeader";
 import CourseCardSkeleton from "@/src/features/components/CourseCardSkeleton";
@@ -47,6 +49,16 @@ export default function Exams() {
 
   return (
     <section className="py-6 px-4">
+      <div className="mb-4 flex justify-end">
+        <Link
+          href="/learnings/exams/history"
+          className="flex items-center gap-1 text-sm font-medium text-btn-primary hover:underline"
+        >
+          <Icon icon="lucide:history" size={16} />
+          View your testing history
+        </Link>
+      </div>
+
       <LearningsHeader
         stats={[
           {label: "Exam-prep programs", value: String(programs.length)},
