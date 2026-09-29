@@ -117,6 +117,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
               className={[
                 "fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2",
                 maxWidth,
+                "max-h-[90vh] overflow-y-auto",
                 "rounded-3xl bg-background px-6 py-8 shadow-xl outline-none",
                 "animate-in fade-in zoom-in-95 duration-200",
               ].join(" ")}

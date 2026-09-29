@@ -1,6 +1,6 @@
 "use client";
 
-import {useMemo, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
 import {Icon, showError} from "@mcc/ui";
@@ -115,6 +115,57 @@ export default function LessonHtmlEditor({
     return quillRef.current?.getEditor?.();
   }
 
+  // Quill has no table module registered (no toolbar button, no `table`
+  // blot) so a table can only enter the editor via clipboard paste -- and
+  // Quill's default clipboard matchers only understand <table>/<tbody>/
+  // <tr>/<td>. A pasted <th>/<thead> (e.g. from Word/Sheets/a webpage) has
+  // no matching blot, so Quill silently drops the wrapping tags and merges
+  // the header cells' text together with no separator, losing the header
+  // row entirely by the time the paste lands in the editor. Intercept the
+  // paste ourselves, ahead of Quill's own handler, and rewrite <th>/
+  // <thead> into plain <td>/<strong> markup Quill already round-trips
+  // losslessly, before handing it to Quill's clipboard.
+  useEffect(() => {
+    let cancelled = false;
+    let root: HTMLElement | null = null;
+
+    function handlePaste(e: ClipboardEvent) {
+      const html = e.clipboardData?.getData("text/html");
+      if (!html || !/<t(h\b|head\b)/i.test(html)) return;
+      const editor = getEditor();
+      if (!editor) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      const normalized = html
+        .replace(/<thead[^>]*>/gi, "")
+        .replace(/<\/thead>/gi, "")
+        .replace(/<th\b([^>]*)>/gi, "<td$1><strong>")
+        .replace(/<\/th>/gi, "</strong></td>");
+
+      const range = editor.getSelection(true) || {index: editor.getLength()};
+      editor.clipboard.dangerouslyPasteHTML(range.index, normalized, "user");
+    }
+
+    function attach() {
+      if (cancelled) return;
+      const editor = getEditor();
+      if (!editor) {
+        requestAnimationFrame(attach);
+        return;
+      }
+      root = editor.root as HTMLElement;
+      root.addEventListener("paste", handlePaste, true);
+    }
+    attach();
+
+    return () => {
+      cancelled = true;
+      root?.removeEventListener("paste", handlePaste, true);
+    };
+  }, []);
+
   function insertSymbol(symbol: string) {
     const editor = getEditor();
     if (!editor) return;
@@ -209,6 +260,10 @@ export default function LessonHtmlEditor({
         .lesson-html-editor-wrapper .ql-editor img {
           max-width: 100%;
           border-radius: 0.5rem;
+        }
+        .lesson-html-editor-wrapper .ql-editor th {
+          border: 1px solid #000;
+          padding: 2px 5px;
         }
       `}</style>
     </div>

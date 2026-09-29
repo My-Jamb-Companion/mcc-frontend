@@ -85,10 +85,17 @@ export default function InteractiveLessonContent({
 
       <div className="min-h-[320px] min-w-0 px-4 py-6 sm:px-6 sm:py-8 md:px-10 md:py-10">
         {block.heading && (
-          <h2 className="mb-4 text-lg font-semibold text-primary break-words">{block.heading}</h2>
+          // block.heading is plain text (tags already stripped in
+          // splitIntoBlocks) but may still contain HTML entities like
+          // &nbsp; from Quill -- dangerouslySetInnerHTML lets the browser
+          // decode them, same as JSX text interpolation never would.
+          <h2
+            className="mb-4 text-lg font-semibold text-primary break-words"
+            dangerouslySetInnerHTML={{__html: block.heading}}
+          />
         )}
         <div
-          className="prose prose-sm max-w-none break-words text-gray-800 [&_img]:max-w-full [&_img]:rounded-lg [&_p]:mb-4 [&_p:last-child]:mb-0"
+          className="lesson-block-content max-w-none break-words text-gray-800 [&_img]:max-w-full [&_img]:rounded-lg [&_p]:mb-4 [&_p:last-child]:mb-0"
           dangerouslySetInnerHTML={{__html: block.html}}
         />
       </div>
@@ -160,6 +167,29 @@ export default function InteractiveLessonContent({
           <Icon icon="lucide:chevron-right" size={16} />
         </Button>
       </div>
+
+      {/* `.lesson-block-content` used to rely on Tailwind's `prose` classes
+          for table borders, but the typography plugin isn't installed in
+          this app so `prose` resolved to nothing -- tables rendered with
+          no visible column separation. Style tables explicitly instead. */}
+      <style jsx global>{`
+        .lesson-block-content table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 1rem;
+        }
+        .lesson-block-content th,
+        .lesson-block-content td {
+          border: 1px solid #e5e7eb;
+          padding: 0.5rem 0.75rem;
+          text-align: left;
+          vertical-align: top;
+        }
+        .lesson-block-content th {
+          background: #f9fafb;
+          font-weight: 600;
+        }
+      `}</style>
     </div>
   );
 }
