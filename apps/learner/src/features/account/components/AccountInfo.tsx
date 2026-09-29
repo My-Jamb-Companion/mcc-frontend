@@ -1,5 +1,7 @@
 import {useForm, Controller, FormInputs} from "@mcc/features";
+import {Icon} from "@mcc/ui";
 import {ProfileUser} from "../constants/types";
+import {useLinkedParent} from "../hooks/useProfile";
 
 export interface PersonalInformationFormValues {
   fullName: string;
@@ -64,12 +66,25 @@ export function AccountPersonalInformationForm({
   });
 
   const submit = handleSubmit((values) => onSave?.(values));
+  const {data: linkedParent} = useLinkedParent();
 
   return (
     <form className="flex-1" onSubmit={submit}>
       <h3 className="text-base font-bold text-gray-900">
         Personal Information
       </h3>
+
+      {linkedParent?.linked && (
+        <div className="mt-3 flex items-center gap-2 rounded-xl border border-muted/20 bg-muted/5 px-3 py-2 text-sm text-gray-600">
+          <Icon icon="lucide:link" size={14} className="shrink-0 text-primary" />
+          <span>
+            Linked to parent account{" "}
+            <span className="font-medium text-gray-900">
+              {linkedParent.parent_name ?? linkedParent.parent_email}
+            </span>
+          </span>
+        </div>
+      )}
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <FormInputs
