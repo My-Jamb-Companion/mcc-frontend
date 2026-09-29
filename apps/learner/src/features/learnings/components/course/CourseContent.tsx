@@ -13,6 +13,7 @@ import NotesTab from "./tabs/NotesTab";
 import FacilitatorTab from "./tabs/FacilitatorTab";
 import OverviewTab from "./tabs/OverviewTab";
 import {CoursePractice} from "./CoursePractice";
+import {BookingSection} from "@/src/features/booking/components/BookingSection";
 import {Lesson, Module, lessonKind} from "@/src/features/learnings/helper/content.mapper";
 import {youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import {useAllLessons, useLessonsDuration, formatDuration} from "@/src/features/learnings/hooks/useLesson";
@@ -136,6 +137,8 @@ export default function CourseContent({
         <span className="text-subtle">/</span>
         <span className="text-muted/50 cursor-default text-nowrap truncate">{title}</span>
       </nav>
+
+      <BookingSection purpose="course" targetId={courseId} />
 
       <div
         className={`grid grid-cols-1 ${isSidePanelOpen ? "lg:grid-cols-[1fr_.1fr]" : "lg:grid-cols-[1fr_2rem]"} gap-6 transition-[grid-template-columns] duration-400 ease-in-out`}
