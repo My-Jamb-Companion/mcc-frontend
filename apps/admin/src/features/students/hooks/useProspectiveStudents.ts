@@ -6,7 +6,7 @@ import {
   rejectProspectiveStudent,
 } from "../services/student.service";
 import {fromApiProspectiveStudent} from "../helper/student.mapper";
-import {listUsers} from "@/src/features/Settings/services/users.service";
+import {listUsers} from "@/src/features/Users/services/users.service";
 
 export interface ProspectiveStudentsFilters {
   search?: string;
