@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from "react";
-import {Button, Icon} from "@mcc/ui";
+import {Button, Icon, showError, showSuccess} from "@mcc/ui";
 import {useFormContext} from "@mcc/features";
 import PracticeQuestions, {
   CreatPracticeQuestionType,
@@ -156,6 +156,7 @@ export default function ContentStep({
   }
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   async function handleNext() {
@@ -183,6 +184,34 @@ export default function ContentStep({
       );
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleSaveDraft() {
+    if (!programId) {
+      setSubmitError(
+        "Missing exam program id — go back and complete Details first.",
+      );
+      return;
+    }
+
+    setSubmitError(null);
+    setIsSavingDraft(true);
+
+    try {
+      await updateExamProgramContent(programId, {
+        topics: serializeTopicsPayload(topics),
+      });
+      showSuccess("Exam program draft saved successfully!");
+    } catch (error) {
+      const msg = getApiErrorMessage(
+        error,
+        "Failed to save draft. Please try again.",
+      );
+      setSubmitError(msg);
+      showError(msg);
+    } finally {
+      setIsSavingDraft(false);
     }
   }
 
@@ -522,12 +551,19 @@ export default function ContentStep({
             {submitError && (
               <p className="text-sm text-red-500">{submitError}</p>
             )}
-            <Button type="button" variant="outline">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleSaveDraft}
+              loading={isSavingDraft}
+              loadingText="Saving..."
+              disabled={isSavingDraft || isSubmitting}
+            >
               Save as draft
             </Button>
             <Button
               type="button"
-              disabled={!hasCompleteContent(topics) || isSubmitting}
+              disabled={!hasCompleteContent(topics) || isSubmitting || isSavingDraft}
               onClick={handleNext}
               className="text-nowrap"
             >
