@@ -8,6 +8,7 @@ import {
   uploadProfilePhoto,
   ProfileUpdatePayload,
 } from "../services/profile.service";
+import {getLinkedParent} from "../services/parent.service";
 
 export const useProfile = () => {
   return useQuery({
@@ -15,6 +16,9 @@ export const useProfile = () => {
     queryFn: getProfile,
   });
 };
+
+export const useLinkedParent = () =>
+  useQuery({queryKey: ["linked-parent"], queryFn: getLinkedParent});
 
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
