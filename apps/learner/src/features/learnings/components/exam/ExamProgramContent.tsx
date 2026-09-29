@@ -8,6 +8,7 @@ import CoursePlayer from "../course/CoursePlayer";
 import InteractiveLessonContent from "../InteractiveLessonContent";
 import ExamContentTree, {ActiveNode} from "./ExamContentTree";
 import ExamQuiz from "./ExamQuiz";
+import {BookingSection} from "@/src/features/booking/components/BookingSection";
 import {
   useProgramContent,
   useStartMockExam,
@@ -142,6 +143,8 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
         <span className="text-subtle">/</span>
         <span className="text-muted/50 cursor-default text-nowrap truncate">{title}</span>
       </nav>
+
+      <BookingSection purpose="exam" targetId={programId} />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_22rem] gap-6 px-4 pb-8">
         <div className="min-w-0">
