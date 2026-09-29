@@ -1,4 +1,5 @@
 "use client";
+import {useState} from "react";
 import {Icon} from "@mcc/ui";
 import {useRouter} from "next/navigation";
 import BannerCarousel from "@/src/features/components/BannerCarousel";
@@ -17,10 +18,12 @@ import {fromApiCourse, fromApiEnrolledCourse} from "@/src/features/courses/helpe
 import {usePrograms} from "@/src/features/exams/hooks/useExams";
 import {fromApiExamProgram} from "@/src/features/exams/helper/exam.mapper";
 import {useUpcomingSessions} from "@/src/features/sessions/hooks/useSessions";
+import {RescheduleModal} from "@/src/features/sessions/RescheduleModal";
 import {useProfile} from "@/src/features/account/hooks/useProfile";
 
 export default function Dashboard() {
   const router = useRouter();
+  const [reschedulingSessionId, setReschedulingSessionId] = useState<string | null>(null);
   const {data: profile} = useProfile();
   const {courses: allCourses, isLoading: coursesLoading} = useCourses();
   const {courses: enrolledCourses, isLoading: enrolledLoading} = useEnrolledCourses();
@@ -90,8 +93,20 @@ export default function Dashboard() {
               Message {nextSession.teacher_name || "your teacher"}
             </button>
           )}
+          <button
+            onClick={() => setReschedulingSessionId(nextSession.session_id)}
+            className="mt-2 flex items-center gap-1 text-xs font-medium text-btn-primary hover:underline"
+          >
+            <Icon icon="ph:calendar-blank" size={14} />
+            Reschedule
+          </button>
         </div>
       )}
+
+      <RescheduleModal
+        sessionId={reschedulingSessionId}
+        onClose={() => setReschedulingSessionId(null)}
+      />
 
       <div className="flex items-center gap-4 mt-8 max-md:flex-col">
         {quickLinkCard.map((card) => (
