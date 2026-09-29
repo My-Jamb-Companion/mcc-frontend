@@ -69,15 +69,25 @@ export default function Brainy() {
           {mode === "exam" && (
             <div key="exam" className="w-full">
               {examView === "actions" ? (
-                <BrainyExamActionCardGrid
-                  eyebrow="Exam Preparations"
-                  heading="How do you want to prepare for your exams?"
-                  subtext="Paste your notes and get instant flashcards to study from."
-                  actions={EXAM_PREP_ACTIONS}
-                  onSelect={(id) => {
-                    if (id === "paste") setExamView("flashcards");
-                  }}
-                />
+                <>
+                  <div className="mb-2 flex justify-end">
+                    <Link
+                      href="/learnings/study-sets"
+                      className="text-sm font-medium text-btn-primary hover:underline"
+                    >
+                      My study sets
+                    </Link>
+                  </div>
+                  <BrainyExamActionCardGrid
+                    eyebrow="Exam Preparations"
+                    heading="How do you want to prepare for your exams?"
+                    subtext="Paste your notes and get instant flashcards to study from."
+                    actions={EXAM_PREP_ACTIONS}
+                    onSelect={(id) => {
+                      if (id === "paste") setExamView("flashcards");
+                    }}
+                  />
+                </>
               ) : (
                 <FlashcardGenerator onBack={() => setExamView("actions")} />
               )}
