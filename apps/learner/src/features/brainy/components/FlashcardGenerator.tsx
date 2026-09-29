@@ -1,6 +1,7 @@
 "use client";
 
 import {useState} from "react";
+import Link from "next/link";
 import {extractApiError} from "@mcc/api";
 import {isAllowanceUsed} from "../helper/charge";
 import {Icon} from "@mcc/ui";
@@ -109,7 +110,10 @@ export default function FlashcardGenerator({onBack}: FlashcardGeneratorProps) {
 
           {saved ? (
             <p className="mt-4 text-sm text-green-600">
-              Saved! Find it in your study sets.
+              Saved!{" "}
+              <Link href="/learnings/study-sets" className="underline">
+                Find it in your study sets.
+              </Link>
             </p>
           ) : (
             <div className="mt-6 space-y-3 rounded-2xl border-2 border-muted/20 p-4">
