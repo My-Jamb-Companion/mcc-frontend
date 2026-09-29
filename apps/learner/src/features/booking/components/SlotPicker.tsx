@@ -20,11 +20,18 @@ function toIsoInstant(localValue: string): string | null {
   return date.toISOString();
 }
 
+function computeMinValue(): string {
+  return new Date(Date.now() + 5 * 60 * 1000).toISOString().slice(0, 16);
+}
+
 export function SlotPicker({purpose, targetId}: SlotPickerProps) {
   const [value, setValue] = useState("");
   const selectSlot = useSelectSlot();
 
-  const minValue = new Date(Date.now() + 5 * 60 * 1000).toISOString().slice(0, 16);
+  // Computed once via lazy init, not on every render -- Date.now() is an
+  // impure call React's purity rule (and a real hydration-mismatch risk)
+  // disallows directly in render.
+  const [minValue] = useState(computeMinValue);
 
   function handleBook() {
     const iso = toIsoInstant(value);

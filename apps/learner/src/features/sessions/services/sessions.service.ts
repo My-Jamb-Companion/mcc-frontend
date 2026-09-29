@@ -21,3 +21,23 @@ export const getUpcomingSessions = async (): Promise<ApiStudentSession[]> => {
   );
   return res.data.data.sessions;
 };
+
+export interface RescheduleOutcome {
+  session_id: string;
+  status: "auto_accommodated" | "escalated";
+  scheduled_at?: string | null;
+}
+
+/** Endpoint: POST /assignment/reschedule-request -- only applies to a
+ * recurring weekly session (a real `sessions` row); the one-off onboarding
+ * call has no session_id and no reschedule path. */
+export const requestReschedule = async (input: {
+  session_id: string;
+  proposed_time: string;
+}): Promise<RescheduleOutcome> => {
+  const res = await apiClient.post<{data: RescheduleOutcome}>(
+    "/assignment/reschedule-request",
+    input,
+  );
+  return res.data.data;
+};
