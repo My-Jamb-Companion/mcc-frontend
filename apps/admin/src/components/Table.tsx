@@ -11,6 +11,12 @@ interface EnhancedTableProps<TData extends RowData> {
   enableRowActions?: boolean;
   rowActions?: ReactNode;
   onRowAction?: (row: TData) => void;
+  /** Renders a fully custom actions cell per row (e.g. a dropdown menu with
+   * multiple options) instead of the single shared rowActions/onRowAction
+   * button -- those two only support one click handler for the whole
+   * table, not per-row interactive UI. Takes precedence over rowActions/
+   * onRowAction when provided. */
+  renderRowActions?: (row: TData) => ReactNode;
   onRowClick?: (row: TData) => void;
   handleLoadMore?: () => void;
   hasMore?: boolean;
@@ -28,6 +34,7 @@ export default function EnhancedTable<TData extends RowData>({
   enableRowActions = false,
   rowActions = null,
   onRowAction,
+  renderRowActions,
   onRowClick,
   handleLoadMore,
   hasMore = false,
@@ -204,12 +211,16 @@ export default function EnhancedTable<TData extends RowData>({
                             className="p-4"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <button
-                              onClick={() => onRowAction?.(row.original)}
-                              className="p-1 hover:bg-gray-200 rounded"
-                            >
-                              {rowActions ?? <MoreVertical size={18} />}
-                            </button>
+                            {renderRowActions ? (
+                              renderRowActions(row.original)
+                            ) : (
+                              <button
+                                onClick={() => onRowAction?.(row.original)}
+                                className="p-1 hover:bg-gray-200 rounded"
+                              >
+                                {rowActions ?? <MoreVertical size={18} />}
+                              </button>
+                            )}
                           </td>
                         )}
                       </tr>

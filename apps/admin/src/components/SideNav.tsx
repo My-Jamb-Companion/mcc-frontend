@@ -336,6 +336,7 @@ const navs = {
     },
     {icon: "ri:message-2-line", label: "user", href: "/messaging"},
     {icon: "ri:flag-2-line", label: "moderation", href: "/moderation"},
+    {icon: "ri:group-line", label: "users", href: "/users"},
   ],
   // Only routes that exist: Next prefetches every link in view, so a link to
   // a missing page 404s on every page load, in the console and the network log.
