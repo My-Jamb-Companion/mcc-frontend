@@ -1,6 +1,7 @@
 import {useState, useRef, useEffect} from "react";
 import {Plus, Send, ArrowUp} from "lucide-react";
 import {motion, AnimatePresence} from "@mcc/ui";
+import {usePromptSuggestions} from "@/src/features/brainy/hooks/useDiscover";
 
 interface Message {
   id: string;
@@ -9,18 +10,22 @@ interface Message {
 }
 
 interface AIChatProps {
+  /** Overrides the real GET /brainy/prompts/suggestions fetch -- mainly for
+   * tests; every real caller lets this come from the API. */
   suggestions?: string[];
-  onSend?: (message: string) => Promise<string>;
+  onSend: (message: string) => Promise<string>;
   placeholder?: string;
   className?: string;
 }
 
 export default function BrainyCourseSidePanel({
-  suggestions = DEFAULT_SUGGESTIONS,
+  suggestions: suggestionsProp,
   onSend,
   placeholder = "Message",
   className = "h-screen",
 }: AIChatProps) {
+  const {suggestions: apiSuggestions} = usePromptSuggestions();
+  const suggestions = suggestionsProp ?? apiSuggestions;
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -57,7 +62,7 @@ export default function BrainyCourseSidePanel({
     setLoading(true);
 
     try {
-      const reply = await (onSend ? onSend(trimmed) : fakeAIResponse(trimmed));
+      const reply = await onSend(trimmed);
       const aiMsg: Message = {
         id: crypto.randomUUID(),
         role: "assistant",
@@ -249,14 +254,3 @@ function MessageBubble({message}: {message: Message}) {
   );
 }
 
-const DEFAULT_SUGGESTIONS = [
-  "Give me an overview of the course",
-  "Summarize the main points of this lecture",
-  "What is the difference between absolute and relative",
-  "Why are relative stretch important in pilates",
-];
-
-async function fakeAIResponse(message: string): Promise<string> {
-  await new Promise((r) => setTimeout(r, 800));
-  return `Here's a helpful answer about "${message}". Our AI assistant can provide course summaries, explain concepts, and answer questions about lecture content.`;
-}
