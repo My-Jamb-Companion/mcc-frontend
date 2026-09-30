@@ -31,6 +31,18 @@ export default function ProgramFinanceViewModal({
           numberSold={program.number}
           revenuePrimary={program.revenuePrimary}
           revenueSecondary={program.revenueSecondary}
+          teachers={
+            program.teacherName
+              ? [
+                  {
+                    id: program.id,
+                    name: program.teacherName,
+                    roleOrEmail: "",
+                    avatarUrl: program.teacherAvatar ?? undefined,
+                  },
+                ]
+              : []
+          }
         />
       </div>
     </div>
@@ -38,13 +50,13 @@ export default function ProgramFinanceViewModal({
 }
 
 function ProgramDetailCard({
-  title = "Pilates Teacher Training Certification 20 CPD Points",
-  imageUrl = "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&auto=format&fit=crop&q=80",
-  numberSold = 138,
-  revenuePrimary = 12880332,
-  revenueSecondary = 9199332,
+  title,
+  imageUrl,
+  numberSold,
+  revenuePrimary,
+  revenueSecondary,
   currencySymbol = "₦",
-  teachers = DEFAULT_TEACHERS,
+  teachers,
   className = "",
 }: ProgramDetailCardProps) {
   const formatCurrency = (amount: number) =>
@@ -53,12 +65,14 @@ function ProgramDetailCard({
   return (
     <div className={`p-6 ${className}`}>
       {/* Program Banner Image */}
-      <div className="relative overflow-hidden rounded-2xl aspect-[4/3] w-full max-w-[240px]">
-        <img
-          src={imageUrl}
-          alt={title}
-          className="h-full w-full object-cover"
-        />
+      <div className="relative overflow-hidden rounded-2xl aspect-[4/3] w-full max-w-[240px] bg-neutral-100">
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt={title}
+            className="h-full w-full object-cover"
+          />
+        )}
       </div>
 
       {/* Program Title */}
@@ -105,25 +119,35 @@ function ProgramDetailCard({
           Program Teachers
         </h3>
 
-        <div className="mt-4 grid grid-cols-2 gap-y-4 gap-x-6">
-          {teachers.map((teacher) => (
-            <div key={teacher.id} className="flex items-center gap-3">
-              <img
-                src={teacher.avatarUrl}
-                alt={teacher.name}
-                className="h-9 w-9 shrink-0 rounded-full object-cover"
-              />
-              <div className="flex flex-col min-w-0">
-                <span className="truncate text-sm font-bold text-neutral-900">
-                  {teacher.name}
-                </span>
-                <span className="truncate text-xs font-medium text-neutral-400">
-                  {teacher.roleOrEmail}
-                </span>
+        {teachers.length === 0 ? (
+          <p className="mt-3 text-sm text-neutral-400">No teacher assigned.</p>
+        ) : (
+          <div className="mt-4 grid grid-cols-2 gap-y-4 gap-x-6">
+            {teachers.map((teacher) => (
+              <div key={teacher.id} className="flex items-center gap-3">
+                {teacher.avatarUrl ? (
+                  <img
+                    src={teacher.avatarUrl}
+                    alt={teacher.name}
+                    className="h-9 w-9 shrink-0 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="h-9 w-9 shrink-0 rounded-full bg-neutral-100" />
+                )}
+                <div className="flex flex-col min-w-0">
+                  <span className="truncate text-sm font-bold text-neutral-900">
+                    {teacher.name}
+                  </span>
+                  {teacher.roleOrEmail && (
+                    <span className="truncate text-xs font-medium text-neutral-400">
+                      {teacher.roleOrEmail}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -133,47 +157,16 @@ export interface ProgramTeacher {
   id: string;
   name: string;
   roleOrEmail: string;
-  avatarUrl: string;
+  avatarUrl?: string;
 }
 
 export interface ProgramDetailCardProps {
-  title?: string;
+  title: string;
   imageUrl?: string;
-  numberSold?: number;
-  revenuePrimary?: number;
-  revenueSecondary?: number;
+  numberSold: number;
+  revenuePrimary: number;
+  revenueSecondary: number;
   currencySymbol?: string;
-  teachers?: ProgramTeacher[];
+  teachers: ProgramTeacher[];
   className?: string;
 }
-
-const DEFAULT_TEACHERS: ProgramTeacher[] = [
-  {
-    id: "1",
-    name: "Seline",
-    roleOrEmail: "Biology teacher",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "2",
-    name: "Mo",
-    roleOrEmail: "bright@gmail.com",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "3",
-    name: "Tosin",
-    roleOrEmail: "Physics teacher",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "4",
-    name: "Pilates",
-    roleOrEmail: "Pilates teacher",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=100&auto=format&fit=crop&q=80",
-  },
-];

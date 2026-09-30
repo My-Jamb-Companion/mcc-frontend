@@ -30,120 +30,19 @@ export interface ProgramOverviewItem {
   programSubtitle: string;
   programBadgeIcon?: string;
   programIconUrl?: string;
+  teacherName?: string | null;
+  teacherAvatar?: string | null;
   number: number;
   revenuePrimary: number;
   revenueSecondary: number;
 }
 
-// Sample Data
-const DEFAULT_STUDENT_DATA: StudentOverviewItem[] = [
-  {
-    id: "1",
-    studentName: "Bright Mba",
-    studentEmail: "bright@gmail.com",
-    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bright1",
-    programTitle: "Pilates Teacher Training Certification 20...",
-    programSubtitle: "Moderate level.",
-    programBadgeIcon: "mdi:information-outline",
-    programIconUrl:
-      "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=80&auto=format&fit=crop&q=60",
-    amount: 12880,
-    dateOnboarded: "05 Apr, 2026| 8:30 PM",
-  },
-  {
-    id: "2",
-    studentName: "Bright Mba",
-    studentEmail: "bright@gmail.com",
-    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bright2",
-    programTitle: "Universal Tertiary Matriculation Exam...",
-    programSubtitle: "Use of English, Maths, & Physics",
-    amount: 12880,
-    dateOnboarded: "05 Apr, 2026| 8:30 PM",
-  },
-  {
-    id: "3",
-    studentName: "Bright Mba",
-    studentEmail: "bright@gmail.com",
-    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bright3",
-    programTitle: "West African Examination Council - W...",
-    programSubtitle: "English, Maths, Physics & 2 more...",
-    amount: 12880,
-    dateOnboarded: "05 Apr, 2026| 8:30 PM",
-  },
-  {
-    id: "4",
-    studentName: "Bright Mba",
-    studentEmail: "bright@gmail.com",
-    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bright4",
-    programTitle: "West African Examination Council - W...",
-    programSubtitle: "English, Maths, Physics & 2 more...",
-    amount: 12880,
-    dateOnboarded: "05 Apr, 2026| 8:30 PM",
-  },
-  {
-    id: "5",
-    studentName: "Bright Mba",
-    studentEmail: "bright@gmail.com",
-    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bright5",
-    programTitle: "West African Examination Council - W...",
-    programSubtitle: "English, Maths, Physics & 2 more...",
-    amount: 12880,
-    dateOnboarded: "05 Apr, 2026| 8:30 PM",
-  },
-];
-
-const DEFAULT_PROGRAM_DATA: ProgramOverviewItem[] = [
-  {
-    id: "p1",
-    programTitle: "Pilates Teacher Training Certification 20...",
-    programSubtitle: "Moderate level.",
-    programBadgeIcon: "mdi:information-outline",
-    programIconUrl:
-      "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=80&auto=format&fit=crop&q=60",
-    number: 138,
-    revenuePrimary: 12880332,
-    revenueSecondary: 9199332,
-  },
-  {
-    id: "p2",
-    programTitle: "Universal Tertiary Matriculation Exam...",
-    programSubtitle: "Use of English",
-    number: 234,
-    revenuePrimary: 12880332,
-    revenueSecondary: 9199332,
-  },
-  {
-    id: "p3",
-    programTitle: "Universal Tertiary Matriculation Exam...",
-    programSubtitle: "Mathematics",
-    number: 234,
-    revenuePrimary: 12880332,
-    revenueSecondary: 9199332,
-  },
-  {
-    id: "p4",
-    programTitle: "Universal Tertiary Matriculation Exam...",
-    programSubtitle: "Physics",
-    number: 234,
-    revenuePrimary: 12880332,
-    revenueSecondary: 9199332,
-  },
-  {
-    id: "p5",
-    programTitle: "West African Examination Council - W...",
-    programSubtitle: "Mathematics",
-    number: 88,
-    revenuePrimary: 12880332,
-    revenueSecondary: 9199332,
-  },
-];
-
 const studentColumnHelper = createColumnHelper<StudentOverviewItem>();
 const programColumnHelper = createColumnHelper<ProgramOverviewItem>();
 
 interface ProgramOverviewTableProps {
-  studentData?: StudentOverviewItem[];
-  programData?: ProgramOverviewItem[];
+  studentData: StudentOverviewItem[];
+  programData: ProgramOverviewItem[];
   currencySymbol?: string;
   className?: string;
   setViewStudent: (row: StudentOverviewItem) => void;
@@ -151,8 +50,8 @@ interface ProgramOverviewTableProps {
 }
 
 export function FinanceProgramOverviewTable({
-  studentData = DEFAULT_STUDENT_DATA,
-  programData = DEFAULT_PROGRAM_DATA,
+  studentData,
+  programData,
   currencySymbol = "₦",
   className = "",
   setViewStudent,
