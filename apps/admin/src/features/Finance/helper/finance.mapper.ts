@@ -36,6 +36,8 @@ export function fromApiProgramRevenueToOverview(
     programTitle: item.title,
     programSubtitle: item.subtitle ?? "",
     programIconUrl: item.icon_url ?? undefined,
+    teacherName: item.teacher_name,
+    teacherAvatar: item.teacher_avatar,
     number: item.enrollment_count,
     revenuePrimary: Number(item.revenue_gross),
     revenueSecondary: Number(item.revenue_net),

@@ -79,6 +79,8 @@ export interface ApiProgramRevenueItem {
   title: string;
   subtitle: string | null;
   icon_url: string | null;
+  teacher_name: string | null;
+  teacher_avatar: string | null;
   enrollment_count: number;
   revenue_gross: number | string;
   revenue_net: number | string;
