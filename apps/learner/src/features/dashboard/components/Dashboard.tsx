@@ -2,37 +2,35 @@
 import {useState} from "react";
 import {Icon} from "@mcc/ui";
 import {useRouter} from "next/navigation";
-import BannerCarousel from "@/src/features/components/BannerCarousel";
-import QuickLinkCard from "./QuickLinkCard";
-import {quickLinkCard} from "../constants/QuickLinks";
 import LiveClassCard from "./LiveClassCard";
 import ScrollRow from "@/src/features/components/RowScroll";
 import CourseCard from "@/src/features/components/CourseCard";
 import CourseCardSkeleton from "@/src/features/components/CourseCardSkeleton";
 import AskAICard from "./AskAI";
 import ExamCard from "@/src/features/components/ExamCard";
-import RecTopics from "./RecTopics";
-import DiscoverCourses from "@/src/features/brainy/components/DiscoverCourses";
 import ExamCardSkeleton from "@/src/features/components/ExamCardSkeleton";
-import {useCourses, useEnrolledCourses} from "@/src/features/courses/hooks/useCourses";
-import {fromApiCourse, fromApiEnrolledCourse} from "@/src/features/courses/helper/course.mapper";
-import {usePrograms} from "@/src/features/exams/hooks/useExams";
-import {fromApiExamProgram} from "@/src/features/exams/helper/exam.mapper";
+import {useEnrolledCourses} from "@/src/features/courses/hooks/useCourses";
+import {fromApiEnrolledCourse} from "@/src/features/courses/helper/course.mapper";
+import {useEnrolledPrograms} from "@/src/features/exams/hooks/useExams";
+import {fromApiEnrolledProgram} from "@/src/features/exams/helper/exam.mapper";
 import {useUpcomingSessions} from "@/src/features/sessions/hooks/useSessions";
 import {RescheduleModal} from "@/src/features/sessions/RescheduleModal";
 import {useProfile} from "@/src/features/account/hooks/useProfile";
 
+/**
+ * The student's personal home: welcome back, live class, quick Brainy
+ * access, and what they're already enrolled in. Discovery/marketing
+ * content (browse catalogue, promos, AI-suggested courses, topics) lives
+ * on /explore instead -- see apps/learner/src/features/explore.
+ */
 export default function Dashboard() {
   const router = useRouter();
   const [reschedulingSessionId, setReschedulingSessionId] = useState<string | null>(null);
   const {data: profile} = useProfile();
-  const {courses: allCourses, isLoading: coursesLoading} = useCourses();
-  const {courses: enrolledCourses, isLoading: enrolledLoading} = useEnrolledCourses();
-  const {programs, isLoading: programsLoading} = usePrograms();
+  const {courses: enrolledCourses, isLoading: enrolledCoursesLoading} = useEnrolledCourses();
+  const {programs: enrolledPrograms, isLoading: enrolledProgramsLoading} = useEnrolledPrograms();
   const {sessions} = useUpcomingSessions();
 
-  const enrolledIds = new Set(enrolledCourses.map((c) => c.course_id));
-  const notYetEnrolled = allCourses.filter((c) => !enrolledIds.has(c.course_id));
   const nextSession = sessions[0];
 
   const firstName = profile?.full_name?.split(" ")[0] ?? "there";
@@ -62,12 +60,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="mt-7">
-        <BannerCarousel />
-      </div>
-
       {nextSession && (
-        <div className="mt-10 mx-auto w-[70%] max-sm:w-full">
+        <div className="mt-7 mx-auto w-[70%] max-sm:w-full">
           <LiveClassCard
             title={nextSession.title}
             thumbnail="/assets/images/profile.png"
@@ -109,76 +103,50 @@ export default function Dashboard() {
         onClose={() => setReschedulingSessionId(null)}
       />
 
-      <div className="flex items-center gap-4 mt-8 max-md:flex-col">
-        {quickLinkCard.map((card) => (
-          <QuickLinkCard
-            key={card.title}
-            title={card.title}
-            icon={card.icon}
-            link={card.link}
-          />
-        ))}
+      <div className="mt-8">
+        <AskAICard onSubmit={(query) => router.push(`/brainy/new?q=${encodeURIComponent(query)}`)} />
       </div>
 
-      <div className="grid grid-cols-2 max-lg:grid-cols-1 gap-4 mt-8">
-        <div className="flex flex-col gap-10">
-          <ScrollRow
-            showSeeAll
-            title="Continue Learning"
-            isLoading={enrolledLoading}
-            skeleton={<CourseCardSkeleton />}
-            skeletonCount={4}
-          >
-            {enrolledCourses.length === 0 && !enrolledLoading ? (
-              <p className="text-sm text-muted">
-                You haven&apos;t started any courses yet.
-              </p>
-            ) : (
-              enrolledCourses.map((course) => (
-                <div key={course.course_id} className="shrink-0 w-72">
-                  <CourseCard {...fromApiEnrolledCourse(course)} />
-                </div>
-              ))
-            )}
-          </ScrollRow>
-
-          <ScrollRow
-            title="What to learn next?"
-            isLoading={coursesLoading}
-            skeleton={<CourseCardSkeleton />}
-            skeletonCount={4}
-          >
-            {notYetEnrolled.map((course) => (
+      <div className="flex flex-col gap-10 mt-8">
+        <ScrollRow
+          showSeeAll
+          title="Continue Learning"
+          onSeeAll={() => router.push("/learnings")}
+          isLoading={enrolledCoursesLoading}
+          skeleton={<CourseCardSkeleton />}
+          skeletonCount={4}
+        >
+          {enrolledCourses.length === 0 && !enrolledCoursesLoading ? (
+            <p className="text-sm text-muted">
+              You haven&apos;t started any courses yet.
+            </p>
+          ) : (
+            enrolledCourses.map((course) => (
               <div key={course.course_id} className="shrink-0 w-72">
-                <CourseCard {...fromApiCourse(course)} />
+                <CourseCard {...fromApiEnrolledCourse(course)} />
               </div>
-            ))}
-          </ScrollRow>
-        </div>
+            ))
+          )}
+        </ScrollRow>
 
-        <div className="flex flex-col gap-7">
-          <AskAICard onSubmit={(query) => router.push(`/brainy/new?q=${encodeURIComponent(query)}`)} />
-          <ScrollRow
-            variant="card"
-            title="Practice Exams"
-            subTitle="Pick up where you left off"
-            isLoading={programsLoading}
-            skeleton={<ExamCardSkeleton />}
-            skeletonCount={5}
-          >
-            {programs.map((program) => (
-              <ExamCard key={program.program_id} exam={fromApiExamProgram(program)} />
-            ))}
-          </ScrollRow>
-        </div>
-      </div>
-
-      <div className="pt-8">
-        <DiscoverCourses />
-      </div>
-
-      <div className="pt-8">
-        <RecTopics />
+        <ScrollRow
+          showSeeAll
+          title="My Exam Programs"
+          onSeeAll={() => router.push("/learnings")}
+          isLoading={enrolledProgramsLoading}
+          skeleton={<ExamCardSkeleton />}
+          skeletonCount={4}
+        >
+          {enrolledPrograms.length === 0 && !enrolledProgramsLoading ? (
+            <p className="text-sm text-muted">
+              You haven&apos;t enrolled in any exam programs yet.
+            </p>
+          ) : (
+            enrolledPrograms.map((program) => (
+              <ExamCard key={program.program_id} exam={fromApiEnrolledProgram(program)} />
+            ))
+          )}
+        </ScrollRow>
       </div>
 
       <div className="flex items-center justify-between px-16 py-8 text-sm font-medium max-sm:flex-col w-full max-sm:px-3">

@@ -1,6 +1,11 @@
 export const sideBarLinks = [
   {
     link: "/dashboard",
+    icon: "ri:home-5-line",
+    label: "dashboard",
+  },
+  {
+    link: "/explore",
     icon: "line-md:compass",
     label: "explore",
   },
