@@ -38,3 +38,24 @@ export const selectSlot = async (input: {
   );
   return res.data.data;
 };
+
+export interface OnboardingRescheduleOutcome {
+  assignment_id: string;
+  status: "auto_accommodated" | "escalated";
+  scheduled_at?: string | null;
+}
+
+/** Endpoint: POST /assignment/<assignment_id>/reschedule-request -- the
+ * onboarding call's own reschedule path, distinct from
+ * sessions.service.ts's requestReschedule (which only covers a recurring
+ * `sessions` row from after a teacher is matched). */
+export const requestOnboardingReschedule = async (input: {
+  assignment_id: string;
+  proposed_time: string;
+}): Promise<OnboardingRescheduleOutcome> => {
+  const res = await apiClient.post<{data: OnboardingRescheduleOutcome}>(
+    `/assignment/${input.assignment_id}/reschedule-request`,
+    {proposed_time: input.proposed_time},
+  );
+  return res.data.data;
+};

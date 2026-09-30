@@ -29,8 +29,9 @@ export interface RescheduleOutcome {
 }
 
 /** Endpoint: POST /assignment/reschedule-request -- only applies to a
- * recurring weekly session (a real `sessions` row); the one-off onboarding
- * call has no session_id and no reschedule path. */
+ * recurring weekly session (a real `sessions` row). The one-off onboarding
+ * call has its own separate reschedule path -- see booking.service.ts's
+ * requestOnboardingReschedule (POST /assignment/<assignment_id>/reschedule-request). */
 export const requestReschedule = async (input: {
   session_id: string;
   proposed_time: string;
