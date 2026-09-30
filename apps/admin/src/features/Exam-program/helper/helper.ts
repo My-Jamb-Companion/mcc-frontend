@@ -25,6 +25,19 @@ export function fromApiLevel(level: string): ExamLevel {
   return API_LEVEL_TO_UI[level] ?? "all";
 }
 
+/** ProgramSideDetail's difficulty badge uses its own capitalized vocabulary,
+ * distinct from the edit form's ExamLevel -- "Moderate" is the existing
+ * fallback OpenProgram.tsx already used for a missing/unmapped level. */
+const API_LEVEL_TO_DIFFICULTY: Record<string, "Beginner" | "Moderate" | "Advanced"> = {
+  beginner: "Beginner",
+  intermediate: "Moderate",
+  advanced: "Advanced",
+};
+
+export function fromApiLevelToDifficulty(level: string): "Beginner" | "Moderate" | "Advanced" {
+  return API_LEVEL_TO_DIFFICULTY[level] ?? "Moderate";
+}
+
 /**
  * Maps the Step 1 (details) form values to the shape the backend's
  * "/admin/exams/programs" endpoint expects.

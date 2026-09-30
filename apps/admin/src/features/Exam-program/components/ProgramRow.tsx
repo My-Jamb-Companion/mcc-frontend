@@ -45,6 +45,10 @@ export interface ProgramFeatures {
  * does not return them — `OpenProgram` falls back when they are absent.
  */
 export interface ProgramDetailData extends ProgramListRowData {
+  /** exam_programs.exam_id -- lets the detail page find sibling programs
+   * under the same exam (e.g. other JAMB subjects). Not returned by the
+   * list endpoint, only the single-program detail one. */
+  examId?: string;
   instructor?: string;
   description?: string;
   imgBig?: string;
