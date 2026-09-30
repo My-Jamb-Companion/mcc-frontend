@@ -3,7 +3,6 @@ import {useRouter} from "next/navigation";
 import {Button, Icon, showError, showSuccess} from "@mcc/ui";
 import {FormInputs} from "@mcc/features";
 import {useEffect, useRef, useState} from "react";
-import StatsSummaryRow from "@/src/components/StatsSummary";
 import CourseSideDetail from "./CourseSideDetails";
 import CourseInfo from "./CourseInfo";
 import {useCourse} from "../hooks/useCourses";
@@ -72,10 +71,6 @@ export default function OpenCourse({id}: {id: string}) {
             />
             <Button variant="outline">Export</Button>
           </div>
-        </div>
-
-        <div className="mt-4">
-          <StatsSummaryRow />
         </div>
 
         <hr className="border-muted/20 my-10" />

@@ -6,7 +6,7 @@ const API_STATUS_TO_UI: Record<string, ProgramListRowData["status"]> = {
   draft: "draft",
 };
 
-function toUiStatus(status: string): ProgramListRowData["status"] {
+export function toUiStatus(status: string): ProgramListRowData["status"] {
   return API_STATUS_TO_UI[status] ?? "draft";
 }
 
@@ -22,7 +22,7 @@ const EXAM_NAME_TO_TYPE: Record<string, ProgramListRowData["examType"]> = {
   gce: "gce",
 };
 
-function toExamType(examName: string | null): ProgramListRowData["examType"] {
+export function toExamType(examName: string | null): ProgramListRowData["examType"] {
   if (!examName) return "internal";
   return EXAM_NAME_TO_TYPE[examName.trim().toLowerCase()] ?? "internal";
 }

@@ -40,6 +40,7 @@ export interface ListExamProgramsParams {
   limit?: number;
   status?: "draft" | "published";
   teacher_id?: string;
+  exam_id?: string;
   search?: string;
 }
 
@@ -153,6 +154,14 @@ export interface ApiExamProgramDetail {
   created_at: string;
   updated_at: string;
   published_at: string | null;
+  // Joined display fields -- exam_programs itself has no title, these come
+  // from exams_list/subjects/categories/users_profile, same as the list
+  // endpoint's ApiExamProgramSummary.
+  exam_name: string | null;
+  subject_name: string | null;
+  category_name: string | null;
+  teacher_name: string | null;
+  teacher_avatar: string | null;
 }
 
 /**

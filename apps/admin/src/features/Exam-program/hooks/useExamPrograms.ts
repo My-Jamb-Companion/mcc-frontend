@@ -6,6 +6,7 @@ import {
 } from "../services/exam.service";
 import {fromApiExamProgramSummary} from "../helper/list.mapper";
 import {fromApiExamProgramDetail} from "../helper/detail.mapper";
+import {fromApiExamProgramToDisplay} from "../helper/display.mapper";
 
 /**
  * Lists exam programs from the live backend (GET /admin/exams/programs),
@@ -40,6 +41,23 @@ export const useExamProgram = (programId: string | null | undefined) => {
     queryKey: ["exam-program", programId],
     queryFn: () =>
       getExamProgram(programId as string).then(fromApiExamProgramDetail),
+    enabled: !!programId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+/**
+ * Fetches one exam program's detail (same endpoint as useExamProgram)
+ * adapted into ProgramDetailData for OpenProgram.tsx's read-only overview
+ * page, rather than useExamProgram's ExamProgramFormValues shape, which is
+ * built for CreateExamProgram's edit wizard and carries UI-only ids that
+ * page has no use for.
+ */
+export const useExamProgramDisplay = (programId: string | null | undefined) => {
+  return useQuery({
+    queryKey: ["exam-program", programId, "display"],
+    queryFn: () =>
+      getExamProgram(programId as string).then(fromApiExamProgramToDisplay),
     enabled: !!programId,
     refetchOnWindowFocus: false,
   });

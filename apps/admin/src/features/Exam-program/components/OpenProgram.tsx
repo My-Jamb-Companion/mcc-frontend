@@ -1,13 +1,17 @@
 "use client";
 import {useRouter, useSearchParams} from "next/navigation";
-import {dummyPrograms} from "../constants/dummyData";
 import type {ProgramFeatures, ProgramStats} from "./ProgramRow";
-import {Button, Icon} from "@mcc/ui";
+import {Button, Icon, showError, showSuccess} from "@mcc/ui";
 import {FormInputs} from "@mcc/features";
 import {useState} from "react";
-import StatsSummaryRow from "@/src/components/StatsSummary";
 import ProgramSideDetail from "./ProgramSideDetail";
-import ProgramCardGrid from "./Programcard";
+import ProgramSiblingsGrid from "./Programcard";
+import {useExamProgramDisplay} from "../hooks/useExamPrograms";
+import {
+  getApiErrorMessage,
+  publishExamProgram,
+  unpublishExamProgram,
+} from "../services/exam.service";
 
 /**
  * The list endpoint does not return sidebar stats or features, so a program
@@ -37,13 +41,53 @@ export default function OpenProgram() {
   if (!id) {
     router.push("/dashboard/exam-program");
   }
-  const item = dummyPrograms.find((item) => item.id === id);
+
+  const {
+    data: item,
+    isLoading,
+    isError,
+    refetch,
+  } = useExamProgramDisplay(id);
 
   const [filter, setFilter] = useState("last 7 days");
+
+  const handleTogglePublish = async () => {
+    if (!id || !item) return;
+    try {
+      if (item.status === "draft") {
+        await publishExamProgram(id);
+        showSuccess("Exam program published successfully!");
+      } else {
+        await unpublishExamProgram(id);
+        showSuccess("Exam program moved back to drafts.");
+      }
+      refetch();
+    } catch (err) {
+      showError(
+        getApiErrorMessage(
+          err,
+          "Failed to update exam program status. Please try again.",
+        ),
+      );
+    }
+  };
+
+  if (isLoading) {
+    return <p className="text-sm text-muted">Loading program…</p>;
+  }
+
+  if (isError || !item) {
+    return (
+      <p className="text-sm text-red-600">
+        Failed to load this program. Please try again.
+      </p>
+    );
+  }
+
   return (
     <section className="flex flex-col gap-6 ">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">{item?.title}</h1>
+        <h1 className="text-2xl font-semibold">{item.title}</h1>
       </div>
 
       <div className="flex flex-col h-full border border-muted/20 rounded-2xl px-6 py-8 flex-1 ">
@@ -65,10 +109,6 @@ export default function OpenProgram() {
           </div>
         </div>
 
-        <div className="mt-4">
-          <StatsSummaryRow />
-        </div>
-
         <hr className="border-muted/20 my-10" />
 
         <div className="flex items-center gap-3 max-w-95 ml-auto">
@@ -80,22 +120,30 @@ export default function OpenProgram() {
           </Button>
           <Button
             leftIcon={
-              <Icon icon="material-symbols:cloud-off-outline" size={18} />
+              <Icon
+                icon={
+                  item.status === "live"
+                    ? "material-symbols:cloud-off-outline"
+                    : "material-symbols:cloud-outline"
+                }
+                size={18}
+              />
             }
             variant="outline"
             className="text-nowrap"
+            onClick={handleTogglePublish}
           >
-            Unpublish program
+            {item.status === "live" ? "Unpublish program" : "Publish program"}
           </Button>
         </div>
 
         <div className="grid grid-cols-[1.5fr_1fr] gap-5 justify-between ">
           <div className="flex flex-col gap-3">
             <Hero
-              rating={Number(item?.rating || 0)}
-              totalRatings={Number(item?.rating || 0)}
-              mainImage={item?.imgBig || ""}
-              instructorImage={item?.imgSmall || ""}
+              rating={Number(item.rating || 0)}
+              totalRatings={Number(item.reviewCount || 0)}
+              mainImage={item.imgBig || ""}
+              instructorImage=""
               onPlay={() => {}}
             />
 
@@ -103,27 +151,35 @@ export default function OpenProgram() {
               <p className="text-sm text-subtle">
                 A course by{" "}
                 <span className="font-semibold text-foreground">
-                  {item?.instructor}
+                  {item.instructor || "Unassigned"}
                 </span>
               </p>
               <h1 className="text-3xl font-bold leading-tight">
-                {item?.title}
+                {item.title}
               </h1>
               <p className="text-sm text-subtle leading-relaxed">
-                {item?.description}
+                {item.description}
               </p>
             </div>
 
-            <ProgramCardGrid />
+            <ProgramSiblingsGrid
+              examId={item.examId}
+              currentProgramId={item.id}
+              onView={(siblingId) => {
+                router.push(
+                  `/dashboard/exam-program/${item.examType}?id=${siblingId}`,
+                );
+              }}
+            />
           </div>
           <div className="flex flex-col gap-3">
             <ProgramSideDetail
-              price={item?.price || 0}
-              currency={item?.currency || ""}
-              lessons={item?.meta?.lessons || 0}
-              difficulty={item?.meta?.difficulty || "Moderate"}
-              stats={item?.stats ?? EMPTY_PROGRAM_STATS}
-              features={item?.features ?? EMPTY_PROGRAM_FEATURES}
+              price={item.price || 0}
+              currency={item.currency || ""}
+              lessons={item.meta?.lessons || 0}
+              difficulty={item.meta?.difficulty || "Moderate"}
+              stats={item.stats ?? EMPTY_PROGRAM_STATS}
+              features={item.features ?? EMPTY_PROGRAM_FEATURES}
             />
           </div>
         </div>
@@ -140,11 +196,13 @@ function Hero({mainImage, rating, totalRatings, onPlay}: HeroProps) {
     <div className="relative w-full rounded-2xl overflow-visible">
       {/* Main Image */}
       <div className="w-full aspect-video rounded-2xl overflow-hidden bg-amber-800">
-        <img
-          src={mainImage}
-          alt="Course preview"
-          className="w-full h-full object-cover"
-        />
+        {mainImage && (
+          <img
+            src={mainImage}
+            alt="Course preview"
+            className="w-full h-full object-cover"
+          />
+        )}
       </div>
 
       {/* Play Button — top right */}
