@@ -11,6 +11,7 @@ import CourseCardSkeleton from "@/src/features/components/CourseCardSkeleton";
 import AskAICard from "./AskAI";
 import ExamCard from "@/src/features/components/ExamCard";
 import RecTopics from "./RecTopics";
+import DiscoverCourses from "@/src/features/brainy/components/DiscoverCourses";
 import ExamCardSkeleton from "@/src/features/components/ExamCardSkeleton";
 import {useCourses, useEnrolledCourses} from "@/src/features/courses/hooks/useCourses";
 import {fromApiCourse, fromApiEnrolledCourse} from "@/src/features/courses/helper/course.mapper";
@@ -155,6 +156,10 @@ export default function Dashboard() {
             ))}
           </ScrollRow>
         </div>
+      </div>
+
+      <div className="pt-8">
+        <DiscoverCourses />
       </div>
 
       <div className="pt-8">

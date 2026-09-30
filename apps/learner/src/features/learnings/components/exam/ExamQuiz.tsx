@@ -1,8 +1,10 @@
 "use client";
 import {useMemo, useState} from "react";
-import {AnimatePresence, motion, Icon} from "@mcc/ui";
+import {AnimatePresence, motion, Icon, showError} from "@mcc/ui";
+import {extractApiError} from "@mcc/api";
 import {useSubmitExamSession} from "@/src/features/exams/hooks/useExams";
 import {ApiExamQuestion, ApiExamSubmissionResult} from "@/src/features/exams/services/exam.service";
+import {useAnalysis, useQuestionHelp} from "@/src/features/brainy/hooks/useAiFeedback";
 
 interface ExamQuizProps {
   sessionId: string;
@@ -19,6 +21,7 @@ interface ExamQuizProps {
  */
 export default function ExamQuiz({sessionId, questions, type, label, onDone}: ExamQuizProps) {
   const submit = useSubmitExamSession();
+  const questionHelp = useQuestionHelp();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -26,6 +29,7 @@ export default function ExamQuiz({sessionId, questions, type, label, onDone}: Ex
   const [reviewMode, setReviewMode] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [aiHelp, setAiHelp] = useState<Record<string, string>>({});
 
   const resultByQuestionId = useMemo(() => {
     const map = new Map<string, ApiExamSubmissionResult["results"][number]>();
@@ -75,6 +79,14 @@ export default function ExamQuiz({sessionId, questions, type, label, onDone}: Ex
     setReviewMode(false);
     setShowExplanation(false);
     setSubmitError(null);
+    setAiHelp({});
+  };
+
+  const askAiToExplain = (questionId: string) => {
+    questionHelp.mutate(questionId, {
+      onSuccess: (res) => setAiHelp((prev) => ({...prev, [questionId]: res.explanation})),
+      onError: (error) => showError(extractApiError(error, "Couldn't get an explanation right now")),
+    });
   };
 
   if (!currentQuestion) {
@@ -152,6 +164,17 @@ export default function ExamQuiz({sessionId, questions, type, label, onDone}: Ex
                   Prev
                 </button>
               )}
+              {reviewMode && !aiHelp[currentQuestion.question_id] && (
+                <button
+                  type="button"
+                  onClick={() => askAiToExplain(currentQuestion.question_id)}
+                  disabled={questionHelp.isPending}
+                  className="flex items-center justify-center gap-1.5 rounded-full border border-primary/40 px-5 py-2.5 text-sm font-semibold text-primary disabled:opacity-50"
+                >
+                  <Icon icon="mingcute:ai-fill" size={14} />
+                  {questionHelp.isPending ? "Asking Brainy…" : "Explain this"}
+                </button>
+              )}
               {!reviewMode && currentQuestion.explanation && (
                 <button type="button" onClick={() => setShowExplanation(true)} disabled={showExplanation}
                   className="rounded-full border border-muted/20 px-5 py-2.5 text-sm font-semibold disabled:opacity-40">
@@ -176,6 +199,18 @@ export default function ExamQuiz({sessionId, questions, type, label, onDone}: Ex
               <div className="mt-4 rounded-2xl bg-muted/10 p-5">
                 <p className="text-sm font-semibold mb-1">Explanation</p>
                 <p className="text-sm text-subtle leading-relaxed">{currentQuestion.explanation}</p>
+              </div>
+            )}
+
+            {reviewMode && aiHelp[currentQuestion.question_id] && (
+              <div className="mt-4 rounded-2xl bg-primary/5 p-5">
+                <p className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-primary">
+                  <Icon icon="mingcute:ai-fill" size={14} />
+                  Brainy explains
+                </p>
+                <p className="text-sm text-subtle leading-relaxed">
+                  {aiHelp[currentQuestion.question_id]}
+                </p>
               </div>
             )}
 
@@ -210,6 +245,18 @@ function ExamQuizResults({
   result: ApiExamSubmissionResult; onRetry: () => void; onDone: () => void; onReview: () => void;
 }) {
   const correctCount = result.results.filter((r) => r.is_correct).length;
+  const analysis = useAnalysis();
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  const handleGetFeedback = () => {
+    analysis.mutate(
+      {total_questions: result.results.length, correct_answers: correctCount},
+      {
+        onSuccess: (res) => setFeedback(res.feedback),
+        onError: (error) => showError(extractApiError(error, "Couldn't get feedback right now")),
+      },
+    );
+  };
 
   const {title, message, emoji} = useMemo(() => {
     const p = result.score_percent;
@@ -243,6 +290,26 @@ function ExamQuizResults({
           </div>
         ))}
       </div>
+
+      {feedback ? (
+        <div className="mt-6 w-full max-w-md rounded-2xl bg-primary/5 p-5 text-left">
+          <p className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-primary">
+            <Icon icon="mingcute:ai-fill" size={14} />
+            Brainy&apos;s feedback
+          </p>
+          <p className="text-sm text-subtle leading-relaxed">{feedback}</p>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={handleGetFeedback}
+          disabled={analysis.isPending}
+          className="mt-6 flex items-center gap-1.5 rounded-full border border-primary/40 px-5 py-2.5 text-sm font-semibold text-primary disabled:opacity-50"
+        >
+          <Icon icon="mingcute:ai-fill" size={14} />
+          {analysis.isPending ? "Asking Brainy…" : "Get AI feedback"}
+        </button>
+      )}
 
       <div className="mt-8 flex flex-col md:flex-row gap-3">
         <button type="button" onClick={onRetry}

@@ -5,6 +5,7 @@ import {motion} from "framer-motion";
 import {Icon} from "@mcc/ui";
 import DragImageOverlay, {useGlobalFileDrag} from "./DragFile";
 import UploadZone from "./BrainyUpload";
+import {usePromptSuggestions} from "../hooks/useDiscover";
 
 export interface BrainyChatBoxProps {
   onSubmitQuestion?: (question: string, files: File[]) => void;
@@ -42,9 +43,25 @@ export function BrainyChatBox({
   }, [question, files, onSubmitQuestion]);
 
   const isDraggingFile = useGlobalFileDrag(handleFilesAdded);
+  const {suggestions} = usePromptSuggestions();
 
   return (
     <div className={`mx-auto w-full max-w-[660px] ${className}`}>
+      {!question && suggestions.length > 0 && (
+        <div className="mb-3 flex flex-wrap justify-center gap-2">
+          {suggestions.map((suggestion) => (
+            <button
+              key={suggestion}
+              type="button"
+              onClick={() => setQuestion(suggestion)}
+              className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-50"
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Upload + question composer */}
       <UploadZone
         files={files}
