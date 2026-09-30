@@ -37,7 +37,7 @@ export function fromApiExamProgramSummary(
   return {
     id: api.program_id,
     examType: toExamType(api.exam_name),
-    teacherName: api.teacher_name,
+    teacherName: api.teacher_name ?? "Unassigned",
     rating: Number(api.rating || 0).toFixed(1),
     // Not returned by this endpoint yet.
     reviewCount: "0",

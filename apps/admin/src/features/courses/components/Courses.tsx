@@ -226,7 +226,7 @@ function TeacherMultiSelect({
   const results = useMemo(
     () =>
       teachers.filter((t) =>
-        t.name.toLowerCase().includes(query.toLowerCase()),
+        (t.name ?? "").toLowerCase().includes(query.toLowerCase()),
       ),
     [teachers, query],
   );

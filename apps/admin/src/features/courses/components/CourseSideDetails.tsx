@@ -10,26 +10,26 @@ const featureItems = (
 ) => [
   {
     icon: "solar:user-circle-outline",
-    label: `${stats?.enrolledStudents} Students`,
+    label: `${stats?.enrolledStudents ?? 0} Students`,
   },
   {
     icon: "solar:play-circle-outline",
-    label: `${stats?.totalHours} hour on-demand video`,
+    label: `${stats?.totalHours ?? 0} hour on-demand video`,
   },
   {
     icon: "solar:question-circle-outline",
-    label: `${stats?.practiceTests} Practice test`,
+    label: `${stats?.practiceTests ?? 0} Practice test`,
   },
   ...(features?.assignments
     ? [{icon: "solar:document-outline", label: "Assignments"}]
     : []),
   {
     icon: "solar:paperclip-outline",
-    label: `${stats?.additionalResources} additional resources`,
+    label: `${stats?.additionalResources ?? 0} additional resources`,
   },
   {
     icon: "solar:download-square-outline",
-    label: `${stats?.downloadableResources} downloadable resources`,
+    label: `${stats?.downloadableResources ?? 0} downloadable resources`,
   },
   ...(features?.mobileAndTVAccess
     ? [{icon: "solar:smartphone-outline", label: "Access on mobile and TV"}]

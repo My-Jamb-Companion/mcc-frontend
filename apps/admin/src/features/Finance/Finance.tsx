@@ -21,6 +21,7 @@ import {
   useRecentPayments,
 } from "./hooks/useFinance";
 import {
+  computeFinancialHealth,
   fromApiMonthlyFlow,
   fromApiProgramRevenueToOverview,
   fromApiProgramRevenueToPerformance,
@@ -50,6 +51,7 @@ export default function Finance() {
   const studentOverviewData = recentPayments
     ? fromApiRecentPayments(recentPayments)
     : [];
+  const financialHealth = computeFinancialHealth(monthlyFlowData);
 
   return (
     <section>
@@ -94,17 +96,18 @@ export default function Finance() {
         />
 
         <FinancialHealthCard
-          statusLabel="On track"
-          statusTone="success"
-          amount={110_211_503}
+          statusLabel={financialHealth.isHealthy ? "On track" : "Needs attention"}
+          statusTone={financialHealth.isHealthy ? "success" : "danger"}
+          amount={Math.max(0, financialHealth.netThisMonth)}
           currencySymbol="₦"
-          changePercent={20}
-          ringValueLabel="56%"
+          changePercent={financialHealth.changePercent}
+          ringValueLabel={`${financialHealth.savedPercent}%`}
           ringCaption="Of monthly income saved"
           ringSegments={[
-            {upTo: 56, color: "#4F3FE0"},
-            {upTo: 88, color: "#C7C2F5"},
-            {upTo: 100, color: "#8FDB6E"},
+            {
+              upTo: Math.max(0, Math.min(100, financialHealth.savedPercent)),
+              color: financialHealth.isHealthy ? "#4F3FE0" : "#B33333",
+            },
           ]}
         />
       </div>
