@@ -1,27 +1,237 @@
 "use client";
 
-import {AnimatePresence, Button, Icon, motion} from "@mcc/ui";
-import Image from "next/image";
+import {AnimatePresence, Icon, motion} from "@mcc/ui";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useEffect, useRef, useState} from "react";
 
-export default function SideNav() {
-  const [open, setOpen] = useState(false);
-  const [expanded, setExpanded] = useState<Set<string>>(new Set(["programs"]));
-  const [moreOpen, setMoreOpen] = useState(false);
-  const moreRef = useRef<HTMLDivElement>(null);
+interface NavChild {
+  key: string;
+  label: string;
+  href: string;
+}
 
+interface NavEntry {
+  key: string;
+  icon: string;
+  label: string;
+  /** Leaf item: clicking the icon navigates straight there. */
+  href?: string;
+  /** Parent item: clicking the icon opens a flyout of these instead of
+   * navigating anywhere itself. */
+  children?: NavChild[];
+}
+
+// Every dashboard section as one flat, ordered rail -- the old split
+// between a handful of top-level route icons and a second, wide, collapsible
+// panel of text-only links (shown only on /dashboard/* routes) is gone.
+// Every entry now has its own icon; a leaf's name shows as a hover tooltip,
+// a parent's children show in a click-to-open flyout.
+const NAV_ENTRIES: NavEntry[] = [
+  {
+    key: "dashboard",
+    icon: "material-symbols:dashboard-outline-rounded",
+    label: "Dashboard",
+    href: "/dashboard",
+  },
+  {
+    key: "performance",
+    icon: "ri:bar-chart-2-line",
+    label: "Performance Overview",
+    href: "/dashboard/performance",
+  },
+  {
+    key: "live-sessions",
+    icon: "material-symbols:video-chat-outline",
+    label: "Live sessions",
+    href: "/dashboard/live-sessions",
+  },
+  {
+    key: "ai-studio",
+    icon: "ri:robot-2-line",
+    label: "AI studio analysis",
+    href: "/dashboard/ai-studio",
+  },
+  {
+    key: "teachers",
+    icon: "ri:user-star-line",
+    label: "Teachers",
+    href: "/dashboard/teachers",
+  },
+  {
+    key: "cra",
+    icon: "ri:customer-service-2-line",
+    label: "CRAs",
+    href: "/dashboard/cra",
+  },
+  {
+    key: "programs",
+    icon: "ri:book-shelf-line",
+    label: "Programs",
+    children: [
+      {key: "exam-program", label: "Exam program", href: "/dashboard/exam-program"},
+      {key: "courses", label: "Courses", href: "/dashboard/courses"},
+    ],
+  },
+  {
+    key: "students",
+    icon: "ri:graduation-cap-line",
+    label: "Students",
+    children: [
+      {
+        key: "active-students",
+        label: "Active Students",
+        href: "/dashboard/students/active-students",
+      },
+      {
+        key: "prospective-students",
+        label: "Prospective Students",
+        href: "/dashboard/students/prospective-students",
+      },
+    ],
+  },
+  {
+    key: "finance",
+    icon: "ri:money-dollar-box-line",
+    label: "Finance",
+    href: "/finance",
+  },
+  {
+    key: "messaging",
+    icon: "ri:message-2-line",
+    label: "Messaging",
+    href: "/messaging",
+  },
+  {
+    key: "moderation",
+    icon: "ri:flag-2-line",
+    label: "Moderation",
+    href: "/moderation",
+  },
+  {
+    key: "users",
+    icon: "ri:group-line",
+    label: "Users",
+    href: "/users",
+  },
+];
+
+// Only routes that exist: Next prefetches every link in view, so a link to a
+// missing page 404s on every page load, in the console and the network log.
+const BOTTOM_ENTRY: NavEntry = {
+  key: "more",
+  icon: "solar:settings-broken",
+  label: "More",
+  children: [{key: "settings", label: "Settings", href: "/settings"}],
+};
+
+function isEntryActive(pathname: string | null, entry: NavEntry): boolean {
+  if (entry.href) {
+    return pathname === entry.href || (pathname?.startsWith(entry.href) ?? false);
+  }
+  return entry.children?.some((child) => pathname === child.href) ?? false;
+}
+
+function NavIcon({
+  entry,
+  isOpen,
+  onToggle,
+  pathname,
+}: {
+  entry: NavEntry;
+  isOpen: boolean;
+  onToggle: () => void;
+  pathname: string | null;
+}) {
+  const active = isEntryActive(pathname, entry);
+
+  if (entry.children) {
+    return (
+      <div className="group relative">
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label={entry.label}
+          aria-expanded={isOpen}
+          className={`flex justify-center rounded-lg p-2.5 transition-all duration-300 ease-out cursor-pointer w-fit ${
+            isOpen || active ? "bg-white shadow-sm" : ""
+          }`}
+        >
+          <Icon icon={entry.icon} />
+        </button>
+
+        {!isOpen && (
+          <span className="pointer-events-none absolute left-full top-1/2 z-40 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100">
+            {entry.label}
+          </span>
+        )}
+
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{opacity: 0, y: 6}}
+              animate={{opacity: 1, y: 0}}
+              exit={{opacity: 0, y: 6}}
+              transition={{duration: 0.15}}
+              className="absolute top-0 left-full z-50 ml-2 w-48 overflow-hidden rounded-xl border border-muted/20 bg-white py-1 shadow-lg"
+            >
+              <p className="px-4 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                {entry.label}
+              </p>
+              {entry.children.map((child) => {
+                const isChildActive = pathname === child.href;
+                return (
+                  <Link
+                    key={child.key}
+                    href={child.href}
+                    onClick={onToggle}
+                    className={`block px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors ${
+                      isChildActive
+                        ? "bg-black text-white"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {child.label}
+                  </Link>
+                );
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
+
+  return (
+    <div className="group relative">
+      <Link
+        href={entry.href!}
+        className={`flex justify-center rounded-lg p-2.5 transition-all duration-300 ease-out cursor-pointer w-fit ${
+          active ? "bg-white shadow-sm" : ""
+        }`}
+      >
+        <Icon icon={entry.icon} />
+      </Link>
+      <span className="pointer-events-none absolute left-full top-1/2 z-40 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100">
+        {entry.label}
+      </span>
+    </div>
+  );
+}
+
+export default function SideNav() {
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!moreOpen) return;
+    if (!openKey) return;
     function handleClick(e: MouseEvent) {
-      if (moreRef.current?.contains(e.target as Node)) return;
-      setMoreOpen(false);
+      if (containerRef.current?.contains(e.target as Node)) return;
+      setOpenKey(null);
     }
     function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setMoreOpen(false);
+      if (e.key === "Escape") setOpenKey(null);
     }
     document.addEventListener("mousedown", handleClick);
     document.addEventListener("keydown", handleKey);
@@ -29,371 +239,62 @@ export default function SideNav() {
       document.removeEventListener("mousedown", handleClick);
       document.removeEventListener("keydown", handleKey);
     };
-  }, [moreOpen]);
+  }, [openKey]);
 
-  const isDashboardRoute = pathname?.startsWith("/dashboard") ?? false;
-
-  const toggle = (key: string) => {
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) {
-        next.delete(key);
-      } else {
-        next.add(key);
-      }
-      return next;
-    });
-  };
+  // Route changes (a child link was followed, or the browser back/forward
+  // button fired) should close whatever's open. Adjusted during render
+  // rather than in an effect -- React's own recommended pattern for
+  // resetting state when a value changes ("Adjusting state when a prop
+  // changes", not a ref -- reading a ref's .current during render is its
+  // own lint error) -- so this doesn't cost an extra render.
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    if (openKey !== null) setOpenKey(null);
+  }
 
   return (
-    <motion.aside
-      layout
-      transition={{
-        layout: {
-          duration: 0.35,
-          ease: [0.22, 1, 0.36, 1],
-        },
-      }}
-      className="flex max-sm:hidden w-full max-w-[280px] h-full"
-    >
-      <div className="w-[60px] flex flex-col items-center border-r border-muted/20 px-2 pb-5">
-        <div className="w-full flex flex-col items-center justify-center mb-4 py-4.5">
+    <aside className="flex max-sm:hidden w-[60px] h-full shrink-0">
+      <div
+        ref={containerRef}
+        className="w-full flex flex-col items-center border-r border-muted/20 px-2 pb-5"
+      >
+        <div className="w-full flex flex-col items-center justify-center mb-2 py-4.5">
           <h2 className="text-lg font-bagel text-primary">MCC</h2>
         </div>
 
-        <div className="flex flex-col justify-between gap-4 h-full">
-          <div className="flex flex-col items-center gap-4">
-            {navs.routenav.map((item, idx) => {
-              const isActive =
-                pathname === item.href || pathname?.startsWith(item.href);
-
-              return (
-                <Link
-                  href={item.href}
-                  key={idx}
-                  className={`flex justify-center rounded-lg p-2.5 transition-all duration-300 ease-out cursor-pointer w-fit ${
-                    isActive ? "bg-white shadow-sm" : ""
-                  }`}
-                >
-                  <Icon icon={item.icon} />
-                </Link>
-              );
-            })}
+        <div className="flex flex-col justify-between gap-4 h-full w-full items-center">
+          {/* No overflow/scroll here on purpose -- a tooltip or flyout
+              positioned outside this column (left-full) needs the x-axis to
+              stay visible, and CSS overflow-y-auto would clip that too
+              (setting one axis clips both). All 13 entries comfortably fit
+              without scrolling at any real viewport height. */}
+          <div className="flex flex-col items-center gap-3 py-1">
+            {NAV_ENTRIES.map((entry) => (
+              <NavIcon
+                key={entry.key}
+                entry={entry}
+                isOpen={openKey === entry.key}
+                onToggle={() =>
+                  setOpenKey((prev) => (prev === entry.key ? null : entry.key))
+                }
+                pathname={pathname}
+              />
+            ))}
           </div>
 
-          <div className="flex flex-col items-center gap-4">
-            {navs.bottomNav.map((item, idx) => {
-              if (item.expandable) {
-                const hasActiveChild = item.children?.some(
-                  (child) => pathname === child.href,
-                );
-
-                return (
-                  <div key={idx} ref={moreRef} className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setMoreOpen((prev) => !prev)}
-                      aria-label={item.label}
-                      aria-expanded={moreOpen}
-                      className={`flex justify-center rounded-lg p-2.5 transition-all duration-300 ease-out cursor-pointer w-fit ${
-                        moreOpen || hasActiveChild ? "bg-white shadow-sm" : ""
-                      }`}
-                    >
-                      <Icon icon={item.icon} />
-                    </button>
-
-                    <AnimatePresence>
-                      {moreOpen && (
-                        <motion.div
-                          initial={{opacity: 0, y: 6}}
-                          animate={{opacity: 1, y: 0}}
-                          exit={{opacity: 0, y: 6}}
-                          transition={{duration: 0.15}}
-                          className="absolute bottom-0 left-full ml-2 w-44 rounded-xl border border-muted/20 bg-white shadow-lg py-1 z-50"
-                        >
-                          {item.children?.map((child) => {
-                            const isChildActive = pathname === child.href;
-                            return (
-                              <Link
-                                key={child.key}
-                                href={child.href}
-                                onClick={() => setMoreOpen(false)}
-                                className={`block px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors ${
-                                  isChildActive
-                                    ? "bg-black text-white"
-                                    : "text-gray-700 hover:bg-gray-100"
-                                }`}
-                              >
-                                {child.label}
-                              </Link>
-                            );
-                          })}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                );
+          <div className="flex flex-col items-center gap-4 shrink-0">
+            <NavIcon
+              entry={BOTTOM_ENTRY}
+              isOpen={openKey === BOTTOM_ENTRY.key}
+              onToggle={() =>
+                setOpenKey((prev) => (prev === BOTTOM_ENTRY.key ? null : BOTTOM_ENTRY.key))
               }
-
-              return (
-                <Link
-                  href={item.href!}
-                  key={idx}
-                  className={`flex justify-center rounded-lg p-2.5 transition-all duration-300 ease-out cursor-pointer w-fit`}
-                >
-                  {item.label === "profile" ? (
-                    <div className="relative rounded-full h-8 w-8 border border-muted/30">
-                      <Image src="" fill alt="profile-pic" />
-                    </div>
-                  ) : (
-                    <Icon icon={item.icon} />
-                  )}
-                </Link>
-              );
-            })}
+              pathname={pathname}
+            />
           </div>
         </div>
       </div>
-
-      {isDashboardRoute && (
-        <motion.div
-          animate={{
-            width: open ? 220 : 52,
-          }}
-          transition={{
-            duration: 0.35,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-          className="overflow-hidden border-r border-muted/20"
-        >
-          <div className="flex items-center justify-between px-3 py-4.5 border-b border-muted/30">
-            <AnimatePresence mode="wait">
-              {open && (
-                <motion.h3
-                  key="title"
-                  initial={{opacity: 0, x: -10}}
-                  animate={{opacity: 1, x: 0}}
-                  exit={{opacity: 0, x: -10}}
-                  transition={{duration: 0.2}}
-                  className="text-sm font-semibold whitespace-nowrap"
-                >
-                  Dashboard
-                </motion.h3>
-              )}
-            </AnimatePresence>
-            <Button
-              variant={"secondary"}
-              radius="sm"
-              width="fit"
-              className="bg-white p-1! border-2! border-muted/30!"
-              onClick={() => setOpen((prev) => !prev)}
-            >
-              <Icon
-                icon="weui:back-filled"
-                size={21}
-                className={`${!open ? "rotate-180" : ""} transition-all duration-300 ease-out`}
-              />
-            </Button>
-          </div>
-
-          <AnimatePresence>
-            {open && (
-              <motion.div
-                initial={{opacity: 0, x: -20}}
-                animate={{opacity: 1, x: 0}}
-                exit={{opacity: 0, x: -20}}
-                transition={{duration: 0.15}}
-                className="flex justify-center py-6 px-4"
-              >
-                <nav className="w-full py-2">
-                  <ul className="flex flex-col">
-                    {navs.navAccordions.map((item) => {
-                      const hasActiveChild = item.children?.some(
-                        (child) => pathname === child.href,
-                      );
-
-                      const isExpanded =
-                        expanded.has(item.key) || hasActiveChild;
-                      const isItemActive = pathname === item.href;
-
-                      return (
-                        <motion.li
-                          layout
-                          key={item.key}
-                          transition={{layout: {duration: 0.25}}}
-                        >
-                          <div className="flex items-center justify-between px-2 py-3 rounded-md">
-                            {item.expandable ? (
-                              <button
-                                type="button"
-                                onClick={() => toggle(item.key)}
-                                className="flex-1 text-left text-sm font-medium text-gray-800 py-2"
-                              >
-                                {item.label}
-                              </button>
-                            ) : (
-                              <Link
-                                href={item.href!}
-                                className={`flex-1 rounded-md px-2 py-2 text-sm font-medium transition-colors ${
-                                  isItemActive
-                                    ? "bg-black text-white"
-                                    : "text-gray-800 hover:bg-gray-100"
-                                }`}
-                              >
-                                {item.label}
-                              </Link>
-                            )}
-
-                            {item.expandable && (
-                              <button
-                                type="button"
-                                onClick={() => toggle(item.key)}
-                                className="p-1 -m-1"
-                                aria-label={isExpanded ? "Collapse" : "Expand"}
-                              >
-                                <motion.div
-                                  animate={{rotate: isExpanded ? 180 : 0}}
-                                  transition={{duration: 0.2}}
-                                >
-                                  <Icon
-                                    icon="mingcute:down-line"
-                                    size={16}
-                                    className="text-gray-500"
-                                  />
-                                </motion.div>
-                              </button>
-                            )}
-                          </div>
-
-                          <AnimatePresence initial={false}>
-                            {item.expandable && item.children && isExpanded && (
-                              <motion.ul
-                                initial={{height: 0, opacity: 0}}
-                                animate={{height: "auto", opacity: 1}}
-                                exit={{height: 0, opacity: 0}}
-                                transition={{duration: 0.25}}
-                                className="overflow-hidden flex flex-col gap-1 pb-2 w-[90%] ml-auto"
-                              >
-                                {item.children.map((child) => {
-                                  const isChildActive = pathname === child.href;
-
-                                  return (
-                                    <motion.li
-                                      key={child.key}
-                                      initial={{opacity: 0, x: -8}}
-                                      animate={{opacity: 1, x: 0}}
-                                      transition={{duration: 0.2}}
-                                    >
-                                      <Link
-                                        href={child.href}
-                                        className={`block w-full rounded-md px-4 py-2.5 text-sm font-medium transition-colors ${
-                                          isChildActive
-                                            ? "bg-black text-white"
-                                            : "text-gray-700 hover:bg-gray-100"
-                                        }`}
-                                      >
-                                        {child.label}
-                                      </Link>
-                                    </motion.li>
-                                  );
-                                })}
-                              </motion.ul>
-                            )}
-                          </AnimatePresence>
-                        </motion.li>
-                      );
-                    })}
-                  </ul>
-                </nav>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      )}
-    </motion.aside>
+    </aside>
   );
 }
-
-interface NavIconItem {
-  icon: string;
-  label: string;
-  href?: string;
-  expandable?: boolean;
-  children?: {label: string; key: string; href: string}[];
-}
-
-const navs = {
-  routenav: [
-    {
-      icon: "material-symbols:dashboard-outline-rounded",
-      label: "dashboard",
-      href: "/dashboard",
-    },
-    {
-      icon: "ri:money-dollar-box-line",
-      label: "finance",
-      href: "/finance",
-    },
-    {icon: "ri:message-2-line", label: "user", href: "/messaging"},
-    {icon: "ri:flag-2-line", label: "moderation", href: "/moderation"},
-    {icon: "ri:group-line", label: "users", href: "/users"},
-  ],
-  // Only routes that exist: Next prefetches every link in view, so a link to
-  // a missing page 404s on every page load, in the console and the network log.
-  bottomNav: [
-    {
-      icon: "solar:settings-broken",
-      label: "more",
-      expandable: true,
-      children: [{label: "Settings", key: "settings", href: "/settings"}],
-    },
-  ] as NavIconItem[],
-  navAccordions: [
-    {
-      label: "Performance Overview",
-      key: "performance",
-      href: "/dashboard/performance",
-    },
-    {
-      label: "Live sessions",
-      key: "live-sessions",
-      href: "/dashboard/live-sessions",
-    },
-    {
-      label: "AI studio analysis",
-      key: "ai-studio",
-      href: "/dashboard/ai-studio",
-    },
-    {label: "Teachers", key: "teachers", href: "/dashboard/teachers"},
-    {
-      label: "Programs",
-      key: "programs",
-      expandable: true,
-      children: [
-        {
-          label: "Exam program",
-          key: "exam-program",
-          href: "/dashboard/exam-program",
-        },
-        {label: "Courses", key: "courses", href: "/dashboard/courses"},
-      ],
-    },
-    {
-      label: "Students",
-      key: "students",
-      expandable: true,
-      children: [
-        {
-          label: "Active Students",
-          key: "active-students",
-          href: "/dashboard/students/active-students",
-        },
-        {
-          label: "Prospective Students",
-          key: "prospective-students",
-          href: "/dashboard/students/prospective-students",
-        },
-      ],
-    },
-  ],
-};
