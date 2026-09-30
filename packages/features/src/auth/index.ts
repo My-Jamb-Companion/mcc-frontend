@@ -30,3 +30,6 @@ export type { FacebookExchangeResponseData } from "./services/auth.service";
 export * from "./types";
 export {default as FormInputs} from "./components/FormInputs";
 export * from "./components/LoginForm";
+export {default as ForgetPassword} from "./components/ForgetPassword";
+export {default as OTPVerify} from "./components/OTPVerify";
+export {default as NewPassword} from "./components/NewPassword";

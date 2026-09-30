@@ -187,3 +187,32 @@ describe("failed login", () => {
   });
 
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// more / showForgotPassword links
+// ─────────────────────────────────────────────────────────────────────────────
+describe("Back / Sign up / Forget password links", () => {
+  it("shows Back and Forget Password by default (more defaults to true)", () => {
+    render(<LoginForm />, { wrapper: Providers });
+
+    expect(screen.getByText(/back/i)).toBeInTheDocument();
+    expect(screen.getByText(/forget password/i)).toBeInTheDocument();
+    expect(screen.getByText(/don't have an account/i)).toBeInTheDocument();
+  });
+
+  it("hides both links when more={false} and showForgotPassword isn't set -- the app has no /forget-password route yet", () => {
+    render(<LoginForm more={false} />, { wrapper: Providers });
+
+    expect(screen.queryByText(/back/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/forget password/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/don't have an account/i)).not.toBeInTheDocument();
+  });
+
+  it("shows only Forget Password when more={false} and showForgotPassword is explicitly opted into", () => {
+    render(<LoginForm more={false} showForgotPassword />, { wrapper: Providers });
+
+    expect(screen.queryByText(/^back$/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/forget password/i)).toBeInTheDocument();
+    expect(screen.queryByText(/don't have an account/i)).not.toBeInTheDocument();
+  });
+});

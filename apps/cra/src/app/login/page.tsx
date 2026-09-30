@@ -9,7 +9,11 @@ export default function LoginPage() {
 
   return (
     <AuthCard>
-      <LoginForm more={false} onSuccess={() => router.replace("/dashboard")} />
+      <LoginForm
+        more={false}
+        showForgotPassword
+        onSuccess={() => router.replace("/dashboard")}
+      />
     </AuthCard>
   );
 }
