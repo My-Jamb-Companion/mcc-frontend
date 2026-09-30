@@ -24,8 +24,11 @@ export interface ApiExamProgramSummary {
   exam_name: string | null;
   subject_name: string;
   category_name: string;
-  teacher_name: string;
-  teacher_avatar?: string;
+  // Resolved via LEFT JOIN users_profile -- genuinely null for a program
+  // whose teacher_id row predates the create-time requirement, or was
+  // seeded directly.
+  teacher_name: string | null;
+  teacher_avatar?: string | null;
   level: string;
   /** Backend sends this as a decimal string, e.g. "4500.00". */
   price: string;

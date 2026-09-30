@@ -28,6 +28,52 @@ export function fromApiMonthlyFlow(api: ApiMonthlyFlowItem[]): MonthlyFlowDatum[
   }));
 }
 
+export interface FinancialHealthSummary {
+  /** Income minus payout for the most recent month -- what the FinancialHealthCard's amount represents. */
+  netThisMonth: number;
+  /** Percent change in netThisMonth vs the previous month. */
+  changePercent: number;
+  /** netThisMonth as a percentage of that month's income -- "% of monthly income saved". */
+  savedPercent: number;
+  isHealthy: boolean;
+}
+
+/**
+ * Derives the Finance dashboard's "Financial Health" card from the same
+ * monthly income/payout series already fetched for the Income and Payouts
+ * chart -- no separate concept or endpoint needed. `flow` is oldest-first,
+ * ending with the current month (get_monthly_income_and_payouts' own
+ * ordering).
+ */
+export function computeFinancialHealth(
+  flow: MonthlyFlowDatum[],
+): FinancialHealthSummary {
+  const current = flow[flow.length - 1];
+  const previous = flow[flow.length - 2];
+
+  const netThisMonth = current ? current.income - current.payout : 0;
+  const netLastMonth = previous ? previous.income - previous.payout : 0;
+
+  const savedPercent =
+    current && current.income > 0
+      ? Math.round((netThisMonth / current.income) * 100)
+      : 0;
+
+  const changePercent =
+    netLastMonth !== 0
+      ? Math.round(((netThisMonth - netLastMonth) / Math.abs(netLastMonth)) * 100)
+      : netThisMonth > 0
+        ? 100
+        : 0;
+
+  return {
+    netThisMonth,
+    changePercent,
+    savedPercent,
+    isHealthy: netThisMonth >= 0,
+  };
+}
+
 export function fromApiProgramRevenueToOverview(
   api: ApiProgramRevenueItem[],
 ): ProgramOverviewItem[] {
