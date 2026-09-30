@@ -1,7 +1,11 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {showError} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
-import {getAssignmentStatus, selectSlot} from "../services/booking.service";
+import {
+  getAssignmentStatus,
+  requestOnboardingReschedule,
+  selectSlot,
+} from "../services/booking.service";
 
 const QUERY_KEY = ["assignment-status"];
 
@@ -22,5 +26,21 @@ export const useSelectSlot = () => {
     mutationFn: selectSlot,
     onSuccess: () => queryClient.invalidateQueries({queryKey: QUERY_KEY}),
     onError: (error) => showError(extractApiError(error, "Couldn't book that slot")),
+  });
+};
+
+export const useRequestOnboardingReschedule = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: requestOnboardingReschedule,
+    onSuccess: (result) => {
+      // Only auto_accommodated changes the real onboarding_scheduled_at --
+      // an escalated request leaves it as-is until a CRA/admin resolves
+      // it, so refetching then would show nothing different yet.
+      if (result.status === "auto_accommodated") {
+        queryClient.invalidateQueries({queryKey: QUERY_KEY});
+      }
+    },
+    onError: (error) => showError(extractApiError(error, "Couldn't request that reschedule")),
   });
 };

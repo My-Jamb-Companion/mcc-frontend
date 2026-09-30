@@ -1,7 +1,9 @@
 "use client";
 
+import {useState} from "react";
 import {Icon} from "@mcc/ui";
 import {ApiAssignmentStatus} from "../services/booking.service";
+import {OnboardingRescheduleModal} from "./OnboardingRescheduleModal";
 
 function formatWhen(iso: string): string {
   return new Date(iso).toLocaleString("en-US", {
@@ -20,6 +22,8 @@ function formatWhen(iso: string): string {
  * series from there.
  */
 export function AssignmentStatusCard({assignment}: {assignment: ApiAssignmentStatus}) {
+  const [rescheduling, setRescheduling] = useState(false);
+
   if (assignment.status === "active") return null;
 
   if (assignment.status === "onboarding_scheduled") {
@@ -34,16 +38,29 @@ export function AssignmentStatusCard({assignment}: {assignment: ApiAssignmentSta
             )}
           </div>
         </div>
-        {assignment.onboarding_meeting_url && (
-          <a
-            href={assignment.onboarding_meeting_url}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setRescheduling(true)}
+            className="inline-flex items-center justify-center rounded-full border border-muted/30 px-4 py-2 text-sm font-medium text-foreground hover:bg-muted/10"
           >
-            Join Zoom call
-          </a>
-        )}
+            Reschedule
+          </button>
+          {assignment.onboarding_meeting_url && (
+            <a
+              href={assignment.onboarding_meeting_url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+            >
+              Join Zoom call
+            </a>
+          )}
+        </div>
+        <OnboardingRescheduleModal
+          assignmentId={rescheduling ? assignment.id : null}
+          onClose={() => setRescheduling(false)}
+        />
       </div>
     );
   }
