@@ -192,6 +192,77 @@ export const getUsageSummary = async (): Promise<ApiUsageSummary> => {
   return res.data.data;
 };
 
+export interface CourseSuggestion {
+  course_id: string;
+  title: string;
+  description?: string | null;
+  cover_image_url?: string | null;
+}
+
+/** Endpoint: GET /brainy/recommendations/courses?q= -- embedding-based,
+ * self-hosted (unaffected by whether a generation provider is
+ * configured). Empty content when nothing clears the relevance
+ * threshold. */
+export const getCourseRecommendations = async (query: string): Promise<CourseSuggestion[]> => {
+  const res = await apiClient.get<{data: {content: CourseSuggestion[]}}>(
+    "/brainy/recommendations/courses",
+    {params: {q: query}},
+  );
+  return res.data.data.content;
+};
+
+/** Endpoint: GET /brainy/discover -- published catalogue sample, no
+ * embedding involved. */
+export const getDiscoverContent = async (): Promise<CourseSuggestion[]> => {
+  const res = await apiClient.get<{data: {discover: CourseSuggestion[]}}>("/brainy/discover");
+  return res.data.data.discover;
+};
+
+/** Endpoint: GET /brainy/prompts/suggestions -- static hardcoded list, not
+ * personalised or AI-generated. */
+export const getPromptSuggestions = async (): Promise<string[]> => {
+  const res = await apiClient.get<{data: {suggestions: string[]}}>("/brainy/prompts/suggestions");
+  return res.data.data.suggestions;
+};
+
+export interface ApiAnalysisResult {
+  feedback: string;
+  generated: boolean;
+  charge?: ApiJobCharge | null;
+}
+
+/** Endpoint: POST /brainy/analysis -- blends the supplied session numbers
+ * with the student's real history; subjects recently averaging under 50%
+ * are folded into weak_topics even if the caller didn't send them. */
+export const getAnalysis = async (input: {
+  total_questions: number;
+  correct_answers: number;
+  subject?: string;
+  weak_topics?: string[];
+}): Promise<ApiAnalysisResult> => {
+  const res = await apiClient.post<{data: ApiAnalysisResult}>("/brainy/analysis", input, {
+    timeout: 30000,
+  });
+  return res.data.data;
+};
+
+export interface ApiAssistanceResult {
+  explanation: string;
+  generated: boolean;
+  charge?: ApiJobCharge | null;
+}
+
+/** Endpoint: POST /brainy/help -- an explanation for one specific
+ * question, by id. */
+export const getQuestionHelp = async (questionId: string): Promise<ApiAssistanceResult> => {
+  const res = await apiClient.post<{data: ApiAssistanceResult}>(
+    "/brainy/help",
+    {question_id: questionId},
+    {timeout: 30000},
+  );
+  return res.data.data;
+};
+
 /** Endpoint: DELETE /brainy/sessions/<id> */
 export const deleteSession = async (sessionId: string): Promise<void> => {
   await apiClient.delete(`/brainy/sessions/${sessionId}`);
