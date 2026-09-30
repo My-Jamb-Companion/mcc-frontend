@@ -7,11 +7,20 @@ import {User} from "@mcc/types";
 
 export const LoginForm = ({
   more = true,
+  showForgotPassword,
   onSuccess,
 }: {
   more?: boolean;
+  /** Independent of `more` -- every app benefits from a working password
+   * reset, self-registering or not, so this isn't bundled into the same
+   * flag as the Back/Sign-up links. Defaults to `more`'s own value, so
+   * every existing caller keeps its exact current behavior (an explicit
+   * more={false} page stays without the link, since its app doesn't have
+   * a /forget-password route yet) until it opts in explicitly. */
+  showForgotPassword?: boolean;
   onSuccess?: (user: User) => void;
 }) => {
+  const resolvedShowForgotPassword = showForgotPassword ?? more;
   const {loginMutation} = useAuth();
   const {register, formState, handleSubmit} = useForm<LoginFormInputs>();
   const errors = formState.errors;
@@ -96,21 +105,27 @@ export const LoginForm = ({
               >
                 Log in
               </motion.button>
-              {more && (
+              {(more || resolvedShowForgotPassword) && (
                 <div className="flex items-center justify-between gap-3">
-                  <a
-                    href="/signup"
-                    className="flex-1 text-sm text-black dark:text-muted flex items-center justify-start gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
-                  >
-                    <Icon icon="eva:arrow-back-outline" size={24} />
-                    <span>Back</span>
-                  </a>
-                  <a
-                    href="/forget-password"
-                    className="flex-1 text-sm text-black dark:text-muted flex items-center justify-end gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
-                  >
-                    Forget Password?
-                  </a>
+                  {more ? (
+                    <a
+                      href="/signup"
+                      className="flex-1 text-sm text-black dark:text-muted flex items-center justify-start gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
+                    >
+                      <Icon icon="eva:arrow-back-outline" size={24} />
+                      <span>Back</span>
+                    </a>
+                  ) : (
+                    <span />
+                  )}
+                  {resolvedShowForgotPassword && (
+                    <a
+                      href="/forget-password"
+                      className="flex-1 text-sm text-black dark:text-muted flex items-center justify-end gap-2 cursor-pointer hover:text-primary transition-all duration-300 w-fit"
+                    >
+                      Forget Password?
+                    </a>
+                  )}
                 </div>
               )}
             </form>
