@@ -4,10 +4,14 @@ export interface ExamItem {
   icon?: string;
   rating?: number;
   reviewCount?: string;
-  price: number;
+  /** Omitted for an already-enrolled program -- see completePercent. */
+  price?: number;
   originalPrice?: number;
   priceLabel?: string;
   currency?: string;
+  /** Set for an enrolled program card: shows progress + "Continue" instead
+   * of price + "Enroll Now", mirroring CourseCard's completePercent. */
+  completePercent?: number;
 }
 
 export interface ExamsProps {

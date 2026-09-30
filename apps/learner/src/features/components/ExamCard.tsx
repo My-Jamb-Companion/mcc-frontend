@@ -5,6 +5,8 @@ import {ExamsProps} from "../constants/ExamCards";
 import Link from "next/link";
 
 export default function ExamCard({exam}: ExamsProps) {
+  const isEnrolled = exam.completePercent !== undefined;
+
   return (
     <div className="relative shrink-0 w-48 rounded-2xl bg-white p-4 flex flex-col gap-3 overflow-hidden">
       <div className="flex items-center gap-2 z-10">
@@ -23,30 +25,38 @@ export default function ExamCard({exam}: ExamsProps) {
         </div>
       )}
 
-      <div className="flex flex-col gap-0.5 z-10">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-[#1a2332]">
-            {exam.currency}
-            {exam.price.toLocaleString()}
-          </span>
-          {exam.originalPrice !== undefined && (
-            <span className="text-xs text-gray-400 line-through">
-              {exam.currency}
-              {exam.originalPrice.toLocaleString()}
-            </span>
-          )}
+      {isEnrolled ? (
+        <div className="flex items-center gap-1.5 text-sm font-medium z-10">
+          <Icon icon="ri:progress-4-line" size={14} color="#3b82f6" />
+          <p>{exam.completePercent}% Completed</p>
         </div>
-        {exam.priceLabel && (
-          <span className="text-xs text-gray-400">({exam.priceLabel})</span>
-        )}
-      </div>
+      ) : (
+        exam.price !== undefined && (
+          <div className="flex flex-col gap-0.5 z-10">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-[#1a2332]">
+                {exam.currency}
+                {exam.price.toLocaleString()}
+              </span>
+              {exam.originalPrice !== undefined && (
+                <span className="text-xs text-gray-400 line-through">
+                  {exam.currency}
+                  {exam.originalPrice.toLocaleString()}
+                </span>
+              )}
+            </div>
+            {exam.priceLabel && (
+              <span className="text-xs text-gray-400">({exam.priceLabel})</span>
+            )}
+          </div>
+        )
+      )}
 
       <Link
-        // onClick={() => onEnroll?.(exam.id)}
         href={`/learnings/exams/${exam.id}`}
         className="flex justify-center items-center z-10 w-full rounded-xl border border-gray-200 py-2 text-xs font-semibold text-[#1a2332] hover:bg-gray-50 transition-colors cursor-pointer"
       >
-        Enroll Now
+        {isEnrolled ? "Continue" : "Enroll Now"}
       </Link>
     </div>
   );
