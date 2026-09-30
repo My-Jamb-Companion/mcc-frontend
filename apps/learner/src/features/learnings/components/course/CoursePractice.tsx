@@ -1,10 +1,12 @@
 "use client";
 
 import {useMemo, useState} from "react";
-import {AnimatePresence, motion, Variants, Icon} from "@mcc/ui";
+import {AnimatePresence, motion, Variants, Icon, showError} from "@mcc/ui";
+import {extractApiError} from "@mcc/api";
 import {shuffleArray} from "@/src/features/learnings/helper/helper";
 import {ApiModuleGradedAnswer, ApiModuleQuestion, ApiModuleQuizResult} from "@/src/features/learnings/services/moduleQuiz.service";
 import {useSubmitModuleAnswers} from "@/src/features/learnings/hooks/useModuleQuiz";
+import {useAnalysis, useQuestionHelp} from "@/src/features/brainy/hooks/useAiFeedback";
 
 interface PracticeCardProps {
   courseId: string;
@@ -15,6 +17,7 @@ interface PracticeCardProps {
 
 export function CoursePractice({courseId, moduleId, questions, onDone}: PracticeCardProps) {
   const submit = useSubmitModuleAnswers(courseId, moduleId);
+  const questionHelp = useQuestionHelp();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   // question_id -> selected option(s), or the single typed answer for
@@ -25,6 +28,7 @@ export function CoursePractice({courseId, moduleId, questions, onDone}: Practice
   const [reviewMode, setReviewMode] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [aiHelp, setAiHelp] = useState<Record<string, string>>({});
 
   const randomizedQuestions = useMemo(
     () => questions.map((q) => ({...q, options: shuffleArray(q.options)})),
@@ -97,6 +101,14 @@ export function CoursePractice({courseId, moduleId, questions, onDone}: Practice
     setReviewMode(false);
     setShowExplanation(false);
     setSubmitError(null);
+    setAiHelp({});
+  };
+
+  const askAiToExplain = (questionId: string) => {
+    questionHelp.mutate(questionId, {
+      onSuccess: (res) => setAiHelp((prev) => ({...prev, [questionId]: res.explanation})),
+      onError: (error) => showError(extractApiError(error, "Couldn't get an explanation right now")),
+    });
   };
 
   return (
@@ -256,6 +268,21 @@ export function CoursePractice({courseId, moduleId, questions, onDone}: Practice
                   </motion.button>
                 )}
 
+                {reviewMode && !aiHelp[currentQuestion.question_id] && (
+                  <motion.button
+                    layout
+                    whileHover={{scale: 1.03, y: -2}}
+                    whileTap={{scale: 0.96}}
+                    type="button"
+                    onClick={() => askAiToExplain(currentQuestion.question_id)}
+                    disabled={questionHelp.isPending}
+                    className="flex items-center justify-center gap-1.5 border rounded-full text-sm font-semibold text-primary border-primary/40 disabled:opacity-50 px-5 py-2.5 transition-all cursor-pointer hover:bg-primary/5"
+                  >
+                    <Icon icon="mingcute:ai-fill" className="h-3.5 w-3.5" />
+                    {questionHelp.isPending ? "Asking Brainy…" : "Explain this"}
+                  </motion.button>
+                )}
+
                 {!reviewMode && currentQuestion.explanation && (
                   <motion.button
                     layout
@@ -325,6 +352,26 @@ export function CoursePractice({courseId, moduleId, questions, onDone}: Practice
                 )}
               </AnimatePresence>
 
+              {reviewMode && aiHelp[currentQuestion.question_id] && (
+                <motion.div
+                  layout
+                  variants={explanationVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="overflow-hidden rounded-2xl bg-primary/5 mb-4 text-left"
+                >
+                  <motion.div layout className="p-6">
+                    <p className="flex items-center gap-1.5 text-sm font-semibold text-primary mb-1">
+                      <Icon icon="mingcute:ai-fill" className="h-3.5 w-3.5" />
+                      Brainy explains
+                    </p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                      {aiHelp[currentQuestion.question_id]}
+                    </p>
+                  </motion.div>
+                </motion.div>
+              )}
+
               <div className="p-6 w-full flex items-center justify-center">
                 <div className="flex gap-1">
                   {questions.map((q, i) => {
@@ -377,6 +424,18 @@ function QuizResults({
 }) {
   const correctCount = result.results.filter((r) => r.is_correct === true).length;
   const notAutoGraded = result.results.length - result.graded_count;
+  const analysis = useAnalysis();
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  const handleGetFeedback = () => {
+    analysis.mutate(
+      {total_questions: result.graded_count, correct_answers: correctCount},
+      {
+        onSuccess: (res) => setFeedback(res.feedback),
+        onError: (error) => showError(extractApiError(error, "Couldn't get feedback right now")),
+      },
+    );
+  };
 
   const {title, message, emoji} = useMemo(() => {
     if (result.graded_count === 0) {
@@ -463,6 +522,32 @@ function QuizResults({
           </motion.div>
         ))}
       </motion.div>
+
+      {result.graded_count > 0 && (
+        <motion.div variants={itemVariants} className="w-full max-w-md mb-8">
+          {feedback ? (
+            <div className="rounded-2xl bg-primary/5 p-5 text-left">
+              <p className="flex items-center gap-1.5 text-sm font-semibold text-primary mb-1">
+                <Icon icon="mingcute:ai-fill" className="h-3.5 w-3.5" />
+                Brainy&apos;s feedback
+              </p>
+              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{feedback}</p>
+            </div>
+          ) : (
+            <motion.button
+              type="button"
+              whileHover={{scale: 1.03, y: -2}}
+              whileTap={{scale: 0.96}}
+              onClick={handleGetFeedback}
+              disabled={analysis.isPending}
+              className="flex items-center justify-center gap-1.5 mx-auto rounded-full border border-primary/40 px-5 py-2.5 text-sm font-semibold text-primary disabled:opacity-50 cursor-pointer hover:bg-primary/5"
+            >
+              <Icon icon="mingcute:ai-fill" className="h-3.5 w-3.5" />
+              {analysis.isPending ? "Asking Brainy…" : "Get AI feedback"}
+            </motion.button>
+          )}
+        </motion.div>
+      )}
 
       <div className="flex flex-col md:flex-row justify-center gap-4">
         <motion.button
