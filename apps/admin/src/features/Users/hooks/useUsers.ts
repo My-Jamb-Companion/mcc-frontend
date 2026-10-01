@@ -2,6 +2,8 @@ import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
   activateUser,
   deactivateUser,
+  getOnboardingOtherResponses,
+  getPurposeBreakdown,
   getReferralSourceBreakdown,
   listUsers,
   updateUser,
@@ -30,6 +32,33 @@ export const useReferralSources = (role?: string) => {
     sources: query.data?.sources ?? [],
     totalRespondents: query.data?.total_respondents ?? 0,
     totalUsers: query.data?.total_users ?? 0,
+  };
+};
+
+export const usePurposeBreakdown = (role?: string) => {
+  const query = useQuery({
+    queryKey: ["admin-users", "purpose-breakdown", role ?? "all"],
+    queryFn: () => getPurposeBreakdown(role),
+  });
+
+  return {
+    ...query,
+    purposes: query.data?.purposes ?? [],
+    totalRespondents: query.data?.total_respondents ?? 0,
+    totalUsers: query.data?.total_users ?? 0,
+  };
+};
+
+export const useOnboardingOtherResponses = (role?: string) => {
+  const query = useQuery({
+    queryKey: ["admin-users", "onboarding-other-responses", role ?? "all"],
+    queryFn: () => getOnboardingOtherResponses(role),
+  });
+
+  return {
+    ...query,
+    referral: query.data?.referral ?? [],
+    purpose: query.data?.purpose ?? [],
   };
 };
 

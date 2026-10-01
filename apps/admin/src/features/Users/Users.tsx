@@ -18,6 +18,7 @@ import UserRowMenu from "./components/UserRowMenu";
 import UpdateUserModal from "./components/UpdateUserModal";
 import DeactivateUserModal from "./components/DeactivateUserModal";
 import ReferralSourceDashboard from "./components/ReferralSourceDashboard";
+import PurposeDashboard from "./components/PurposeDashboard";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -140,7 +141,7 @@ export default function Users() {
         <TabbedButton
           tabs={[
             {key: "users", label: "Users", icon: "ri:group-line"},
-            {key: "referrals", label: "Referral Sources", icon: "ri:bar-chart-2-line"},
+            {key: "referrals", label: "Onboarding Insights", icon: "ri:bar-chart-2-line"},
           ]}
           active={activeTab}
           onChange={(key) => setActiveTab(key as "users" | "referrals")}
@@ -148,7 +149,10 @@ export default function Users() {
       </div>
 
       {activeTab === "referrals" ? (
-        <ReferralSourceDashboard />
+        <div className="flex flex-col gap-6">
+          <ReferralSourceDashboard />
+          <PurposeDashboard />
+        </div>
       ) : (
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

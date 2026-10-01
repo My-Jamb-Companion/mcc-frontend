@@ -3,7 +3,9 @@ export interface OnboardingPayload {
   preferred_language: string;
   self_description: string;
   referral_source: string;
+  referral_source_other?: string;
   purpose: string[];
+  purpose_other?: string;
 }
 
 export interface OnboardingResponseData {

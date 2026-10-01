@@ -78,7 +78,9 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         preferred_language: data.language,
         self_description: data.role,
         referral_source: data.referral.join(","),
+        referral_source_other: data.referral.includes("other") ? data.referralOther : undefined,
         purpose: data.purpose,
+        purpose_other: data.purpose.includes("other") ? data.purposeOther : undefined,
       };
       const response = await completeMutation.mutateAsync(payload);
       if (user) {

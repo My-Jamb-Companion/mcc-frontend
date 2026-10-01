@@ -24,6 +24,9 @@ export function extractDefaults(
 
     if (step.inputType === "tile-multi") {
       defaults[step.fieldId] = [];
+      if (step.otherFieldId) {
+        defaults[step.otherFieldId] = "";
+      }
     }
 
     if (step.inputType === "course-select") {

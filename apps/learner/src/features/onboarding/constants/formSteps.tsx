@@ -45,6 +45,7 @@ export const formSteps: FormSteps = [
     id: "step2",
     inputType: "tile-multi",
     fieldId: "referral",
+    otherFieldId: "referralOther",
     question: "How did you hear about us?",
     options: [
       {
@@ -114,6 +115,7 @@ export const formSteps: FormSteps = [
     id: "step3",
     inputType: "tile-multi",
     fieldId: "purpose",
+    otherFieldId: "purposeOther",
     question: "What wold you like to use MCC for?",
     options: [
       {

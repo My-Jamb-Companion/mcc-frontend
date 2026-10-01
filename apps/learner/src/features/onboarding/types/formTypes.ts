@@ -9,7 +9,9 @@ export type FormValues = {
   language: string;
   role: string;
   referral: string[];
+  referralOther: string;
   purpose: string[];
+  purposeOther: string;
   selectedItems: SelectedOnboardingItem[];
 };
 
@@ -60,6 +62,9 @@ export type TileMultiStep = {
   question: string;
   options: Option[];
   validation: Validation;
+  /** When set, selecting the "other" option opens a required text field
+   * bound to this field id (e.g. "referralOther"). */
+  otherFieldId?: string;
 };
 
 export type CourseSelectStep = {
