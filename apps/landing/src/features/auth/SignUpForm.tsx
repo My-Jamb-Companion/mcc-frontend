@@ -29,7 +29,7 @@ export const SignUpForm = () => {
         <h2 className="text-xl font-semibold">Check your email</h2>
         <p className="text-muted text-sm">
           We sent a verification link to <strong>{submittedEmail}</strong>. Click it,
-          then come back and log in to finish enrolling.
+          then come back and log in.
         </p>
         <Link href="/login" className="text-primary text-sm hover:underline inline-block pt-2">
           I've verified — log in
@@ -42,7 +42,7 @@ export const SignUpForm = () => {
     <div>
       <div className="mb-6">
         <h2 className="text-xl font-semibold">Create your account</h2>
-        <p className="text-muted text-sm">One step away from enrolling.</p>
+        <p className="text-muted text-sm">Get started with My Course Companion.</p>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormInputs

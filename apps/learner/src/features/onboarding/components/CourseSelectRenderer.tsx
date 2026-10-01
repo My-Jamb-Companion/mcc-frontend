@@ -1,9 +1,7 @@
 "use client";
 
-import {useEffect, useRef} from "react";
 import {useFormContext} from "@mcc/features";
 import {Icon} from "@mcc/ui";
-import {useCourseStore, getPendingCourseFromStorage} from "@mcc/store";
 import {useCourses} from "@/src/features/courses/hooks/useCourses";
 import {usePrograms} from "@/src/features/exams/hooks/useExams";
 import {CourseSelectStep, SelectedOnboardingItem} from "../types/formTypes";
@@ -40,10 +38,8 @@ export function CourseSelectRenderer({step}: {step: CourseSelectStep}) {
   const {setValue, watch} = useFormContext();
   const {courses, isLoading: coursesLoading} = useCourses();
   const {programs, isLoading: programsLoading} = usePrograms();
-  const {pendingCourse, clearPendingCourse} = useCourseStore();
 
   const selected: SelectedOnboardingItem[] = watch(step.fieldId) || [];
-  const appliedPendingRef = useRef(false);
 
   const items: CatalogueItem[] = [
     ...courses.map((c) => ({
@@ -61,32 +57,6 @@ export function CourseSelectRenderer({step}: {step: CourseSelectStep}) {
       price: Number(p.price),
     })),
   ].slice(0, MAX_ITEMS);
-
-  // Honor a course picked pre-signup on the landing page by pre-selecting
-  // it here, once, as soon as the catalogue it belongs to has loaded.
-  useEffect(() => {
-    if (appliedPendingRef.current) return;
-    if (coursesLoading || programsLoading) return;
-    const pending = pendingCourse ?? getPendingCourseFromStorage();
-    if (!pending) {
-      appliedPendingRef.current = true;
-      return;
-    }
-    const pendingKind = pending.kind === "exam" ? "program" : "course";
-    const match = items.find((i) => i.id === pending.id && i.kind === pendingKind);
-    appliedPendingRef.current = true;
-    if (match) {
-      const current: SelectedOnboardingItem[] = watch(step.fieldId) || [];
-      if (!current.some((s) => s.id === match.id && s.kind === match.kind)) {
-        setValue(step.fieldId, [
-          ...current,
-          {id: match.id, kind: match.kind, price: match.price},
-        ]);
-      }
-    }
-    clearPendingCourse();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [coursesLoading, programsLoading]);
 
   const toggleItem = (item: CatalogueItem) => {
     const isSelected = selected.some((s) => s.id === item.id && s.kind === item.kind);
