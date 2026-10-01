@@ -139,4 +139,11 @@ export const formSteps: FormSteps = [
     ],
     validation: {required: "Please select at least one"},
   },
+  {
+    id: "step4",
+    inputType: "course-select",
+    fieldId: "selectedItems",
+    question: "Pick at least one free course or program to get started",
+    validation: {required: "Select at least one free item to continue"},
+  },
 ];

@@ -12,7 +12,7 @@ import {
 import { OnboardingContent } from "./OnboardingContent";
 import { StepNavigation } from "./FormStepsNav";
 import ProgressBar from "./progressBar";
-import { CompletedWithCourse } from "./CompletedWithCourse";
+import { PaymentRedirectModal } from "./PaymentRedirectModal";
 
 function OnboardingInner() {
   const {
@@ -24,17 +24,16 @@ function OnboardingInner() {
     isSubmitting,
     isError,
     errorMessage,
-    completedCourse,
+    paidModalOpen,
+    paidItemCount,
+    confirmPaidEnrollment,
+    closePaidModal,
   } = useOnboardingContext();
 
   const methods = useForm<FormValues>({
     defaultValues: extractDefaults(formSteps),
     mode: "onChange",
   });
-
-  if (completedCourse) {
-    return <CompletedWithCourse course={completedCourse} />;
-  }
 
   return (
     <div className="flex flex-col items-center pt-20 max-sm:pt-5">
@@ -80,6 +79,14 @@ function OnboardingInner() {
           </form>
         </FormProvider>
       </div>
+
+      <PaymentRedirectModal
+        open={paidModalOpen}
+        paidItemCount={paidItemCount}
+        isSubmitting={isSubmitting}
+        onConfirm={confirmPaidEnrollment}
+        onClose={closePaidModal}
+      />
     </div>
   );
 }
