@@ -2,6 +2,7 @@ import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
   activateUser,
   deactivateUser,
+  getReferralSourceBreakdown,
   listUsers,
   updateUser,
   UpdateUserPayload,
@@ -16,6 +17,20 @@ export const useUsers = () => {
   });
 
   return {...query, users: query.data ?? []};
+};
+
+export const useReferralSources = (role?: string) => {
+  const query = useQuery({
+    queryKey: ["admin-users", "referral-sources", role ?? "all"],
+    queryFn: () => getReferralSourceBreakdown(role),
+  });
+
+  return {
+    ...query,
+    sources: query.data?.sources ?? [],
+    totalRespondents: query.data?.total_respondents ?? 0,
+    totalUsers: query.data?.total_users ?? 0,
+  };
 };
 
 export const useUpdateUser = () => {
