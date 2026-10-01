@@ -11,11 +11,13 @@ import {
 import {Search, SlidersHorizontal} from "lucide-react";
 import {showError, showSuccess} from "@mcc/ui";
 import EnhancedTable from "@/src/components/Table";
+import TabbedButton from "@/src/components/TabbedButton";
 import {ApiUser, getApiErrorMessage} from "./services/users.service";
 import {useActivateUser, useUsers} from "./hooks/useUsers";
 import UserRowMenu from "./components/UserRowMenu";
 import UpdateUserModal from "./components/UpdateUserModal";
 import DeactivateUserModal from "./components/DeactivateUserModal";
+import ReferralSourceDashboard from "./components/ReferralSourceDashboard";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -32,6 +34,7 @@ export default function Users() {
   const [searchQuery, setSearchQuery] = useState("");
   const [editingUser, setEditingUser] = useState<ApiUser | null>(null);
   const [deactivatingUser, setDeactivatingUser] = useState<ApiUser | null>(null);
+  const [activeTab, setActiveTab] = useState<"users" | "referrals">("users");
 
   const filtered = searchQuery.trim()
     ? users.filter(
@@ -132,55 +135,67 @@ export default function Users() {
 
   return (
     <div className="h-full">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold text-slate-900">Users</h1>
+        <TabbedButton
+          tabs={[
+            {key: "users", label: "Users", icon: "ri:group-line"},
+            {key: "referrals", label: "Referral Sources", icon: "ri:bar-chart-2-line"},
+          ]}
+          active={activeTab}
+          onChange={(key) => setActiveTab(key as "users" | "referrals")}
+        />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold text-slate-900">All users</h2>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="relative w-72">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-full border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none transition-all focus:border-[#6C2BD9] focus:bg-white focus:ring-1 focus:ring-[#6C2BD9]"
-              />
+      {activeTab === "referrals" ? (
+        <ReferralSourceDashboard />
+      ) : (
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-slate-900">All users</h2>
             </div>
 
-            <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50">
-              <SlidersHorizontal className="h-4 w-4 text-slate-400" />
-              Filter
-            </button>
-          </div>
-        </div>
+            <div className="flex items-center gap-3">
+              <div className="relative w-72">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-full border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none transition-all focus:border-[#6C2BD9] focus:bg-white focus:ring-1 focus:ring-[#6C2BD9]"
+                />
+              </div>
 
-        {isLoading ? (
-          <p className="py-10 text-center text-sm text-slate-400">Loading users…</p>
-        ) : filtered.length === 0 ? (
-          <p className="py-10 text-center text-sm text-slate-400">No users found.</p>
-        ) : (
-          <EnhancedTable
-            table={table}
-            enableSelection={true}
-            enableRowActions={true}
-            renderRowActions={(user) => (
-              <UserRowMenu
-                user={user}
-                onEdit={() => setEditingUser(user)}
-                onDeactivate={() => setDeactivatingUser(user)}
-                onActivate={() => handleActivate(user)}
-              />
-            )}
-          />
-        )}
-      </div>
+              <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50">
+                <SlidersHorizontal className="h-4 w-4 text-slate-400" />
+                Filter
+              </button>
+            </div>
+          </div>
+
+          {isLoading ? (
+            <p className="py-10 text-center text-sm text-slate-400">Loading users…</p>
+          ) : filtered.length === 0 ? (
+            <p className="py-10 text-center text-sm text-slate-400">No users found.</p>
+          ) : (
+            <EnhancedTable
+              table={table}
+              enableSelection={true}
+              enableRowActions={true}
+              renderRowActions={(user) => (
+                <UserRowMenu
+                  user={user}
+                  onEdit={() => setEditingUser(user)}
+                  onDeactivate={() => setDeactivatingUser(user)}
+                  onActivate={() => handleActivate(user)}
+                />
+              )}
+            />
+          )}
+        </div>
+      )}
 
       <UpdateUserModal user={editingUser} onClose={() => setEditingUser(null)} />
       <DeactivateUserModal user={deactivatingUser} onClose={() => setDeactivatingUser(null)} />

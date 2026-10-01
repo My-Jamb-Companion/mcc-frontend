@@ -79,3 +79,30 @@ export const deactivateUser = async (userId: string, reason: string): Promise<vo
 export const activateUser = async (userId: string): Promise<void> => {
   await apiClient.patch(`/admin/users/${userId}/activate`);
 };
+
+export interface ReferralSourceCount {
+  source: string;
+  count: number;
+}
+
+export interface ReferralSourceBreakdown {
+  sources: ReferralSourceCount[];
+  total_respondents: number;
+  total_users: number;
+}
+
+/**
+ * Counts of each "how did you hear about us?" onboarding answer, split
+ * server-side so a multi-pick answer contributes to each of its options'
+ * counts, plus a respondents-vs-total-users count for a response-rate stat.
+ * Endpoint: GET /admin/users/referral-sources
+ */
+export const getReferralSourceBreakdown = async (
+  role?: string,
+): Promise<ReferralSourceBreakdown> => {
+  const res = await apiClient.get<{data: ReferralSourceBreakdown}>(
+    "/admin/users/referral-sources",
+    {params: role ? {role} : undefined},
+  );
+  return res.data.data;
+};
