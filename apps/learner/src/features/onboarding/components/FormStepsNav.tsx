@@ -1,5 +1,5 @@
 import {useFormContext} from "@mcc/features";
-import {FormStep} from "../types/formTypes";
+import {FormStep, SelectedOnboardingItem} from "../types/formTypes";
 
 export function StepNavigation({
   step,
@@ -23,7 +23,7 @@ export function StepNavigation({
       fields = currentStep.fields.map((f) => f.id);
     }
 
-    if (currentStep.inputType === "tile-multi") {
+    if (currentStep.inputType === "tile-multi" || currentStep.inputType === "course-select") {
       fields = [currentStep.fieldId];
     }
 
@@ -51,6 +51,13 @@ export function StepNavigation({
 
     if (currentStep.inputType === "tile-multi") {
       return (values[currentStep.fieldId] || []).length > 0;
+    }
+
+    if (currentStep.inputType === "course-select") {
+      const selected: SelectedOnboardingItem[] = values[currentStep.fieldId] || [];
+      // A paid-only selection doesn't satisfy this -- only a free item's
+      // enrollment is guaranteed synchronous and active immediately.
+      return selected.some((item) => item.price === 0);
     }
 
     return true;

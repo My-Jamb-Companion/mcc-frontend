@@ -11,8 +11,8 @@ import type { FormSteps } from "../types/formTypes";
  */
 export function extractDefaults(
   steps: FormSteps,
-): Record<string, string | string[]> {
-  const defaults: Record<string, string | string[]> = {};
+): Record<string, string | string[] | unknown[]> {
+  const defaults: Record<string, string | string[] | unknown[]> = {};
 
   steps.forEach((step) => {
     if (step.inputType === "mixed") {
@@ -23,6 +23,10 @@ export function extractDefaults(
     }
 
     if (step.inputType === "tile-multi") {
+      defaults[step.fieldId] = [];
+    }
+
+    if (step.inputType === "course-select") {
       defaults[step.fieldId] = [];
     }
   });

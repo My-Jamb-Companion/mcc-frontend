@@ -1,9 +1,16 @@
+export type SelectedOnboardingItem = {
+  id: string;
+  kind: "course" | "program";
+  price: number;
+};
+
 export type FormValues = {
   nickname: string;
   language: string;
   role: string;
   referral: string[];
   purpose: string[];
+  selectedItems: SelectedOnboardingItem[];
 };
 
 // Shared types
@@ -55,8 +62,16 @@ export type TileMultiStep = {
   validation: Validation;
 };
 
+export type CourseSelectStep = {
+  id: string;
+  inputType: "course-select";
+  fieldId: "selectedItems";
+  question: string;
+  validation: Validation;
+};
+
 // Union of all steps
-export type FormStep = MixedStep | TileMultiStep;
+export type FormStep = MixedStep | TileMultiStep | CourseSelectStep;
 
 // Full structure
 export type FormSteps = FormStep[];
