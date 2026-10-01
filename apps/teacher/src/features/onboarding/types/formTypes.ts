@@ -25,7 +25,7 @@ export type TextField = BaseField & {
   inputType: "text";
   placeholder?: string;
   /** Passed through to FormInputs' `type` prop; "text" if omitted. */
-  htmlType?: "text" | "tel" | "number" | "textarea";
+  htmlType?: "text" | "tel" | "number" | "textarea" | "date";
 };
 
 export type SelectField = BaseField & {
@@ -55,12 +55,24 @@ export type PhotoUploadField = BaseField & {
   inputType: "photo-upload";
 };
 
+/** NIN + date of birth + a "Verify" button, as one composite field -- real,
+ * calls POST /teacher/verification/verify-nin. `id` holds the NIN itself;
+ * `dobFieldId`/`statusFieldId` name two more RHF fields this field's
+ * renderer also controls (`statusFieldId` is "" until a Verify click
+ * succeeds or comes back "unavailable" -- see FormStepsNav's isStepValid). */
+export type NinVerifyField = BaseField & {
+  inputType: "nin-verify";
+  dobFieldId: string;
+  statusFieldId: string;
+};
+
 export type Field =
   | TextField
   | SelectField
   | FileField
   | CheckboxGroupField
-  | PhotoUploadField;
+  | PhotoUploadField
+  | NinVerifyField;
 
 // ---- Step Types ----
 export type MixedStep = {

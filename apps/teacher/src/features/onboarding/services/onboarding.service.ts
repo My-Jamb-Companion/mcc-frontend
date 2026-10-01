@@ -9,6 +9,8 @@ import { apiClient } from "@mcc/api";
 export interface VerificationSubmitInput {
   id_type: string;
   id_number: string;
+  nin: string;
+  date_of_birth: string;
   id_document: File;
   selfie_verification: File;
   teaching_certificate?: File | null;
@@ -19,6 +21,26 @@ export interface VerificationSubmitResult {
   status: string;
 }
 
+export interface NinVerifyResult {
+  status: "verified" | "mismatch" | "not_found" | "unavailable";
+  firstname_match: boolean | null;
+  lastname_match: boolean | null;
+  // Not "message" -- the backend envelope (api_success) reserves that key
+  // and strips it out of the data payload before it ever reaches here.
+  detail: string;
+}
+
+/** Endpoint: POST /teacher/verification/verify-nin. Stateless real-time
+ * check for the identity step's "Verify" button -- safe to call repeatedly
+ * while the teacher corrects a typo. */
+export const verifyNin = async (nin: string, dateOfBirth: string): Promise<NinVerifyResult> => {
+  const res = await apiClient.post<{ success: boolean; data: NinVerifyResult }>(
+    "/teacher/verification/verify-nin",
+    { nin, date_of_birth: dateOfBirth },
+  );
+  return res.data.data;
+};
+
 /** Endpoint: POST /teacher/verification (multipart) */
 export const submitVerification = async (
   input: VerificationSubmitInput,
@@ -26,6 +48,8 @@ export const submitVerification = async (
   const formData = new FormData();
   formData.append("id_type", input.id_type);
   formData.append("id_number", input.id_number);
+  formData.append("nin", input.nin);
+  formData.append("date_of_birth", input.date_of_birth);
   formData.append("id_document", input.id_document);
   formData.append("selfie_verification", input.selfie_verification);
   if (input.teaching_certificate) {

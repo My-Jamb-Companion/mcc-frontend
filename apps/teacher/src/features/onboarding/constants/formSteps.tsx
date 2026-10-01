@@ -12,11 +12,19 @@ export const formSteps: FormSteps = [
     inputType: "mixed",
     fields: [
       {
+        id: "nin",
+        inputType: "nin-verify",
+        question: "National Identification Number (NIN)",
+        dobFieldId: "date_of_birth",
+        statusFieldId: "nin_verification_status",
+        helpText: "We'll verify this against your profile name.",
+        validation: { required: "Please verify your NIN to continue" },
+      },
+      {
         id: "id_type",
         inputType: "select",
-        question: "What type of ID are you providing?",
+        question: "What other type of ID are you providing?",
         options: [
-          { value: "nin", label: "National ID (NIN)" },
           { value: "drivers_license", label: "Driver's License" },
           { value: "passport", label: "International Passport" },
           { value: "voters_card", label: "Voter's Card" },
