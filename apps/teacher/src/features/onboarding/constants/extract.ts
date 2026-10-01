@@ -21,6 +21,12 @@ export function extractDefaults(
           defaults[field.id] = [];
           return;
         }
+        if (field.inputType === "nin-verify") {
+          defaults[field.id] = "";
+          defaults[field.dobFieldId] = "";
+          defaults[field.statusFieldId] = "";
+          return;
+        }
         defaults[field.id] =
           "default" in field && field.default ? field.default : "";
       });

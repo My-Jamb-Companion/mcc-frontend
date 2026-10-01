@@ -22,7 +22,14 @@ export function StepNavigation({
   const { trigger, control } = useFormContext();
 
   const fieldNames = useMemo(() => {
-    if (currentStep.inputType === "mixed") return currentStep.fields.map((f) => f.id);
+    if (currentStep.inputType === "mixed") {
+      // A "nin-verify" field controls three RHF fields (nin, dob, status),
+      // not just its own id -- all three need to be in this list, or
+      // isStepValid/handleNext would read/trigger a stale status value.
+      return currentStep.fields.flatMap((f) =>
+        f.inputType === "nin-verify" ? [f.id, f.dobFieldId, f.statusFieldId] : [f.id],
+      );
+    }
     if (currentStep.inputType === "tile-multi") return [currentStep.fieldId];
     return [];
   }, [currentStep]);
@@ -57,11 +64,16 @@ export function StepNavigation({
   const isStepValid = (() => {
     if (currentStep.inputType === "mixed") {
       return currentStep.fields.every((f) => {
-        if (f.validation?.required) {
-          const v = values[f.id];
-          return Array.isArray(v) ? v.length > 0 : Boolean(v);
+        if (!f.validation?.required) return true;
+        if (f.inputType === "nin-verify") {
+          // Continue stays disabled until a real Verify click has resolved
+          // (success or soft-failed-unavailable) -- not just because the
+          // teacher typed something into the NIN box.
+          const resultStatus = values[f.statusFieldId];
+          return resultStatus === "verified" || resultStatus === "unavailable";
         }
-        return true;
+        const v = values[f.id];
+        return Array.isArray(v) ? v.length > 0 : Boolean(v);
       });
     }
 

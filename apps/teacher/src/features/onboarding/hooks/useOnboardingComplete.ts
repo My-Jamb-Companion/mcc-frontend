@@ -36,6 +36,8 @@ export const useOnboardingComplete = () => {
         submitVerification({
           id_type: asString(data.id_type),
           id_number: asString(data.id_number),
+          nin: asString(data.nin),
+          date_of_birth: asString(data.date_of_birth),
           id_document: idDocument,
           selfie_verification: selfie,
           teaching_certificate: files.teaching_certificate ?? null,

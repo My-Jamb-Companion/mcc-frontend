@@ -2,6 +2,7 @@ import { Controller, FormInputs, useFormContext } from "@mcc/features";
 import { MixedStep } from "../types/formTypes";
 import { CheckboxGroupField } from "./CheckboxGroupField";
 import { FileUploadField } from "./FileUploadField";
+import { NinVerifyField } from "./NinVerifyField";
 import { ProfilePhotoField } from "./ProfilePhotoField";
 
 export function MixedStepRenderer({
@@ -97,6 +98,11 @@ export function MixedStepRenderer({
                 )}
               />
             );
+
+          case "nin-verify":
+            // Manages nin/dob/status itself via setValue/watch (one button
+            // touches three fields at once) -- not wrapped in a Controller.
+            return <NinVerifyField key={field.id} field={field} />;
 
           case "photo-upload":
             return (
