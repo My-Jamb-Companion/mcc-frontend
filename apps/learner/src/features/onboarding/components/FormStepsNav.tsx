@@ -14,7 +14,7 @@ export function StepNavigation({
   next: () => void;
   back: () => void;
 }) {
-  const {trigger, getValues, watch} = useFormContext();
+  const {trigger, watch} = useFormContext();
   // Subscribes this component to every field change (not just tile
   // selections) so isStepValid re-evaluates live as the student types --
   // getValues() alone is a one-off snapshot with no reactivity, which left
