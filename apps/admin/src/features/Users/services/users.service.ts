@@ -106,3 +106,55 @@ export const getReferralSourceBreakdown = async (
   );
   return res.data.data;
 };
+
+export interface PurposeCount {
+  purpose: string;
+  count: number;
+}
+
+export interface PurposeBreakdown {
+  purposes: PurposeCount[];
+  total_respondents: number;
+  total_users: number;
+}
+
+/**
+ * Same shape as getReferralSourceBreakdown, for the "What would you like
+ * to use MCC for?" onboarding answer.
+ * Endpoint: GET /admin/users/purpose-breakdown
+ */
+export const getPurposeBreakdown = async (role?: string): Promise<PurposeBreakdown> => {
+  const res = await apiClient.get<{data: PurposeBreakdown}>(
+    "/admin/users/purpose-breakdown",
+    {params: role ? {role} : undefined},
+  );
+  return res.data.data;
+};
+
+export interface OnboardingOtherResponse {
+  user_id: string;
+  full_name?: string | null;
+  email: string;
+  text: string;
+  created_at: string;
+}
+
+export interface OnboardingOtherResponses {
+  referral: OnboardingOtherResponse[];
+  purpose: OnboardingOtherResponse[];
+}
+
+/**
+ * The verbatim free text behind each "Others" pick on both onboarding
+ * questions, newest first.
+ * Endpoint: GET /admin/users/onboarding-other-responses
+ */
+export const getOnboardingOtherResponses = async (
+  role?: string,
+): Promise<OnboardingOtherResponses> => {
+  const res = await apiClient.get<{data: OnboardingOtherResponses}>(
+    "/admin/users/onboarding-other-responses",
+    {params: role ? {role} : undefined},
+  );
+  return res.data.data;
+};

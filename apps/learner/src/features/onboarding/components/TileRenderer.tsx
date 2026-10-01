@@ -3,16 +3,20 @@ import {TileMultiStep} from "../types/formTypes";
 import {Icon} from "@mcc/ui";
 
 export function TileMultiRenderer({step}: {step: TileMultiStep}) {
-  const {setValue, watch} = useFormContext();
+  const {setValue, watch, register} = useFormContext();
 
   const selected: string[] = watch(step.fieldId) || [];
+  const showOther = step.otherFieldId && selected.includes("other");
 
   const toggleOption = (value: string) => {
     if (selected.includes(value)) {
-      setValue(
-        step.fieldId,
-        selected.filter((v) => v !== value),
-      );
+      const next = selected.filter((v) => v !== value);
+      setValue(step.fieldId, next);
+      // Clear stale "other" text once that tile is deselected, so it
+      // can't linger unselected and get submitted anyway.
+      if (value === "other" && step.otherFieldId) {
+        setValue(step.otherFieldId, "");
+      }
     } else {
       setValue(step.fieldId, [...selected, value]);
     }
@@ -42,6 +46,16 @@ export function TileMultiRenderer({step}: {step: TileMultiStep}) {
           );
         })}
       </div>
+
+      {showOther && (
+        <input
+          type="text"
+          autoFocus
+          placeholder="Tell us more"
+          {...register(step.otherFieldId as string, {required: true})}
+          className="w-full rounded-xl border border-hint/40 px-5 py-3.5 text-sm shadow-md outline-none focus:border-primary/50 dark:border-hint dark:shadow-hint"
+        />
+      )}
     </div>
   );
 }

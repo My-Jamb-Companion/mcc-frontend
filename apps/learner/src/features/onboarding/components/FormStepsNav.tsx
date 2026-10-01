@@ -14,7 +14,14 @@ export function StepNavigation({
   next: () => void;
   back: () => void;
 }) {
-  const {trigger, getValues} = useFormContext();
+  const {trigger, getValues, watch} = useFormContext();
+  // Subscribes this component to every field change (not just tile
+  // selections) so isStepValid re-evaluates live as the student types --
+  // getValues() alone is a one-off snapshot with no reactivity, which left
+  // the "other" text field's Continue/Submit gate stuck showing stale
+  // (usually disabled) state until some unrelated re-render happened to
+  // occur.
+  const values = watch();
 
   const handleNext = async () => {
     let fields: string[] = [];
@@ -23,7 +30,13 @@ export function StepNavigation({
       fields = currentStep.fields.map((f) => f.id);
     }
 
-    if (currentStep.inputType === "tile-multi" || currentStep.inputType === "course-select") {
+    if (currentStep.inputType === "tile-multi") {
+      fields = currentStep.otherFieldId
+        ? [currentStep.fieldId, currentStep.otherFieldId]
+        : [currentStep.fieldId];
+    }
+
+    if (currentStep.inputType === "course-select") {
       fields = [currentStep.fieldId];
     }
 
@@ -37,8 +50,6 @@ export function StepNavigation({
     next();
   };
 
-  const values = getValues();
-
   const isStepValid = (() => {
     if (currentStep.inputType === "mixed") {
       return currentStep.fields.every((f) => {
@@ -50,7 +61,13 @@ export function StepNavigation({
     }
 
     if (currentStep.inputType === "tile-multi") {
-      return (values[currentStep.fieldId] || []).length > 0;
+      const selected: string[] = values[currentStep.fieldId] || [];
+      if (selected.length === 0) return false;
+      if (currentStep.otherFieldId && selected.includes("other")) {
+        const otherText: string = values[currentStep.otherFieldId] || "";
+        return otherText.trim().length > 0;
+      }
+      return true;
     }
 
     if (currentStep.inputType === "course-select") {
