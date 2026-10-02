@@ -4,11 +4,12 @@ import {extractApiError} from "@mcc/api";
 import {
   Flashcard,
   FlashcardOptions,
-  StudySetDetail,
+  ReviewResult,
   deleteStudySet,
   generateFlashcards,
   getStudySet,
   listStudySets,
+  reviewStudySet,
   saveStudySet,
   updateStudySet,
   uploadStudyMaterial,
@@ -55,8 +56,7 @@ export const useStudySet = (setId: string) =>
 export const useUpdateStudySet = (setId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: Partial<Pick<StudySetDetail, "title" | "description" | "content">>) =>
-      updateStudySet(setId, input),
+    mutationFn: (input: Parameters<typeof updateStudySet>[1]) => updateStudySet(setId, input),
     onSuccess: () => {
       showSuccess("Study set updated");
       queryClient.invalidateQueries({queryKey: STUDY_SETS_KEY});
@@ -74,5 +74,18 @@ export const useDeleteStudySet = () => {
       queryClient.invalidateQueries({queryKey: STUDY_SETS_KEY});
     },
     onError: (error) => showError(extractApiError(error, "Couldn't delete that study set")),
+  });
+};
+
+/**
+ * Saves a finished study or quiz session. Refreshes both the list (its "to
+ * review" counts) and this set's own progress. No toast: the results screen
+ * is the feedback, and a failure there offers its own retry.
+ */
+export const useReviewStudySet = (setId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (results: ReviewResult[]) => reviewStudySet(setId, results),
+    onSuccess: () => queryClient.invalidateQueries({queryKey: STUDY_SETS_KEY}),
   });
 };
