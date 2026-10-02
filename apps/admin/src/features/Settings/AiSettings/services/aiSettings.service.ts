@@ -65,6 +65,32 @@ export const listAvailableModels = async (): Promise<ApiAvailableModel[]> => {
   }
 };
 
+export interface ApiConnectionFailure {
+  kind: string;
+  status: number | null;
+  /** The provider's own error text, truncated. */
+  detail: string;
+  retryable: boolean;
+}
+
+export interface ApiConnectionTest {
+  ok: boolean;
+  model: string;
+  latency_ms: number;
+  failure: ApiConnectionFailure | null;
+}
+
+/**
+ * Endpoint: POST /admin/ai-settings/test
+ *
+ * One tiny real request through the same path Brainy uses -- the provider's
+ * actual error on failure, instead of an outage only visible in server logs.
+ */
+export const testConnection = async (): Promise<ApiConnectionTest> => {
+  const res = await apiClient.post<{data: ApiConnectionTest}>("/admin/ai-settings/test");
+  return res.data.data;
+};
+
 export const aiSettingsErrorMessage = (error: unknown, fallback: string): string => {
   const data = (error as {response?: {data?: {message?: string}}})?.response?.data;
   return data?.message || fallback;
