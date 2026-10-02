@@ -111,8 +111,20 @@ export interface ApiSession {
   title: string;
   mode: BrainyModeApi;
   subject?: string | null;
+  /** Already resolved server-side: a chat with no explicit group reports its mode's default group. */
+  group_id?: string | null;
+  pinned?: boolean;
+  pinned_at?: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface ApiGroup {
+  group_id: string;
+  name: string;
+  /** Set on the three default groups (renamable, not deletable); null on user-created ones. */
+  kind: BrainyModeApi | null;
+  position: number;
 }
 
 export interface ApiSessionDetail extends ApiSession {
@@ -282,6 +294,28 @@ export const getQuestionHelp = async (questionId: string): Promise<ApiAssistance
   );
   return res.data.data;
 };
+
+/**
+ * Endpoint: PATCH /brainy/sessions/<id> -- any subset of rename / move /
+ * pin. None of them count as activity, so the sidebar order is unchanged.
+ */
+export const updateSession = async (
+  sessionId: string,
+  patch: {title?: string; group_id?: string; pinned?: boolean},
+): Promise<ApiSession> =>
+  (await apiClient.patch<{data: ApiSession}>(`/brainy/sessions/${sessionId}`, patch)).data.data;
+
+/** Endpoint: GET /brainy/groups -- seeds the three defaults on first call. */
+export const getGroups = async (): Promise<ApiGroup[]> =>
+  (await apiClient.get<{data: ApiGroup[]}>("/brainy/groups")).data.data;
+
+/** Endpoint: POST /brainy/groups -- 409 if the name is taken (case-insensitive). */
+export const createGroup = async (name: string): Promise<ApiGroup> =>
+  (await apiClient.post<{data: ApiGroup}>("/brainy/groups", {name})).data.data;
+
+/** Endpoint: PATCH /brainy/groups/<id> -- works on the default groups too. */
+export const renameGroup = async (groupId: string, name: string): Promise<ApiGroup> =>
+  (await apiClient.patch<{data: ApiGroup}>(`/brainy/groups/${groupId}`, {name})).data.data;
 
 /** Endpoint: DELETE /brainy/sessions/<id> */
 export const deleteSession = async (sessionId: string): Promise<void> => {

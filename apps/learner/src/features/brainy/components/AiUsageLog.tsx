@@ -80,7 +80,7 @@ export default function AiUsageLog({messages}: {messages: ChatMessage[]}) {
   if (jobs.length === 0) return null;
 
   return (
-    <div className="mx-auto w-[90%] max-sm:w-full">
+    <div className="w-full">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

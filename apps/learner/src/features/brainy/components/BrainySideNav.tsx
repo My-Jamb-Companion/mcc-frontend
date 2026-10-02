@@ -1,22 +1,38 @@
 "use client";
-import {Button, Icon, motion, AnimatePresence} from "@mcc/ui";
-import {useMemo, useState} from "react";
+import {Button, ConfirmModal, Icon, motion, AnimatePresence, showError, showSuccess} from "@mcc/ui";
+import {extractApiError} from "@mcc/api";
+import {useCallback, useMemo, useRef, useState} from "react";
 import {useRouter, usePathname} from "next/navigation";
-import {useBrainy} from "../contexts/BrainyContext";
+import {useBrainy, type StudySession} from "../contexts/BrainyContext";
 import {groupByDateBucket} from "../helper/DateBuckets";
+import {
+  isLegacyGroup,
+  LEGACY_GROUPS,
+  resolveGroupId,
+  sessionsByGroup,
+  splitPinned,
+  type SidebarGroup,
+} from "../helper/groupSessions";
+import {useCreateGroup, useGroups, useRenameGroup, useUpdateSession} from "../hooks/useBrainyGroups";
+import {useDeleteSession} from "../hooks/useBrainyChat";
+import NameDialog from "./NameDialog";
+import SessionRowMenu from "./SessionRowMenu";
 
-type CategoryKey = "research" | "assignment" | "exam";
-
-const CATEGORY_CONFIG: {key: CategoryKey; label: string}[] = [
-  {key: "research", label: "Research History"},
-  {key: "assignment", label: "Assignment History"},
-  {key: "exam", label: "Exam study History"},
-];
+// What the sidebar is currently asking the user. One at a time.
+type Dialog =
+  | {type: "rename-chat"; session: StudySession}
+  | {type: "delete-chat"; session: StudySession}
+  | {type: "rename-group"; group: SidebarGroup}
+  // `moveSessionId`: created from a chat's "Move to group > New group", so the
+  // chat goes into the new group in the same step.
+  | {type: "new-group"; moveSessionId?: string};
 
 export default function BrainySideNav() {
-  const [openCategory, setOpenCategory] = useState<CategoryKey | null>(
-    "research",
-  );
+  // undefined = automatic (the group holding the open chat, else the first);
+  // null = the user collapsed everything; a string = the group they opened.
+  const [openGroupId, setOpenGroupId] = useState<string | null | undefined>(undefined);
+  const [dialog, setDialog] = useState<Dialog | null>(null);
+  const [menu, setMenu] = useState<{sessionId: string; anchor: HTMLElement} | null>(null);
 
   const router = useRouter();
   const {
@@ -24,13 +40,32 @@ export default function BrainySideNav() {
     setMode,
     setSubject,
     setActiveSessionId,
+    removeSession,
     isMobile,
     isSidebarOpen,
     setIsSidebarOpen,
   } = useBrainy();
   const pathname = usePathname();
 
+  const groupsQuery = useGroups();
+  const createGroup = useCreateGroup();
+  const renameGroup = useRenameGroup();
+  const updateSession = useUpdateSession();
+  const deleteSession = useDeleteSession();
+
   const showExpanded = isMobile || isSidebarOpen;
+
+  // Real groups once loaded; the three legacy sections only if the endpoint
+  // failed, so chats never disappear. While loading: nothing, rather than a
+  // flash of legacy sections that then swap for the real ones.
+  const groupsUnavailable = groupsQuery.isError;
+  const groups: SidebarGroup[] = useMemo(
+    () =>
+      groupsUnavailable
+        ? LEGACY_GROUPS
+        : groupsQuery.groups.map((g) => ({id: g.group_id, name: g.name, kind: g.kind})),
+    [groupsUnavailable, groupsQuery.groups],
+  );
 
   const activeSessionId = useMemo(() => {
     const parts = pathname.split("/");
@@ -41,35 +76,74 @@ export default function BrainySideNav() {
     return undefined;
   }, [pathname]);
 
-  const sessionsByCategory = useMemo(() => {
-    const grouped: Record<CategoryKey, BrainySession[]> = {
-      research: [],
-      assignment: [],
-      exam: [],
-    };
-    for (const session of sessions) {
-      const category: CategoryKey =
-        session.mode === "research"
-          ? "research"
-          : session.mode === "assignment"
-            ? "assignment"
-            : "exam";
+  const sessionsInGroup = useMemo(() => sessionsByGroup(sessions, groups), [sessions, groups]);
 
-      const brainySession: BrainySession = {
-        id: session.id,
-        title: session.title,
-        category,
-        createdAt: session.createdAt,
-      };
-      grouped[category].push(brainySession);
-    }
-    return grouped;
-  }, [sessions]);
+  const effectiveOpenGroupId = useMemo(() => {
+    if (openGroupId !== undefined) return openGroupId;
+    const active = sessions.find((s) => s.id === activeSessionId);
+    return (active && resolveGroupId(active, groups)) ?? groups[0]?.id ?? null;
+  }, [openGroupId, sessions, activeSessionId, groups]);
 
-  const handleSelectSession = (session: BrainySession) => {
-    setMode(session.category);
+  const menuSession = menu ? sessions.find((s) => s.id === menu.sessionId) : undefined;
+  const closeMenu = useCallback(() => setMenu(null), []);
+
+  const handleSelectSession = (session: StudySession) => {
+    setMode(session.mode);
     setActiveSessionId(session.id);
     router.push(`/brainy/chat/${session.id}`);
+  };
+
+  const patchSession = async (
+    session: StudySession,
+    patch: Parameters<typeof updateSession.mutateAsync>[0]["patch"],
+    successMessage: string,
+  ) => {
+    try {
+      await updateSession.mutateAsync({sessionId: session.id, patch});
+      showSuccess(successMessage);
+    } catch (error) {
+      showError(extractApiError(error, "Couldn't update that chat. Please try again."));
+    }
+  };
+
+  const moveToGroup = async (session: StudySession, groupId: string) => {
+    await patchSession(session, {group_id: groupId}, "Chat moved");
+    setOpenGroupId(groupId); // so the user sees where it went
+  };
+
+  const confirmDelete = async (session: StudySession) => {
+    setDialog(null);
+    try {
+      await deleteSession.mutateAsync(session.id);
+      removeSession(session.id);
+      showSuccess("Chat deleted");
+      if (session.id === activeSessionId) router.push("/brainy/new");
+    } catch (error) {
+      showError(extractApiError(error, "Couldn't delete that chat. Please try again."));
+    }
+  };
+
+  const submitNewGroup = async (name: string, moveSessionId?: string) => {
+    const created = await createGroup.mutateAsync(name);
+    const target = moveSessionId ? sessions.find((s) => s.id === moveSessionId) : undefined;
+    if (target) {
+      await updateSession.mutateAsync({sessionId: target.id, patch: {group_id: created.group_id}});
+    }
+    setOpenGroupId(created.group_id);
+    setDialog(null);
+    showSuccess(target ? `Moved to "${created.name}"` : `Group "${created.name}" created`);
+  };
+
+  const submitRenameGroup = async (group: SidebarGroup, name: string) => {
+    await renameGroup.mutateAsync({groupId: group.id, name});
+    setDialog(null);
+    showSuccess("Group renamed");
+  };
+
+  const submitRenameChat = async (session: StudySession, title: string) => {
+    await updateSession.mutateAsync({sessionId: session.id, patch: {title}});
+    setDialog(null);
+    showSuccess("Chat renamed");
   };
 
   return (
@@ -202,22 +276,37 @@ export default function BrainySideNav() {
               transition={{duration: 0.2}}
               className="flex flex-col gap-2.5 overflow-hidden"
             >
-              <p className="text-xs font-medium px-3 text-subtle">History</p>
+              <div className="flex items-center justify-between px-3">
+                <p className="text-xs font-medium text-subtle">History</p>
+                {!groupsUnavailable && (
+                  <button
+                    type="button"
+                    onClick={() => setDialog({type: "new-group"})}
+                    aria-label="New group"
+                    title="New group"
+                    className="rounded-md p-1 text-subtle transition-colors hover:bg-muted/15 hover:text-foreground"
+                  >
+                    <Icon icon="ph:folder-simple-plus" size={16} />
+                  </button>
+                )}
+              </div>
 
               <div className="flex flex-col gap-1 overflow-y-auto">
-                {CATEGORY_CONFIG.map(({key, label}) => (
-                  <CategorySection
-                    key={key}
-                    label={label}
-                    sessions={sessionsByCategory[key]}
-                    isOpen={openCategory === key}
+                {groups.map((group) => (
+                  <GroupSection
+                    key={group.id}
+                    group={group}
+                    sessions={sessionsInGroup.get(group.id) ?? []}
+                    isOpen={effectiveOpenGroupId === group.id}
                     onToggle={() =>
-                      setOpenCategory((current) =>
-                        current === key ? null : key,
-                      )
+                      setOpenGroupId(effectiveOpenGroupId === group.id ? null : group.id)
                     }
+                    canRename={!isLegacyGroup(group.id)}
+                    onRename={() => setDialog({type: "rename-group", group})}
                     activeSessionId={activeSessionId}
+                    menuSessionId={menu?.sessionId}
                     onSelectSession={handleSelectSession}
+                    onOpenMenu={(session, anchor) => setMenu({sessionId: session.id, anchor})}
                   />
                 ))}
               </div>
@@ -225,37 +314,138 @@ export default function BrainySideNav() {
           )}
         </AnimatePresence>
       </motion.nav>
+
+      {menu && menuSession && (
+        <SessionRowMenu
+          anchor={menu.anchor}
+          pinned={!!menuSession.pinned}
+          groups={groups}
+          currentGroupId={resolveGroupId(menuSession, groups)}
+          canMove={!groupsUnavailable}
+          onClose={closeMenu}
+          onTogglePin={() =>
+            patchSession(
+              menuSession,
+              {pinned: !menuSession.pinned},
+              menuSession.pinned ? "Chat unpinned" : "Chat pinned",
+            )
+          }
+          onRename={() => setDialog({type: "rename-chat", session: menuSession})}
+          onMove={(groupId) => moveToGroup(menuSession, groupId)}
+          onNewGroup={() => setDialog({type: "new-group", moveSessionId: menuSession.id})}
+          onDelete={() => setDialog({type: "delete-chat", session: menuSession})}
+        />
+      )}
+
+      {dialog?.type === "rename-chat" && (
+        <NameDialog
+          title="Rename chat"
+          label="Chat name"
+          initialValue={dialog.session.title}
+          submitLabel="Rename"
+          maxLength={255}
+          onSubmit={(title) => submitRenameChat(dialog.session, title)}
+          onClose={() => setDialog(null)}
+        />
+      )}
+      {dialog?.type === "new-group" && (
+        <NameDialog
+          title="New group"
+          label="Group name"
+          submitLabel="Create"
+          maxLength={60}
+          onSubmit={(name) => submitNewGroup(name, dialog.moveSessionId)}
+          onClose={() => setDialog(null)}
+        />
+      )}
+      {dialog?.type === "rename-group" && (
+        <NameDialog
+          title="Rename group"
+          label="Group name"
+          initialValue={dialog.group.name}
+          submitLabel="Rename"
+          maxLength={60}
+          onSubmit={(name) => submitRenameGroup(dialog.group, name)}
+          onClose={() => setDialog(null)}
+        />
+      )}
+      <ConfirmModal
+        open={dialog?.type === "delete-chat"}
+        variant="danger"
+        title="Delete this chat?"
+        message={
+          dialog?.type === "delete-chat"
+            ? `"${dialog.session.title}" and all its messages will be permanently deleted. This can't be undone.`
+            : undefined
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={() => dialog?.type === "delete-chat" && confirmDelete(dialog.session)}
+        onCancel={() => setDialog(null)}
+      />
     </>
   );
 }
 
-function CategorySection({
-  label,
+function GroupSection({
+  group,
   sessions,
   isOpen,
   onToggle,
+  canRename,
+  onRename,
   activeSessionId,
+  menuSessionId,
   onSelectSession,
-}: CategorySectionProps) {
-  const grouped = groupByDateBucket(sessions, (s) => s.createdAt);
+  onOpenMenu,
+}: GroupSectionProps) {
+  const {pinned, rest} = splitPinned(sessions);
+  const dated = groupByDateBucket(rest, (s) => s.createdAt);
   const isEmpty = sessions.length === 0;
+
+  const renderRow = (session: StudySession) => (
+    <SessionRow
+      key={session.id}
+      session={session}
+      isActive={session.id === activeSessionId}
+      isMenuOpen={session.id === menuSessionId}
+      onSelect={() => onSelectSession(session)}
+      onOpenMenu={(anchor) => onOpenMenu(session, anchor)}
+    />
+  );
 
   return (
     <div className="flex flex-col">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-left cursor-pointer hover:text-foreground hover:bg-muted/10"
-      >
-        <motion.span
-          animate={{rotate: isOpen ? 0 : -90}}
-          transition={{duration: 0.15}}
-          className="flex items-center"
+      <div className="group/header flex items-center hover:bg-muted/10">
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={isOpen}
+          className="flex min-w-0 flex-1 items-center gap-1.5 px-3 py-1.5 text-left cursor-pointer hover:text-foreground"
         >
-          <Icon icon="line-md:chevron-down" size={16} className="text-subtle" />
-        </motion.span>
-        <span className="text-sm font-medium text-subtle">{label}</span>
-      </button>
+          <motion.span
+            animate={{rotate: isOpen ? 0 : -90}}
+            transition={{duration: 0.15}}
+            className="flex items-center"
+          >
+            <Icon icon="line-md:chevron-down" size={16} className="text-subtle" />
+          </motion.span>
+          <span className="truncate text-sm font-medium text-subtle" title={group.name}>
+            {group.name}
+          </span>
+        </button>
+        {canRename && (
+          <button
+            type="button"
+            onClick={onRename}
+            aria-label={`Rename group ${group.name}`}
+            title="Rename group"
+            className="mr-2 shrink-0 rounded-md p-1 text-subtle opacity-0 transition-opacity hover:bg-muted/20 hover:text-foreground focus-visible:opacity-100 group-hover/header:opacity-100 max-md:opacity-100"
+          >
+            <Icon icon="ph:pencil-simple" size={14} />
+          </button>
+        )}
+      </div>
 
       <AnimatePresence initial={false}>
         {isOpen && !isEmpty && (
@@ -267,28 +457,19 @@ function CategorySection({
             className="overflow-hidden"
           >
             <div className="flex flex-col gap-3 px-3 pb-2 pt-1">
-              {grouped.map(({bucket, items}) => (
+              {pinned.length > 0 && (
+                <div className="flex flex-col gap-1">
+                  <p className="flex items-center gap-1 px-0 text-xs text-subtle/60">
+                    <Icon icon="ph:push-pin" size={11} />
+                    Pinned
+                  </p>
+                  {pinned.map(renderRow)}
+                </div>
+              )}
+              {dated.map(({bucket, items}) => (
                 <div key={bucket} className="flex flex-col gap-1">
                   <p className="px-0 text-xs text-subtle/60">{bucket}</p>
-                  {items.map((session) => {
-                    const isActive = session.id === activeSessionId;
-                    return (
-                      <button
-                        key={session.id}
-                        type="button"
-                        onClick={() => onSelectSession?.(session)}
-                        className={[
-                          "truncate rounded-md px-2 py-1.5 text-left text-sm transition-colors cursor-pointer",
-                          isActive
-                            ? "bg-muted/20 font-medium text-foreground"
-                            : "text-subtle hover:bg-muted/10 hover:text-foreground",
-                        ].join(" ")}
-                        title={session.title}
-                      >
-                        {session.title}
-                      </button>
-                    );
-                  })}
+                  {items.map(renderRow)}
                 </div>
               ))}
             </div>
@@ -305,18 +486,64 @@ function CategorySection({
   );
 }
 
-interface BrainySession {
-  id: string;
-  title: string;
-  category: "research" | "assignment" | "exam";
-  createdAt: Date | string | number;
+function SessionRow({session, isActive, isMenuOpen, onSelect, onOpenMenu}: SessionRowProps) {
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  return (
+    <div
+      className={[
+        "group/row flex items-center rounded-md transition-colors",
+        isActive || isMenuOpen ? "bg-muted/20" : "hover:bg-muted/10",
+      ].join(" ")}
+    >
+      <button
+        type="button"
+        onClick={onSelect}
+        className={[
+          "min-w-0 flex-1 truncate px-2 py-1.5 text-left text-sm cursor-pointer",
+          isActive ? "font-medium text-foreground" : "text-subtle hover:text-foreground",
+        ].join(" ")}
+        title={session.title}
+      >
+        {session.title}
+      </button>
+      <button
+        ref={triggerRef}
+        type="button"
+        aria-label={`Options for ${session.title}`}
+        aria-haspopup="menu"
+        aria-expanded={isMenuOpen}
+        onClick={() => triggerRef.current && onOpenMenu(triggerRef.current)}
+        // Hover-revealed on desktop; always visible on touch-sized screens,
+        // where there is no hover to reveal it.
+        className={[
+          "mr-1 shrink-0 rounded-md p-1 text-subtle transition-opacity hover:bg-muted/25 hover:text-foreground focus-visible:opacity-100 max-md:opacity-100",
+          isMenuOpen ? "opacity-100" : "opacity-0 group-hover/row:opacity-100",
+        ].join(" ")}
+      >
+        <Icon icon="ph:dots-three" size={18} />
+      </button>
+    </div>
+  );
 }
 
-interface CategorySectionProps {
-  label: string;
-  sessions: BrainySession[];
+interface GroupSectionProps {
+  group: SidebarGroup;
+  sessions: StudySession[];
   isOpen: boolean;
   onToggle: () => void;
+  canRename: boolean;
+  onRename: () => void;
   activeSessionId?: string;
-  onSelectSession?: (session: BrainySession) => void;
+  menuSessionId?: string;
+  onSelectSession: (session: StudySession) => void;
+  onOpenMenu: (session: StudySession, anchor: HTMLElement) => void;
+}
+
+interface SessionRowProps {
+  session: StudySession;
+  isActive: boolean;
+  isMenuOpen: boolean;
+  onSelect: () => void;
+  onOpenMenu: (anchor: HTMLElement) => void;
 }
