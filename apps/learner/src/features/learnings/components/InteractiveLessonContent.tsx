@@ -2,7 +2,7 @@
 
 import {useMemo, useState} from "react";
 import {Button, Icon} from "@mcc/ui";
-import {sendChatMessage} from "@/src/features/brainy/services/brainy.service";
+import {chatReplyText, sendChatMessage} from "@/src/features/brainy/services/brainy.service";
 import {splitIntoBlocks} from "@/src/features/learnings/helper/lessonBlocks";
 
 interface InteractiveLessonContentProps {
@@ -58,7 +58,7 @@ export default function InteractiveLessonContent({
       const result = await sendChatMessage(message, {
         context: {lesson_title: lessonTitle, block_heading: block?.heading ?? undefined},
       });
-      setReply(result.reply);
+      setReply(chatReplyText(result));
     } catch {
       setReply("Sorry, I couldn't get an answer just now. Please try again.");
     } finally {

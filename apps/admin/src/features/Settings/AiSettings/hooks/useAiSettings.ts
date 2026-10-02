@@ -4,6 +4,7 @@ import {
   listAvailableModels,
   listModelHistory,
   setActiveModel,
+  testConnection,
 } from "../services/aiSettings.service";
 
 const ROOT = ["admin", "ai-settings"] as const;
@@ -30,3 +31,5 @@ export const useSetActiveModel = () => {
     onSuccess: () => queryClient.invalidateQueries({queryKey: ROOT}),
   });
 };
+
+export const useTestConnection = () => useMutation({mutationFn: testConnection});

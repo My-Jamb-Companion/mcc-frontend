@@ -6,7 +6,7 @@ import {useCallback, useState, useRef, useMemo, useEffect} from "react";
 import DragImageOverlay, {useGlobalFileDrag} from "./DragFile";
 import {useBrainy} from "../contexts/BrainyContext";
 import {useParams, useRouter} from "next/navigation";
-import {sendChatMessage} from "../services/brainy.service";
+import {isRetryable, sendChatMessage, UNAVAILABLE_NOTICE} from "../services/brainy.service";
 import {uploadAttachments} from "../helper/uploadAttachments";
 import MarkdownMessage from "./MarkdownMessage";
 import AiUsageLog, {MessageUsage} from "./AiUsageLog";
@@ -123,6 +123,10 @@ export default function BrainyChats() {
             !result.generated,
             result.usage,
             result.charge,
+            // A permanent fault gets honest copy and no retry button; a
+            // transient one keeps the default "busy" copy and the retry.
+            isRetryable(result) ? undefined : UNAVAILABLE_NOTICE,
+            isRetryable(result),
           ),
         (error) =>
           addMessageToSession(
@@ -237,15 +241,17 @@ export default function BrainyChats() {
                       </>
                     )}
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => handleSend(lastQuestionFor(msg.id))}
-                    disabled={isSending}
-                    className="flex items-center gap-1.5 rounded-full border border-muted/30 px-3 py-1 text-xs font-medium text-foreground hover:bg-muted/15 disabled:opacity-40"
-                  >
-                    <Icon icon="ph:arrow-clockwise" size={14} />
-                    Try again
-                  </button>
+                  {msg.retryable !== false && (
+                    <button
+                      type="button"
+                      onClick={() => handleSend(lastQuestionFor(msg.id))}
+                      disabled={isSending}
+                      className="flex items-center gap-1.5 rounded-full border border-muted/30 px-3 py-1 text-xs font-medium text-foreground hover:bg-muted/15 disabled:opacity-40"
+                    >
+                      <Icon icon="ph:arrow-clockwise" size={14} />
+                      Try again
+                    </button>
+                  )}
                 </div>
               ) : msg.sender === "ai" ? (
                 <>

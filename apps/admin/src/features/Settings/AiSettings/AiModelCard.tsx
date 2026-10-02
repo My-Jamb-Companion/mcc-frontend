@@ -2,8 +2,27 @@
 
 import {useState} from "react";
 import {showSuccess} from "@mcc/ui";
-import {useActiveModel, useAvailableModels, useSetActiveModel} from "./hooks/useAiSettings";
+import {
+  useActiveModel,
+  useAvailableModels,
+  useSetActiveModel,
+  useTestConnection,
+} from "./hooks/useAiSettings";
 import {aiSettingsErrorMessage} from "./services/aiSettings.service";
+
+// What an admin should do about each failure kind (app/core/ai.py::AIFailure).
+const FAILURE_HINTS: Record<string, string> = {
+  not_configured: "AI_API_BASE_URL (or the model) isn't set on the server.",
+  auth: "The provider rejected the API key. Check AI_API_KEY on the server and that the key hasn't been revoked.",
+  quota: "The provider says payment is required. Check the wallet balance, then retry.",
+  model_not_found: "The provider doesn't recognise this model id. Switch to one from the catalog below.",
+  bad_request: "The provider rejected the request itself. The detail below says why.",
+  rate_limited: "The provider is rate-limiting requests. This usually clears on its own.",
+  too_large: "The request exceeded the provider's size limit.",
+  provider_error: "The provider returned a server error. This usually clears on its own.",
+  network: "The server couldn't reach the provider at all.",
+  empty_reply: "The model answered with nothing. Try a different model.",
+};
 
 const when = (iso: string) =>
   new Date(iso).toLocaleString("en-NG", {
@@ -18,6 +37,7 @@ export default function AiModelCard() {
   const active = useActiveModel();
   const catalog = useAvailableModels();
   const setModel = useSetActiveModel();
+  const connection = useTestConnection();
 
   const [modelId, setModelId] = useState("");
   const [reason, setReason] = useState("");
@@ -33,6 +53,10 @@ export default function AiModelCard() {
   const currentModelId = active.data?.model_id ?? null;
   const trimmedModelId = modelId.trim();
   const unchanged = !!currentModelId && trimmedModelId === currentModelId;
+  // Only judged once the catalog actually loaded: an empty list means the
+  // provider was unreachable, which proves nothing about the active model.
+  const activeModelUnlisted =
+    !!currentModelId && !!catalog.data?.length && !catalog.data.some((m) => m.id === currentModelId);
 
   const handleSave = () => {
     setError(null);
@@ -81,6 +105,17 @@ export default function AiModelCard() {
         </div>
       ) : (
         <div className="flex flex-col gap-4">
+          {activeModelUnlisted && (
+            <div role="alert" className="rounded-xl border border-red-100 bg-red-50 p-4 text-sm text-red-700">
+              <p className="font-semibold">Brainy is probably down.</p>
+              <p className="mt-1">
+                The active model &ldquo;{currentModelId}&rdquo; isn&apos;t in the provider&apos;s
+                catalog, so every Brainy request will be rejected. Pick a listed model below, then
+                use Test connection to confirm.
+              </p>
+            </div>
+          )}
+
           <p className="text-sm text-neutral-600">
             {active.data?.changed_by_name && active.data?.changed_at
               ? `Last changed by ${active.data.changed_by_name} on ${when(active.data.changed_at)}${
@@ -142,6 +177,51 @@ export default function AiModelCard() {
             >
               {setModel.isPending ? "Switching…" : unchanged ? "Already active" : "Switch model"}
             </button>
+          </div>
+
+          <div className="border-t border-neutral-100 pt-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => connection.mutate()}
+                disabled={connection.isPending}
+                className="rounded-full border border-neutral-300 px-5 py-2.5 text-base font-semibold text-neutral-800 transition-colors hover:bg-neutral-50 disabled:opacity-50"
+              >
+                {connection.isPending ? "Testing…" : "Test connection"}
+              </button>
+              <p className="text-sm text-neutral-600">
+                Sends one tiny real request the way Brainy does and shows the provider&apos;s actual answer.
+              </p>
+            </div>
+
+            {connection.isError && (
+              <p className="mt-3 text-sm text-red-600">
+                {aiSettingsErrorMessage(connection.error, "Couldn't run the test.")}
+              </p>
+            )}
+
+            {connection.data?.ok && (
+              <p role="status" className="mt-3 rounded-xl border border-green-100 bg-green-50 p-3 text-sm text-green-800">
+                Working. {connection.data.model} answered in {connection.data.latency_ms} ms.
+              </p>
+            )}
+
+            {connection.data && !connection.data.ok && connection.data.failure && (
+              <div role="alert" className="mt-3 rounded-xl border border-red-100 bg-red-50 p-4 text-sm text-red-800">
+                <p className="font-semibold">
+                  Failed on {connection.data.model}
+                  {connection.data.failure.status ? ` (HTTP ${connection.data.failure.status})` : ""}
+                  {" -- "}
+                  {connection.data.failure.retryable ? "likely temporary" : "won't fix itself"}
+                </p>
+                <p className="mt-1">
+                  {FAILURE_HINTS[connection.data.failure.kind] ?? "The call failed for an unrecognised reason."}
+                </p>
+                <p className="mt-2 break-words rounded-lg bg-white/60 p-2 font-mono text-xs">
+                  {connection.data.failure.detail}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}

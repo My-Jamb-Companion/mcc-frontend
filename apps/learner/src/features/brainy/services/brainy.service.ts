@@ -45,6 +45,19 @@ export interface ApiAllowance {
   allowance_resets_at?: string | null;
 }
 
+/** Shown instead of the backend's "please try again" fallback when retrying cannot help. */
+export const UNAVAILABLE_NOTICE =
+  "Brainy is unavailable right now because of a problem on our side, not anything you did. " +
+  "Retrying won't help yet -- please check back later.";
+
+/** True when a failed reply is one the student can usefully retry. */
+export const isRetryable = (result: Pick<ApiChatReply, "generated" | "failure">): boolean =>
+  result.generated || result.failure !== "unavailable";
+
+/** The text to show for a reply: the real answer, or honest copy for a failure that retrying cannot fix. */
+export const chatReplyText = (result: ApiChatReply): string =>
+  isRetryable(result) ? result.reply : UNAVAILABLE_NOTICE;
+
 export const getAllowance = async (): Promise<ApiAllowance> =>
   (await apiClient.get<{data: ApiAllowance}>("/brainy/allowance")).data.data;
 
@@ -52,6 +65,13 @@ export interface ApiChatReply {
   chat_id: string;
   reply: string;
   generated: boolean;
+  /**
+   * Set only when `generated` is false. "busy" is transient -- retrying can
+   * work. "unavailable" means the same request will keep failing until an
+   * admin fixes configuration, the provider wallet or the model, so the
+   * student should not be invited to retry.
+   */
+  failure?: "busy" | "unavailable" | null;
   /** Null when `generated` is false -- there was no completion to bill. */
   usage?: ApiTokenUsage | null;
   /** Null when nothing was metered. */

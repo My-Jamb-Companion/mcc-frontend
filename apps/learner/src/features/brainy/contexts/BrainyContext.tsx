@@ -40,6 +40,12 @@ export interface ChatMessage {
    */
   degraded?: boolean;
   /**
+   * False on a degraded message whose cause retrying cannot fix (bad key,
+   * empty provider wallet, retired model). Hides the "Try again" button.
+   * Undefined/true everywhere else, including turns reloaded from history.
+   */
+  retryable?: boolean;
+  /**
    * Token cost of the completion that produced this message, for the AI log.
    * Absent on the student's own turns, on failed turns, and on exchanges
    * stored before token accounting existed.
@@ -106,6 +112,7 @@ interface BrainyContextType {
     usage?: ApiTokenUsage | null,
     charge?: ApiJobCharge | null,
     notice?: string,
+    retryable?: boolean,
   ) => void;
   isSidebarOpen: boolean;
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -273,6 +280,7 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
       usage?: ApiTokenUsage | null,
       charge?: ApiJobCharge | null,
       notice?: string,
+      retryable?: boolean,
     ) => {
       setMessagesBySession((prev) => ({
         ...prev,
@@ -285,6 +293,7 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
             timestamp: new Date(),
             file: files,
             degraded,
+            retryable,
             usage,
             charge,
             notice,

@@ -19,7 +19,7 @@ import {youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import {useAllLessons, useLessonsDuration, formatDuration} from "@/src/features/learnings/hooks/useLesson";
 import {useCertificates, useUpdateCourseProgress} from "@/src/features/courses/hooks/useCourses";
 import {useModuleQuestions} from "@/src/features/learnings/hooks/useModuleQuiz";
-import {sendChatMessage} from "@/src/features/brainy/services/brainy.service";
+import {chatReplyText, sendChatMessage} from "@/src/features/brainy/services/brainy.service";
 import {calculateProgress} from "@/src/features/learnings/hooks/useLesson";
 
 interface CourseContentProps {
@@ -111,7 +111,7 @@ export default function CourseContent({
     const result = await sendChatMessage(message, {
       context: {course_id: courseId, course_title: title, lesson_title: activeLesson?.title},
     });
-    return result.reply;
+    return chatReplyText(result);
   };
 
   useEffect(() => {

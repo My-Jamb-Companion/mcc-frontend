@@ -12,7 +12,7 @@ import BrainyExamActionCardGrid, {
 } from "./BrainyExamActionCard";
 import FlashcardGenerator from "./FlashcardGenerator";
 import Link from "next/link";
-import {sendChatMessage} from "../services/brainy.service";
+import {isRetryable, sendChatMessage, UNAVAILABLE_NOTICE} from "../services/brainy.service";
 import {useQueryClient} from "@tanstack/react-query";
 import AllowanceMeter from "./AllowanceMeter";
 import {isAllowanceUsed} from "../helper/charge";
@@ -167,6 +167,8 @@ export default function Brainy() {
                     !result.generated,
                     result.usage,
                     result.charge,
+                    isRetryable(result) ? undefined : UNAVAILABLE_NOTICE,
+                    isRetryable(result),
                   ),
                 (error) =>
                   addMessageToSession(
