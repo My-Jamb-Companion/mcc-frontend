@@ -1,5 +1,5 @@
 "use client";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {AnimatePresence, Icon, motion, showError} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import BrainyChatBox from "./BrainyChatBox";
@@ -46,6 +46,103 @@ export default function Brainy() {
   useEffect(() => {
     if (mode !== "exam") setExamView("actions");
   }, [mode]);
+
+  // Shared by the composer below and by the dashboard hand-off (?q=). `origin`
+  // lets the hand-off start a plain research chat regardless of which mode
+  // this tab last left selected.
+  const startChat = async (
+    question: string,
+    files: File[],
+    origin?: {mode: "research"; subject: string},
+  ) => {
+    const firstMessage: ChatMessage = {
+      id: Math.random().toString(36).substring(7),
+      sender: "user" as const,
+      text: question,
+      file: files,
+      timestamp: new Date(),
+    };
+
+    // Extract attachment text before anything else: an unsupported
+    // file should stop the send with a clear message rather than
+    // silently asking the model about a document it never received.
+    let attachments;
+    try {
+      attachments = await uploadAttachments(files);
+    } catch (error) {
+      showError(
+        extractApiError(error, "That file couldn't be read. Try a PDF or text file."),
+      );
+      return;
+    }
+
+    const sessionId = await createNewSession(
+      question.length > 50
+        ? `${question.slice(0, 47)}...`
+        : question || "New Study Session",
+      origin?.mode ?? mode,
+      origin?.subject ?? (subject || "general"),
+      [firstMessage],
+    );
+    router.push(`/brainy/chat/${sessionId}`);
+
+    // Plain promise chain, not the useMutation hook: Brainy.tsx
+    // unmounts the instant router.push above navigates away, and
+    // a hook-bound mutation's onSuccess/onError is not guaranteed
+    // to fire once its owning component is gone. This resolves
+    // independently of any component's lifecycle.
+    sendChatMessage(question, {sessionId, attachments}).then(
+      (result) =>
+        // generated: false -> the provider returned nothing usable;
+        // flagged so the thread offers a retry rather than passing
+        // a failure off as Brainy's answer.
+        addMessageToSession(
+          sessionId,
+          "ai",
+          result.reply,
+          undefined,
+          !result.generated,
+          result.usage,
+          result.charge,
+          isRetryable(result) ? undefined : UNAVAILABLE_NOTICE,
+          isRetryable(result),
+        ),
+      (error) =>
+        addMessageToSession(
+          sessionId,
+          "ai",
+          "My brain is fuzzy right now. Please try again.",
+          undefined,
+          true,
+          null,
+          null,
+          isAllowanceUsed(error)
+            ? extractApiError(error, "You've used your Brainy allowance. Add gems to keep going.")
+            : undefined,
+        ),
+    ).finally(() => {
+      queryClient.invalidateQueries({queryKey: USAGE_QUERY_KEY});
+      queryClient.invalidateQueries({queryKey: ALLOWANCE_QUERY_KEY});
+    });
+  };
+
+  // The dashboard's Ask-Brainy card sends /brainy/new?q=<question>. Without
+  // this the param was ignored and the student landed on an empty composer.
+  // Read from window.location (client-only, no Suspense boundary needed) and
+  // cleared before sending so Back doesn't resend it; the ref stops React
+  // StrictMode's double-run from creating two sessions.
+  const handedOff = useRef(false);
+  useEffect(() => {
+    if (handedOff.current) return;
+    const q = new URLSearchParams(window.location.search).get("q")?.trim();
+    if (!q) return;
+    handedOff.current = true;
+    window.history.replaceState(null, "", window.location.pathname);
+    startChat(q, [], {mode: "research", subject: "general"}).catch((error) =>
+      showError(extractApiError(error, "Couldn't start your chat. Please try again.")),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <section className="grow flex flex-col h-full items-center justify-start overflow-y-auto px-4 py-8 max-sm:pb-10 max-sm:pt-20">
@@ -116,79 +213,7 @@ export default function Brainy() {
             </motion.div>
           )}
 
-          <BrainyChatBox
-            onSubmitQuestion={async (question, files) => {
-              const firstMessage: ChatMessage = {
-                id: Math.random().toString(36).substring(7),
-                sender: "user" as const,
-                text: question,
-                file: files,
-                timestamp: new Date(),
-              };
-
-              // Extract attachment text before anything else: an unsupported
-              // file should stop the send with a clear message rather than
-              // silently asking the model about a document it never received.
-              let attachments;
-              try {
-                attachments = await uploadAttachments(files);
-              } catch (error) {
-                showError(
-                  extractApiError(error, "That file couldn't be read. Try a PDF or text file."),
-                );
-                return;
-              }
-
-              const sessionId = await createNewSession(
-                question.length > 50
-                  ? `${question.slice(0, 47)}...`
-                  : question || "New Study Session",
-                mode,
-                subject || "general",
-                [firstMessage],
-              );
-              router.push(`/brainy/chat/${sessionId}`);
-
-              // Plain promise chain, not the useMutation hook: Brainy.tsx
-              // unmounts the instant router.push above navigates away, and
-              // a hook-bound mutation's onSuccess/onError is not guaranteed
-              // to fire once its owning component is gone. This resolves
-              // independently of any component's lifecycle.
-              sendChatMessage(question, {sessionId, attachments}).then(
-                (result) =>
-                  // generated: false -> the provider returned nothing usable;
-                  // flagged so the thread offers a retry rather than passing
-                  // a failure off as Brainy's answer.
-                  addMessageToSession(
-                    sessionId,
-                    "ai",
-                    result.reply,
-                    undefined,
-                    !result.generated,
-                    result.usage,
-                    result.charge,
-                    isRetryable(result) ? undefined : UNAVAILABLE_NOTICE,
-                    isRetryable(result),
-                  ),
-                (error) =>
-                  addMessageToSession(
-                    sessionId,
-                    "ai",
-                    "My brain is fuzzy right now. Please try again.",
-                    undefined,
-                    true,
-                    null,
-                    null,
-                    isAllowanceUsed(error)
-                      ? extractApiError(error, "You've used your Brainy allowance. Add gems to keep going.")
-                      : undefined,
-                  ),
-              ).finally(() => {
-                queryClient.invalidateQueries({queryKey: USAGE_QUERY_KEY});
-                queryClient.invalidateQueries({queryKey: ALLOWANCE_QUERY_KEY});
-              });
-            }}
-          />
+          <BrainyChatBox onSubmitQuestion={startChat} />
           <AllowanceMeter className="mt-2" />
         </AnimatePresence>
       </div>
