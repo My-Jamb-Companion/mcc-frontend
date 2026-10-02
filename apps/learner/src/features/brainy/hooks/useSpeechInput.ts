@@ -2,38 +2,7 @@
 
 import {useCallback, useEffect, useRef, useState, useSyncExternalStore} from "react";
 import {speechErrorMessage} from "../helper/voice";
-
-// lib.dom does not ship the Web Speech API types, and it is still prefixed in
-// Chrome and Safari, so the slice we use is declared here.
-interface RecognitionResult {
-  readonly isFinal: boolean;
-  readonly length: number;
-  readonly [index: number]: {readonly transcript: string};
-}
-interface RecognitionEvent {
-  readonly results: ArrayLike<RecognitionResult>;
-}
-interface Recognition {
-  lang: string;
-  continuous: boolean;
-  interimResults: boolean;
-  onresult: ((event: RecognitionEvent) => void) | null;
-  onerror: ((event: {error: string}) => void) | null;
-  onend: (() => void) | null;
-  start(): void;
-  stop(): void;
-  abort(): void;
-}
-type RecognitionCtor = new () => Recognition;
-
-function getRecognitionCtor(): RecognitionCtor | null {
-  if (typeof window === "undefined") return null;
-  const w = window as unknown as {
-    SpeechRecognition?: RecognitionCtor;
-    webkitSpeechRecognition?: RecognitionCtor;
-  };
-  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
-}
+import {getRecognitionCtor, type Recognition} from "./speechRecognition";
 
 const subscribeNever = () => () => {};
 
