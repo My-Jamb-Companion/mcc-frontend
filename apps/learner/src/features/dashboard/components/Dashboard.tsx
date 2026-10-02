@@ -7,6 +7,8 @@ import ScrollRow from "@/src/features/components/RowScroll";
 import CourseCard from "@/src/features/components/CourseCard";
 import CourseCardSkeleton from "@/src/features/components/CourseCardSkeleton";
 import AskAICard from "./AskAI";
+import {brainyChatUrl, pickSurprisePrompt} from "@/src/features/brainy/helper/surprise";
+import {usePromptSuggestions} from "@/src/features/brainy/hooks/useDiscover";
 import ExamCard from "@/src/features/components/ExamCard";
 import ExamCardSkeleton from "@/src/features/components/ExamCardSkeleton";
 import {useEnrolledCourses} from "@/src/features/courses/hooks/useCourses";
@@ -25,6 +27,7 @@ import {useProfile} from "@/src/features/account/hooks/useProfile";
  */
 export default function Dashboard() {
   const router = useRouter();
+  const {suggestions} = usePromptSuggestions();
   const [reschedulingSessionId, setReschedulingSessionId] = useState<string | null>(null);
   const {data: profile} = useProfile();
   const {courses: enrolledCourses, isLoading: enrolledCoursesLoading} = useEnrolledCourses();
@@ -104,7 +107,10 @@ export default function Dashboard() {
       />
 
       <div className="mt-8">
-        <AskAICard onSubmit={(query) => router.push(`/brainy/new?q=${encodeURIComponent(query)}`)} />
+        <AskAICard
+          onSubmit={(query) => router.push(brainyChatUrl(query))}
+          onSurprise={() => router.push(brainyChatUrl(pickSurprisePrompt(suggestions)))}
+        />
       </div>
 
       <div className="flex flex-col gap-10 mt-8">
