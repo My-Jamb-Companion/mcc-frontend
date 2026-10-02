@@ -68,6 +68,10 @@ export interface StudySession {
   subject?: string;
   messages: ChatMessage[];
   createdAt: Date;
+  /** Server-resolved group. Absent for a chat created in this tab until the list refetches. */
+  groupId?: string;
+  pinned?: boolean;
+  pinnedAt?: Date;
 }
 
 interface BrainyContextType {
@@ -114,6 +118,12 @@ interface BrainyContextType {
     notice?: string,
     retryable?: boolean,
   ) => void;
+  /**
+   * Forget a deleted thread everywhere the provider remembers it. Without
+   * this its tab-local copy keeps it in the sidebar after the server has
+   * dropped it.
+   */
+  removeSession: (sessionId: string) => void;
   isSidebarOpen: boolean;
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
   toggleSidebar: () => void;
@@ -156,6 +166,9 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
       subject: remote.subject ?? undefined,
       messages: messagesBySession[remote.session_id] ?? [],
       createdAt: new Date(remote.created_at),
+      groupId: remote.group_id ?? undefined,
+      pinned: remote.pinned ?? false,
+      pinnedAt: remote.pinned_at ? new Date(remote.pinned_at) : undefined,
     }));
     const localOnly = localSessions
       .filter((s) => !remoteIds.has(s.id))
@@ -212,6 +225,21 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
       return remote.session_id;
     },
     [clearFiles, queryClient],
+  );
+
+  const removeSession = useCallback(
+    (sessionId: string) => {
+      setLocalSessions((prev) => prev.filter((s) => s.id !== sessionId));
+      setMessagesBySession((prev) => {
+        const next = {...prev};
+        delete next[sessionId];
+        return next;
+      });
+      setActiveSessionId((current) => (current === sessionId ? null : current));
+      queryClient.removeQueries({queryKey: ["brainy-session", sessionId]});
+      queryClient.invalidateQueries({queryKey: SESSIONS_QUERY_KEY});
+    },
+    [queryClient],
   );
 
   const loadSessionMessages = useCallback(async (sessionId: string) => {
@@ -350,6 +378,7 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
         activeSessionId,
         setActiveSessionId,
         createNewSession,
+        removeSession,
         loadSessionMessages,
         sessionsLoading,
         addMessageToActiveSession,
