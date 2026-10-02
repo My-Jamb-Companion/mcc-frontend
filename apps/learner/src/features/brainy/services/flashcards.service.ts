@@ -93,10 +93,43 @@ export interface StudySetSummary {
   subject: string;
   description: string | null;
   created_at: string;
+  updated_at?: string | null;
+  last_studied_at?: string | null;
+  card_count: number;
+  mastered_count: number;
+  /** Reviews that are due plus cards never studied -- what is worth studying now. */
+  due_count: number;
 }
 
-export interface StudySetDetail extends StudySetSummary {
-  content: Flashcard[];
+/** A saved card: it carries the id progress is tracked against. */
+export interface StudyCard extends Flashcard {
+  id: string;
+}
+
+export interface CardProgress {
+  card_id: string;
+  /** Leitner box 1 (new / missed) to 5 (mastered). */
+  box: number;
+  due_at: string;
+  times_seen: number;
+  times_correct: number;
+  last_reviewed_at: string | null;
+}
+
+export interface ProgressCounts {
+  total: number;
+  new: number;
+  learning: number;
+  mastered: number;
+  due: number;
+}
+
+export interface StudySetDetail
+  extends Omit<StudySetSummary, "card_count" | "mastered_count" | "due_count"> {
+  content: StudyCard[];
+  /** Only cards studied at least once appear here. */
+  progress: CardProgress[];
+  summary: ProgressCounts;
 }
 
 /** Endpoint: GET /exams/study-sets -- the caller's saved sets, newest first. */
@@ -113,13 +146,37 @@ export const getStudySet = async (setId: string): Promise<StudySetDetail> => {
   return res.data.data;
 };
 
-/** Endpoint: PATCH /exams/study-sets/{set_id} -- any field omitted is left
- * unchanged server-side. */
+/**
+ * Endpoint: PATCH /exams/study-sets/{set_id} -- only the fields sent change;
+ * `description: ""` clears it. Send each card's `id` back unchanged so its
+ * progress is kept; a set can't be emptied (422).
+ */
 export const updateStudySet = async (
   setId: string,
-  input: Partial<Pick<StudySetDetail, "title" | "description" | "content">>,
+  input: Partial<{title: string; description: string; content: Array<Flashcard & {id?: string}>}>,
 ): Promise<void> => {
   await apiClient.patch(`/exams/study-sets/${encodeURIComponent(setId)}`, input);
+};
+
+export interface ReviewResult {
+  card_id: string;
+  correct: boolean;
+}
+
+/**
+ * Endpoint: POST /exams/study-sets/{set_id}/review -- records a whole study or
+ * quiz session on the Leitner schedule (correct = up a box, miss = back to box
+ * 1). Answers are applied in order; unknown card ids are ignored.
+ */
+export const reviewStudySet = async (
+  setId: string,
+  results: ReviewResult[],
+): Promise<{reviewed: number; summary: ProgressCounts}> => {
+  const res = await apiClient.post<{data: {reviewed: number; summary: ProgressCounts}}>(
+    `/exams/study-sets/${encodeURIComponent(setId)}/review`,
+    {results},
+  );
+  return res.data.data;
 };
 
 /** Endpoint: DELETE /exams/study-sets/{set_id} */
