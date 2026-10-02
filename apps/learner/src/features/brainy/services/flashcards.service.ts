@@ -1,4 +1,5 @@
 import {apiClient} from "@mcc/api";
+import type {ApiJobCharge} from "./brainy.service";
 
 export interface Flashcard {
   front: string;
@@ -8,18 +9,57 @@ export interface Flashcard {
 export interface FlashcardGenerateResult {
   flashcards: Flashcard[];
   generated: boolean;
+  charge?: ApiJobCharge | null;
+}
+
+export type FlashcardDifficulty = "easy" | "medium" | "hard";
+
+export interface FlashcardOptions {
+  /** 3-20. Omitted: the model picks 5-10. */
+  count?: number;
+  /** Omitted: a balanced mix. */
+  difficulty?: FlashcardDifficulty;
+}
+
+export interface StudyMaterialResult {
+  filename: string;
+  text: string;
+  /** True when the material was longer than 60,000 characters and was cut. */
+  truncated: boolean;
+  /** "image" means a photo read by the vision model (uses Brainy allowance). */
+  kind: "document" | "image";
+  charge?: ApiJobCharge | null;
 }
 
 /**
- * Endpoint: POST /brainy/flashcards -- paste-only. `generated: false` means
- * the AI provider was unconfigured, the call failed, or the response
- * couldn't be parsed as flashcards; `flashcards` is then empty, not a
- * fallback string like every other Brainy endpoint.
+ * Endpoint: POST /brainy/study-material (multipart) -- turns a PDF, Word,
+ * PowerPoint, text file or photo into text for the generator. Photos are read
+ * by a vision model, which takes a while, hence the long timeout.
  */
-export const generateFlashcards = async (content: string): Promise<FlashcardGenerateResult> => {
+export const uploadStudyMaterial = async (file: File): Promise<StudyMaterialResult> => {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await apiClient.post<{data: StudyMaterialResult}>("/brainy/study-material", form, {
+    headers: {"Content-Type": "multipart/form-data"},
+    timeout: 90000,
+  });
+  return res.data.data;
+};
+
+/**
+ * Endpoint: POST /brainy/flashcards. `content` is at most 8000 characters per
+ * call (split longer material first -- see splitIntoParts). `generated:
+ * false` means the AI provider was unconfigured, the call failed, or the
+ * response couldn't be parsed as flashcards; `flashcards` is then empty, not
+ * a fallback string like every other Brainy endpoint.
+ */
+export const generateFlashcards = async (
+  content: string,
+  options: FlashcardOptions = {},
+): Promise<FlashcardGenerateResult> => {
   const res = await apiClient.post<{data: FlashcardGenerateResult}>(
     "/brainy/flashcards",
-    {content},
+    {content, ...options},
     // apiClient's default 10s timeout is sized for ordinary CRUD calls, not
     // a real LLM completion -- gpt-5.6-luna alone can take ~9s, before any
     // retry. 30s gives real headroom without hanging a failed request forever.

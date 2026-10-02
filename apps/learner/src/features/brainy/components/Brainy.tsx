@@ -10,7 +10,7 @@ import {ChatMessage, useBrainy} from "../contexts/BrainyContext";
 import BrainyExamActionCardGrid, {
   ActionCardConfig,
 } from "./BrainyExamActionCard";
-import FlashcardGenerator from "./FlashcardGenerator";
+import FlashcardGenerator, {type MaterialSource} from "./FlashcardGenerator";
 import Link from "next/link";
 import {isRetryable, sendChatMessage, UNAVAILABLE_NOTICE} from "../services/brainy.service";
 import {useQueryClient} from "@tanstack/react-query";
@@ -42,7 +42,7 @@ export default function Brainy() {
   } = useBrainy();
   const router = useRouter();
 
-  const [examView, setExamView] = useState<"actions" | "flashcards">("actions");
+  const [examView, setExamView] = useState<"actions" | MaterialSource>("actions");
   useEffect(() => {
     if (mode !== "exam") setExamView("actions");
   }, [mode]);
@@ -178,15 +178,15 @@ export default function Brainy() {
                   <BrainyExamActionCardGrid
                     eyebrow="Exam Preparations"
                     heading="How do you want to prepare for your exams?"
-                    subtext="Paste your notes and get instant flashcards to study from."
+                    subtext="Turn your notes, slides, photos or a live lecture into flashcards to study from."
                     actions={EXAM_PREP_ACTIONS}
                     onSelect={(id) => {
-                      if (id === "paste") setExamView("flashcards");
+                      if (id === "paste" || id === "upload" || id === "record") setExamView(id);
                     }}
                   />
                 </>
               ) : (
-                <FlashcardGenerator onBack={() => setExamView("actions")} />
+                <FlashcardGenerator source={examView} onBack={() => setExamView("actions")} />
               )}
             </div>
           )}
@@ -257,7 +257,7 @@ const DEFAULT_FEATURES: FeatureCardConfig[] = [
     id: "exam",
     icon: "ph:exam",
     title: "Prepare for your exam",
-    description: "Paste your notes and get instant flashcards to study from.",
+    description: "Turn your notes, slides, photos or a lecture into flashcards to study from.",
   },
   {
     id: "assignment",
@@ -267,27 +267,22 @@ const DEFAULT_FEATURES: FeatureCardConfig[] = [
       "Generate summaries and interactive study materials to simplify complex assignments.",
   },
 ];
-// Only "paste" is wired to anything real (POST /brainy/flashcards) --
-// "Upload" (image/file/audio/video) and "Record live lecture" need OCR,
-// transcription, or audio-capture infrastructure the backend doesn't have,
-// so both stay honestly marked "Coming soon" rather than looking clickable
-// with nothing behind them.
+// Upload reads documents and photos (POST /brainy/study-material) and Record uses
+// the browser's own speech recognition, so both feed the same flashcard
+// workbench as Paste. Audio/video *files* still have no server-side
+// transcription -- the Upload screen says so plainly.
 const EXAM_PREP_ACTIONS: ActionCardConfig[] = [
   {
     id: "upload",
     icon: "hugeicons:pencil-ruler",
     title: "Upload",
-    description: "Image, file, audio, video.",
-    badge: "Coming soon",
-    disabled: true,
+    description: "PDF, Word, PowerPoint, text, or a photo of your notes.",
   },
   {
     id: "record",
-    icon: "ph:book-open",
+    icon: "ph:microphone",
     title: "Record",
-    description: "Record live lecture",
-    badge: "Coming soon",
-    disabled: true,
+    description: "Record a live lecture",
   },
   {
     id: "paste",

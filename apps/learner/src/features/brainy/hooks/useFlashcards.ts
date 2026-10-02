@@ -3,6 +3,7 @@ import {showError, showSuccess} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import {
   Flashcard,
+  FlashcardOptions,
   StudySetDetail,
   deleteStudySet,
   generateFlashcards,
@@ -10,12 +11,18 @@ import {
   listStudySets,
   saveStudySet,
   updateStudySet,
+  uploadStudyMaterial,
 } from "../services/flashcards.service";
 
 const STUDY_SETS_KEY = ["study-sets"];
 
 export const useGenerateFlashcards = () =>
-  useMutation({mutationFn: (content: string) => generateFlashcards(content)});
+  useMutation({
+    mutationFn: ({content, options}: {content: string; options?: FlashcardOptions}) =>
+      generateFlashcards(content, options),
+  });
+
+export const useUploadStudyMaterial = () => useMutation({mutationFn: uploadStudyMaterial});
 
 export const useSaveStudySet = () => {
   const queryClient = useQueryClient();
