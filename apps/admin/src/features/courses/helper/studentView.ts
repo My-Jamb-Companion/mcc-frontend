@@ -16,8 +16,9 @@ import {youTubeEmbedUrl} from "./video";
  *  - topics are flattened away: students see a flat list of modules;
  *  - a module's lessons stay, in order;
  *  - quiz and practice questions are merged into ONE "Practice quiz" per
- *    module (quiz first, then practice -- the save order);
- *  - "exercise" items are not saved at all, so students never see them.
+ *    module, in the order they were arranged (the save order);
+ *  - each named exercise set is its own entry for the student, and never
+ *    part of the Practice quiz.
  *
  * Keep the lesson-kind rules in line with the learner app's
  * `features/learnings/helper/content.mapper.ts::lessonKind`.
@@ -36,13 +37,23 @@ export interface StudentLesson {
   kind: StudentLessonKind;
 }
 
+export interface StudentExerciseSet {
+  name: string;
+  questions: CreatPracticeQuestionType[];
+}
+
 export interface StudentModule {
   id: string;
   title: string;
   lessons: StudentLesson[];
   /** Merged quiz + practice questions: the module's "Practice quiz". */
   questions: CreatPracticeQuestionType[];
+  /** The module's exercise sets, each a separate entry; same-named sets are one. */
+  exerciseSets: StudentExerciseSet[];
 }
+
+/** An exercise with no name is saved (and shown) as "Exercise". */
+export const DEFAULT_EXERCISE_NAME = "Exercise";
 
 export function studentLessonKind(lesson: {
   content?: string | null;
@@ -75,18 +86,22 @@ export function toStudentModules(topics: Topic[] = []): StudentModule[] {
     .flatMap((topic) => topic.modules ?? [])
     .map((module) => {
       const content = module.content ?? [];
-      const quizzes = content.filter((c): c is QuizModuleContent => c.type === "quiz");
-      const practices = content.filter((c): c is PracticeModuleContent => c.type === "practice");
+      const exerciseSets = new Map<string, CreatPracticeQuestionType[]>();
+      for (const item of content) {
+        if (item.type !== "exercise") continue;
+        const name = item.name?.trim() || DEFAULT_EXERCISE_NAME;
+        exerciseSets.set(name, [...(exerciseSets.get(name) ?? []), ...item.questions]);
+      }
       return {
         id: module.id,
         title: module.label || "Untitled Module",
         lessons: content
           .filter((c): c is LessonModuleContent => c.type === "lesson")
           .map(toStudentLesson),
-        questions: [
-          ...quizzes.flatMap((q) => q.questions),
-          ...practices.flatMap((p) => p.questions),
-        ],
+        questions: content
+          .filter((c): c is QuizModuleContent | PracticeModuleContent => c.type === "quiz" || c.type === "practice")
+          .flatMap((c) => c.questions),
+        exerciseSets: [...exerciseSets].map(([name, questions]) => ({name, questions})),
       };
     });
 }

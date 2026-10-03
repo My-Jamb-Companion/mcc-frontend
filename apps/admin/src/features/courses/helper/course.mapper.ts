@@ -6,6 +6,7 @@ import {
   ApiModulePayload,
   ApiQuizQuestionPayload,
   CoursesFormValues,
+  ExerciseModuleContent,
   CourseLevel,
   CreatPracticeQuestionType,
   LessonModuleContent,
@@ -13,6 +14,7 @@ import {
   Option,
   PracticeModuleContent,
   QuestionTypeApi,
+  QuestionUsage,
   QuizModuleContent,
   Topic,
 } from "../types/types";
@@ -66,28 +68,25 @@ export function serializeModulesPayload(topics: Topic[]): ApiModulePayload[] {
       thumbnail_url: lesson.thumbnailUrl || undefined,
     }));
 
-    // 2. Extract quizzes & practice sets
-    const quizContainers = module.content.filter(
-      (c): c is QuizModuleContent => c.type === "quiz",
-    );
-    const practiceContainers = module.content.filter(
-      (c): c is PracticeModuleContent => c.type === "practice",
-    );
-
-    const rawQuestions: CreatPracticeQuestionType[] = [
-      ...quizContainers.flatMap((q) => q.questions),
-      ...practiceContainers.flatMap((p) => p.questions),
-    ];
-
-    const quizzes: ApiQuizQuestionPayload[] = rawQuestions.map((q) => ({
-      question_text: q.question,
-      description: q.description || undefined,
-      question_type: normalizeQuestionType(q.type),
-      options: q.options?.map((opt) => opt.text) || [],
-      correct_answers:
-        q.options?.filter((opt) => opt.isCorrect).map((opt) => opt.text) || [],
-      explanation: q.explanation || undefined,
-    }));
+    // 2. Extract every question set -- quiz, practice and exercise -- in the
+    // order the admin arranged them, tagging each question with its kind and
+    // the set's name so the editor can rebuild the sets on reload and
+    // students can be given exercises as their own entries.
+    const quizzes: ApiQuizQuestionPayload[] = module.content.flatMap((c) => {
+      if (c.type !== "quiz" && c.type !== "practice" && c.type !== "exercise") return [];
+      const setName = c.type === "quiz" ? c.title : c.name;
+      return c.questions.map((q: CreatPracticeQuestionType) => ({
+        question_text: q.question,
+        description: q.description || undefined,
+        question_type: normalizeQuestionType(q.type),
+        options: q.options?.map((opt) => opt.text) || [],
+        correct_answers:
+          q.options?.filter((opt) => opt.isCorrect).map((opt) => opt.text) || [],
+        explanation: q.explanation || undefined,
+        usage_type: c.type as QuestionUsage,
+        set_name: setName?.trim() || undefined,
+      }));
+    });
 
     return {
       title: module.label || "Untitled Module",
@@ -128,44 +127,52 @@ export function deserializeModulesPayload(
       }),
     );
 
-    // Map quizzes back to CreatPracticeQuestionType & QuizModuleContent
-    const questions: CreatPracticeQuestionType[] = (apiMod.quizzes || []).map(
-      (q) => {
-        const correctSet = new Set(q.correct_answers || []);
-        const options: Option[] = (q.options || []).map((optText) => ({
-          id: uid(),
-          text: optText,
-          isCorrect: correctSet.has(optText),
-        }));
+    // Map questions back into their sets. Consecutive questions with the same
+    // kind and set name were one set when they were saved. Rows saved before
+    // sets were recorded carry no kind and become a single practice set.
+    const sets = new Map<
+      string,
+      {usage: QuestionUsage; name: string | undefined; questions: CreatPracticeQuestionType[]}
+    >();
+    for (const q of apiMod.quizzes || []) {
+      const usage: QuestionUsage = q.usage_type ?? "practice";
+      const name = q.set_name?.trim() || undefined;
+      const key = `${usage}|${name ?? ""}`;
+      const correctSet = new Set(q.correct_answers || []);
+      const options: Option[] = (q.options || []).map((optText) => ({
+        id: uid(),
+        text: optText,
+        isCorrect: correctSet.has(optText),
+      }));
+      const question: CreatPracticeQuestionType = {
+        id: uid(),
+        type: normalizeQuestionType(q.question_type),
+        question: q.question_text,
+        description: q.description,
+        options,
+        explanation: q.explanation,
+      };
+      const existing = sets.get(key);
+      if (existing) existing.questions.push(question);
+      else sets.set(key, {usage, name, questions: [question]});
+    }
 
-        return {
-          id: uid(),
-          type: normalizeQuestionType(q.question_type),
-          question: q.question_text,
-          description: q.description,
-          options,
-          explanation: q.explanation,
-        };
-      },
-    );
-
-    const quizContent: QuizModuleContent[] =
-      questions.length > 0
-        ? [
-            {
-              id: uid(),
-              type: "quiz" as const,
-              title: "Module Quiz",
-              questions,
-              settings: {},
-            },
-          ]
-        : [];
+    const questionSets: Array<
+      PracticeModuleContent | QuizModuleContent | ExerciseModuleContent
+    > = [...sets.values()].map(({usage, name, questions}) => {
+      if (usage === "quiz") {
+        return {id: uid(), type: "quiz" as const, title: name ?? "Module Quiz", questions, settings: {}};
+      }
+      if (usage === "exercise") {
+        return {id: uid(), type: "exercise" as const, name: name ?? "Exercise", questions};
+      }
+      return {id: uid(), type: "practice" as const, name: name ?? "Practice", questions};
+    });
 
     return {
       id: moduleId,
       label: apiMod.title,
-      content: [...lessons, ...quizContent],
+      content: [...lessons, ...questionSets],
     };
   });
 

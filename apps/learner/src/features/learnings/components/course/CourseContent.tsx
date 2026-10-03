@@ -58,8 +58,10 @@ export default function CourseContent({
     (lectureParam && allLessons.find((l) => l.id === lectureParam)) || allLessons[0] || null,
   );
   const [activeQuizModuleId, setActiveQuizModuleId] = useState<string | null>(null);
+  const [activeExercise, setActiveExercise] = useState<{moduleId: string; name: string} | null>(null);
   const [currentVideoTime, setCurrentVideoTime] = useState(0);
   const quizQuestions = useModuleQuestions(courseId, activeQuizModuleId);
+  const exerciseQuestions = useModuleQuestions(courseId, activeExercise?.moduleId ?? null, activeExercise?.name);
 
   const tabQuery = searchParams.get("tab");
   const activeTab = tabQuery && TABS.includes(tabQuery) ? tabQuery : "overview";
@@ -76,11 +78,18 @@ export default function CourseContent({
   const handleSelectLesson = (lesson: Lesson) => {
     setActiveLesson(lesson);
     setActiveQuizModuleId(null);
+    setActiveExercise(null);
     setCurrentVideoTime(0);
   };
 
   const handleSelectQuiz = (moduleId: string) => {
+    setActiveExercise(null);
     setActiveQuizModuleId(moduleId);
+  };
+
+  const handleSelectExercise = (moduleId: string, name: string) => {
+    setActiveQuizModuleId(null);
+    setActiveExercise({moduleId, name});
   };
 
   const markComplete = useCallback(
@@ -145,7 +154,26 @@ export default function CourseContent({
       >
         <motion.div layout transition={{type: "spring", stiffness: 120, damping: 20}} className="min-w-0 pb-8">
           <div className="w-full min-w-0 overflow-hidden">
-            {activeQuizModuleId ? (
+            {activeExercise ? (
+              exerciseQuestions.isLoading ? (
+                <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
+                  Loading exercise…
+                </div>
+              ) : exerciseQuestions.questions.length === 0 ? (
+                <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl bg-muted/10 px-8 text-center text-sm text-muted">
+                  No questions in this exercise yet.
+                </div>
+              ) : (
+                <CoursePractice
+                  key={`${activeExercise.moduleId}:${activeExercise.name}`}
+                  courseId={courseId}
+                  moduleId={activeExercise.moduleId}
+                  questions={exerciseQuestions.questions}
+                  label={`Exercise: ${activeExercise.name}`}
+                  onDone={() => setActiveExercise(null)}
+                />
+              )
+            ) : activeQuizModuleId ? (
               quizQuestions.isLoading ? (
                 <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
                   Loading practice quiz…
@@ -195,7 +223,7 @@ export default function CourseContent({
             )}
           </div>
 
-          {!activeQuizModuleId && activeLesson && (
+          {!activeQuizModuleId && !activeExercise && activeLesson && (
             <div className="mt-4 flex items-center justify-between px-1">
               <div>
                 <p className="text-lg font-semibold">{activeLesson.title}</p>
@@ -253,8 +281,10 @@ export default function CourseContent({
                   completedLessonIds={completedLessonIds}
                   activeLesson={activeLesson?.id ?? null}
                   activeQuizModuleId={activeQuizModuleId}
+                  activeExercise={activeExercise}
                   onSelectLesson={handleSelectLesson}
                   onSelectQuiz={handleSelectQuiz}
+                  onSelectExercise={handleSelectExercise}
                 />
               )}
               {activeTab === "ai" && isMobile && (
@@ -344,8 +374,10 @@ export default function CourseContent({
                   completedLessonIds={completedLessonIds}
                   activeLesson={activeLesson?.id ?? null}
                   activeQuizModuleId={activeQuizModuleId}
+                  activeExercise={activeExercise}
                   onSelectLesson={handleSelectLesson}
                   onSelectQuiz={handleSelectQuiz}
+                  onSelectExercise={handleSelectExercise}
                 />
               )}
 

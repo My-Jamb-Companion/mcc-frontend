@@ -12,10 +12,12 @@ interface PracticeCardProps {
   courseId: string;
   moduleId: string;
   questions: ApiModuleQuestion[];
+  /** What the student is doing, shown above each question; "Practice Quiz" by default. */
+  label?: string;
   onDone?: () => void;
 }
 
-export function CoursePractice({courseId, moduleId, questions, onDone}: PracticeCardProps) {
+export function CoursePractice({courseId, moduleId, questions, label = "Practice Quiz", onDone}: PracticeCardProps) {
   const submit = useSubmitModuleAnswers(courseId, moduleId);
   const questionHelp = useQuestionHelp();
 
@@ -127,7 +129,7 @@ export function CoursePractice({courseId, moduleId, questions, onDone}: Practice
           transition={{duration: 0.25}}
           className="text-[11px] font-semibold tracking-widest text-gray-400 uppercase mb-0.5"
         >
-          Practice Quiz - Question {currentIndex + 1} of {questions.length}
+          {label} - Question {currentIndex + 1} of {questions.length}
         </motion.p>
       </motion.div>
 

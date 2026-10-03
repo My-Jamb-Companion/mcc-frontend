@@ -29,7 +29,7 @@ function isOptionInAnswer(
   return answer === option;
 }
 
-export function CoursePractice({questions, onDone}: PracticeCardProps) {
+export function CoursePractice({questions, label = "Practice Quiz", onDone}: PracticeCardProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<SubmittedAnswer[]>([]);
   const [submittedAnswers, setSubmittedAnswers] = useState<SubmittedAnswer[]>(
@@ -161,7 +161,7 @@ export function CoursePractice({questions, onDone}: PracticeCardProps) {
             }}
             className="text-[11px] font-semibold tracking-widest text-gray-400 uppercase mb-0.5"
           >
-            Practice Quiz - Question {currentIndex + 1} of {questions.length}
+            {label} - Question {currentIndex + 1} of {questions.length}
             {isMulti && " (Select all that apply)"}
           </motion.p>
         </div>

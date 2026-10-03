@@ -66,17 +66,51 @@ describe("toStudentModules", () => {
     expect(modules[1].lessons[0]).toMatchObject({kind: "html", url: null, html: "<h2>Hi</h2><p>x</p>"});
   });
 
-  it("merges quiz then practice questions into one list, and drops exercises", () => {
+  it("merges quiz and practice questions into one list, in the order they were arranged", () => {
     expect(modules[0].questions.map((x) => x.id)).toEqual(["quiz1", "prac1", "prac2"]);
-    expect(modules[0].questions.map((x) => x.id)).not.toContain("ex1");
   });
 
-  it("matches exactly what is saved: same module count, lectures and questions as serializeModulesPayload", () => {
+  it("gives each exercise set its own entry, never part of the Practice quiz", () => {
+    expect(modules[0].questions.map((x) => x.id)).not.toContain("ex1");
+    expect(modules[0].exerciseSets).toEqual([{name: "Exercise", questions: [q("ex1")]}]);
+    expect(modules[1].exerciseSets).toEqual([]);
+  });
+
+  it("joins same-named exercise sets and names an unnamed one 'Exercise'", () => {
+    const [m] = toStudentModules([
+      {
+        id: "t",
+        label: "T",
+        modules: [
+          {
+            id: "m",
+            label: "M",
+            content: [
+              {id: "e1", type: "exercise", name: "Drill", questions: [q("a")]},
+              {id: "e2", type: "exercise", name: " Drill ", questions: [q("b")]},
+              {id: "e3", type: "exercise", name: "", questions: [q("c")]},
+            ],
+          },
+        ],
+      },
+    ]);
+    expect(m.exerciseSets.map((e) => [e.name, e.questions.map((x) => x.id)])).toEqual([
+      ["Drill", ["a", "b"]],
+      ["Exercise", ["c"]],
+    ]);
+  });
+
+  it("matches exactly what is saved: same lectures, Practice quiz questions and exercise sets as serializeModulesPayload", () => {
     const saved = serializeModulesPayload(topics);
     expect(modules).toHaveLength(saved.length);
     modules.forEach((m, i) => {
       expect(m.lessons).toHaveLength(saved[i].lectures.length);
-      expect(m.questions.map((x) => x.question)).toEqual(saved[i].quizzes.map((x) => x.question_text));
+      const practice = saved[i].quizzes.filter((x) => x.usage_type !== "exercise");
+      const exercise = saved[i].quizzes.filter((x) => x.usage_type === "exercise");
+      expect(m.questions.map((x) => x.question)).toEqual(practice.map((x) => x.question_text));
+      expect(m.exerciseSets.flatMap((e) => e.questions.map((x) => x.question))).toEqual(
+        exercise.map((x) => x.question_text),
+      );
     });
   });
 

@@ -21,10 +21,17 @@ export interface Lesson {
   content: string | null;
 }
 
+export interface ExerciseSet {
+  name: string;
+  count: number;
+}
+
 export interface Module {
   id: string;
   title: string;
   lessons: Lesson[];
+  /** The module's named exercise sets; each is its own entry, apart from the Practice quiz. */
+  exerciseSets: ExerciseSet[];
 }
 
 export type LessonKind = "video" | "youtube" | "pdf" | "html";
@@ -47,7 +54,12 @@ export function groupContentRows(rows: ApiCourseContentRow[]): Module[] {
   for (const row of rows) {
     let module = byId.get(row.module_id);
     if (!module) {
-      module = {id: row.module_id, title: row.module_title, lessons: []};
+      module = {
+        id: row.module_id,
+        title: row.module_title,
+        lessons: [],
+        exerciseSets: row.exercise_sets ?? [],
+      };
       byId.set(row.module_id, module);
       modules.push(module);
     }

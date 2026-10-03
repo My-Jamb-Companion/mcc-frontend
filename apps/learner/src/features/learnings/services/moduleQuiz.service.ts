@@ -28,13 +28,19 @@ export interface ApiModuleQuizResult {
   results: ApiModuleGradedAnswer[];
 }
 
-/** Endpoint: GET /courses/<course_id>/modules/<module_id>/questions */
+/**
+ * Endpoint: GET /courses/<course_id>/modules/<module_id>/questions
+ * The module's Practice quiz by default; pass `exerciseSet` for one of its
+ * named exercise sets instead (exercises are never part of the Practice quiz).
+ */
 export const getModuleQuestions = async (
   courseId: string,
   moduleId: string,
+  exerciseSet?: string,
 ): Promise<ApiModuleQuestion[]> => {
   const res = await apiClient.get<{data: {questions: ApiModuleQuestion[]}}>(
     `/courses/${courseId}/modules/${moduleId}/questions`,
+    {params: exerciseSet === undefined ? undefined : {exercise: exerciseSet}},
   );
   return res.data.data.questions;
 };
