@@ -9,9 +9,10 @@ import {ProgramList} from "./Programslist";
 import {useExamPrograms} from "../hooks/useExamPrograms";
 import ShareSessionLink from "@/src/components/Modals/ShareLink";
 import {ProgramListRowData} from "./ProgramRow";
-import CreateExamProgram from "./CreateExam";
-import EditExamProgram from "./EditExam";
 import {useRouter} from "next/navigation";
+import {useTeachers} from "@mcc/features";
+import {useDebouncedValue} from "@/src/features/students/hooks/useDebouncedValue";
+import {ListTab, resultsLabel, toListParams} from "../helper/listParams";
 import {
   deleteExamProgram,
   getApiErrorMessage,
@@ -20,57 +21,56 @@ import {
 } from "../services/exam.service";
 
 export default function ExamProgram() {
+  const [active, setActive] = useState<ListTab>("published");
+  const [teachers, setTeachers] = useState<TeacherOption[]>([]);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const debouncedSearch = useDebouncedValue(search);
   const {
     programs,
+    meta,
     isLoading: isLoadingPrograms,
     isError: isProgramsError,
     refetch: refetchPrograms,
-  } = useExamPrograms();
-  const [active, setActive] = useState("published");
-  const [teachers, setTeachers] = useState<TeacherOption[]>([]);
-  const [search, setSearch] = useState("");
+  } = useExamPrograms(
+    toListParams({
+      tab: active,
+      search: debouncedSearch,
+      teacherId: teachers[0]?.id,
+      page,
+    }),
+  );
   const [open, setOpen] = useState(false);
-  const [openCreateExam, setOpenCreateExam] = useState(false);
-  const [editExam, setEditExam] = useState<ProgramListRowData | null>(null);
   const [shareTarget, setShareTarget] = useState<ProgramListRowData | null>(
     null,
   );
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const filteredPrograms = useMemo(() => {
-    const query = search.trim().toLowerCase();
+  const {data: teacherData = []} = useTeachers();
+  const allTeachers = useMemo<TeacherOption[]>(
+    () =>
+      teacherData.map((t) => ({
+        id: t.teacher_id || t.id || t.email,
+        name: t.teacher_name || t.name || t.email,
+        avatarUrl: t.avatar_url,
+      })),
+    [teacherData],
+  );
 
-    return programs.filter((item) => {
-      const matchesStatus =
-        active === "published"
-          ? item.status === "live"
-          : item.status === "draft";
-
-      const matchesSearch =
-        query === "" ||
-        item.title.toLowerCase().includes(query) ||
-        item.teacherName.toLowerCase().includes(query);
-
-      const matchesTeacher =
-        teachers.length === 0 ||
-        teachers.some((t) => t.name === item.teacherName);
-
-      return matchesStatus && matchesSearch && matchesTeacher;
-    });
-  }, [programs, active, search, teachers]);
-
-  const allTeachers = useMemo<TeacherOption[]>(() => {
-    const seen = new Set<string>();
-
-    return programs.reduce<TeacherOption[]>((acc, item) => {
-      if (!seen.has(item.teacherName)) {
-        seen.add(item.teacherName);
-        acc.push({id: item.teacherName, name: item.teacherName});
-      }
-      return acc;
-    }, []);
-  }, [programs]);
+  // Every filter change starts again from the first page.
+  const changeTab = (tab: string) => {
+    setActive(tab as ListTab);
+    setPage(1);
+  };
+  const changeTeachers = (next: TeacherOption[]) => {
+    setTeachers(next);
+    setPage(1);
+  };
+  const changeSearch = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -117,8 +117,9 @@ export default function ExamProgram() {
                     onClick={() => {
                       // item.onClick?.();
                       if (item.label === "Exam program") {
-                        // setOpenCreateExam(true);
                         router.push("/dashboard/exam-program/create-program");
+                      } else {
+                        router.push("/dashboard/courses/create-course");
                       }
                       setOpen(false);
                     }}
@@ -146,13 +147,13 @@ export default function ExamProgram() {
                 {key: "drafts", label: "Drafts", icon: "ic:round-cloud-off"},
               ]}
               active={active}
-              onChange={setActive}
+              onChange={changeTab}
             />
 
             <TeacherMultiSelect
               teachers={allTeachers}
               value={teachers}
-              onChange={setTeachers}
+              onChange={changeTeachers}
             />
           </div>
 
@@ -162,7 +163,7 @@ export default function ExamProgram() {
               type="text"
               icon={<Icon icon="ri:search-line" size={18} />}
               value={search}
-              onChange={setSearch}
+              onChange={changeSearch}
               inputClassName=" rounded-full! shadow-sm border-muted/30"
             />
           </div>
@@ -177,19 +178,18 @@ export default function ExamProgram() {
             </p>
           ) : (
             <ProgramList
-              program={filteredPrograms || []}
+              program={programs}
               onOpen={(program) => {
                 router.push(
                   `/dashboard/exam-program/${program.examType}?id=${program.id}`,
                 );
               }}
               onShareLink={(id) => {
-                const target = filteredPrograms?.find((p) => p.id === id);
+                const target = programs.find((p) => p.id === id);
                 if (target) setShareTarget(target);
               }}
               onEditProgram={(id) => {
-                const target = filteredPrograms?.find((p) => p.id === id);
-                if (target) setEditExam(target);
+                router.push(`/dashboard/exam-program/edit-program?id=${id}`);
               }}
               onPublishProgram={async (id) => {
                 const target = programs.find((p) => p.id === id);
@@ -232,12 +232,22 @@ export default function ExamProgram() {
 
         <div className="flex justify-end w-full mt-4 gap-4">
           <span className="flex items-center gap-2 text-sm text-muted">
-            15 of 500 results
+            {resultsLabel(meta)}
           </span>
-          <Button variant="secondary" radius="sm">
+          <Button
+            variant="secondary"
+            radius="sm"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+          >
             Prev
           </Button>
-          <Button variant="secondary" radius="sm">
+          <Button
+            variant="secondary"
+            radius="sm"
+            disabled={!meta || page >= meta.total_pages}
+            onClick={() => setPage((p) => p + 1)}
+          >
             Next
           </Button>
         </div>
@@ -253,22 +263,6 @@ export default function ExamProgram() {
           setShareTarget(null);
         }}
       />
-      <CreateExamProgram
-        open={openCreateExam}
-        onClose={() => setOpenCreateExam(false)}
-        onCreate={(_payload) => {
-          setOpenCreateExam(false);
-        }}
-      />
-      <EditExamProgram
-        key={editExam?.id}
-        open={editExam !== null}
-        exam={editExam}
-        onClose={() => setEditExam(null)}
-        onEdit={(_payload) => {
-          setEditExam(null);
-        }}
-      />
     </section>
   );
 }
@@ -276,7 +270,7 @@ function TeacherMultiSelect({
   teachers,
   value,
   onChange,
-  placeholder = "Select teachers",
+  placeholder = "Select teacher",
 }: TeacherMultiSelectProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -302,17 +296,14 @@ function TeacherMultiSelect({
 
   const isSelected = (id: string) => value.some((t) => t.id === id);
 
+  // The list is filtered by one teacher at a time (the API takes a single teacher_id).
   const toggle = (teacher: TeacherOption) => {
-    if (isSelected(teacher.id)) {
-      onChange(value.filter((t) => t.id !== teacher.id));
-    } else {
-      onChange([...value, teacher]);
-    }
+    onChange(isSelected(teacher.id) ? [] : [teacher]);
+    setOpen(false);
   };
   function triggerLabel(value: TeacherOption[], placeholder: string) {
     if (value.length === 0) return placeholder;
-    if (value.length === 1) return value[0].name;
-    return `${value[0].name} +${value.length - 1}`;
+    return value[0].name;
   }
   return (
     <div ref={ref} className="relative w-full max-w-xs">

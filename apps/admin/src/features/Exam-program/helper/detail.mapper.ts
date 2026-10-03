@@ -126,23 +126,27 @@ export function deserializeExamTopics(apiTopics: ApiExamTopic[]): Topic[] {
   return apiTopics.map(toUiTopic);
 }
 
+/** An already-uploaded file, shaped so the Upload step shows it and counts it as present. */
+function remoteFile(url: string | null | undefined) {
+  return url ? {previewUrl: url, remoteUrl: url} : null;
+}
+
 /**
  * Adapts GET /admin/exams/programs/{program_id} into ExamProgramFormValues,
  * ready to be passed straight into methods.reset(...).
  *
- * `exam`, `subject`, and `category` stay blank here: the create flow's
- * Step1 selects match against a hardcoded value list (e.g. "jamb"), while
- * this endpoint only returns opaque backend ids (`exam_id`, `subject_id`,
- * `category_id`) with no name to map back to those values.
+ * The Step1 exam and subject selects use the catalogue's ids as their values,
+ * so those come straight from `exam_id`/`subject_id`. The category select is
+ * keyed by lower-cased name (see useCategoryOptions), hence `category_name`.
  */
 export function fromApiExamProgramDetail(
   api: ApiExamProgramDetail,
 ): ExamProgramFormValues {
   return {
     id: api.program_id,
-    exam: "",
-    subject: "",
-    category: "",
+    exam: api.exam_id ?? "",
+    subject: api.subject_id ?? "",
+    category: (api.category_name ?? "").toLowerCase(),
     instructor: api.teacher_id ?? "",
     price: api.price ?? "",
     level: fromApiLevel(api.level),
@@ -151,8 +155,8 @@ export function fromApiExamProgramDetail(
     tags: api.tags ?? [],
     content: {topics: deserializeExamTopics(api.topics)},
     upload: {
-      coverImage: null,
-      promoVideo: null,
+      coverImage: remoteFile(api.cover_image_url),
+      promoVideo: remoteFile(api.promo_video_url),
       coverImageUrl: api.cover_image_url ?? undefined,
       promoVideoUrl: api.promo_video_url ?? undefined,
     },

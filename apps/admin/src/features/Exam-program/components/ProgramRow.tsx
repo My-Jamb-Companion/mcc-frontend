@@ -70,6 +70,8 @@ interface ProgramOptionsMenuProps {
   onDeleteProgram?: () => void;
   /** Hide items that don't apply to this row, e.g. no parent program */
   hideViewParentProgram?: boolean;
+  /** A live program's publish action is "Unpublish". */
+  isLive?: boolean;
 }
 
 interface MenuItemConfig {
@@ -220,7 +222,7 @@ export function ProgramListRow({
         Open
       </Button>
 
-      <ProgramOptionsMenu {...menuHandlers} />
+      <ProgramOptionsMenu {...menuHandlers} isLive={program.status === "live"} />
     </div>
   );
 }
@@ -233,6 +235,7 @@ function ProgramOptionsMenu({
   onViewParentProgram,
   onDeleteProgram,
   hideViewParentProgram = false,
+  isLive = false,
 }: ProgramOptionsMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -263,7 +266,7 @@ function ProgramOptionsMenu({
     {
       key: "publish",
       icon: "ph:cloud",
-      label: "Publish program",
+      label: isLive ? "Unpublish program" : "Publish program",
       onClick: onPublishProgram,
     },
     {

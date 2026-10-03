@@ -8,10 +8,18 @@ import ProgramSideDetail from "./ProgramSideDetail";
 import ProgramSiblingsGrid from "./Programcard";
 import {useExamProgramDisplay} from "../hooks/useExamPrograms";
 import {
+  exportProgramStudents,
   getApiErrorMessage,
   publishExamProgram,
   unpublishExamProgram,
 } from "../services/exam.service";
+import {
+  downloadBlob,
+  exportDaysFor,
+  exportFileName,
+  EXPORT_PERIODS,
+  isHeaderOnlyCsv,
+} from "../helper/export";
 
 /**
  * The list endpoint does not return sidebar stats or features, so a program
@@ -50,6 +58,28 @@ export default function OpenProgram() {
   } = useExamProgramDisplay(id);
 
   const [filter, setFilter] = useState("last 7 days");
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    if (!id || !item) return;
+    const days = exportDaysFor(filter);
+    setExporting(true);
+    try {
+      const blob = await exportProgramStudents(id, days);
+      if (isHeaderOnlyCsv(await blob.text())) {
+        showError(`No students enrolled in the ${filter}.`);
+        return;
+      }
+      downloadBlob(blob, exportFileName(item.title, days));
+      showSuccess("Student list downloaded.");
+    } catch (err) {
+      showError(
+        getApiErrorMessage(err, "Failed to export students. Please try again."),
+      );
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const handleTogglePublish = async () => {
     if (!id || !item) return;
@@ -100,12 +130,17 @@ export default function OpenProgram() {
               onChange={setFilter}
               placeholder="Filter"
               selectRadius="full"
-              options={[
-                {label: "last 7 days", value: "last 7 days"},
-                {label: "last month", value: "last month"},
-              ]}
+              options={EXPORT_PERIODS.map(({label, value}) => ({label, value}))}
             />
-            <Button variant="outline">Export</Button>
+            <Button
+              variant="outline"
+              onClick={handleExport}
+              loading={exporting}
+              loadingText="Exporting..."
+              disabled={exporting}
+            >
+              Export
+            </Button>
           </div>
         </div>
 
@@ -115,6 +150,9 @@ export default function OpenProgram() {
           <Button
             variant="outline"
             leftIcon={<Icon icon="ri:edit-circle-line" size={18} />}
+            onClick={() =>
+              router.push(`/dashboard/exam-program/edit-program?id=${id}`)
+            }
           >
             Edit Program
           </Button>

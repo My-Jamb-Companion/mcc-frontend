@@ -71,6 +71,7 @@ const NAV_ENTRIES: NavEntry[] = [
     children: [
       {key: "exam-program", label: "Exam program", href: "/dashboard/exam-program"},
       {key: "courses", label: "Courses", href: "/dashboard/courses"},
+      {key: "exam-catalog", label: "Exams & subjects", href: "/dashboard/exam-program/catalog"},
       {key: "categories", label: "Categories", href: "/dashboard/categories"},
     ],
   },
