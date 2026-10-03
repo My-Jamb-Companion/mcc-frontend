@@ -77,3 +77,34 @@ export function deckIsSavable(deck: Flashcard[]): boolean {
 export function titleFromFilename(filename: string): string {
   return filename.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim();
 }
+
+/** How many screenshots one recording can carry; each is read by the vision model. */
+export const MAX_SCREENSHOTS = 5;
+
+export interface ReadScreenshot {
+  name: string;
+  text: string;
+}
+
+const SCREENSHOT_HEADER = "Screenshots taken during the lecture (use them together with what was said):";
+
+/**
+ * The material flashcards are made from when a recording has screenshots: the
+ * spoken transcript first, then what was read from each screenshot, labelled
+ * so the model treats them as part of the same lecture. Screenshots that
+ * yielded no text are left out.
+ */
+export function combineMaterial(transcript: string, screenshots: ReadScreenshot[]): string {
+  const base = transcript.trim();
+  const blocks = screenshots
+    .map((s) => ({name: s.name, text: s.text.trim()}))
+    .filter((s) => s.text)
+    .map((s, i) => `[Screenshot ${i + 1}: ${s.name}]\n${s.text}`);
+  if (blocks.length === 0) return base;
+  const shots = `${SCREENSHOT_HEADER}\n\n${blocks.join("\n\n")}`;
+  return base ? `${base}\n\n${shots}` : shots;
+}
+
+/** Identity of a picked file, so adding the same screenshot twice is ignored. */
+export const fileKey = (file: {name: string; size: number; lastModified?: number}): string =>
+  `${file.name}:${file.size}:${file.lastModified ?? 0}`;
