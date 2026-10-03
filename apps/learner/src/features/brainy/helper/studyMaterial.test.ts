@@ -1,5 +1,5 @@
 import {describe, expect, it} from "vitest";
-import {deckIsSavable, mergeDeck, splitIntoParts, titleFromFilename} from "./studyMaterial";
+import {combineMaterial, deckIsSavable, fileKey, mergeDeck, splitIntoParts, titleFromFilename} from "./studyMaterial";
 
 describe("splitIntoParts", () => {
   it("returns nothing for blank material", () => {
@@ -79,5 +79,49 @@ describe("titleFromFilename", () => {
   it("drops the extension and tidies separators", () => {
     expect(titleFromFilename("biology_chapter-3.pdf")).toBe("biology chapter 3");
     expect(titleFromFilename("notes.final.docx")).toBe("notes.final");
+  });
+});
+
+describe("combineMaterial", () => {
+  it("is just the transcript when there are no screenshots", () => {
+    expect(combineMaterial("  hello  ", [])).toBe("hello");
+  });
+
+  it("appends labelled screenshot text after the transcript, numbered in order", () => {
+    const out = combineMaterial("Spoken words", [
+      {name: "slide1.png", text: "Photosynthesis"},
+      {name: "slide2.png", text: "Chlorophyll"},
+    ]);
+    expect(out.startsWith("Spoken words\n\n")).toBe(true);
+    expect(out).toContain("[Screenshot 1: slide1.png]\nPhotosynthesis");
+    expect(out).toContain("[Screenshot 2: slide2.png]\nChlorophyll");
+  });
+
+  it("works with screenshots only", () => {
+    const out = combineMaterial("", [{name: "a.png", text: "Only slide"}]);
+    expect(out.startsWith("Screenshots taken during the lecture")).toBe(true);
+    expect(out).toContain("Only slide");
+  });
+
+  it("skips screenshots that read as blank, without leaving gaps in the numbering", () => {
+    const out = combineMaterial("t", [
+      {name: "blank.png", text: "   "},
+      {name: "real.png", text: "Content"},
+    ]);
+    expect(out).not.toContain("blank.png");
+    expect(out).toContain("[Screenshot 1: real.png]");
+  });
+
+  it("is empty when there is nothing at all", () => {
+    expect(combineMaterial("  ", [{name: "x.png", text: ""}])).toBe("");
+  });
+});
+
+describe("fileKey", () => {
+  it("matches the same file and tells different ones apart", () => {
+    const a = {name: "s.png", size: 10, lastModified: 1};
+    expect(fileKey(a)).toBe(fileKey({...a}));
+    expect(fileKey(a)).not.toBe(fileKey({...a, size: 11}));
+    expect(fileKey(a)).not.toBe(fileKey({...a, name: "t.png"}));
   });
 });

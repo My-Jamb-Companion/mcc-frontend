@@ -6,6 +6,7 @@ import {extractApiError} from "@mcc/api";
 import {ConfirmModal, Icon} from "@mcc/ui";
 import {describeCharge, isAllowanceUsed} from "../helper/charge";
 import {
+  combineMaterial,
   deckIsSavable,
   MAX_PART_CHARS,
   mergeDeck,
@@ -14,6 +15,7 @@ import {
 } from "../helper/studyMaterial";
 import {useGenerateFlashcards, useSaveStudySet} from "../hooks/useFlashcards";
 import {useLectureRecorder} from "../hooks/useLectureRecorder";
+import {useScreenshots} from "../hooks/useScreenshots";
 import type {
   Flashcard,
   FlashcardDifficulty,
@@ -22,6 +24,7 @@ import type {
 import DeckEditor from "./DeckEditor";
 import LectureRecorder from "./LectureRecorder";
 import MaterialUpload from "./MaterialUpload";
+import ScreenshotAttachments from "./ScreenshotAttachments";
 
 export type MaterialSource = "paste" | "upload" | "record";
 
@@ -65,6 +68,7 @@ export default function FlashcardGenerator({source, onBack}: FlashcardGeneratorP
   const generate = useGenerateFlashcards();
   const saveSet = useSaveStudySet();
   const recorder = useLectureRecorder();
+  const screenshots = useScreenshots();
 
   const [typed, setTyped] = useState("");
   const [count, setCount] = useState<number | undefined>(undefined);
@@ -86,7 +90,16 @@ export default function FlashcardGenerator({source, onBack}: FlashcardGeneratorP
   const material = source === "record" ? recorder.text : typed;
   const setMaterial = source === "record" ? recorder.setText : setTyped;
 
-  const parts = useMemo(() => splitIntoParts(material), [material]);
+  // A recording can carry screenshots; what they say is added after the transcript.
+  const readShots = useMemo(
+    () => screenshots.shots.filter((s) => s.status === "ready").map((s) => ({name: s.name, text: s.text})),
+    [screenshots.shots],
+  );
+  const studyText = useMemo(
+    () => (source === "record" ? combineMaterial(material, readShots) : material),
+    [source, material, readShots],
+  );
+  const parts = useMemo(() => splitIntoParts(studyText), [studyText]);
   const safePartIndex = Math.min(partIndex, Math.max(parts.length - 1, 0));
   const currentPart = parts[safePartIndex];
   const isLong = parts.length > 1;
@@ -157,7 +170,9 @@ export default function FlashcardGenerator({source, onBack}: FlashcardGeneratorP
   const allPartsDone = isLong && parts.every((p) => donePartTexts.includes(p));
   const generateLabel = generate.isPending
     ? "Generating…"
-    : isLong
+    : screenshots.reading
+      ? "Reading screenshots…"
+      : isLong
       ? `Generate from part ${safePartIndex + 1} of ${parts.length}`
       : deck.length > 0
         ? "Generate more flashcards"
@@ -199,10 +214,15 @@ export default function FlashcardGenerator({source, onBack}: FlashcardGeneratorP
           />
           <p className="mt-1 text-xs text-gray-400">
             {material.length.toLocaleString()} characters
+            {source === "record" && readShots.length > 0
+              ? ` · plus ${readShots.length} screenshot${readShots.length === 1 ? "" : "s"}`
+              : ""}
             {isLong ? ` · ${parts.length} parts of up to ${MAX_PART_CHARS.toLocaleString()}` : ""}
           </p>
         </>
       )}
+
+      {source === "record" && <ScreenshotAttachments attached={screenshots} />}
 
       {isLong && (
         <div className="mt-3 rounded-2xl bg-purple-50 p-3 text-sm text-purple-900">
@@ -275,7 +295,7 @@ export default function FlashcardGenerator({source, onBack}: FlashcardGeneratorP
       <button
         type="button"
         onClick={handleGenerate}
-        disabled={!currentPart || generate.isPending}
+        disabled={!currentPart || generate.isPending || screenshots.reading}
         className="mt-4 rounded-full bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {generateLabel}
