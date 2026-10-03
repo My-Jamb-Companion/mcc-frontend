@@ -3,6 +3,8 @@
 import {ReactNode, useState} from "react";
 import {FormInputs} from "@mcc/features";
 import {Button, Icon} from "@mcc/ui";
+import BankTools from "@/src/features/question-bank/components/BankTools";
+import SaveToBankModal from "@/src/features/question-bank/components/SaveToBankModal";
 import {blankQuestion, CreatPracticeQuestionType, isMultiple, uid} from "./types";
 
 function QuestionCard({
@@ -12,6 +14,7 @@ function QuestionCard({
   onChange,
   onDelete,
   onCopy,
+  onSaveToBank,
   onDragStart,
   onDragEnter,
   onDragEnd,
@@ -21,8 +24,9 @@ function QuestionCard({
   index: number;
   withResponses: boolean;
   onChange: (q: CreatPracticeQuestionType) => void;
-  onDelete: () => void;
-  onCopy: () => void;
+  onDelete?: () => void;
+  onCopy?: () => void;
+  onSaveToBank?: () => void;
   onDragStart: () => void;
   onDragEnter: () => void;
   onDragEnd: () => void;
@@ -133,26 +137,42 @@ function QuestionCard({
               onChange={(value) => handleTypeChange(value === "multiple" ? "multiple" : "single")}
             />
 
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onCopy}
-              size={"fit"}
-              className="hover:bg-transparent text-muted/50 hover:text-muted"
-              title="Copy JSON data"
-            >
-              <Icon icon="lucide:copy" size={20} />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onDelete}
-              size={"fit"}
-              className="text-red-400 hover:text-red-500 hover:bg-transparent "
-              title="Delete question"
-            >
-              <Icon icon="lucide:trash-2" size={20} />
-            </Button>
+            {onSaveToBank && (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onSaveToBank}
+                size={"fit"}
+                className="hover:bg-transparent text-muted/50 hover:text-violet-600"
+                title="Save to the Question Bank"
+              >
+                <Icon icon="lucide:bookmark-plus" size={20} />
+              </Button>
+            )}
+            {onCopy && (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onCopy}
+                size={"fit"}
+                className="hover:bg-transparent text-muted/50 hover:text-muted"
+                title="Copy JSON data"
+              >
+                <Icon icon="lucide:copy" size={20} />
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onDelete}
+                size={"fit"}
+                className="text-red-400 hover:text-red-500 hover:bg-transparent "
+                title="Delete question"
+              >
+                <Icon icon="lucide:trash-2" size={20} />
+              </Button>
+            )}
           </div>
         </div>
 
@@ -291,19 +311,25 @@ function QuestionCard({
  * The question list editor shared by every Practice, Exercise, Quiz and Test in
  * both Courses and Exam Programs. `withResponses` (Practice sets only) adds a
  * response box under every option: what the student reads after choosing it,
- * right or wrong. `toolbar` is rendered above the list for set-level tools.
+ * right or wrong. The Question Bank tools (add from the bank, save to it) sit
+ * above the list; `toolbar` adds more beside them.
  */
 export default function QuestionListEditor({
   questions,
   onChange,
   withResponses = false,
   toolbar,
+  single = false,
 }: {
   questions: CreatPracticeQuestionType[];
   onChange: (questions: CreatPracticeQuestionType[]) => void;
   withResponses?: boolean;
+  /** Extra set-level tools, shown beside the Question Bank ones. */
   toolbar?: ReactNode;
+  /** Edit exactly one question (no list tools): used by the Question Bank's own editor. */
+  single?: boolean;
 }) {
+  const [savingOne, setSavingOne] = useState<CreatPracticeQuestionType | null>(null);
   const [dragItemIndex, setDragItemIndex] = useState<number | null>(null);
   const [dragOverItemIndex, setDragOverItemIndex] = useState<number | null>(null);
 
@@ -327,7 +353,12 @@ export default function QuestionListEditor({
         </p>
       )}
 
-      {toolbar}
+      {!single && (
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <BankTools questions={questions} onChange={onChange} withResponses={withResponses} />
+          {toolbar}
+        </div>
+      )}
 
       <div className="flex flex-col gap-6">
         {questions.map((q, idx) => (
@@ -337,8 +368,9 @@ export default function QuestionListEditor({
             index={idx}
             withResponses={withResponses}
             onChange={(nq) => onChange(questions.map((existing, i) => (i === idx ? nq : existing)))}
-            onDelete={() => onChange(questions.filter((_, i) => i !== idx))}
-            onCopy={() => navigator.clipboard.writeText(JSON.stringify(q, null, 2))}
+            onDelete={single ? undefined : () => onChange(questions.filter((_, i) => i !== idx))}
+            onCopy={single ? undefined : () => navigator.clipboard.writeText(JSON.stringify(q, null, 2))}
+            onSaveToBank={single ? undefined : () => setSavingOne(q)}
             onDragStart={() => setDragItemIndex(idx)}
             onDragEnter={() => setDragOverItemIndex(idx)}
             onDragEnd={() => {
@@ -350,6 +382,7 @@ export default function QuestionListEditor({
         ))}
       </div>
 
+      {!single && (
       <div className="mt-10 flex justify-center">
         <Button
           variant="ghost"
@@ -367,6 +400,9 @@ export default function QuestionListEditor({
           Add Question
         </Button>
       </div>
+      )}
+
+      <SaveToBankModal open={!!savingOne} questions={savingOne ? [savingOne] : []} onClose={() => setSavingOne(null)} />
     </section>
   );
 }
