@@ -57,3 +57,6 @@ export function toCreateExamProgramPayload(
     learning_outcomes: values.learnItems,
   };
 }
+
+/** Same shape as create: the PATCH takes the same step-1 fields. */
+export const toUpdateExamProgramPayload = toCreateExamProgramPayload;

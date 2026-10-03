@@ -1,13 +1,27 @@
-import {Controller, FormInputs, useFormContext, useTeachers} from "@mcc/features";
+import {
+  Controller,
+  FormInputs,
+  useFormContext,
+  useTeachers,
+} from "@mcc/features";
 import {Button, Icon, showError, showSuccess} from "@mcc/ui";
 import {useMemo, useState} from "react";
+import {useRouter} from "next/navigation";
+import {useQueryClient} from "@tanstack/react-query";
 import {ExamProgramFormValues} from "../CreateExamProgram";
-import {toCreateExamProgramPayload} from "@/src/features/Exam-program/helper/helper";
+import {
+  toCreateExamProgramPayload,
+  toUpdateExamProgramPayload,
+} from "@/src/features/Exam-program/helper/helper";
 import {
   createExamProgram,
   getApiErrorMessage,
+  updateExamProgramDetails,
 } from "@/src/features/Exam-program/services/exam.service";
 import {useCategoryOptions} from "@/src/features/categories/hooks/useCategories";
+import {useCatalogOptions} from "@/src/features/exam-catalog/hooks/useCatalog";
+import CatalogItemModal from "@/src/features/exam-catalog/components/CatalogItemModal";
+import type {CatalogKind} from "@/src/features/exam-catalog/helper/catalog";
 
 export default function CreateDetails({onNext}: {onNext: () => void}) {
   const {
@@ -16,25 +30,62 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
     trigger,
     getValues,
     setValue,
+    watch,
     formState: {errors, isValid},
   } = useFormContext<ExamProgramFormValues>();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [adding, setAdding] = useState<CatalogKind | null>(null);
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
   const {data: teachersData = [], isLoading: isLoadingTeachers} = useTeachers();
   const {options: categoryOptions} = useCategoryOptions();
+  const {options: examOptions} = useCatalogOptions("types", watch("exam"));
+  const {options: subjectOptions} = useCatalogOptions(
+    "subjects",
+    watch("subject"),
+  );
 
   const instructorOptions = useMemo(() => {
     if (teachersData && teachersData.length > 0) {
       return teachersData.map((t) => ({
-        label: t.teacher_name || t.name || t.email || `Teacher ${t.teacher_id || t.id}`,
+        label:
+          t.teacher_name ||
+          t.name ||
+          t.email ||
+          `Teacher ${t.teacher_id || t.id}`,
         value: t.teacher_id || t.id || t.email,
       }));
     }
     return [];
   }, [teachersData]);
+
+  /**
+   * Saves the details: creates the program the first time, then updates the
+   * same program on every later save (going back to Details, or editing an
+   * existing program). Creating twice would 409 on the exam+subject pair.
+   */
+  async function persistDetails() {
+    const values = getValues();
+    if (values.id) {
+      await updateExamProgramDetails(
+        values.id,
+        toUpdateExamProgramPayload(values),
+      );
+    } else {
+      const created = await createExamProgram(
+        toCreateExamProgramPayload(values),
+      );
+      // Adopt the backend-issued id so later steps target the program the
+      // API actually created.
+      setValue("id", created.program_id);
+    }
+    queryClient.invalidateQueries({queryKey: ["exam-programs"]});
+    queryClient.invalidateQueries({queryKey: ["exam-program"]});
+  }
 
   async function handleNext() {
     // Scope validation to this step's fields only, so an untouched Step2/3
@@ -56,14 +107,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
     setIsSubmitting(true);
 
     try {
-      const created = await createExamProgram(
-        toCreateExamProgramPayload(getValues()),
-      );
-
-      // Adopt the backend-issued id so later steps target the program the
-      // API actually created.
-      setValue("id", created.program_id);
-
+      await persistDetails();
       onNext();
     } catch (error) {
       setSubmitError(
@@ -95,15 +139,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
     setIsSavingDraft(true);
 
     try {
-      const existingId = getValues("id");
-      if (!existingId) {
-        // First save — create the program on the backend
-        const created = await createExamProgram(
-          toCreateExamProgramPayload(getValues()),
-        );
-        setValue("id", created.program_id);
-      }
-      // If already created (id exists) it stays as draft until published
+      await persistDetails();
       showSuccess("Exam program draft saved successfully!");
     } catch (error) {
       const msg = getApiErrorMessage(
@@ -127,22 +163,30 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
             control={control}
             rules={{required: "Please select an exam"}}
             render={({field}) => (
-              <FormInputs
-                type="select"
-                label="Select Exam"
-                placeholder="Select exam"
-                selectRadius="xl"
-                selectClassName="py-4"
-                options={EXAM_OPTIONS}
-                value={field.value}
-                onChange={field.onChange}
-                errors={errors.exam}
-                icon={
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-xs">
-                    ðŸŒ±
-                  </span>
-                }
-              />
+              <div className="flex flex-col gap-1.5">
+                <FormInputs
+                  type="select"
+                  label="Select Exam"
+                  placeholder="Select exam"
+                  selectRadius="xl"
+                  selectClassName="py-4"
+                  options={examOptions}
+                  value={field.value}
+                  onChange={field.onChange}
+                  errors={errors.exam}
+                  icon={
+                    <Icon
+                      icon="lucide:landmark"
+                      size={16}
+                      className="text-emerald-500"
+                    />
+                  }
+                />
+                <AddNewButton
+                  label="Add exam type"
+                  onClick={() => setAdding("types")}
+                />
+              </div>
             )}
           />
 
@@ -151,24 +195,30 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
             control={control}
             rules={{required: "Please select a subject"}}
             render={({field}) => (
-              <FormInputs
-                type="select"
-                label="Subject / Sub group"
-                placeholder="Select subject"
-                selectRadius="xl"
-                selectClassName="py-4"
-                options={SUBJECT_OPTIONS}
-                value={field.value}
-                onChange={field.onChange}
-                errors={errors.subject}
-                icon={
-                  <Icon
-                    icon="lucide:book-open"
-                    size={16}
-                    className="text-gray-400"
-                  />
-                }
-              />
+              <div className="flex flex-col gap-1.5">
+                <FormInputs
+                  type="select"
+                  label="Subject / Sub group"
+                  placeholder="Select subject"
+                  selectRadius="xl"
+                  selectClassName="py-4"
+                  options={subjectOptions}
+                  value={field.value}
+                  onChange={field.onChange}
+                  errors={errors.subject}
+                  icon={
+                    <Icon
+                      icon="lucide:book-open"
+                      size={16}
+                      className="text-gray-400"
+                    />
+                  }
+                />
+                <AddNewButton
+                  label="Add subject"
+                  onClick={() => setAdding("subjects")}
+                />
+              </div>
             )}
           />
         </div>
@@ -209,7 +259,11 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
               <FormInputs
                 type="select"
                 label="Instructor"
-                placeholder={isLoadingTeachers ? "Loading instructors..." : "Select instructor"}
+                placeholder={
+                  isLoadingTeachers
+                    ? "Loading instructors..."
+                    : "Select instructor"
+                }
                 selectRadius="xl"
                 selectClassName="py-4"
                 options={instructorOptions}
@@ -239,8 +293,8 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
               errors={errors.price}
             />
             <p className="text-xs text-subtle">
-              Leave as 0 for now — set the real price under Finance &gt;
-              Pricing once the program is created.
+              Leave as 0 for now — set the real price under Finance &gt; Pricing
+              once the program is created.
             </p>
           </div>
         </div>
@@ -358,6 +412,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
       <div className="mt-8 flex items-center justify-between border-t border-gray-100 pt-5">
         <button
           type="button"
+          onClick={() => router.push("/dashboard/exam-program")}
           className="text-sm font-medium text-gray-600 hover:text-gray-900"
         >
           Cancel
@@ -382,7 +437,34 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
           </Button>
         </div>
       </div>
+
+      {adding && (
+        <CatalogItemModal
+          kind={adding}
+          open
+          onClose={() => setAdding(null)}
+          onCreated={(created) =>
+            setValue(adding === "types" ? "exam" : "subject", created.id, {
+              shouldValidate: true,
+              shouldDirty: true,
+            })
+          }
+        />
+      )}
     </div>
+  );
+}
+
+function AddNewButton({label, onClick}: {label: string; onClick: () => void}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-fit items-center gap-1 text-xs font-medium text-violet-600 hover:text-violet-800"
+    >
+      <Icon icon="lucide:plus" size={12} />
+      {label}
+    </button>
   );
 }
 
@@ -500,15 +582,3 @@ const LEVELS = [
   {id: "intermediate", label: "Intermediate", fill: 0.66},
   {id: "advanced", label: "Advanced", fill: 1},
 ] as const;
-
-// Placeholder option lists â€” replace with real data when ready
-const EXAM_OPTIONS = [
-  {label: "JAMB", value: "jamb"},
-  {label: "WAEC", value: "waec"},
-  {label: "NECO", value: "neco"},
-];
-const SUBJECT_OPTIONS = [
-  {label: "Mathematics", value: "mathematics"},
-  {label: "English", value: "english"},
-  {label: "Physics", value: "physics"},
-];

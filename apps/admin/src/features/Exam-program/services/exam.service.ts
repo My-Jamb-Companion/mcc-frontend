@@ -3,12 +3,25 @@ import {ApiTopicPayload} from "../helper/content.mapper";
 
 /**
  * Extracts a user-facing message from an Axios (or any) error without
- * resorting to `any` at every call site.
+ * resorting to `any` at every call site. A validation failure (422) carries
+ * its real reasons in `error.details` (e.g. publishing a draft with no cover
+ * image or topics) while `message` is only "Input validation failed", so the
+ * reasons are appended when present.
  */
 export function getApiErrorMessage(err: unknown, fallback: string): string {
   if (err && typeof err === "object" && "response" in err) {
-    const message = (err as {response?: {data?: {message?: string}}}).response
-      ?.data?.message;
+    const data = (
+      err as {
+        response?: {
+          data?: {message?: string; error?: {details?: Record<string, unknown>}};
+        };
+      }
+    ).response?.data;
+    const message = data?.message;
+    const reasons = Object.values(data?.error?.details ?? {})
+      .flat()
+      .filter((r): r is string => typeof r === "string" && r.length > 0);
+    if (message && reasons.length > 0) return `${message}: ${reasons.join(". ")}.`;
     if (message) return message;
   }
   if (err instanceof Error && err.message) return err.message;
@@ -21,6 +34,7 @@ export function getApiErrorMessage(err: unknown, fallback: string): string {
 
 export interface ApiExamProgramSummary {
   program_id: string;
+  teacher_id?: string | null;
   exam_name: string | null;
   subject_name: string;
   category_name: string;
@@ -218,6 +232,28 @@ export const createExamProgram = async (
   return res.data.data;
 };
 
+export type UpdateExamProgramDetailsPayload = CreateExamProgramPayload;
+
+/**
+ * Saves a program's step-1 details after it exists (edit, or going back to
+ * Details in the create wizard). `exam`, `subject` and `category` may be ids
+ * or names. The backend refuses this for a published program (422), and
+ * refuses a changed flat price once tier prices are published.
+ * Endpoint: PATCH /admin/exams/programs/{program_id}
+ */
+export const updateExamProgramDetails = async (
+  programId: string,
+  payload: UpdateExamProgramDetailsPayload,
+): Promise<UpdateExamProgramContentResponse> => {
+  const res = await apiClient.patch<{
+    success: boolean;
+    message: string;
+    data: UpdateExamProgramContentResponse;
+  }>(`/admin/exams/programs/${programId}`, payload);
+
+  return res.data.data;
+};
+
 export interface UpdateExamProgramContentPayload {
   topics: ApiTopicPayload[];
   cover_image_url?: string;
@@ -300,6 +336,22 @@ export const deleteExamProgram = async (
 ): Promise<{success: boolean; message: string}> => {
   const res = await apiClient.delete<{success: boolean; message: string}>(
     `/admin/exams/programs/${programId}`,
+  );
+
+  return res.data;
+};
+
+/**
+ * CSV of students who enrolled in the last `days` days.
+ * Endpoint: GET /admin/exams/programs/{program_id}/students/export
+ */
+export const exportProgramStudents = async (
+  programId: string,
+  days: number,
+): Promise<Blob> => {
+  const res = await apiClient.get<Blob>(
+    `/admin/exams/programs/${programId}/students/export`,
+    {params: {days}, responseType: "blob"},
   );
 
   return res.data;

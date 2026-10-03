@@ -4,11 +4,13 @@ import {
   createExamProgram,
   deleteExamProgram,
   getApiErrorMessage,
+  exportProgramStudents,
   getExamProgram,
   listExamPrograms,
   publishExamProgram,
   unpublishExamProgram,
   updateExamProgramContent,
+  updateExamProgramDetails,
 } from "./exam.service";
 
 vi.mock("@mcc/api", () => ({
@@ -509,5 +511,82 @@ describe("getApiErrorMessage", () => {
 
   it("falls back to the provided default for unrecognized errors", () => {
     expect(getApiErrorMessage("oops", "fallback")).toBe("fallback");
+  });
+});
+
+describe("getApiErrorMessage validation details", () => {
+  const validation = {
+    response: {
+      data: {
+        message: "Input validation failed",
+        error: {
+          code: "VALIDATION_ERROR",
+          details: {
+            cover_image_url: ["Cover image is missing"],
+            topics: ["Exam program has no topics"],
+          },
+        },
+      },
+    },
+  };
+
+  it("appends the reasons a 422 carries in error.details", () => {
+    expect(getApiErrorMessage(validation, "fallback")).toBe(
+      "Input validation failed: Cover image is missing. Exam program has no topics.",
+    );
+  });
+
+  it("is just the message when there are no details", () => {
+    expect(
+      getApiErrorMessage({response: {data: {message: "Not found"}}}, "fallback"),
+    ).toBe("Not found");
+  });
+
+  it("ignores details that are not strings", () => {
+    expect(
+      getApiErrorMessage(
+        {response: {data: {message: "Bad", error: {details: {a: [{x: 1}], b: []}}}}},
+        "fallback",
+      ),
+    ).toBe("Bad");
+  });
+});
+
+describe("updateExamProgramDetails", () => {
+  it("PATCHes the program with the step-1 fields", async () => {
+    mockPatch.mockResolvedValueOnce({
+      data: {success: true, message: "ok", data: {program_id: "p1", status: "draft"}},
+    });
+    const payload = {
+      exam: "exam_1",
+      subject: "subj_1",
+      category: "science",
+      teacher_id: "t1",
+      description: "d",
+      price: 0,
+      level: "all",
+      tags: ["a"],
+      learning_outcomes: ["b"],
+    };
+
+    const result = await updateExamProgramDetails("p1", payload);
+
+    expect(mockPatch).toHaveBeenCalledWith("/admin/exams/programs/p1", payload);
+    expect(result).toEqual({program_id: "p1", status: "draft"});
+  });
+});
+
+describe("exportProgramStudents", () => {
+  it("requests the CSV as a blob for the chosen number of days", async () => {
+    const blob = new Blob(["Name,Email\r\n"], {type: "text/csv"});
+    mockGet.mockResolvedValueOnce({data: blob});
+
+    const result = await exportProgramStudents("p1", 30);
+
+    expect(mockGet).toHaveBeenCalledWith("/admin/exams/programs/p1/students/export", {
+      params: {days: 30},
+      responseType: "blob",
+    });
+    expect(result).toBe(blob);
   });
 });

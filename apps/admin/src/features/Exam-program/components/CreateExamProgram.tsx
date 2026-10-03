@@ -1,8 +1,9 @@
 ﻿"use client";
 
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import Link from "next/link";
-import {Button, confettiCelebrate, Icon} from "@mcc/ui";
+import {useQueryClient} from "@tanstack/react-query";
+import {Button, confettiCelebrate, Icon, showError, showSuccess} from "@mcc/ui";
 import {useForm, FormProvider} from "@mcc/features";
 import ContentStep, {
   type Topic,
@@ -17,8 +18,11 @@ import {serializeTopicsPayload} from "../helper/content.mapper";
 import {
   getApiErrorMessage,
   publishExamProgram,
+  unpublishExamProgram,
   updateExamProgramContent,
 } from "../services/exam.service";
+import {useExamProgramEdit} from "../hooks/useExamPrograms";
+import {useCatalogOptions} from "@/src/features/exam-catalog/hooks/useCatalog";
 
 type Step = "details" | "content" | "upload";
 
@@ -131,8 +135,15 @@ function Step3({
 
 // ROOT FORM SHELL
 
-export default function CreateExamProgramForm() {
+export default function CreateExamProgramForm({editId}: {editId?: string}) {
   const [activeStep, setActiveStep] = useState<Step>("details");
+  const queryClient = useQueryClient();
+  const {
+    data: existing,
+    isLoading: isLoadingExisting,
+    isError: isExistingError,
+    refetch: refetchExisting,
+  } = useExamProgramEdit(editId);
 
   const methods = useForm<ExamProgramFormValues>({
     mode: "onChange",
@@ -153,9 +164,32 @@ export default function CreateExamProgramForm() {
   });
 
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isUnpublishing, setIsUnpublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
   const [pricingBannerDismissed, setPricingBannerDismissed] = useState(false);
   const programId = methods.watch("id");
+
+  // Load the program into the form once. Without the guard, a background
+  // refetch (e.g. window focus after a file picker) would reset the form and
+  // silently discard unsaved edits.
+  const loadedIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (existing && loadedIdRef.current !== editId) {
+      methods.reset(existing.values);
+      loadedIdRef.current = editId ?? null;
+    }
+  }, [existing, editId, methods]);
+
+  // The backend refuses to edit a live program, so the form is read-only
+  // until it is unpublished.
+  const isLive = existing?.status === "published";
+
+  const examOptions = useCatalogOptions("types", methods.watch("exam")).options;
+  const subjectOptions = useCatalogOptions("subjects", methods.watch("subject")).options;
+  const examName =
+    examOptions.find((o) => o.value === methods.watch("exam"))?.label ?? "";
+  const subjectName =
+    subjectOptions.find((o) => o.value === methods.watch("subject"))?.label ?? "";
 
   const activeIndex = STEPS.findIndex((s) => s.id === activeStep);
 
@@ -169,6 +203,23 @@ export default function CreateExamProgramForm() {
   const isUploadComplete = hasCompleteUpload(upload);
   const canPublish = isDetailsComplete && isContentComplete && isUploadComplete;
   const [isPublished, setIsPublished] = useState(false);
+
+  async function handleUnpublish() {
+    if (!programId) return;
+    setIsUnpublishing(true);
+    try {
+      await unpublishExamProgram(programId);
+      showSuccess("Moved back to drafts. You can edit it now.");
+      queryClient.invalidateQueries({queryKey: ["exam-programs"]});
+      await refetchExisting();
+    } catch (error) {
+      showError(
+        getApiErrorMessage(error, "Failed to unpublish. Please try again."),
+      );
+    } finally {
+      setIsUnpublishing(false);
+    }
+  }
 
   async function handlePublish() {
     if (!canPublish) return;
@@ -202,6 +253,8 @@ export default function CreateExamProgramForm() {
       });
 
       await publishExamProgram(programId);
+      queryClient.invalidateQueries({queryKey: ["exam-programs"]});
+      queryClient.invalidateQueries({queryKey: ["exam-program"]});
 
       confettiCelebrate(undefined, 1000, 300);
       setIsPublished(true);
@@ -227,10 +280,22 @@ export default function CreateExamProgramForm() {
     if (prev) setActiveStep(prev.id);
   }
 
+  if (editId && isLoadingExisting) {
+    return <p className="text-sm text-muted">Loading exam program…</p>;
+  }
+
+  if (editId && (isExistingError || !existing)) {
+    return (
+      <p className="text-sm text-red-600">
+        Failed to load this exam program. Please try again.
+      </p>
+    );
+  }
+
   return (
     <FormProvider {...methods}>
       <div className="flex flex-col h-full">
-        {programId && !pricingBannerDismissed && (
+        {programId && !editId && !pricingBannerDismissed && (
           <div className="mb-4 flex items-center justify-between rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-800">
             <div className="flex items-center gap-2">
               <Icon icon="lucide:banknote" size={18} className="shrink-0 text-violet-500" />
@@ -258,7 +323,7 @@ export default function CreateExamProgramForm() {
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-xl font-semibold text-gray-900">
-            Create exam program
+            {editId ? "Edit exam program" : "Create exam program"}
           </h1>
 
           {/* Step indicators read-only; navigation is via footer buttons */}
@@ -303,19 +368,43 @@ export default function CreateExamProgramForm() {
             >
               View as a student
             </Button>
-            <Button
-              type="button"
-              variant={canPublish ? "primary" : "secondary"}
-              size={"sm"}
-              disabled={!canPublish || isPublishing}
-              loading={isPublishing}
-              loadingText="Publishing..."
-              onClick={handlePublish}
-            >
-              Publish
-            </Button>
+            {isLive ? (
+              <Button
+                type="button"
+                variant="outline"
+                size={"sm"}
+                disabled={isUnpublishing}
+                loading={isUnpublishing}
+                loadingText="Unpublishing..."
+                onClick={handleUnpublish}
+              >
+                Unpublish to edit
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant={canPublish ? "primary" : "secondary"}
+                size={"sm"}
+                disabled={!canPublish || isPublishing}
+                loading={isPublishing}
+                loadingText="Publishing..."
+                onClick={handlePublish}
+              >
+                Publish
+              </Button>
+            )}
           </div>
         </div>
+
+        {isLive && (
+          <div className="mt-4 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+            <Icon icon="lucide:lock" size={18} className="shrink-0" />
+            <span>
+              This program is live, and live programs can&apos;t be edited.
+              Unpublish it to make changes, then publish it again.
+            </span>
+          </div>
+        )}
 
         {publishError && (
           <div className="mt-4 flex items-center justify-between rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -337,25 +426,30 @@ export default function CreateExamProgramForm() {
           </div>
         )}
 
-        {/* Steps */}
-        {activeStep === "details" && <Step1 onNext={goNext} />}
-        {activeStep === "content" && (
-          <Step2
-            onNext={goNext}
-            onBack={goBack}
-            exam={methods.getValues("exam")}
-            subject={methods.getValues("subject")}
-            programId={methods.getValues("id")}
-          />
-        )}
-        {activeStep === "upload" && (
-          <Step3
-            exam={methods.getValues("exam")}
-            subject={methods.getValues("subject")}
-            onBack={goBack}
-            isPublished={isPublished}
-          />
-        )}
+        {/* Steps. A disabled fieldset turns every control inside it off. */}
+        <fieldset
+          disabled={isLive}
+          className={`min-w-0 flex-1 border-0 p-0 ${isLive ? "opacity-60" : ""}`}
+        >
+          {activeStep === "details" && <Step1 onNext={goNext} />}
+          {activeStep === "content" && (
+            <Step2
+              onNext={goNext}
+              onBack={goBack}
+              exam={examName}
+              subject={subjectName}
+              programId={methods.getValues("id")}
+            />
+          )}
+          {activeStep === "upload" && (
+            <Step3
+              exam={examName}
+              subject={subjectName}
+              onBack={goBack}
+              isPublished={isPublished}
+            />
+          )}
+        </fieldset>
       </div>
     </FormProvider>
   );
