@@ -2,6 +2,7 @@ import {useState} from "react";
 import {Icon, motion, AnimatePresence} from "@mcc/ui";
 import {useLessonsDuration, useModuleProgress} from "@/src/features/learnings/hooks/useLesson";
 import {Lesson, LessonKind, Module, lessonKind} from "@/src/features/learnings/helper/content.mapper";
+import {describeDuration} from "@/src/features/learnings/helper/countdown";
 import BookmarkButton from "@/src/features/bookmarks/BookmarkButton";
 import DownloadButton from "../DownloadButton";
 
@@ -11,9 +12,11 @@ interface CourseModulesProps {
   onSelectLesson: (lesson: Lesson) => void;
   onSelectQuiz: (moduleId: string) => void;
   onSelectExercise: (moduleId: string, name: string) => void;
+  onSelectQuizSet: (moduleId: string, name: string) => void;
   activeLesson?: string | null;
   activeQuizModuleId?: string | null;
   activeExercise?: {moduleId: string; name: string} | null;
+  activeQuizSet?: {moduleId: string; name: string} | null;
 }
 
 const kindIconMap: Record<LessonKind, {icon: string; className: string}> = {
@@ -29,9 +32,11 @@ export default function CoursePlayModules({
   onSelectLesson,
   onSelectQuiz,
   onSelectExercise,
+  onSelectQuizSet,
   activeLesson = null,
   activeQuizModuleId = null,
   activeExercise = null,
+  activeQuizSet = null,
 }: CourseModulesProps) {
   return (
     <div className="flex flex-col gap-3">
@@ -48,9 +53,11 @@ export default function CoursePlayModules({
             activeLesson={activeLesson}
             activeQuizModuleId={activeQuizModuleId}
             activeExercise={activeExercise}
+            activeQuizSet={activeQuizSet}
             onSelectLesson={onSelectLesson}
             onSelectQuiz={onSelectQuiz}
             onSelectExercise={onSelectExercise}
+            onSelectQuizSet={onSelectQuizSet}
           />
         </motion.div>
       ))}
@@ -64,18 +71,22 @@ function ModuleAccordion({
   activeLesson,
   activeQuizModuleId,
   activeExercise,
+  activeQuizSet,
   onSelectLesson,
   onSelectQuiz,
   onSelectExercise,
+  onSelectQuizSet,
 }: {
   module: Module;
   completedLessonIds: Set<string>;
   activeLesson: string | null;
   activeQuizModuleId: string | null;
   activeExercise: {moduleId: string; name: string} | null;
+  activeQuizSet: {moduleId: string; name: string} | null;
   onSelectLesson: (lesson: Lesson) => void;
   onSelectQuiz: (moduleId: string) => void;
   onSelectExercise: (moduleId: string, name: string) => void;
+  onSelectQuizSet: (moduleId: string, name: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const hasLessons = !!module.lessons.length;
@@ -191,6 +202,36 @@ function ModuleAccordion({
                   </p>
                 </div>
               </motion.button>
+
+              {module.quizSets.map((set, i) => {
+                const isActive = activeQuizSet?.moduleId === module.id && activeQuizSet.name === set.name;
+                const meta = [
+                  `${set.count} ${set.count === 1 ? "question" : "questions"}`,
+                  set.timerMinutes ? describeDuration(set.timerMinutes) : null,
+                  set.passingScore !== null ? `pass ${set.passingScore}%` : null,
+                ].filter(Boolean);
+                return (
+                  <motion.button
+                    key={`quiz-${set.name}`}
+                    type="button"
+                    initial={{opacity: 0, x: -8}}
+                    animate={{opacity: 1, x: 0}}
+                    transition={{delay: (module.lessons.length + 1 + i) * 0.04, duration: 0.2}}
+                    onClick={() => onSelectQuizSet(module.id, set.name)}
+                    className={`flex gap-2.5 w-full pl-1 pr-3.5 text-left hover:bg-muted/5 transition-colors ${
+                      isActive ? "border-l-primary border-l-3" : "border-l-0"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center size-5.5 rounded shrink-0 text-[13px] text-green-600">
+                      <Icon icon="mdi:certificate-outline" size={16} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className={`text-sm truncate ${isActive ? "text-primary" : "text-subtle"}`}>Quiz: {set.name}</p>
+                      <p className="text-sm mt-0.5 text-muted">{meta.join(" · ")}</p>
+                    </div>
+                  </motion.button>
+                );
+              })}
 
               {module.exerciseSets.map((set, i) => {
                 const isActive = activeExercise?.moduleId === module.id && activeExercise.name === set.name;

@@ -111,3 +111,58 @@ describe("saving exercises", () => {
     expect(content[0]).toMatchObject({type: "practice", name: "Practice"});
   });
 });
+
+describe("quiz timer and passing score", () => {
+  const withQuiz = (settings: {timer?: number; passingScore?: number}, title = "Final"): Topic[] => [
+    {
+      id: "t",
+      label: "T",
+      modules: [
+        {
+          id: "m",
+          label: "Module",
+          content: [{id: "q", type: "quiz", title, questions: [question("q1")], settings}],
+        },
+      ],
+    },
+  ];
+
+  it("sends them with the quiz, keyed by its name", () => {
+    const [module] = serializeModulesPayload(withQuiz({timer: 20, passingScore: 70}));
+    expect(module.quiz_settings).toEqual([{set_name: "Final", timer_minutes: 20, passing_score: 70}]);
+  });
+
+  it("sends a pass mark of 0 and omits an unset timer", () => {
+    const [module] = serializeModulesPayload(withQuiz({passingScore: 0}));
+    expect(module.quiz_settings).toEqual([{set_name: "Final", timer_minutes: undefined, passing_score: 0}]);
+  });
+
+  it("sends nothing for a quiz with neither", () => {
+    expect(serializeModulesPayload(withQuiz({}))[0].quiz_settings).toBeUndefined();
+  });
+
+  it("keys an unnamed quiz as 'Quiz', matching what the API calls it", () => {
+    const [module] = serializeModulesPayload(withQuiz({timer: 5}, "  "));
+    expect(module.quiz_settings?.[0].set_name).toBe("Quiz");
+  });
+
+  it("restores them on the quiz when the course is loaded again", () => {
+    const loaded = deserializeModulesPayload([
+      {
+        title: "Module",
+        lectures: [],
+        quizzes: [
+          {question_text: "Q", question_type: "single_choice", options: ["a", "b"], correct_answers: ["a"], usage_type: "quiz", set_name: "Final"},
+        ],
+        quiz_settings: [{set_name: "Final", timer_minutes: 20, passing_score: 70}],
+      },
+    ]);
+    const quiz = loaded[0].modules[0].content[0];
+    expect(quiz).toMatchObject({type: "quiz", title: "Final", settings: {timer: 20, passingScore: 70}});
+  });
+
+  it("survives a save and reload", () => {
+    const [topic] = deserializeModulesPayload(serializeModulesPayload(withQuiz({timer: 15, passingScore: 60})));
+    expect(topic.modules[0].content[0]).toMatchObject({type: "quiz", title: "Final", settings: {timer: 15, passingScore: 60}});
+  });
+});

@@ -26,12 +26,23 @@ export interface ExerciseSet {
   count: number;
 }
 
+export interface QuizSet {
+  name: string;
+  count: number;
+  /** Minutes allowed; null = untimed. */
+  timerMinutes: number | null;
+  /** Percent needed to pass; null = no pass/fail. */
+  passingScore: number | null;
+}
+
 export interface Module {
   id: string;
   title: string;
   lessons: Lesson[];
   /** The module's named exercise sets; each is its own entry, apart from the Practice quiz. */
   exerciseSets: ExerciseSet[];
+  /** The module's named quizzes, each a separate (optionally timed) entry. */
+  quizSets: QuizSet[];
 }
 
 export type LessonKind = "video" | "youtube" | "pdf" | "html";
@@ -59,6 +70,12 @@ export function groupContentRows(rows: ApiCourseContentRow[]): Module[] {
         title: row.module_title,
         lessons: [],
         exerciseSets: row.exercise_sets ?? [],
+        quizSets: (row.quiz_sets ?? []).map((q) => ({
+          name: q.name,
+          count: q.count,
+          timerMinutes: q.timer_minutes ?? null,
+          passingScore: q.passing_score ?? null,
+        })),
       };
       byId.set(row.module_id, module);
       modules.push(module);

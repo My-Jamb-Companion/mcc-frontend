@@ -25,6 +25,7 @@ const topics: Topic[] = [
         label: "Summary",
         hasQuiz: true,
         quizQuestions: [q("t1"), q("t2")],
+        testSettings: {timer: 30, passingScore: 65},
         modules: [
           {
             id: "m1",
@@ -79,6 +80,11 @@ describe("toStudentExamTree", () => {
 
   it("only offers a test when the sub-topic's test is switched on", () => {
     expect(tree[0].subTopics[1].test).toEqual([]);
+  });
+
+  it("gives the Test its timer and passing score, and none without a Test", () => {
+    expect(tree[0].subTopics[0]).toMatchObject({testTimerMinutes: 30, testPassingScore: 65});
+    expect(tree[0].subTopics[1]).toMatchObject({testTimerMinutes: null, testPassingScore: null});
   });
 
   it("carries options, correct answers and explanations", () => {

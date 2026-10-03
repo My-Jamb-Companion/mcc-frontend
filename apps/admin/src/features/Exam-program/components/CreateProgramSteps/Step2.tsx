@@ -6,6 +6,7 @@ import PracticeQuestions, {
 } from "./PracticeQuestions";
 import Step2Sidebar from "./Step2SideBar";
 import LessonsCreate, {FileRow} from "./LessonsCreate";
+import QuizSettingsFields, {QuizSettings} from "@/src/features/question-editor/QuizSettingsFields";
 import {serializeTopicsPayload} from "@/src/features/Exam-program/helper/content.mapper";
 import {
   getApiErrorMessage,
@@ -26,6 +27,8 @@ export type MakeModule = {
   label: string;
   description?: string;
   leaves: Leaf[];
+  /** The module Quiz's timer / pass mark. Carried through load and save; the editor has no module Quiz yet. */
+  quizSettings?: QuizSettings;
 };
 
 export type SubTopic = {
@@ -36,6 +39,8 @@ export type SubTopic = {
   hasQuiz?: boolean;
   /** Test exercise questions for this sub-topic's quiz (only meaningful when `hasQuiz` is true). */
   quizQuestions?: CreatPracticeQuestionType[];
+  /** The Test's timer and passing score. */
+  testSettings?: QuizSettings;
 };
 
 export type Topic = {
@@ -304,6 +309,23 @@ export default function ContentStep({
     }
   }
 
+  function setSubTopicTestSettings(settings: QuizSettings) {
+    if (!activeContext || activeContext.type !== "quiz") return;
+    const {topic, subTopic} = activeContext;
+    setTopics(
+      topics.map((t) =>
+        t.id === topic.id
+          ? {
+              ...t,
+              subTopics: t.subTopics.map((s) =>
+                s.id === subTopic.id ? {...s, testSettings: settings} : s,
+              ),
+            }
+          : t,
+      ),
+    );
+  }
+
   function setSubTopicQuizQuestions(newQuestions: CreatPracticeQuestionType[]) {
     if (!activeContext || activeContext.type !== "quiz") return;
     const {topic, subTopic} = activeContext;
@@ -517,10 +539,17 @@ export default function ContentStep({
               )}
 
               {activeContext?.type === "quiz" && (
-                <PracticeQuestions
-                  questions={activeQuizQuestions}
-                  onChange={setSubTopicQuizQuestions}
-                />
+                <>
+                  <QuizSettingsFields
+                    noun="test"
+                    value={activeContext.subTopic?.testSettings ?? {}}
+                    onChange={setSubTopicTestSettings}
+                  />
+                  <PracticeQuestions
+                    questions={activeQuizQuestions}
+                    onChange={setSubTopicQuizQuestions}
+                  />
+                </>
               )}
             </>
           )}

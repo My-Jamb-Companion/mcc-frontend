@@ -111,6 +111,10 @@ export interface ApiExamSession {
   session_id: string;
   subject: string;
   questions: ApiExamQuestion[];
+  /** Quiz and test sessions: minutes allowed (auto-submit at zero); null/absent = untimed. */
+  time_limit_minutes?: number | null;
+  /** Quiz and test sessions: percent needed to pass; null/absent = no pass/fail. */
+  passing_score?: number | null;
 }
 
 export interface ApiGradedAnswer {
@@ -124,6 +128,9 @@ export interface ApiGradedAnswer {
 
 export interface ApiExamSubmissionResult {
   score_percent: number;
+  passing_score?: number | null;
+  /** score_percent >= passing_score; null/absent without a pass mark. */
+  passed?: boolean | null;
   results: ApiGradedAnswer[];
 }
 

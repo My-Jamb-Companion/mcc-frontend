@@ -43,4 +43,23 @@ describe("groupContentRows", () => {
     expect(module.lessons).toEqual([]);
     expect(module.exerciseSets).toEqual([{name: "Drill", count: 3}]);
   });
+
+  it("carries a module's quiz sets with their timer and pass mark", () => {
+    const [module] = groupContentRows([
+      row({
+        quiz_sets: [
+          {name: "Final", count: 5, timer_minutes: 20, passing_score: 70},
+          {name: "Quick", count: 2, timer_minutes: null, passing_score: null},
+        ],
+      }),
+    ]);
+    expect(module.quizSets).toEqual([
+      {name: "Final", count: 5, timerMinutes: 20, passingScore: 70},
+      {name: "Quick", count: 2, timerMinutes: null, passingScore: null},
+    ]);
+  });
+
+  it("has no quiz sets when the API sends none", () => {
+    expect(groupContentRows([row({})])[0].quizSets).toEqual([]);
+  });
 });

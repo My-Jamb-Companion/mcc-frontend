@@ -59,9 +59,22 @@ export default function CourseContent({
   );
   const [activeQuizModuleId, setActiveQuizModuleId] = useState<string | null>(null);
   const [activeExercise, setActiveExercise] = useState<{moduleId: string; name: string} | null>(null);
+  const [activeQuizSet, setActiveQuizSet] = useState<{moduleId: string; name: string} | null>(null);
   const [currentVideoTime, setCurrentVideoTime] = useState(0);
   const quizQuestions = useModuleQuestions(courseId, activeQuizModuleId);
-  const exerciseQuestions = useModuleQuestions(courseId, activeExercise?.moduleId ?? null, activeExercise?.name);
+  const exerciseQuestions = useModuleQuestions(
+    courseId,
+    activeExercise?.moduleId ?? null,
+    activeExercise ? {exercise: activeExercise.name} : undefined,
+  );
+  const quizSetQuestions = useModuleQuestions(
+    courseId,
+    activeQuizSet?.moduleId ?? null,
+    activeQuizSet ? {quiz: activeQuizSet.name} : undefined,
+  );
+  const activeQuizSetInfo = activeQuizSet
+    ? modules.find((m) => m.id === activeQuizSet.moduleId)?.quizSets.find((q) => q.name === activeQuizSet.name)
+    : undefined;
 
   const tabQuery = searchParams.get("tab");
   const activeTab = tabQuery && TABS.includes(tabQuery) ? tabQuery : "overview";
@@ -79,17 +92,26 @@ export default function CourseContent({
     setActiveLesson(lesson);
     setActiveQuizModuleId(null);
     setActiveExercise(null);
+    setActiveQuizSet(null);
     setCurrentVideoTime(0);
   };
 
   const handleSelectQuiz = (moduleId: string) => {
     setActiveExercise(null);
+    setActiveQuizSet(null);
     setActiveQuizModuleId(moduleId);
   };
 
   const handleSelectExercise = (moduleId: string, name: string) => {
     setActiveQuizModuleId(null);
+    setActiveQuizSet(null);
     setActiveExercise({moduleId, name});
+  };
+
+  const handleSelectQuizSet = (moduleId: string, name: string) => {
+    setActiveQuizModuleId(null);
+    setActiveExercise(null);
+    setActiveQuizSet({moduleId, name});
   };
 
   const markComplete = useCallback(
@@ -154,7 +176,28 @@ export default function CourseContent({
       >
         <motion.div layout transition={{type: "spring", stiffness: 120, damping: 20}} className="min-w-0 pb-8">
           <div className="w-full min-w-0 overflow-hidden">
-            {activeExercise ? (
+            {activeQuizSet ? (
+              quizSetQuestions.isLoading ? (
+                <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
+                  Loading quiz…
+                </div>
+              ) : quizSetQuestions.questions.length === 0 ? (
+                <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl bg-muted/10 px-8 text-center text-sm text-muted">
+                  No questions in this quiz yet.
+                </div>
+              ) : (
+                <CoursePractice
+                  key={`quiz:${activeQuizSet.moduleId}:${activeQuizSet.name}`}
+                  courseId={courseId}
+                  moduleId={activeQuizSet.moduleId}
+                  questions={quizSetQuestions.questions}
+                  label={`Quiz: ${activeQuizSet.name}`}
+                  timerMinutes={activeQuizSetInfo?.timerMinutes}
+                  passingScore={activeQuizSetInfo?.passingScore}
+                  onDone={() => setActiveQuizSet(null)}
+                />
+              )
+            ) : activeExercise ? (
               exerciseQuestions.isLoading ? (
                 <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
                   Loading exercise…
@@ -223,7 +266,7 @@ export default function CourseContent({
             )}
           </div>
 
-          {!activeQuizModuleId && !activeExercise && activeLesson && (
+          {!activeQuizModuleId && !activeExercise && !activeQuizSet && activeLesson && (
             <div className="mt-4 flex items-center justify-between px-1">
               <div>
                 <p className="text-lg font-semibold">{activeLesson.title}</p>
@@ -282,9 +325,11 @@ export default function CourseContent({
                   activeLesson={activeLesson?.id ?? null}
                   activeQuizModuleId={activeQuizModuleId}
                   activeExercise={activeExercise}
+                  activeQuizSet={activeQuizSet}
                   onSelectLesson={handleSelectLesson}
                   onSelectQuiz={handleSelectQuiz}
                   onSelectExercise={handleSelectExercise}
+                  onSelectQuizSet={handleSelectQuizSet}
                 />
               )}
               {activeTab === "ai" && isMobile && (
@@ -375,9 +420,11 @@ export default function CourseContent({
                   activeLesson={activeLesson?.id ?? null}
                   activeQuizModuleId={activeQuizModuleId}
                   activeExercise={activeExercise}
+                  activeQuizSet={activeQuizSet}
                   onSelectLesson={handleSelectLesson}
                   onSelectQuiz={handleSelectQuiz}
                   onSelectExercise={handleSelectExercise}
+                  onSelectQuizSet={handleSelectQuizSet}
                 />
               )}
 

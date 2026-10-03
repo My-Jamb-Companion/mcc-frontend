@@ -1,12 +1,18 @@
 "use client";
 
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {AnimatePresence, Icon, motion} from "@mcc/ui";
 import type {StudentExamQuestion} from "@/src/features/Exam-program/helper/studentView";
+import {useCountdown} from "@/src/features/courses/hooks/useCountdown";
+import {formatCountdown, isCountdownLow} from "@/src/features/courses/helper/countdown";
 
 interface Props {
   questions: StudentExamQuestion[];
   label: string;
+  /** Minutes allowed; submitted automatically at zero. Omit for untimed. */
+  timerMinutes?: number | null;
+  /** Percent needed to pass; adds a pass/fail result. */
+  passingScore?: number | null;
   onDone: () => void;
 }
 
@@ -16,12 +22,30 @@ interface Props {
  * explanation, a results screen and a review pass. Graded here instead of by
  * the server, and the AI buttons are shown but inert.
  */
-export default function ExamQuizPreview({questions, label, onDone}: Props) {
+export default function ExamQuizPreview({questions, label, timerMinutes, passingScore, onDone}: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [reviewMode, setReviewMode] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  // The timer's expiry handler reads the answers as they are at that moment.
+  const answersRef = useRef(answers);
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
+
+  const remaining = useCountdown(
+    timerMinutes,
+    !submitted && !timedOut,
+    () => {
+      if (Object.keys(answersRef.current).length > 0) setSubmitted(true);
+      else setTimedOut(true);
+    },
+    attempt,
+  );
 
   const correctIds = useMemo(
     () => new Set(questions.filter((q) => q.correctAnswers.includes(answers[q.id])).map((q) => q.id)),
@@ -61,13 +85,47 @@ export default function ExamQuizPreview({questions, label, onDone}: Props) {
     setCurrentIndex(0);
     setReviewMode(false);
     setShowExplanation(false);
+    setTimedOut(false);
+    setAttempt((n) => n + 1);
   };
+
+  if (timedOut && !submitted) {
+    return (
+      <div className="flex w-full flex-col items-center gap-4 rounded-2xl bg-muted/5 p-10 text-center">
+        <div className="text-5xl">⏰</div>
+        <h2 className="text-2xl font-bold">Time&apos;s up</h2>
+        <p className="max-w-md text-sm text-subtle">You hadn&apos;t answered any questions before the time ran out.</p>
+        <div className="flex gap-3">
+          <button type="button" onClick={retry} className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white">
+            Try again
+          </button>
+          <button type="button" onClick={onDone} className="rounded-full border border-muted/20 px-5 py-2.5 text-sm font-semibold">
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full bg-muted/5 rounded-2xl p-6">
-      <p className="text-[11px] font-semibold tracking-widest text-subtle uppercase mb-4">
-        {label} — Question {currentIndex + 1} of {questions.length}
-      </p>
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <p className="text-[11px] font-semibold tracking-widest text-subtle uppercase">
+          {label} — Question {currentIndex + 1} of {questions.length}
+        </p>
+        {remaining !== null && !submitted && (
+          <span
+            role="timer"
+            aria-label="Time left"
+            className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold tabular-nums ${
+              isCountdownLow(remaining) ? "bg-red-100 text-red-600" : "bg-muted/15 text-foreground"
+            }`}
+          >
+            <Icon icon="ph:timer" size={14} />
+            {formatCountdown(remaining)}
+          </span>
+        )}
+      </div>
       <div className="border-t border-muted/20 mb-5" />
 
       <AnimatePresence mode="wait">
@@ -75,6 +133,7 @@ export default function ExamQuizPreview({questions, label, onDone}: Props) {
           <motion.div key="results" initial={{opacity: 0, y: 20}} animate={{opacity: 1, y: 0}}>
             <Results
               questions={questions}
+              passingScore={passingScore}
               correctIds={correctIds}
               onRetry={retry}
               onDone={onDone}
@@ -211,12 +270,14 @@ export default function ExamQuizPreview({questions, label, onDone}: Props) {
 
 function Results({
   questions,
+  passingScore,
   correctIds,
   onRetry,
   onDone,
   onReview,
 }: {
   questions: StudentExamQuestion[];
+  passingScore?: number | null;
   correctIds: Set<string>;
   onRetry: () => void;
   onDone: () => void;
@@ -238,6 +299,16 @@ function Results({
       <div className="mb-4 text-6xl">{emoji}</div>
       <h2 className="text-2xl font-bold">{title}</h2>
       <p className="mt-2 max-w-md text-sm text-subtle">{message}</p>
+      {passingScore != null && (
+        <p
+          role="status"
+          className={`mt-3 rounded-full px-4 py-1.5 text-sm font-semibold ${
+            percent >= passingScore ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
+          }`}
+        >
+          {percent >= passingScore ? "Passed" : "Not passed"} · {percent}% (pass mark {passingScore}%)
+        </p>
+      )}
 
       <div className="mt-4 text-5xl font-extrabold tracking-tight">
         {correct}

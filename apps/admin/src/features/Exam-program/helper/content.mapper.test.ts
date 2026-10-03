@@ -205,3 +205,41 @@ describe("serializeTopicsPayload", () => {
     });
   });
 });
+
+describe("test and quiz timer / passing score", () => {
+  const subTopic = (over: Partial<Topic["subTopics"][number]> = {}): Topic[] => [
+    {
+      id: "t",
+      label: "T",
+      subTopics: [
+        {
+          id: "s",
+          label: "S",
+          hasQuiz: true,
+          quizQuestions: [makeQuestion()],
+          modules: [{id: "m", label: "M", leaves: [], quizSettings: {timer: 15, passingScore: 60}}],
+          testSettings: {timer: 45, passingScore: 75},
+          ...over,
+        },
+      ],
+    },
+  ];
+
+  it("sends the Test's timer and passing score, and a module Quiz's", () => {
+    const [topic] = serializeTopicsPayload(subTopic());
+    expect(topic.sub_topics[0]).toMatchObject({test_timer_minutes: 45, test_passing_score: 75});
+    expect(topic.sub_topics[0].modules[0]).toMatchObject({quiz_timer_minutes: 15, quiz_passing_score: 60});
+  });
+
+  it("sends a pass mark of 0 but omits an unset timer", () => {
+    const [topic] = serializeTopicsPayload(subTopic({testSettings: {passingScore: 0}}));
+    expect(topic.sub_topics[0].test_passing_score).toBe(0);
+    expect(topic.sub_topics[0]).not.toHaveProperty("test_timer_minutes");
+  });
+
+  it("sends no Test settings when the sub-topic has no Test", () => {
+    const [topic] = serializeTopicsPayload(subTopic({hasQuiz: false}));
+    expect(topic.sub_topics[0]).not.toHaveProperty("test_timer_minutes");
+    expect(topic.sub_topics[0]).not.toHaveProperty("test_passing_score");
+  });
+});

@@ -33,7 +33,7 @@ const topics: Topic[] = [
         label: "Module 1",
         content: [
           lesson("l1"),
-          {id: "qz", type: "quiz", title: "Quiz", questions: [q("quiz1")], settings: {}},
+          {id: "qz", type: "quiz", title: "Quiz", questions: [q("quiz1")], settings: {timer: 20, passingScore: 70}},
           {id: "pr", type: "practice", name: "Practice", questions: [q("prac1"), q("prac2")]},
           {id: "ex", type: "exercise", name: "Exercise", questions: [q("ex1")]},
           lesson("l2", {format: "YOUTUBE", src: "https://youtu.be/abcdefghijk"}),
@@ -66,8 +66,39 @@ describe("toStudentModules", () => {
     expect(modules[1].lessons[0]).toMatchObject({kind: "html", url: null, html: "<h2>Hi</h2><p>x</p>"});
   });
 
-  it("merges quiz and practice questions into one list, in the order they were arranged", () => {
-    expect(modules[0].questions.map((x) => x.id)).toEqual(["quiz1", "prac1", "prac2"]);
+  it("makes the practice questions the Practice quiz, in order, without quiz or exercise questions", () => {
+    expect(modules[0].questions.map((x) => x.id)).toEqual(["prac1", "prac2"]);
+  });
+
+  it("gives each quiz its own entry with its timer and passing score", () => {
+    expect(modules[0].quizSets).toEqual([
+      {name: "Quiz", questions: [q("quiz1")], timerMinutes: 20, passingScore: 70},
+    ]);
+    expect(modules[1].quizSets).toEqual([]);
+  });
+
+  it("joins same-named quizzes, names an unnamed one 'Quiz', and treats a missing timer or pass mark as none", () => {
+    const [m] = toStudentModules([
+      {
+        id: "t",
+        label: "T",
+        modules: [
+          {
+            id: "m",
+            label: "M",
+            content: [
+              {id: "a", type: "quiz", title: "Final", questions: [q("a")], settings: {timer: 10}},
+              {id: "b", type: "quiz", title: " Final ", questions: [q("b")], settings: {passingScore: 0}},
+              {id: "c", type: "quiz", title: "", questions: [q("c")], settings: {}},
+            ],
+          },
+        ],
+      },
+    ]);
+    expect(m.quizSets).toEqual([
+      {name: "Final", questions: [q("a"), q("b")], timerMinutes: 10, passingScore: 0},
+      {name: "Quiz", questions: [q("c")], timerMinutes: null, passingScore: null},
+    ]);
   });
 
   it("gives each exercise set its own entry, never part of the Practice quiz", () => {
@@ -105,9 +136,15 @@ describe("toStudentModules", () => {
     expect(modules).toHaveLength(saved.length);
     modules.forEach((m, i) => {
       expect(m.lessons).toHaveLength(saved[i].lectures.length);
-      const practice = saved[i].quizzes.filter((x) => x.usage_type !== "exercise");
+      const practice = saved[i].quizzes.filter((x) => x.usage_type === "practice");
+      const quiz = saved[i].quizzes.filter((x) => x.usage_type === "quiz");
       const exercise = saved[i].quizzes.filter((x) => x.usage_type === "exercise");
       expect(m.questions.map((x) => x.question)).toEqual(practice.map((x) => x.question_text));
+      expect(m.quizSets.flatMap((e) => e.questions.map((x) => x.question))).toEqual(quiz.map((x) => x.question_text));
+      // the timer and pass mark that students get are the ones that are saved
+      expect(m.quizSets.map((e) => [e.name, e.timerMinutes ?? undefined, e.passingScore ?? undefined])).toEqual(
+        (saved[i].quiz_settings ?? []).map((s) => [s.set_name, s.timer_minutes ?? undefined, s.passing_score ?? undefined]),
+      );
       expect(m.exerciseSets.flatMap((e) => e.questions.map((x) => x.question))).toEqual(
         exercise.map((x) => x.question_text),
       );

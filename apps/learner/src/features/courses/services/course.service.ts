@@ -58,6 +58,8 @@ export interface ApiCourseContentRow {
   content?: string | null;
   /** The module's named exercise sets, in authored order (repeated on every row of the module). */
   exercise_sets?: {name: string; count: number}[];
+  /** The module's named quiz sets (timed entries), in authored order. */
+  quiz_sets?: {name: string; count: number; timer_minutes?: number | null; passing_score?: number | null}[];
 }
 /**
  * Endpoint: GET /courses/ (public catalogue)

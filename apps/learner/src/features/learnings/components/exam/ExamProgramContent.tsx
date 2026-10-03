@@ -162,6 +162,8 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
                 questions={session.data.questions}
                 type={session.kind}
                 label={session.label}
+                timeLimitMinutes={session.data.time_limit_minutes}
+                passingScore={session.data.passing_score}
                 onDone={() => setSession(null)}
               />
             )

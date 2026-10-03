@@ -5,6 +5,7 @@ import {
   ApiLecturePayload,
   ApiModulePayload,
   ApiQuizQuestionPayload,
+  ApiQuizSettings,
   CoursesFormValues,
   ExerciseModuleContent,
   CourseLevel,
@@ -37,6 +38,9 @@ export function normalizeQuestionType(
   }
   return "long_short_answer";
 }
+
+/** What the API calls a quiz set with no name. */
+export const DEFAULT_QUIZ_NAME = "Quiz";
 
 /** An already-uploaded file, shaped so the Upload step shows it and counts it as present. */
 function remoteFile(url: string | null | undefined) {
@@ -88,10 +92,25 @@ export function serializeModulesPayload(topics: Topic[]): ApiModulePayload[] {
       }));
     });
 
+    // A quiz's timer and passing score, keyed by the quiz's name (an unnamed
+    // quiz is saved as "Quiz", which is what the API calls it too).
+    const quizSettings: ApiQuizSettings[] = module.content.flatMap((c) =>
+      c.type === "quiz" && (c.settings?.timer || c.settings?.passingScore !== undefined)
+        ? [
+            {
+              set_name: c.title?.trim() || DEFAULT_QUIZ_NAME,
+              timer_minutes: c.settings.timer || undefined,
+              passing_score: c.settings.passingScore,
+            },
+          ]
+        : [],
+    );
+
     return {
       title: module.label || "Untitled Module",
       lectures,
       quizzes,
+      ...(quizSettings.length > 0 ? {quiz_settings: quizSettings} : {}),
     };
   });
 }
@@ -130,6 +149,7 @@ export function deserializeModulesPayload(
     // Map questions back into their sets. Consecutive questions with the same
     // kind and set name were one set when they were saved. Rows saved before
     // sets were recorded carry no kind and become a single practice set.
+    const quizSettings = new Map((apiMod.quiz_settings ?? []).map((q) => [q.set_name, q]));
     const sets = new Map<
       string,
       {usage: QuestionUsage; name: string | undefined; questions: CreatPracticeQuestionType[]}
@@ -161,7 +181,17 @@ export function deserializeModulesPayload(
       PracticeModuleContent | QuizModuleContent | ExerciseModuleContent
     > = [...sets.values()].map(({usage, name, questions}) => {
       if (usage === "quiz") {
-        return {id: uid(), type: "quiz" as const, title: name ?? "Module Quiz", questions, settings: {}};
+        const saved = quizSettings.get(name ?? DEFAULT_QUIZ_NAME);
+        return {
+          id: uid(),
+          type: "quiz" as const,
+          title: name ?? DEFAULT_QUIZ_NAME,
+          questions,
+          settings: {
+            timer: saved?.timer_minutes ?? undefined,
+            passingScore: saved?.passing_score ?? undefined,
+          },
+        };
       }
       if (usage === "exercise") {
         return {id: uid(), type: "exercise" as const, name: name ?? "Exercise", questions};

@@ -24,23 +24,28 @@ export interface ApiModuleGradedAnswer {
 
 export interface ApiModuleQuizResult {
   score_percent: number;
+  /** Set when this was a quiz with a passing score. */
+  passing_score?: number | null;
+  /** score_percent >= passing_score; null/absent without a pass mark. */
+  passed?: boolean | null;
   graded_count: number;
   results: ApiModuleGradedAnswer[];
 }
 
 /**
  * Endpoint: GET /courses/<course_id>/modules/<module_id>/questions
- * The module's Practice quiz by default; pass `exerciseSet` for one of its
- * named exercise sets instead (exercises are never part of the Practice quiz).
+ * The module's Practice quiz (practice questions) by default; pass an exercise
+ * or quiz set name for one of its named sets instead (neither is part of the
+ * Practice quiz).
  */
 export const getModuleQuestions = async (
   courseId: string,
   moduleId: string,
-  exerciseSet?: string,
+  set?: {exercise?: string; quiz?: string},
 ): Promise<ApiModuleQuestion[]> => {
   const res = await apiClient.get<{data: {questions: ApiModuleQuestion[]}}>(
     `/courses/${courseId}/modules/${moduleId}/questions`,
-    {params: exerciseSet === undefined ? undefined : {exercise: exerciseSet}},
+    {params: set?.exercise !== undefined ? {exercise: set.exercise} : set?.quiz !== undefined ? {quiz: set.quiz} : undefined},
   );
   return res.data.data.questions;
 };
