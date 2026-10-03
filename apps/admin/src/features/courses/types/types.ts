@@ -188,6 +188,8 @@ export interface SubmittedAnswer {
 
 export interface PracticeCardProps {
   questions: Question[];
+  /** What the student is doing, shown above each question; "Practice Quiz" by default. */
+  label?: string;
   onComplete?: (answers: SubmittedAnswer[]) => void;
   reviewMode?: boolean;
   submittedAnswers?: SubmittedAnswer[];
@@ -240,6 +242,10 @@ export interface ApiLecturePayload {
   thumbnail_url?: string;
 }
 
+/** What kind of set a question belongs to. Practice and quiz questions are a
+ * student's module "Practice quiz"; each exercise set is its own entry. */
+export type QuestionUsage = "practice" | "quiz" | "exercise";
+
 export interface ApiQuizQuestionPayload {
   question_text: string;
   description?: string;
@@ -248,6 +254,10 @@ export interface ApiQuizQuestionPayload {
   correct_answers?: string[];
   explanation?: string;
   image_url?: string;
+  /** The set this question belongs to; omitted = practice. */
+  usage_type?: QuestionUsage;
+  /** The authored name of that set. */
+  set_name?: string | null;
 }
 
 export interface ApiModulePayload {

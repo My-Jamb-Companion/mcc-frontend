@@ -25,15 +25,19 @@ export default function StudentModules({
   completedLessonIds,
   activeLessonId,
   activeQuizModuleId,
+  activeExercise,
   onSelectLesson,
   onSelectQuiz,
+  onSelectExercise,
 }: {
   modules: StudentModule[];
   completedLessonIds: Set<string>;
   activeLessonId: string | null;
   activeQuizModuleId: string | null;
+  activeExercise: {moduleId: string; name: string} | null;
   onSelectLesson: (moduleId: string, lessonId: string) => void;
   onSelectQuiz: (moduleId: string) => void;
+  onSelectExercise: (moduleId: string, name: string) => void;
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -49,8 +53,10 @@ export default function StudentModules({
             completedLessonIds={completedLessonIds}
             activeLessonId={activeLessonId}
             activeQuizModuleId={activeQuizModuleId}
+            activeExercise={activeExercise}
             onSelectLesson={onSelectLesson}
             onSelectQuiz={onSelectQuiz}
+            onSelectExercise={onSelectExercise}
           />
         </motion.div>
       ))}
@@ -63,15 +69,19 @@ function ModuleAccordion({
   completedLessonIds,
   activeLessonId,
   activeQuizModuleId,
+  activeExercise,
   onSelectLesson,
   onSelectQuiz,
+  onSelectExercise,
 }: {
   module: StudentModule;
   completedLessonIds: Set<string>;
   activeLessonId: string | null;
   activeQuizModuleId: string | null;
+  activeExercise: {moduleId: string; name: string} | null;
   onSelectLesson: (moduleId: string, lessonId: string) => void;
   onSelectQuiz: (moduleId: string) => void;
+  onSelectExercise: (moduleId: string, name: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const hasLessons = module.lessons.length > 0;
@@ -163,6 +173,27 @@ function ModuleAccordion({
                 </div>
                 <p className={`text-sm truncate ${isQuizActive ? "text-primary" : "text-subtle"}`}>Practice quiz</p>
               </button>
+
+              {module.exerciseSets.map((set) => {
+                const isActive = activeExercise?.moduleId === module.id && activeExercise.name === set.name;
+                return (
+                  <button
+                    key={set.name}
+                    type="button"
+                    onClick={() => onSelectExercise(module.id, set.name)}
+                    className={`flex gap-2.5 w-full pl-1 pr-3.5 text-left hover:bg-muted/5 transition-colors ${
+                      isActive ? "border-l-primary border-l-3" : "border-l-0"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center size-5.5 rounded shrink-0 text-[13px] text-blue-500">
+                      <Icon icon="ph:pencil-simple-line" size={16} />
+                    </div>
+                    <p className={`text-sm truncate ${isActive ? "text-primary" : "text-subtle"}`}>
+                      Exercise: {set.name}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
           </motion.div>
         )}
