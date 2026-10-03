@@ -19,6 +19,8 @@ import UpdateUserModal from "./components/UpdateUserModal";
 import DeactivateUserModal from "./components/DeactivateUserModal";
 import ReferralSourceDashboard from "./components/ReferralSourceDashboard";
 import PurposeDashboard from "./components/PurposeDashboard";
+import AdminUsersPanel from "@/src/features/admin-access/components/AdminUsersPanel";
+import {useMyAccess} from "@/src/features/admin-access/hooks/useAdminAccess";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -35,7 +37,10 @@ export default function Users() {
   const [searchQuery, setSearchQuery] = useState("");
   const [editingUser, setEditingUser] = useState<ApiUser | null>(null);
   const [deactivatingUser, setDeactivatingUser] = useState<ApiUser | null>(null);
-  const [activeTab, setActiveTab] = useState<"users" | "referrals">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "referrals" | "admins">("users");
+  const {data: myAccess} = useMyAccess();
+  // Only a super admin creates and manages admins; for everyone else the tab is not there.
+  const isSuper = !!myAccess?.is_super;
 
   const filtered = searchQuery.trim()
     ? users.filter(
@@ -142,13 +147,16 @@ export default function Users() {
           tabs={[
             {key: "users", label: "Users", icon: "ri:group-line"},
             {key: "referrals", label: "Onboarding Insights", icon: "ri:bar-chart-2-line"},
+            ...(isSuper ? [{key: "admins", label: "Admin users", icon: "ri:shield-user-line"}] : []),
           ]}
           active={activeTab}
-          onChange={(key) => setActiveTab(key as "users" | "referrals")}
+          onChange={(key) => setActiveTab(key as "users" | "referrals" | "admins")}
         />
       </div>
 
-      {activeTab === "referrals" ? (
+      {activeTab === "admins" && isSuper ? (
+        <AdminUsersPanel />
+      ) : activeTab === "referrals" ? (
         <div className="flex flex-col gap-6">
           <ReferralSourceDashboard />
           <PurposeDashboard />
@@ -188,14 +196,17 @@ export default function Users() {
               table={table}
               enableSelection={true}
               enableRowActions={true}
-              renderRowActions={(user) => (
+              renderRowActions={(user) =>
+                // Editing an admin account is for super admins (the server refuses anyone else).
+                user.role === "admin" && !isSuper ? null : (
                 <UserRowMenu
                   user={user}
                   onEdit={() => setEditingUser(user)}
                   onDeactivate={() => setDeactivatingUser(user)}
                   onActivate={() => handleActivate(user)}
                 />
-              )}
+                )
+              }
             />
           )}
         </div>
