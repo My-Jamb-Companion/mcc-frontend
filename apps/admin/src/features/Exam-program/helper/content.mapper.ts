@@ -28,6 +28,9 @@ export interface ApiModulePayload {
   lectures: ApiLecturePayload[];
   quizzes: ApiQuestionPayload[];
   practices: ApiQuestionPayload[];
+  /** The module Quiz's timer (minutes) and passing score (percent). */
+  quiz_timer_minutes?: number;
+  quiz_passing_score?: number;
 }
 
 export interface ApiSubTopicPayload {
@@ -35,6 +38,9 @@ export interface ApiSubTopicPayload {
   description?: string;
   test_exercises: ApiQuestionPayload[];
   modules: ApiModulePayload[];
+  /** The Test's timer (minutes) and passing score (percent). */
+  test_timer_minutes?: number;
+  test_passing_score?: number;
 }
 
 export interface ApiTopicPayload {
@@ -82,6 +88,8 @@ function toApiModule(module: MakeModule): ApiModulePayload {
     lectures: lectures.flatMap((l) => l.lessons ?? []).map(toApiLecture),
     quizzes: quizzes.flatMap((l) => l.questions ?? []).map(toApiQuestion),
     practices: practices.flatMap((l) => l.questions ?? []).map(toApiQuestion),
+    ...(module.quizSettings?.timer ? {quiz_timer_minutes: module.quizSettings.timer} : {}),
+    ...(module.quizSettings?.passingScore !== undefined ? {quiz_passing_score: module.quizSettings.passingScore} : {}),
   };
 }
 
@@ -93,6 +101,10 @@ function toApiSubTopic(subTopic: SubTopic): ApiSubTopicPayload {
       ? (subTopic.quizQuestions ?? []).map(toApiQuestion)
       : [],
     modules: subTopic.modules.map(toApiModule),
+    ...(subTopic.hasQuiz && subTopic.testSettings?.timer ? {test_timer_minutes: subTopic.testSettings.timer} : {}),
+    ...(subTopic.hasQuiz && subTopic.testSettings?.passingScore !== undefined
+      ? {test_passing_score: subTopic.testSettings.passingScore}
+      : {}),
   };
 }
 

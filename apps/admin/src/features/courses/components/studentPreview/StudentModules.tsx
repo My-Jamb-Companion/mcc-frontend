@@ -2,6 +2,7 @@
 
 import {useState} from "react";
 import {AnimatePresence, Icon, motion} from "@mcc/ui";
+import {describeDuration} from "@/src/features/courses/helper/countdown";
 import {
   formatTotalDuration,
   StudentLessonKind,
@@ -26,18 +27,22 @@ export default function StudentModules({
   activeLessonId,
   activeQuizModuleId,
   activeExercise,
+  activeQuizSet,
   onSelectLesson,
   onSelectQuiz,
   onSelectExercise,
+  onSelectQuizSet,
 }: {
   modules: StudentModule[];
   completedLessonIds: Set<string>;
   activeLessonId: string | null;
   activeQuizModuleId: string | null;
   activeExercise: {moduleId: string; name: string} | null;
+  activeQuizSet: {moduleId: string; name: string} | null;
   onSelectLesson: (moduleId: string, lessonId: string) => void;
   onSelectQuiz: (moduleId: string) => void;
   onSelectExercise: (moduleId: string, name: string) => void;
+  onSelectQuizSet: (moduleId: string, name: string) => void;
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -54,9 +59,11 @@ export default function StudentModules({
             activeLessonId={activeLessonId}
             activeQuizModuleId={activeQuizModuleId}
             activeExercise={activeExercise}
+            activeQuizSet={activeQuizSet}
             onSelectLesson={onSelectLesson}
             onSelectQuiz={onSelectQuiz}
             onSelectExercise={onSelectExercise}
+            onSelectQuizSet={onSelectQuizSet}
           />
         </motion.div>
       ))}
@@ -70,18 +77,22 @@ function ModuleAccordion({
   activeLessonId,
   activeQuizModuleId,
   activeExercise,
+  activeQuizSet,
   onSelectLesson,
   onSelectQuiz,
   onSelectExercise,
+  onSelectQuizSet,
 }: {
   module: StudentModule;
   completedLessonIds: Set<string>;
   activeLessonId: string | null;
   activeQuizModuleId: string | null;
   activeExercise: {moduleId: string; name: string} | null;
+  activeQuizSet: {moduleId: string; name: string} | null;
   onSelectLesson: (moduleId: string, lessonId: string) => void;
   onSelectQuiz: (moduleId: string) => void;
   onSelectExercise: (moduleId: string, name: string) => void;
+  onSelectQuizSet: (moduleId: string, name: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const hasLessons = module.lessons.length > 0;
@@ -173,6 +184,33 @@ function ModuleAccordion({
                 </div>
                 <p className={`text-sm truncate ${isQuizActive ? "text-primary" : "text-subtle"}`}>Practice quiz</p>
               </button>
+
+              {module.quizSets.map((set) => {
+                const isActive = activeQuizSet?.moduleId === module.id && activeQuizSet.name === set.name;
+                const meta = [
+                  `${set.questions.length} ${set.questions.length === 1 ? "question" : "questions"}`,
+                  set.timerMinutes ? describeDuration(set.timerMinutes) : null,
+                  set.passingScore !== null ? `pass ${set.passingScore}%` : null,
+                ].filter(Boolean);
+                return (
+                  <button
+                    key={`quiz-${set.name}`}
+                    type="button"
+                    onClick={() => onSelectQuizSet(module.id, set.name)}
+                    className={`flex gap-2.5 w-full pl-1 pr-3.5 text-left hover:bg-muted/5 transition-colors ${
+                      isActive ? "border-l-primary border-l-3" : "border-l-0"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center size-5.5 rounded shrink-0 text-[13px] text-green-600">
+                      <Icon icon="mdi:certificate-outline" size={16} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className={`text-sm truncate ${isActive ? "text-primary" : "text-subtle"}`}>Quiz: {set.name}</p>
+                      <p className="text-sm mt-0.5 text-muted">{meta.join(" · ")}</p>
+                    </div>
+                  </button>
+                );
+              })}
 
               {module.exerciseSets.map((set) => {
                 const isActive = activeExercise?.moduleId === module.id && activeExercise.name === set.name;

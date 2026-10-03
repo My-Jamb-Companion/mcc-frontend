@@ -1,16 +1,22 @@
 "use client";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {AnimatePresence, motion, Icon, showError} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import {useSubmitExamSession} from "@/src/features/exams/hooks/useExams";
 import {ApiExamQuestion, ApiExamSubmissionResult} from "@/src/features/exams/services/exam.service";
 import {useAnalysis, useQuestionHelp} from "@/src/features/brainy/hooks/useAiFeedback";
+import {useCountdown} from "@/src/features/learnings/hooks/useCountdown";
+import {formatCountdown, isCountdownLow} from "@/src/features/learnings/helper/countdown";
 
 interface ExamQuizProps {
   sessionId: string;
   questions: ApiExamQuestion[];
   type: "quiz" | "practice" | "exam";
   label: string;
+  /** Minutes allowed; submitted automatically at zero. Omit for untimed. */
+  timeLimitMinutes?: number | null;
+  /** Percent needed to pass; adds a pass/fail result. */
+  passingScore?: number | null;
   onDone: () => void;
 }
 
@@ -19,7 +25,15 @@ interface ExamQuizProps {
  * real exam_questions schema (single-choice, one correct_option) rather
  * than the course module-quiz system's richer question types.
  */
-export default function ExamQuiz({sessionId, questions, type, label, onDone}: ExamQuizProps) {
+export default function ExamQuiz({
+  sessionId,
+  questions,
+  type,
+  label,
+  timeLimitMinutes,
+  passingScore,
+  onDone,
+}: ExamQuizProps) {
   const submit = useSubmitExamSession();
   const questionHelp = useQuestionHelp();
 
@@ -30,6 +44,34 @@ export default function ExamQuiz({sessionId, questions, type, label, onDone}: Ex
   const [showExplanation, setShowExplanation] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [aiHelp, setAiHelp] = useState<Record<string, string>>({});
+  const [timedOut, setTimedOut] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  // The timer's expiry handler reads the answers as they are at that moment.
+  const answersRef = useRef(answers);
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
+
+  const remaining = useCountdown(
+    timeLimitMinutes,
+    !result && !timedOut && !submit.isPending,
+    () => {
+      const current = answersRef.current;
+      if (Object.keys(current).length > 0) {
+        submit.mutate(
+          {sessionId, answers: current, type},
+          {
+            onSuccess: (graded) => setResult(graded),
+            onError: () => setSubmitError("Time's up, but we couldn't submit your answers. Please try again."),
+          },
+        );
+      } else {
+        setTimedOut(true);
+      }
+    },
+    attempt,
+  );
 
   const resultByQuestionId = useMemo(() => {
     const map = new Map<string, ApiExamSubmissionResult["results"][number]>();
@@ -80,6 +122,8 @@ export default function ExamQuiz({sessionId, questions, type, label, onDone}: Ex
     setShowExplanation(false);
     setSubmitError(null);
     setAiHelp({});
+    setTimedOut(false);
+    setAttempt((n) => n + 1);
   };
 
   const askAiToExplain = (questionId: string) => {
@@ -88,6 +132,24 @@ export default function ExamQuiz({sessionId, questions, type, label, onDone}: Ex
       onError: (error) => showError(extractApiError(error, "Couldn't get an explanation right now")),
     });
   };
+
+  if (timedOut && !result) {
+    return (
+      <div className="flex w-full flex-col items-center gap-4 rounded-2xl bg-muted/5 p-10 text-center">
+        <div className="text-5xl">⏰</div>
+        <h2 className="text-2xl font-bold">Time&apos;s up</h2>
+        <p className="max-w-md text-sm text-subtle">You hadn&apos;t answered any questions before the time ran out.</p>
+        <div className="flex gap-3">
+          <button type="button" onClick={retry} className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white">
+            Try again
+          </button>
+          <button type="button" onClick={onDone} className="rounded-full border border-muted/20 px-5 py-2.5 text-sm font-semibold">
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentQuestion) {
     return (
@@ -99,9 +161,23 @@ export default function ExamQuiz({sessionId, questions, type, label, onDone}: Ex
 
   return (
     <div className="w-full bg-muted/5 rounded-2xl p-6">
-      <p className="text-[11px] font-semibold tracking-widest text-subtle uppercase mb-4">
-        {label} — Question {currentIndex + 1} of {questions.length}
-      </p>
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <p className="text-[11px] font-semibold tracking-widest text-subtle uppercase">
+          {label} — Question {currentIndex + 1} of {questions.length}
+        </p>
+        {remaining !== null && !result && (
+          <span
+            role="timer"
+            aria-label="Time left"
+            className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold tabular-nums ${
+              isCountdownLow(remaining) ? "bg-red-100 text-red-600" : "bg-muted/15 text-foreground"
+            }`}
+          >
+            <Icon icon="ph:timer" size={14} />
+            {formatCountdown(remaining)}
+          </span>
+        )}
+      </div>
       <div className="border-t border-muted/20 mb-5" />
 
       <AnimatePresence mode="wait">
@@ -109,6 +185,7 @@ export default function ExamQuiz({sessionId, questions, type, label, onDone}: Ex
           <motion.div key="results" initial={{opacity: 0, y: 20}} animate={{opacity: 1, y: 0}}>
             <ExamQuizResults
               result={result}
+              passingScore={passingScore}
               onRetry={retry}
               onDone={onDone}
               onReview={() => {
@@ -240,9 +317,10 @@ export default function ExamQuiz({sessionId, questions, type, label, onDone}: Ex
 }
 
 function ExamQuizResults({
-  result, onRetry, onDone, onReview,
+  result, passingScore, onRetry, onDone, onReview,
 }: {
-  result: ApiExamSubmissionResult; onRetry: () => void; onDone: () => void; onReview: () => void;
+  result: ApiExamSubmissionResult; passingScore?: number | null;
+  onRetry: () => void; onDone: () => void; onReview: () => void;
 }) {
   const correctCount = result.results.filter((r) => r.is_correct).length;
   const analysis = useAnalysis();
@@ -272,6 +350,17 @@ function ExamQuizResults({
       <div className="mb-4 text-6xl">{emoji}</div>
       <h2 className="text-2xl font-bold">{title}</h2>
       <p className="mt-2 max-w-md text-sm text-subtle">{message}</p>
+      {result.passed !== null && result.passed !== undefined && (
+        <p
+          role="status"
+          className={`mt-3 rounded-full px-4 py-1.5 text-sm font-semibold ${
+            result.passed ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
+          }`}
+        >
+          {result.passed ? "Passed" : "Not passed"} · {Math.round(result.score_percent)}% (pass mark{" "}
+          {result.passing_score ?? passingScore}%)
+        </p>
+      )}
 
       <div className="mt-4 text-5xl font-extrabold tracking-tight">
         {correctCount}

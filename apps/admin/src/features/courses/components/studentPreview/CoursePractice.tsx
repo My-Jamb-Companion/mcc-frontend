@@ -1,8 +1,10 @@
 "use client";
 
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {AnimatePresence, motion, Variants, Icon} from "@mcc/ui";
 import {shuffleArray} from "@/src/features/courses/helper/helper";
+import {useCountdown} from "@/src/features/courses/hooks/useCountdown";
+import {formatCountdown, isCountdownLow} from "@/src/features/courses/helper/countdown";
 import {
   PracticeCardProps,
   QuizResultsProps,
@@ -29,7 +31,13 @@ function isOptionInAnswer(
   return answer === option;
 }
 
-export function CoursePractice({questions, label = "Practice Quiz", onDone}: PracticeCardProps) {
+export function CoursePractice({
+  questions,
+  label = "Practice Quiz",
+  timerMinutes,
+  passingScore,
+  onDone,
+}: PracticeCardProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<SubmittedAnswer[]>([]);
   const [submittedAnswers, setSubmittedAnswers] = useState<SubmittedAnswer[]>(
@@ -37,6 +45,24 @@ export function CoursePractice({questions, label = "Practice Quiz", onDone}: Pra
   );
   const [reviewMode, setReviewMode] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  // The timer's expiry handler reads the answers as they are at that moment.
+  const answersRef = useRef(answers);
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
+
+  const remaining = useCountdown(
+    timerMinutes,
+    submittedAnswers.length === 0 && !timedOut,
+    () => {
+      if (answersRef.current.length > 0) setSubmittedAnswers(answersRef.current);
+      else setTimedOut(true);
+    },
+    attempt,
+  );
 
   const randomizedQuestions = useMemo(() => {
     return questions.map((question) => ({
@@ -120,6 +146,8 @@ export function CoursePractice({questions, label = "Practice Quiz", onDone}: Pra
     setCurrentIndex(0);
     setReviewMode(false);
     setShowExplanation(false);
+    setTimedOut(false);
+    setAttempt((n) => n + 1);
   };
 
   const onComplete = (completedAnswers: SubmittedAnswer[]) => {
@@ -165,6 +193,18 @@ export function CoursePractice({questions, label = "Practice Quiz", onDone}: Pra
             {isMulti && " (Select all that apply)"}
           </motion.p>
         </div>
+        {remaining !== null && submittedAnswers.length === 0 && (
+          <span
+            role="timer"
+            aria-label="Time left"
+            className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold tabular-nums ${
+              isCountdownLow(remaining) ? "bg-red-100 text-red-600" : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            <Icon icon="ph:timer" size={14} />
+            {formatCountdown(remaining)}
+          </span>
+        )}
       </motion.div>
 
       <motion.div
@@ -174,7 +214,23 @@ export function CoursePractice({questions, label = "Practice Quiz", onDone}: Pra
       />
 
       <AnimatePresence mode="wait">
-        {submittedAnswers.length > 0 && !reviewMode ? (
+        {timedOut && submittedAnswers.length === 0 ? (
+          <motion.div key="timed-out" initial={{opacity: 0}} animate={{opacity: 1}} className="flex flex-col items-center gap-4 p-10 text-center">
+            <div className="text-5xl">⏰</div>
+            <h2 className="text-2xl font-bold text-gray-900">Time&apos;s up</h2>
+            <p className="max-w-md text-sm text-gray-500">You hadn&apos;t answered any questions before the time ran out.</p>
+            <div className="flex gap-3">
+              <button type="button" onClick={retry} className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white">
+                Try again
+              </button>
+              {onDone && (
+                <button type="button" onClick={onDone} className="rounded-full border px-5 py-2.5 text-sm font-semibold text-gray-700">
+                  Done
+                </button>
+              )}
+            </div>
+          </motion.div>
+        ) : submittedAnswers.length > 0 && !reviewMode ? (
           <motion.div
             key="results"
             layout
@@ -197,6 +253,7 @@ export function CoursePractice({questions, label = "Practice Quiz", onDone}: Pra
           >
             <QuizResults
               review={submittedAnswers}
+              passingScore={passingScore}
               onRetry={retry}
               onDone={onDone}
               onReview={() => {
@@ -506,6 +563,7 @@ export function CoursePractice({questions, label = "Practice Quiz", onDone}: Pra
 
 const QuizResults: React.FC<QuizResultsProps> = ({
   review = [],
+  passingScore,
   onRetry,
   onDone,
   onReview,
@@ -616,6 +674,20 @@ const QuizResults: React.FC<QuizResultsProps> = ({
         >
           {message}
         </motion.p>
+        {passingScore != null && (
+          <motion.p
+            role="status"
+            initial={{opacity: 0, y: 6}}
+            animate={{opacity: 1, y: 0}}
+            transition={{delay: 0.45}}
+            className={`mt-3 rounded-full px-4 py-1.5 text-sm font-semibold ${
+              percentage >= passingScore ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
+            }`}
+          >
+            {percentage >= passingScore ? "Passed" : "Not passed"} · {Math.round(percentage)}% (pass mark{" "}
+            {passingScore}%)
+          </motion.p>
+        )}
       </motion.div>
 
       <motion.div

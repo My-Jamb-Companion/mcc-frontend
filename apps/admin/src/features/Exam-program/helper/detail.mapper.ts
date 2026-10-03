@@ -91,7 +91,14 @@ function toUiModule(apiModule: ApiExamModule): MakeModule {
     id: apiModule.module_id ?? uid(),
     label: apiModule.title,
     leaves,
+    quizSettings: toSettings(apiModule.quiz_timer_minutes, apiModule.quiz_passing_score),
   };
+}
+
+/** The API's null (unset) becomes an absent value in the form. */
+function toSettings(timer?: number | null, passingScore?: number | null) {
+  if (timer == null && passingScore == null) return undefined;
+  return {timer: timer ?? undefined, passingScore: passingScore ?? undefined};
 }
 
 function toUiSubTopic(apiSubTopic: ApiExamSubTopic): SubTopic {
@@ -106,6 +113,7 @@ function toUiSubTopic(apiSubTopic: ApiExamSubTopic): SubTopic {
     quizQuestions: hasQuiz
       ? apiSubTopic.test_exercises.map(toUiQuestion)
       : undefined,
+    testSettings: toSettings(apiSubTopic.test_timer_minutes, apiSubTopic.test_passing_score),
   };
 }
 

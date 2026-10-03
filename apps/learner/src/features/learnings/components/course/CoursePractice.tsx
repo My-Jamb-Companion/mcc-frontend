@@ -1,12 +1,14 @@
 "use client";
 
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {AnimatePresence, motion, Variants, Icon, showError} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import {shuffleArray} from "@/src/features/learnings/helper/helper";
 import {ApiModuleGradedAnswer, ApiModuleQuestion, ApiModuleQuizResult} from "@/src/features/learnings/services/moduleQuiz.service";
 import {useSubmitModuleAnswers} from "@/src/features/learnings/hooks/useModuleQuiz";
 import {useAnalysis, useQuestionHelp} from "@/src/features/brainy/hooks/useAiFeedback";
+import {useCountdown} from "@/src/features/learnings/hooks/useCountdown";
+import {formatCountdown, isCountdownLow} from "@/src/features/learnings/helper/countdown";
 
 interface PracticeCardProps {
   courseId: string;
@@ -14,10 +16,22 @@ interface PracticeCardProps {
   questions: ApiModuleQuestion[];
   /** What the student is doing, shown above each question; "Practice Quiz" by default. */
   label?: string;
+  /** Minutes allowed; the quiz is submitted automatically at zero. Omit for untimed. */
+  timerMinutes?: number | null;
+  /** Percent needed to pass; adds a pass/fail result. Omit for none. */
+  passingScore?: number | null;
   onDone?: () => void;
 }
 
-export function CoursePractice({courseId, moduleId, questions, label = "Practice Quiz", onDone}: PracticeCardProps) {
+export function CoursePractice({
+  courseId,
+  moduleId,
+  questions,
+  label = "Practice Quiz",
+  timerMinutes,
+  passingScore,
+  onDone,
+}: PracticeCardProps) {
   const submit = useSubmitModuleAnswers(courseId, moduleId);
   const questionHelp = useQuestionHelp();
 
@@ -31,6 +45,31 @@ export function CoursePractice({courseId, moduleId, questions, label = "Practice
   const [showExplanation, setShowExplanation] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [aiHelp, setAiHelp] = useState<Record<string, string>>({});
+  const [timedOut, setTimedOut] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  // The timer's expiry handler reads the answers as they are at that moment.
+  const answersRef = useRef(answers);
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
+
+  const remaining = useCountdown(
+    timerMinutes,
+    !result && !timedOut && !submit.isPending,
+    () => {
+      const current = answersRef.current;
+      if (Object.values(current).some((a) => a.some((x) => x.trim()))) {
+        submit.mutate(current, {
+          onSuccess: (graded) => setResult(graded),
+          onError: () => setSubmitError("Time's up, but we couldn't submit your answers. Please try again."),
+        });
+      } else {
+        setTimedOut(true);
+      }
+    },
+    attempt,
+  );
 
   const randomizedQuestions = useMemo(
     () => questions.map((q) => ({...q, options: shuffleArray(q.options)})),
@@ -104,6 +143,8 @@ export function CoursePractice({courseId, moduleId, questions, label = "Practice
     setShowExplanation(false);
     setSubmitError(null);
     setAiHelp({});
+    setTimedOut(false);
+    setAttempt((n) => n + 1);
   };
 
   const askAiToExplain = (questionId: string) => {
@@ -131,12 +172,40 @@ export function CoursePractice({courseId, moduleId, questions, label = "Practice
         >
           {label} - Question {currentIndex + 1} of {questions.length}
         </motion.p>
+        {remaining !== null && !result && (
+          <span
+            role="timer"
+            aria-label="Time left"
+            className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold tabular-nums ${
+              isCountdownLow(remaining) ? "bg-red-100 text-red-600" : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            <Icon icon="ph:timer" className="h-3.5 w-3.5" />
+            {formatCountdown(remaining)}
+          </span>
+        )}
       </motion.div>
 
       <motion.div layout variants={fadeUp} className="border-t border-gray-200 dark:border-gray-600 mb-5" />
 
       <AnimatePresence mode="wait">
-        {result && !reviewMode ? (
+        {timedOut && !result ? (
+          <motion.div key="timed-out" initial={{opacity: 0}} animate={{opacity: 1}} className="flex flex-col items-center gap-4 p-10 text-center">
+            <div className="text-5xl">⏰</div>
+            <h2 className="text-2xl font-bold text-gray-900">Time&apos;s up</h2>
+            <p className="max-w-md text-sm text-gray-500">You hadn&apos;t answered any questions before the time ran out.</p>
+            <div className="flex gap-3">
+              <button type="button" onClick={retry} className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white">
+                Try again
+              </button>
+              {onDone && (
+                <button type="button" onClick={onDone} className="rounded-full border px-5 py-2.5 text-sm font-semibold text-gray-700">
+                  Done
+                </button>
+              )}
+            </div>
+          </motion.div>
+        ) : result && !reviewMode ? (
           <motion.div
             key="results"
             layout
@@ -147,6 +216,7 @@ export function CoursePractice({courseId, moduleId, questions, label = "Practice
           >
             <QuizResults
               result={result}
+              passingScore={passingScore}
               onRetry={retry}
               onDone={onDone}
               onReview={() => {
@@ -415,11 +485,13 @@ export function CoursePractice({courseId, moduleId, questions, label = "Practice
 
 function QuizResults({
   result,
+  passingScore,
   onRetry,
   onDone,
   onReview,
 }: {
   result: ApiModuleQuizResult;
+  passingScore?: number | null;
   onRetry?: () => void;
   onDone?: () => void;
   onReview?: () => void;
@@ -477,6 +549,20 @@ function QuizResults({
         <motion.p initial={{opacity: 0}} animate={{opacity: 1}} transition={{delay: 0.35}} className="mt-2 max-w-md text-[15px] text-gray-600">
           {message}
         </motion.p>
+        {result.passed !== null && result.passed !== undefined && (
+          <motion.p
+            role="status"
+            initial={{opacity: 0, y: 6}}
+            animate={{opacity: 1, y: 0}}
+            transition={{delay: 0.45}}
+            className={`mt-3 rounded-full px-4 py-1.5 text-sm font-semibold ${
+              result.passed ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
+            }`}
+          >
+            {result.passed ? "Passed" : "Not passed"} · {Math.round(result.score_percent)}% (pass mark{" "}
+            {result.passing_score ?? passingScore}%)
+          </motion.p>
+        )}
       </motion.div>
 
       {result.graded_count > 0 && (

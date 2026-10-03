@@ -4,11 +4,11 @@ import {getModuleQuestions, submitModuleAnswers} from "../services/moduleQuiz.se
 export const useModuleQuestions = (
   courseId: string,
   moduleId: string | null,
-  exerciseSet?: string,
+  set?: {exercise?: string; quiz?: string},
 ) => {
   const query = useQuery({
-    queryKey: ["courses", courseId, "modules", moduleId, "questions", exerciseSet ?? null],
-    queryFn: () => getModuleQuestions(courseId, moduleId as string, exerciseSet),
+    queryKey: ["courses", courseId, "modules", moduleId, "questions", set?.exercise ?? null, set?.quiz ?? null],
+    queryFn: () => getModuleQuestions(courseId, moduleId as string, set),
     enabled: !!moduleId,
   });
   return {...query, questions: query.data ?? []};

@@ -190,6 +190,10 @@ export interface PracticeCardProps {
   questions: Question[];
   /** What the student is doing, shown above each question; "Practice Quiz" by default. */
   label?: string;
+  /** Minutes allowed; the quiz is submitted automatically at zero. Omit for untimed. */
+  timerMinutes?: number | null;
+  /** Percent needed to pass; adds a pass/fail result. Omit for none. */
+  passingScore?: number | null;
   onComplete?: (answers: SubmittedAnswer[]) => void;
   reviewMode?: boolean;
   submittedAnswers?: SubmittedAnswer[];
@@ -206,6 +210,7 @@ export interface QuizItem {
 
 export interface QuizResultsProps {
   review: QuizItem[];
+  passingScore?: number | null;
   onRetry?: () => void;
   onReview?: () => void;
   onDone?: () => void;
@@ -260,10 +265,18 @@ export interface ApiQuizQuestionPayload {
   set_name?: string | null;
 }
 
+/** Timer and passing score of one quiz set, matched to its questions by set_name. */
+export interface ApiQuizSettings {
+  set_name: string;
+  timer_minutes?: number | null;
+  passing_score?: number | null;
+}
+
 export interface ApiModulePayload {
   title: string;
   lectures: ApiLecturePayload[];
   quizzes: ApiQuizQuestionPayload[];
+  quiz_settings?: ApiQuizSettings[];
 }
 
 export interface UpdateCoursePayload {

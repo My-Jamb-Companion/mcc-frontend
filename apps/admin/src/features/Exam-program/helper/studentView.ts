@@ -43,6 +43,9 @@ export interface StudentExamSubTopic {
   title: string;
   modules: StudentExamModule[];
   test: StudentExamQuestion[];
+  /** The Test's timer (minutes) and passing score (percent); null = unset. */
+  testTimerMinutes: number | null;
+  testPassingScore: number | null;
 }
 
 export interface StudentExamTopic {
@@ -69,6 +72,8 @@ export function toStudentExamTree(topics: Topic[] = []): StudentExamTopic[] {
       id: sub.id,
       title: sub.label || "Untitled sub-topic",
       test: sub.hasQuiz ? (sub.quizQuestions ?? []).map(toQuestion) : [],
+      testTimerMinutes: sub.hasQuiz ? (sub.testSettings?.timer ?? null) : null,
+      testPassingScore: sub.hasQuiz ? (sub.testSettings?.passingScore ?? null) : null,
       modules: (sub.modules ?? []).map((module) => {
         const leaves = module.leaves ?? [];
         return {

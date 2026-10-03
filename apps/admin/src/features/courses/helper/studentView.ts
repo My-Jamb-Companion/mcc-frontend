@@ -3,7 +3,6 @@ import type {
   LessonModuleContent,
   PracticeModuleContent,
   Question,
-  QuizModuleContent,
   Topic,
 } from "../types/types";
 import {youTubeEmbedUrl} from "./video";
@@ -15,10 +14,11 @@ import {youTubeEmbedUrl} from "./video";
  *
  *  - topics are flattened away: students see a flat list of modules;
  *  - a module's lessons stay, in order;
- *  - quiz and practice questions are merged into ONE "Practice quiz" per
- *    module, in the order they were arranged (the save order);
- *  - each named exercise set is its own entry for the student, and never
- *    part of the Practice quiz.
+ *  - a module's practice questions are its ONE "Practice quiz", in the order
+ *    they were arranged (the save order);
+ *  - each named quiz set (with its timer and passing score) and each named
+ *    exercise set is its own entry for the student, never part of the
+ *    Practice quiz.
  *
  * Keep the lesson-kind rules in line with the learner app's
  * `features/learnings/helper/content.mapper.ts::lessonKind`.
@@ -42,15 +42,29 @@ export interface StudentExerciseSet {
   questions: CreatPracticeQuestionType[];
 }
 
+export interface StudentQuizSet {
+  name: string;
+  questions: CreatPracticeQuestionType[];
+  /** Minutes allowed; null = untimed. */
+  timerMinutes: number | null;
+  /** Percent needed to pass; null = no pass/fail. */
+  passingScore: number | null;
+}
+
 export interface StudentModule {
   id: string;
   title: string;
   lessons: StudentLesson[];
-  /** Merged quiz + practice questions: the module's "Practice quiz". */
+  /** The module's practice questions: its "Practice quiz". */
   questions: CreatPracticeQuestionType[];
+  /** The module's quiz sets, each a separate (optionally timed) entry; same-named sets are one. */
+  quizSets: StudentQuizSet[];
   /** The module's exercise sets, each a separate entry; same-named sets are one. */
   exerciseSets: StudentExerciseSet[];
 }
+
+/** An unnamed quiz is saved (and shown) as "Quiz". */
+export const DEFAULT_QUIZ_NAME = "Quiz";
 
 /** An exercise with no name is saved (and shown) as "Exercise". */
 export const DEFAULT_EXERCISE_NAME = "Exercise";
@@ -92,6 +106,18 @@ export function toStudentModules(topics: Topic[] = []): StudentModule[] {
         const name = item.name?.trim() || DEFAULT_EXERCISE_NAME;
         exerciseSets.set(name, [...(exerciseSets.get(name) ?? []), ...item.questions]);
       }
+      const quizSets = new Map<string, StudentQuizSet>();
+      for (const item of content) {
+        if (item.type !== "quiz") continue;
+        const name = item.title?.trim() || DEFAULT_QUIZ_NAME;
+        const existing = quizSets.get(name);
+        quizSets.set(name, {
+          name,
+          questions: [...(existing?.questions ?? []), ...item.questions],
+          timerMinutes: item.settings?.timer || existing?.timerMinutes || null,
+          passingScore: item.settings?.passingScore ?? existing?.passingScore ?? null,
+        });
+      }
       return {
         id: module.id,
         title: module.label || "Untitled Module",
@@ -99,8 +125,9 @@ export function toStudentModules(topics: Topic[] = []): StudentModule[] {
           .filter((c): c is LessonModuleContent => c.type === "lesson")
           .map(toStudentLesson),
         questions: content
-          .filter((c): c is QuizModuleContent | PracticeModuleContent => c.type === "quiz" || c.type === "practice")
+          .filter((c): c is PracticeModuleContent => c.type === "practice")
           .flatMap((c) => c.questions),
+        quizSets: [...quizSets.values()],
         exerciseSets: [...exerciseSets].map(([name, questions]) => ({name, questions})),
       };
     });

@@ -20,6 +20,8 @@ type Page = "learn" | "landing";
 interface Session {
   label: string;
   questions: StudentExamQuestion[];
+  timerMinutes?: number | null;
+  passingScore?: number | null;
 }
 
 /**
@@ -72,7 +74,14 @@ export default function ExamStudentView({
       }
     } else if (node.kind === "test") {
       const sub = tree.flatMap((t) => t.subTopics).find((s) => s.id === node.subTopicId);
-      if (sub) setSession({label: "Test", questions: sub.test});
+      if (sub) {
+        setSession({
+          label: "Test",
+          questions: sub.test,
+          timerMinutes: sub.testTimerMinutes,
+          passingScore: sub.testPassingScore,
+        });
+      }
     }
   };
 
@@ -122,6 +131,8 @@ export default function ExamStudentView({
                   key={`${active && "moduleId" in active ? active.moduleId : active && "subTopicId" in active ? active.subTopicId : ""}-${session.label}`}
                   questions={session.questions}
                   label={session.label}
+                  timerMinutes={session.timerMinutes}
+                  passingScore={session.passingScore}
                   onDone={() => setSession(null)}
                 />
               ) : !activeLecture ? (

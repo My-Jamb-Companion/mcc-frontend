@@ -128,6 +128,9 @@ export interface ApiExamModule {
   lectures: ApiExamLecture[];
   quizzes: ApiExamQuestion[];
   practices: ApiExamQuestion[];
+  /** The module Quiz's timer (minutes) and passing score (percent); null = unset. */
+  quiz_timer_minutes?: number | null;
+  quiz_passing_score?: number | null;
   created_at: string;
 }
 
@@ -139,6 +142,9 @@ export interface ApiExamSubTopic {
   order_index: number;
   modules: ApiExamModule[];
   test_exercises: ApiExamQuestion[];
+  /** The Test's timer (minutes) and passing score (percent); null = unset. */
+  test_timer_minutes?: number | null;
+  test_passing_score?: number | null;
   created_at: string;
 }
 

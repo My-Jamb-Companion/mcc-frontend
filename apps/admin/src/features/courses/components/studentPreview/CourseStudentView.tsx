@@ -57,6 +57,7 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
   const [activeLessonId, setActiveLessonId] = useState<string | null>(lessons[0]?.id ?? null);
   const [activeQuizModuleId, setActiveQuizModuleId] = useState<string | null>(null);
   const [activeExercise, setActiveExercise] = useState<{moduleId: string; name: string} | null>(null);
+  const [activeQuizSet, setActiveQuizSet] = useState<{moduleId: string; name: string} | null>(null);
   const [completed, setCompleted] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [sidePanel, setSidePanel] = useState<"course" | "ai">("course");
@@ -72,6 +73,10 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
 
   const activeLesson = lessons.find((l) => l.id === activeLessonId) ?? null;
   const activeQuizModule = modules.find((m) => m.id === activeQuizModuleId) ?? null;
+  const activeQuizSetInfo =
+    modules
+      .find((m) => m.id === activeQuizSet?.moduleId)
+      ?.quizSets.find((s) => s.name === activeQuizSet?.name) ?? null;
   const activeExerciseSet =
     modules
       .find((m) => m.id === activeExercise?.moduleId)
@@ -83,6 +88,7 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
     setActiveLessonId(lessonId);
     setActiveQuizModuleId(null);
     setActiveExercise(null);
+    setActiveQuizSet(null);
   };
 
   const handleLessonEnded = () => {
@@ -99,14 +105,22 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
       activeLessonId={activeLesson?.id ?? null}
       activeQuizModuleId={activeQuizModuleId}
       activeExercise={activeExercise}
+      activeQuizSet={activeQuizSet}
       onSelectLesson={selectLesson}
       onSelectQuiz={(moduleId) => {
         setActiveExercise(null);
+        setActiveQuizSet(null);
         setActiveQuizModuleId(moduleId);
       }}
       onSelectExercise={(moduleId, name) => {
         setActiveQuizModuleId(null);
+        setActiveQuizSet(null);
         setActiveExercise({moduleId, name});
+      }}
+      onSelectQuizSet={(moduleId, name) => {
+        setActiveQuizModuleId(null);
+        setActiveExercise(null);
+        setActiveQuizSet({moduleId, name});
       }}
     />
   );
@@ -164,7 +178,16 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
           >
             <div className="min-w-0 pb-8">
               <div className="w-full min-w-0 overflow-hidden">
-                {activeExerciseSet ? (
+                {activeQuizSetInfo ? (
+                  <CoursePractice
+                    key={`quiz-${activeQuizSet?.moduleId}-${activeQuizSetInfo.name}`}
+                    questions={toPracticeCardQuestions(activeQuizSetInfo.questions)}
+                    label={`Quiz: ${activeQuizSetInfo.name}`}
+                    timerMinutes={activeQuizSetInfo.timerMinutes}
+                    passingScore={activeQuizSetInfo.passingScore}
+                    onDone={() => setActiveQuizSet(null)}
+                  />
+                ) : activeExerciseSet ? (
                   <CoursePractice
                     key={`${activeExercise?.moduleId}-${activeExerciseSet.name}`}
                     questions={toPracticeCardQuestions(activeExerciseSet.questions)}
@@ -216,7 +239,7 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
                 )}
               </div>
 
-              {!activeQuizModule && !activeExerciseSet && activeLesson && (
+              {!activeQuizModule && !activeQuizSetInfo && !activeExerciseSet && activeLesson && (
                 <div className="mt-4 flex items-center justify-between px-1">
                   <div>
                     <p className="text-lg font-semibold">{activeLesson.title}</p>
