@@ -243,3 +243,53 @@ describe("test and quiz timer / passing score", () => {
     expect(topic.sub_topics[0]).not.toHaveProperty("test_passing_score");
   });
 });
+
+describe("practice option responses", () => {
+  const withResponses = makeQuestion({
+    options: [
+      {id: "a", text: "1010", isCorrect: true, response: "  Yes, well done  "},
+      {id: "b", text: "1100", isCorrect: false, response: "That is 12."},
+      {id: "c", text: "1001", isCorrect: false},
+    ],
+  });
+  const tree = (leafType: "practice" | "quiz"): Topic[] => [
+    {
+      id: "t",
+      label: "T",
+      subTopics: [
+        {
+          id: "s",
+          label: "S",
+          hasQuiz: true,
+          quizQuestions: [withResponses],
+          modules: [{id: "m", label: "M", leaves: [{id: "l", label: "L", type: leafType, questions: [withResponses]}]}],
+        },
+      ],
+    },
+  ];
+
+  it("sends a response per option for Practice, trimmed and aligned to the options", () => {
+    const [topic] = serializeTopicsPayload(tree("practice"));
+    expect(topic.sub_topics[0].modules[0].practices[0].option_feedback).toEqual(["Yes, well done", "That is 12.", null]);
+  });
+
+  it("never sends responses for a Quiz or the sub-topic Test", () => {
+    const [topic] = serializeTopicsPayload(tree("quiz"));
+    expect(topic.sub_topics[0].modules[0].quizzes[0]).not.toHaveProperty("option_feedback");
+    expect(topic.sub_topics[0].test_exercises?.[0]).not.toHaveProperty("option_feedback");
+  });
+
+  it("omits the field when no option has a response", () => {
+    const plain = makeQuestion();
+    const [topic] = serializeTopicsPayload([
+      {
+        id: "t",
+        label: "T",
+        subTopics: [
+          {id: "s", label: "S", hasQuiz: false, modules: [{id: "m", label: "M", leaves: [{id: "l", label: "L", type: "practice", questions: [plain]}]}]},
+        ],
+      },
+    ]);
+    expect(topic.sub_topics[0].modules[0].practices[0]).not.toHaveProperty("option_feedback");
+  });
+});

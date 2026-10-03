@@ -95,6 +95,8 @@ export const listExamPrograms = async (
 // ─────────────────────────────────────────────
 
 export interface ApiExamQuestion {
+  /** Practice only: the response for each option, aligned to `options` (null where none). */
+  option_feedback?: (string | null)[] | null;
   question_id: string;
   question_text: string;
   description: string | null;

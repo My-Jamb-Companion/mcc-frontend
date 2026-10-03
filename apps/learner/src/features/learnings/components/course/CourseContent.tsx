@@ -231,6 +231,7 @@ export default function CourseContent({
                   courseId={courseId}
                   moduleId={activeQuizModuleId}
                   questions={quizQuestions.questions}
+                  showFeedback
                   onDone={() => setActiveQuizModuleId(null)}
                 />
               )

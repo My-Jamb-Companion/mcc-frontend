@@ -5,6 +5,8 @@ import {AnimatePresence, Icon, motion} from "@mcc/ui";
 import type {StudentExamQuestion} from "@/src/features/Exam-program/helper/studentView";
 import {useCountdown} from "@/src/features/courses/hooks/useCountdown";
 import {formatCountdown, isCountdownLow} from "@/src/features/courses/helper/countdown";
+import {isChosenCorrect, responsesForChosen} from "@/src/features/courses/helper/practiceFeedback";
+import PracticeFeedbackCard from "@/src/features/courses/components/studentPreview/PracticeFeedbackCard";
 
 interface Props {
   questions: StudentExamQuestion[];
@@ -13,6 +15,8 @@ interface Props {
   timerMinutes?: number | null;
   /** Percent needed to pass; adds a pass/fail result. */
   passingScore?: number | null;
+  /** Practice: check each answer as you go and read the teacher's response. */
+  showFeedback?: boolean;
   onDone: () => void;
 }
 
@@ -22,7 +26,7 @@ interface Props {
  * explanation, a results screen and a review pass. Graded here instead of by
  * the server, and the AI buttons are shown but inert.
  */
-export default function ExamQuizPreview({questions, label, timerMinutes, passingScore, onDone}: Props) {
+export default function ExamQuizPreview({questions, label, timerMinutes, passingScore, showFeedback = false, onDone}: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -30,6 +34,8 @@ export default function ExamQuizPreview({questions, label, timerMinutes, passing
   const [showExplanation, setShowExplanation] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  // Practice: ids of questions already checked (their answer is then locked).
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
 
   // The timer's expiry handler reads the answers as they are at that moment.
   const answersRef = useRef(answers);
@@ -56,6 +62,7 @@ export default function ExamQuizPreview({questions, label, timerMinutes, passing
   const currentAnswer = answers[currentQuestion?.id] ?? "";
   const isLast = currentIndex === questions.length - 1;
   const allAnswered = questions.every((q) => !!answers[q.id]);
+  const isChecked = showFeedback && !reviewMode && !!checked[currentQuestion?.id];
 
   if (!currentQuestion) {
     return (
@@ -86,6 +93,7 @@ export default function ExamQuizPreview({questions, label, timerMinutes, passing
     setReviewMode(false);
     setShowExplanation(false);
     setTimedOut(false);
+    setChecked({});
     setAttempt((n) => n + 1);
   };
 
@@ -134,6 +142,7 @@ export default function ExamQuizPreview({questions, label, timerMinutes, passing
             <Results
               questions={questions}
               passingScore={passingScore}
+              practice={showFeedback}
               correctIds={correctIds}
               onRetry={retry}
               onDone={onDone}
@@ -162,6 +171,10 @@ export default function ExamQuizPreview({questions, label, timerMinutes, passing
                 if (reviewMode) {
                   if (isCorrectOption) style = "border-success bg-success/10 text-success";
                   if (isWrongSelected) style = "border-danger bg-danger/10 text-danger";
+                } else if (isChecked && isCorrectOption) {
+                  style = "border-success bg-success/10 text-success";
+                } else if (isChecked && isSelected) {
+                  style = "border-amber-500 bg-amber-50 text-amber-700";
                 } else if (isSelected) {
                   style = "border-primary bg-primary/5 text-primary";
                 }
@@ -170,7 +183,7 @@ export default function ExamQuizPreview({questions, label, timerMinutes, passing
                   <button
                     key={`${option}-${index}`}
                     type="button"
-                    disabled={reviewMode}
+                    disabled={reviewMode || isChecked}
                     onClick={() => setAnswers((prev) => ({...prev, [currentQuestion.id]: option}))}
                     className={`flex w-full items-center gap-4 rounded-2xl border px-4 py-3.5 text-left transition-colors ${style}`}
                   >
@@ -215,7 +228,7 @@ export default function ExamQuizPreview({questions, label, timerMinutes, passing
                   Explain this
                 </button>
               )}
-              {!reviewMode && currentQuestion.explanation && (
+              {!reviewMode && !showFeedback && currentQuestion.explanation && (
                 <button
                   type="button"
                   onClick={() => setShowExplanation(true)}
@@ -227,13 +240,44 @@ export default function ExamQuizPreview({questions, label, timerMinutes, passing
               )}
               <button
                 type="button"
-                onClick={handleNext}
-                disabled={isLast && !reviewMode ? !allAnswered : !currentAnswer}
+                onClick={
+                  showFeedback && !reviewMode && !isChecked
+                    ? () => setChecked((prev) => ({...prev, [currentQuestion.id]: true}))
+                    : handleNext
+                }
+                disabled={
+                  showFeedback && !reviewMode && !isChecked
+                    ? !currentAnswer
+                    : isLast && !reviewMode
+                      ? !allAnswered
+                      : !currentAnswer
+                }
                 className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
               >
-                {reviewMode && isLast ? "Done reviewing" : isLast ? "Submit" : "Next question"}
+                {showFeedback && !reviewMode && !isChecked
+                  ? "Check answer"
+                  : reviewMode && isLast
+                    ? "Done reviewing"
+                    : isLast
+                      ? showFeedback
+                        ? "Finish"
+                        : "Submit"
+                      : "Next question"}
               </button>
             </div>
+
+            {isChecked && (
+              <PracticeFeedbackCard
+                correct={isChosenCorrect([currentAnswer], currentQuestion.correctAnswers)}
+                chosen={responsesForChosen(
+                  {options: currentQuestion.options, option_feedback: currentQuestion.optionFeedback},
+                  [currentAnswer],
+                  currentQuestion.correctAnswers,
+                )}
+                correctAnswers={currentQuestion.correctAnswers}
+                explanation={currentQuestion.explanation}
+              />
+            )}
 
             {showExplanation && !reviewMode && currentQuestion.explanation && (
               <div className="mt-4 rounded-2xl bg-muted/10 p-5">
@@ -271,6 +315,7 @@ export default function ExamQuizPreview({questions, label, timerMinutes, passing
 function Results({
   questions,
   passingScore,
+  practice,
   correctIds,
   onRetry,
   onDone,
@@ -278,6 +323,7 @@ function Results({
 }: {
   questions: StudentExamQuestion[];
   passingScore?: number | null;
+  practice: boolean;
   correctIds: Set<string>;
   onRetry: () => void;
   onDone: () => void;
@@ -287,12 +333,13 @@ function Results({
   const percent = questions.length ? Math.round((correct / questions.length) * 100) : 0;
 
   const {title, message, emoji} = useMemo(() => {
+    if (practice) return {emoji: "🌱", title: "Practice complete", message: "Practice is about learning, not the score. Review the answers you missed and go again."};
     if (percent === 100) return {emoji: "🏆", title: "Perfect Score!", message: "Outstanding! You answered every question correctly."};
     if (percent >= 80) return {emoji: "🎉", title: "Excellent Work!", message: "Great job! You have a strong understanding of this."};
     if (percent >= 60) return {emoji: "👏", title: "Well Done!", message: "Nice work! A little more practice and you'll master it."};
     if (percent >= 40) return {emoji: "💪", title: "Keep Going!", message: "You're making progress. Review your mistakes and try again."};
     return {emoji: "📚", title: "Don't Give Up!", message: "Review your answers and give it another shot."};
-  }, [percent]);
+  }, [percent, practice]);
 
   return (
     <div className="flex flex-col items-center justify-center py-10 text-center">

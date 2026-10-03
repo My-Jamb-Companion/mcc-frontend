@@ -5,6 +5,8 @@ import {AnimatePresence, motion, Variants, Icon} from "@mcc/ui";
 import {shuffleArray} from "@/src/features/courses/helper/helper";
 import {useCountdown} from "@/src/features/courses/hooks/useCountdown";
 import {formatCountdown, isCountdownLow} from "@/src/features/courses/helper/countdown";
+import {isChosenCorrect, responsesForChosen} from "@/src/features/courses/helper/practiceFeedback";
+import PracticeFeedbackCard from "./PracticeFeedbackCard";
 import {
   PracticeCardProps,
   QuizResultsProps,
@@ -36,6 +38,7 @@ export function CoursePractice({
   label = "Practice Quiz",
   timerMinutes,
   passingScore,
+  showFeedback = false,
   onDone,
 }: PracticeCardProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -47,6 +50,8 @@ export function CoursePractice({
   const [showExplanation, setShowExplanation] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  // Practice mode: question ids the student has checked (their answer is then locked).
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
 
   // The timer's expiry handler reads the answers as they are at that moment.
   const answersRef = useRef(answers);
@@ -86,8 +91,12 @@ export function CoursePractice({
   const isFirstQuestion = currentIndex === 0;
   const allAnswered = answers.length === questions.length;
 
+  const isChecked = showFeedback && !reviewMode && !!checked[currentQuestion?.id];
+  // The un-shuffled question, so a response is found by its option's text.
+  const originalQuestion = questions.find((q) => q.id === currentQuestion?.id);
+
   const handleSelectOption = (answerOption: string) => {
-    if (reviewMode) return;
+    if (reviewMode || isChecked) return;
 
     setAnswers((prev) => {
       const exists = prev.find((item) => item.id === currentQuestion.id);
@@ -147,6 +156,7 @@ export function CoursePractice({
     setReviewMode(false);
     setShowExplanation(false);
     setTimedOut(false);
+    setChecked({});
     setAttempt((n) => n + 1);
   };
 
@@ -307,6 +317,8 @@ export function CoursePractice({
                   );
                   const isWrongSelected =
                     reviewMode && isSelected && !isCorrectOption;
+                  const checkedCorrect = isChecked && isCorrectOption;
+                  const checkedWrong = isChecked && isSelected && !isCorrectOption;
 
                   let optionStyle =
                     "border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200";
@@ -320,6 +332,12 @@ export function CoursePractice({
                       optionStyle =
                         "border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400";
                     }
+                  } else if (checkedCorrect) {
+                    optionStyle =
+                      "border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400";
+                  } else if (checkedWrong) {
+                    optionStyle =
+                      "border-amber-500 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400";
                   } else if (isSelected) {
                     optionStyle =
                       "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 disabled:cursor-not-allowed disabled:opacity-60";
@@ -346,7 +364,7 @@ export function CoursePractice({
                       key={answer}
                       type="button"
                       onClick={() => handleSelectOption(answer)}
-                      disabled={reviewMode}
+                      disabled={reviewMode || isChecked}
                       className={`flex w-full items-center gap-4 rounded-2xl border px-2 py-4 text-left transition-colors ${optionStyle}`}
                     >
                       <motion.span
@@ -380,6 +398,22 @@ export function CoursePractice({
                 })}
               </motion.div>
 
+              {isChecked && originalQuestion && (
+                <PracticeFeedbackCard
+                  correct={isChosenCorrect(
+                    [selectedAnswer ?? []].flat() as string[],
+                    [currentQuestion.correctAnswer].flat(),
+                  )}
+                  chosen={responsesForChosen(
+                    {options: originalQuestion.answers, option_feedback: originalQuestion.optionFeedback},
+                    [selectedAnswer ?? []].flat() as string[],
+                    [currentQuestion.correctAnswer].flat(),
+                  )}
+                  correctAnswers={[currentQuestion.correctAnswer].flat()}
+                  explanation={currentQuestion.explanation}
+                />
+              )}
+
               <motion.div
                 layout
                 variants={fadeUp}
@@ -407,7 +441,7 @@ export function CoursePractice({
                   </motion.button>
                 )}
 
-                {!reviewMode && (
+                {!reviewMode && !showFeedback && (
                   <motion.button
                     layout
                     whileHover={
@@ -447,7 +481,11 @@ export function CoursePractice({
                 <motion.button
                   layout
                   type="button"
-                  onClick={handleNext}
+                  onClick={
+                    showFeedback && !reviewMode && !isChecked
+                      ? () => setChecked((prev) => ({...prev, [currentQuestion.id]: true}))
+                      : handleNext
+                  }
                   whileHover={{
                     scale: 1.03,
                     y: -2,
@@ -456,9 +494,11 @@ export function CoursePractice({
                     scale: 0.96,
                   }}
                   disabled={
-                    isLastQuestion && !reviewMode
-                      ? !allAnswered
-                      : !hasSelectedAny
+                    showFeedback && !reviewMode && !isChecked
+                      ? !hasSelectedAny
+                      : isLastQuestion && !reviewMode
+                        ? !allAnswered
+                        : !hasSelectedAny
                   }
                   className={`flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 active:scale-95 transition-all text-nowrap ${
                     isLastQuestion && !reviewMode && !allAnswered
@@ -466,7 +506,9 @@ export function CoursePractice({
                       : "cursor-pointer"
                   }`}
                 >
-                  {reviewMode && isLastQuestion ? (
+                  {showFeedback && !reviewMode && !isChecked ? (
+                    "Check answer"
+                  ) : reviewMode && isLastQuestion ? (
                     "View Feedback"
                   ) : (
                     <>

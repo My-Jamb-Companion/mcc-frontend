@@ -173,6 +173,8 @@ export interface Question {
   id: string;
   question: string;
   answers: string[];
+  /** Practice only: the teacher's response for each answer, aligned to `answers` (null where none). */
+  optionFeedback?: (string | null)[];
   correctAnswer: string | string[];
   explanation: string;
   multiSelect?: boolean;
@@ -194,6 +196,8 @@ export interface PracticeCardProps {
   timerMinutes?: number | null;
   /** Percent needed to pass; adds a pass/fail result. Omit for none. */
   passingScore?: number | null;
+  /** Practice mode: check each answer as you go and read the teacher's response for your choice. */
+  showFeedback?: boolean;
   onComplete?: (answers: SubmittedAnswer[]) => void;
   reviewMode?: boolean;
   submittedAnswers?: SubmittedAnswer[];
@@ -216,25 +220,14 @@ export interface QuizResultsProps {
   onDone?: () => void;
 }
 
-export type Option = {
-  id: string;
-  text: string;
-  isCorrect: boolean;
-};
+import type {CreatPracticeQuestionType, Option} from "@/src/features/question-editor/types";
+export type {CreatPracticeQuestionType, Option};
 
 export type QuestionTypeApi =
   | "single_choice"
   | "multi_choice"
   | "long_short_answer";
 
-export type CreatPracticeQuestionType = {
-  id: string;
-  type: "single" | "multiple" | QuestionTypeApi;
-  question: string;
-  description?: string;
-  options: Option[];
-  explanation?: string;
-};
 
 // API PAYLOAD TYPES MATCHING BACKEND SCHEMA
 export interface ApiLecturePayload {
@@ -263,6 +256,8 @@ export interface ApiQuizQuestionPayload {
   usage_type?: QuestionUsage;
   /** The authored name of that set. */
   set_name?: string | null;
+  /** Practice only: the response for each option, aligned to `options` (null where none). */
+  option_feedback?: (string | null)[] | null;
 }
 
 /** Timer and passing score of one quiz set, matched to its questions by set_name. */

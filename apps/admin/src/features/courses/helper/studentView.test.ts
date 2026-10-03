@@ -201,3 +201,18 @@ describe("toPracticeCardQuestions", () => {
     expect(many).toMatchObject({correctAnswer: ["A", "B"], multiSelect: true});
   });
 });
+
+describe("toPracticeCardQuestions responses", () => {
+  const answered: CreatPracticeQuestionType = {
+    ...q("r"),
+    options: [
+      {id: "a", text: "A", isCorrect: true, response: "Right"},
+      {id: "b", text: "B", isCorrect: false, response: "Wrong"},
+    ],
+  };
+
+  it("carries the responses only for the Practice quiz", () => {
+    expect(toPracticeCardQuestions([answered], true)[0].optionFeedback).toEqual(["Right", "Wrong"]);
+    expect(toPracticeCardQuestions([answered])[0]).not.toHaveProperty("optionFeedback");
+  });
+});

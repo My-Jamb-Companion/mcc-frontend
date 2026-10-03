@@ -127,3 +127,30 @@ describe("helpers", () => {
     expect(examProgramTitle("", "")).toBe("Exam prep program");
   });
 });
+
+describe("practice responses in the student preview", () => {
+  const answered: CreatPracticeQuestionType = {
+    ...q("r"),
+    options: [
+      {id: "a", text: "A", isCorrect: true, response: "Correct!"},
+      {id: "b", text: "B", isCorrect: false, response: "Not B."},
+    ],
+  };
+  const make = (type: "practice" | "quiz"): Topic[] => [
+    {
+      id: "t",
+      label: "T",
+      subTopics: [
+        {id: "s", label: "S", hasQuiz: true, quizQuestions: [answered], modules: [{id: "m", label: "M", leaves: [{id: "l", label: "L", type, questions: [answered]}]}]},
+      ],
+    },
+  ];
+
+  it("carries the responses on Practice questions only", () => {
+    const [practiceTree] = toStudentExamTree(make("practice"));
+    expect(practiceTree.subTopics[0].modules[0].practice[0].optionFeedback).toEqual(["Correct!", "Not B."]);
+    const [quizTree] = toStudentExamTree(make("quiz"));
+    expect(quizTree.subTopics[0].modules[0].quiz[0]).not.toHaveProperty("optionFeedback");
+    expect(quizTree.subTopics[0].test[0]).not.toHaveProperty("optionFeedback");
+  });
+});

@@ -166,3 +166,46 @@ describe("quiz timer and passing score", () => {
     expect(topic.modules[0].content[0]).toMatchObject({type: "quiz", title: "Final", settings: {timer: 15, passingScore: 60}});
   });
 });
+
+describe("practice option responses", () => {
+  const answered = (): CreatPracticeQuestionType => ({
+    ...question("r"),
+    options: [
+      {id: "a", text: "A", isCorrect: true, response: " Well done "},
+      {id: "b", text: "B", isCorrect: false, response: "Not quite"},
+    ],
+  });
+  const tree = (kind: "practice" | "exercise" | "quiz"): Topic[] => [
+    {
+      id: "t",
+      label: "T",
+      modules: [
+        {
+          id: "m",
+          label: "M",
+          content:
+            kind === "quiz"
+              ? [{id: "x", type: "quiz", title: "Q", questions: [answered()], settings: {}}]
+              : kind === "exercise"
+                ? [{id: "x", type: "exercise", name: "E", questions: [answered()]}]
+                : [{id: "x", type: "practice", name: "P", questions: [answered()]}],
+        },
+      ],
+    },
+  ];
+
+  it("saves a trimmed response per option for Practice and loads it back", () => {
+    const payload = serializeModulesPayload(tree("practice"));
+    expect(payload[0].quizzes[0].option_feedback).toEqual(["Well done", "Not quite"]);
+    const [loaded] = deserializeModulesPayload(payload);
+    const set = loaded.modules[0].content[0];
+    const options = "questions" in set ? set.questions[0].options : [];
+    expect(options.map((o) => o.response)).toEqual(["Well done", "Not quite"]);
+  });
+
+  it("never saves responses for Exercise or Quiz sets", () => {
+    for (const kind of ["exercise", "quiz"] as const) {
+      expect(serializeModulesPayload(tree(kind))[0].quizzes[0]).not.toHaveProperty("option_feedback");
+    }
+  });
+});
