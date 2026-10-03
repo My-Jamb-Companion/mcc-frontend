@@ -1,26 +1,4 @@
-import type {AvatarOption, NotificationSetting, ProfileUser} from "./types";
-
-export const CURRENT_USER: ProfileUser = {
-  fullName: "Bright Mac",
-  username: "brightmac",
-  parentName: "Makin Mac",
-  email: "mail@gmail.com",
-  phoneCountryCode: "+234",
-  phoneNumber: "812 345 6789",
-  gender: "Male",
-  country: "Nigeria",
-  state: "Lagos state",
-  city: "Ikeja",
-  street: "",
-  location: "Ikeja, Lagos, NG",
-  verified: true,
-  rank: 1,
-  lessons: 64,
-  points: 8299,
-  diamonds: 290,
-  coins: 290,
-  avatar: "",
-};
+import type {AvatarOption, NotificationSetting} from "./types";
 
 // Placeholder avatar picker options — swap imageUrl for real asset URLs.
 export const AVATAR_OPTIONS: AvatarOption[] = [
