@@ -115,14 +115,17 @@ export function ProgramListRow({
 }: ProgramListRowProps) {
   const status = STATUS_STYLES[program.status];
   const visibleTags = program.tags.slice(0, 2);
+  // A cover URL that no longer loads falls back to the placeholder, not a broken image.
+  const [imageFailed, setImageFailed] = useState(false);
 
   return (
     <div className="flex items-center gap-4 border-b border-zinc-50">
-      {program.logoUrl ? (
+      {program.logoUrl && !imageFailed ? (
         <div className="w-[108px] h-[108px] relative rounded-2xl overflow-hidden">
           <img
             src={program.logoUrl}
             alt={program.title}
+            onError={() => setImageFailed(true)}
             className="h-full w-full shrink-0 rounded-xl object-cover"
           />
         </div>

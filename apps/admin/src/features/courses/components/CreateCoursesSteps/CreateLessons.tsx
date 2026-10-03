@@ -5,6 +5,7 @@ import {FileRow} from "@/src/features/courses/types/types";
 import {uploadMedia} from "@/src/features/courses/services/media.service";
 import {isYouTubeUrl} from "@/src/features/courses/helper/video";
 import LessonHtmlEditor from "@/src/components/LessonHtmlEditor";
+import {LESSON_FILE_ACCEPT, LESSON_FILE_CAPTION, splitLessonFiles} from "@/src/features/courses/helper/lessonFiles";
 
 function uid() {
   return Math.random().toString(36).slice(2, 9);
@@ -193,6 +194,8 @@ export default function LessonsCreate({
     Record<string, number>
   >({});
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
+  // Picked files that were turned away (wrong type, too big), until the next pick.
+  const [fileProblems, setFileProblems] = useState<string[]>([]);
 
   // Uploads run against whatever the file list looks like *when they finish*,
   // not when they started — a ref keeps that current without re-subscribing
@@ -253,7 +256,12 @@ export default function LessonsCreate({
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files?.length) return;
 
-    const fileList = Array.from(e.target.files);
+    const {accepted: fileList, problems} = splitLessonFiles(Array.from(e.target.files));
+    setFileProblems(problems);
+    if (fileList.length === 0) {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
 
     const newRows: FileRow[] = await Promise.all(
       fileList.map(async (f) => {
@@ -401,7 +409,7 @@ export default function LessonsCreate({
         className="hidden"
         onChange={handleFileChange}
         multiple
-        accept="video/*,.pdf,application/pdf"
+        accept={LESSON_FILE_ACCEPT}
       />
 
       {addingYoutube ? (
@@ -473,6 +481,15 @@ export default function LessonsCreate({
             Write content
           </button>
         </div>
+      )}
+
+      <p className="-mt-1 px-1 text-xs text-gray-400">{LESSON_FILE_CAPTION}</p>
+      {fileProblems.length > 0 && (
+        <ul role="alert" className="px-1 text-xs text-danger">
+          {fileProblems.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
       )}
 
       <Modal

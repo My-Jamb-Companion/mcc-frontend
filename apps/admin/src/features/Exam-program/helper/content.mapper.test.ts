@@ -160,7 +160,7 @@ describe("serializeTopicsPayload", () => {
     expect(topic.sub_topics[0].test_exercises).toEqual([]);
   });
 
-  it("falls back to a preview URL and 'Untitled' labels when data is missing", () => {
+  it("falls back to 'Untitled' labels, and a saved preview URL, when data is missing", () => {
     const topics: Topic[] = [
       {
         id: "t1",
@@ -181,7 +181,7 @@ describe("serializeTopicsPayload", () => {
                     lessons: [
                       makeLecture({
                         src: undefined,
-                        previewUrl: "blob:local-preview",
+                        previewUrl: "https://cdn.example.com/exams/intro.mp4",
                         file: undefined,
                       }),
                     ],
@@ -200,9 +200,38 @@ describe("serializeTopicsPayload", () => {
     expect(payload[0].sub_topics[0].modules[0].title).toBe("Untitled Module");
     expect(payload[0].sub_topics[0].modules[0].lectures[0]).toEqual({
       title: "Intro to Binary",
-      video_url: "blob:local-preview",
+      video_url: "https://cdn.example.com/exams/intro.mp4",
       file_size_bytes: undefined,
     });
+  });
+});
+
+describe("lecture uploads", () => {
+  const lectureWith = (lesson: FileRow): Topic[] => [
+    {
+      id: "t",
+      label: "T",
+      subTopics: [
+        {id: "s", label: "S", modules: [{id: "m", label: "M", leaves: [{id: "l", label: "Lectures", type: "lectures", lessons: [lesson]}]}]},
+      ],
+    },
+  ];
+  const saved = (lesson: FileRow) => serializeTopicsPayload(lectureWith(lesson))[0].sub_topics[0].modules[0].lectures[0];
+
+  it("saves the uploaded file's real URL and size", () => {
+    const lecture = saved(makeLecture({src: "https://cdn.example.com/exams/a.pdf", previewUrl: "blob:x", fileSizeBytes: 2048, file: undefined}));
+    expect(lecture.video_url).toBe("https://cdn.example.com/exams/a.pdf");
+    expect(lecture.file_size_bytes).toBe(2048);
+  });
+
+  it("never saves a local blob link, and leaves out a lecture whose upload hasn't landed", () => {
+    const lectures = (lesson: FileRow) => serializeTopicsPayload(lectureWith(lesson))[0].sub_topics[0].modules[0].lectures;
+    expect(lectures(makeLecture({src: undefined, previewUrl: "blob:http://localhost/abc", file: undefined}))).toEqual([]);
+    expect(lectures(makeLecture({src: "blob:http://localhost/abc", previewUrl: "blob:http://localhost/abc"}))).toEqual([]);
+  });
+
+  it("keeps a text lesson, which has no file", () => {
+    expect(saved(makeLecture({src: undefined, previewUrl: undefined, file: undefined, content: "<p>Hi</p>"})).content).toBe("<p>Hi</p>");
   });
 });
 

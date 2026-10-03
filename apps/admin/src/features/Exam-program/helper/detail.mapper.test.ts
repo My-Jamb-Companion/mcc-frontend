@@ -72,3 +72,19 @@ describe("loading practice option responses", () => {
     expect(options?.map((o) => o.response)).toEqual(["Right", undefined]);
   });
 });
+
+
+describe("loading lecture files", () => {
+  const withLectures = (lectures: Record<string, unknown>[]) =>
+    deserializeExamTopics([topic({}, {lectures})])[0].subTopics[0].modules[0].leaves[0].lessons ?? [];
+
+  it("recognises an uploaded PDF so it shows as a PDF, not a video", () => {
+    const [pdf, video] = withLectures([
+      {lecture_id: "a", title: "Notes", video_url: "https://cdn/x/abc-Notes.pdf", content: null, file_size_bytes: 4096},
+      {lecture_id: "b", title: "Clip", video_url: "https://cdn/x/abc-clip.mp4", content: null},
+    ]);
+    expect(pdf.format).toBe("PDF");
+    expect(pdf.fileSizeBytes).toBe(4096);
+    expect(video.format).toBe("MP4");
+  });
+});

@@ -156,6 +156,12 @@ export default function ExamStudentView({
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
+              ) : activeLecture.kind === "pdf" ? (
+                <iframe
+                  src={activeLecture.url ?? undefined}
+                  title={activeLecture.title}
+                  className="aspect-video w-full rounded-2xl border border-muted/20"
+                />
               ) : (
                 <CoursePlayer
                   src={activeLecture.url ?? undefined}

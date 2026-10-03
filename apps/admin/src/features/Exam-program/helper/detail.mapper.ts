@@ -17,6 +17,7 @@ import {
   CreatPracticeQuestionType,
 } from "../components/CreateProgramSteps/PracticeQuestions";
 import {fromApiLevel} from "./helper";
+import {isPdfUrl} from "@/src/features/courses/helper/video";
 
 function toUiQuestionType(
   questionType: string,
@@ -48,7 +49,8 @@ function toUiLecture(lecture: ApiExamModule["lectures"][number]): FileRow {
     id: lecture.lecture_id ?? uid(),
     title: lecture.title,
     // Not returned by this endpoint — the player only needs the URL.
-    format: lecture.content ? "HTML" : "MP4",
+    format: lecture.content ? "HTML" : isPdfUrl(lecture.video_url) ? "PDF" : "MP4",
+    fileSizeBytes: lecture.file_size_bytes ?? undefined,
     size: lecture.file_size_bytes
       ? `${(lecture.file_size_bytes / (1024 * 1024)).toFixed(1)}mb`
       : "0mb",

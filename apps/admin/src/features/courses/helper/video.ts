@@ -26,3 +26,8 @@ export function youTubeThumbnailUrl(url: string | undefined | null): string | nu
   const id = youTubeVideoId(url);
   return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
 }
+
+/** An uploaded PDF, recognised by its file name (uploads keep it at the end of the URL). */
+export function isPdfUrl(url: string | undefined | null): boolean {
+  return !!url && /\.pdf(?:$|[?#])/i.test(url);
+}

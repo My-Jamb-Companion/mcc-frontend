@@ -2,6 +2,8 @@ import {useEffect, useRef, useState} from "react";
 import {Icon, Modal} from "@mcc/ui";
 import {InlineRename} from "./Step2";
 import LessonHtmlEditor from "@/src/components/LessonHtmlEditor";
+import {uploadMedia} from "@/src/features/courses/services/media.service";
+import {LESSON_FILE_ACCEPT, LESSON_FILE_CAPTION, splitLessonFiles} from "@/src/features/courses/helper/lessonFiles";
 
 export type FileRow = {
   id: string;
@@ -12,6 +14,7 @@ export type FileRow = {
   previewUrl?: string;
   src?: string;
   duration?: number;
+  fileSizeBytes?: number;
   file?: File;
   /** Admin-authored lesson HTML (format === "HTML"). Mutually exclusive
    * with src/previewUrl -- a lesson is either media or text, never both. */
@@ -19,6 +22,12 @@ export type FileRow = {
 };
 
 const HTML_FORMAT = "HTML";
+
+function rowIcon(format: string): string {
+  if (format === HTML_FORMAT) return "lucide:align-left";
+  if (format.toUpperCase() === "PDF") return "lucide:file-text";
+  return "lucide:play";
+}
 
 function uid() {
   return Math.random().toString(36).slice(2, 9);
@@ -30,8 +39,10 @@ function uid() {
 
 function FileRowItem({
   file,
+  error,
   onRemove,
   onRename,
+  onRetry,
   onEditContent,
   index,
   onDragStart,
@@ -40,8 +51,10 @@ function FileRowItem({
   onDrop,
 }: {
   file: FileRow;
+  error?: string;
   onRemove?: (id: string) => void;
   onRename?: (id: string, newTitle: string) => void;
+  onRetry?: (id: string) => void;
   onEditContent?: (id: string) => void;
   index: number;
   onDragStart?: (e: React.DragEvent, index: number) => void;
@@ -83,17 +96,7 @@ function FileRowItem({
         onClick={isHtml ? () => onEditContent?.(file.id) : undefined}
         title={isHtml ? "Edit content" : undefined}
       >
-        {isHtml ? (
-          <Icon icon="lucide:align-left" size={16} className="text-gray-400" />
-        ) : file.previewUrl ? (
-          <img
-            src={file.previewUrl}
-            alt="preview"
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <Icon icon="lucide:image" size={16} className="text-gray-400" />
-        )}
+        <Icon icon={rowIcon(file.format)} size={16} className="text-gray-400" />
       </span>
       <div className="relative z-10 min-w-0 flex-1">
         {isRenaming && !uploading ? (
@@ -128,6 +131,14 @@ function FileRowItem({
         <p className="text-xs text-gray-400">
           {isHtml ? "Text lesson" : `${file.format} • ${file.size}`}
         </p>
+        {error && (
+          <p className="mt-0.5 flex items-center gap-2 text-xs text-danger">
+            {error}
+            <button type="button" onClick={() => onRetry?.(file.id)} className="font-semibold underline">
+              Retry
+            </button>
+          </p>
+        )}
       </div>
       {uploading && (
         <span className="relative z-10 mr-2 text-sm font-semibold text-violet-600">
@@ -165,6 +176,20 @@ export default function LessonsCreate({
   const [uploadsProgress, setUploadsProgress] = useState<
     Record<string, number>
   >({});
+  const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
+  // Picked files that were turned away (wrong type, too big), until the next pick.
+  const [fileProblems, setFileProblems] = useState<string[]>([]);
+
+  // An upload finishes against whatever the list looks like *then*, not when it
+  // started, so refs keep the latest list without re-running anything.
+  const filesRef = useRef(files);
+  useEffect(() => {
+    filesRef.current = files;
+  }, [files]);
+  const onFilesChangeRef = useRef(onFilesChange);
+  useEffect(() => {
+    onFilesChangeRef.current = onFilesChange;
+  }, [onFilesChange]);
 
   // Drag & drop reorder state
   const [dragItemIndex, setDragItemIndex] = useState<number | null>(null);
@@ -172,52 +197,61 @@ export default function LessonsCreate({
     null,
   );
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files?.length) return;
-    const newRows: FileRow[] = [];
-    const newProgress: Record<string, number> = {...uploadsProgress};
-
-    Array.from(e.target.files).forEach((f) => {
-      const id = uid();
-      newRows.push({
-        id,
-        title: f.name,
-        format: f.name.split(".").pop()?.toUpperCase() || "FILE",
-        size: (f.size / (1024 * 1024)).toFixed(1) + "mb",
-        previewUrl: URL.createObjectURL(f),
-        file: f,
-      });
-      newProgress[id] = 0;
+  /** Sends the file to storage; the row's `src` becomes its real URL when it lands. */
+  function uploadRow(id: string, file: File) {
+    setUploadsProgress((prev) => ({...prev, [id]: 0}));
+    setUploadErrors((prev) => {
+      const next = {...prev};
+      delete next[id];
+      return next;
     });
 
-    setUploadsProgress(newProgress);
-    onFilesChange([...files, ...newRows]);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    uploadMedia(file, "exams", (percent) => {
+      setUploadsProgress((prev) => ({...prev, [id]: percent}));
+    })
+      .then((remoteUrl) => {
+        onFilesChangeRef.current(
+          filesRef.current.map((f) => (f.id === id ? {...f, src: remoteUrl} : f)),
+        );
+      })
+      .catch(() => {
+        setUploadErrors((prev) => ({...prev, [id]: "Upload failed."}));
+      })
+      .finally(() => {
+        setUploadsProgress((prev) => {
+          const next = {...prev};
+          delete next[id];
+          return next;
+        });
+      });
   }
 
-  // Fake upload progress ticker, same behavior as before extraction.
-  useEffect(() => {
-    const activeIds = Object.keys(uploadsProgress);
-    if (activeIds.length === 0) return;
+  function retryUpload(id: string) {
+    const row = filesRef.current.find((f) => f.id === id);
+    if (row?.file) uploadRow(id, row.file);
+  }
 
-    const timer = setTimeout(() => {
-      setUploadsProgress((prev) => {
-        const next = {...prev};
-        let changed = false;
-        for (const id of Object.keys(next)) {
-          if (next[id] < 100) {
-            next[id] += 25;
-            changed = true;
-          } else {
-            delete next[id];
-            changed = true;
-          }
-        }
-        return changed ? next : prev;
-      });
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [uploadsProgress]);
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!e.target.files?.length) return;
+    const {accepted, problems} = splitLessonFiles(Array.from(e.target.files));
+    setFileProblems(problems);
+
+    const newRows: FileRow[] = accepted.map((f) => ({
+      id: uid(),
+      title: f.name,
+      format: f.name.split(".").pop()?.toUpperCase() || "FILE",
+      size: (f.size / (1024 * 1024)).toFixed(1) + "mb",
+      fileSizeBytes: f.size,
+      previewUrl: URL.createObjectURL(f),
+      file: f,
+    }));
+
+    if (newRows.length > 0) {
+      onFilesChange([...files, ...newRows]);
+      newRows.forEach((row) => uploadRow(row.id, row.file as File));
+    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
 
   function handleDrop(_e: React.DragEvent) {
     if (
@@ -290,6 +324,8 @@ export default function LessonsCreate({
           key={file.id}
           file={file}
           index={index}
+          error={uploadErrors[file.id]}
+          onRetry={retryUpload}
           onRemove={(id) => onFilesChange(files.filter((x) => x.id !== id))}
           onRename={handleRenameFile}
           onEditContent={openExistingContentEditor}
@@ -309,7 +345,7 @@ export default function LessonsCreate({
         className="hidden"
         onChange={handleFileChange}
         multiple
-        accept="video/*,image/*"
+        accept={LESSON_FILE_ACCEPT}
       />
 
       <div className="flex items-center gap-2">
@@ -330,6 +366,15 @@ export default function LessonsCreate({
           Write content
         </button>
       </div>
+
+      <p className="-mt-1 px-1 text-xs text-gray-400">{LESSON_FILE_CAPTION}</p>
+      {fileProblems.length > 0 && (
+        <ul role="alert" className="px-1 text-xs text-danger">
+          {fileProblems.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
+      )}
 
       <Modal
         open={contentEditorOpen}
