@@ -1,3 +1,4 @@
+import {hasResponses, optionResponses} from "@/src/features/question-editor/types";
 import {CreatPracticeQuestionType} from "../components/CreateProgramSteps/PracticeQuestions";
 import {FileRow} from "../components/CreateProgramSteps/LessonsCreate";
 import {MakeModule, SubTopic, Topic} from "../components/CreateProgramSteps/Step2";
@@ -14,6 +15,8 @@ export interface ApiQuestionPayload {
   options: string[];
   correct_answers: string[];
   explanation?: string;
+  /** Practice only: the response for each option, aligned to `options` (null where none). */
+  option_feedback?: (string | null)[];
 }
 
 export interface ApiLecturePayload {
@@ -56,13 +59,15 @@ export function toApiQuestionType(type: string): ApiQuestionType {
   return type === "multiple" ? "multi_choice" : "single_choice";
 }
 
-function toApiQuestion(q: CreatPracticeQuestionType): ApiQuestionPayload {
+function toApiQuestion(q: CreatPracticeQuestionType, practice = false): ApiQuestionPayload {
   return {
     question_text: q.question,
     question_type: toApiQuestionType(q.type),
     options: q.options.map((opt) => opt.text),
     correct_answers: q.options.filter((opt) => opt.isCorrect).map((opt) => opt.text),
     explanation: q.explanation || undefined,
+    // Responses belong to Practice only.
+    ...(practice && hasResponses(q) ? {option_feedback: optionResponses(q)} : {}),
   };
 }
 
@@ -86,8 +91,8 @@ function toApiModule(module: MakeModule): ApiModulePayload {
   return {
     title: module.label || "Untitled Module",
     lectures: lectures.flatMap((l) => l.lessons ?? []).map(toApiLecture),
-    quizzes: quizzes.flatMap((l) => l.questions ?? []).map(toApiQuestion),
-    practices: practices.flatMap((l) => l.questions ?? []).map(toApiQuestion),
+    quizzes: quizzes.flatMap((l) => l.questions ?? []).map((q) => toApiQuestion(q)),
+    practices: practices.flatMap((l) => l.questions ?? []).map((q) => toApiQuestion(q, true)),
     ...(module.quizSettings?.timer ? {quiz_timer_minutes: module.quizSettings.timer} : {}),
     ...(module.quizSettings?.passingScore !== undefined ? {quiz_passing_score: module.quizSettings.passingScore} : {}),
   };
@@ -98,7 +103,7 @@ function toApiSubTopic(subTopic: SubTopic): ApiSubTopicPayload {
     title: subTopic.label || "Untitled sub-topic",
     description: subTopic.description || undefined,
     test_exercises: subTopic.hasQuiz
-      ? (subTopic.quizQuestions ?? []).map(toApiQuestion)
+      ? (subTopic.quizQuestions ?? []).map((q) => toApiQuestion(q))
       : [],
     modules: subTopic.modules.map(toApiModule),
     ...(subTopic.hasQuiz && subTopic.testSettings?.timer ? {test_timer_minutes: subTopic.testSettings.timer} : {}),

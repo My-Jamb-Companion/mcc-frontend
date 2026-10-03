@@ -10,6 +10,8 @@ export interface ApiModuleQuestion {
   explanation?: string | null;
   image_url?: string | null;
   order_index: number;
+  /** Practice only: the teacher's response for each option, aligned to `options`. */
+  option_feedback?: (string | null)[] | null;
 }
 
 export interface ApiModuleGradedAnswer {

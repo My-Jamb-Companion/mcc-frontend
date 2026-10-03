@@ -32,10 +32,12 @@ function toUiQuestion(q: ApiExamQuestion): CreatPracticeQuestionType {
     type: toUiQuestionType(q.question_type),
     question: q.question_text,
     description: q.description ?? undefined,
-    options: (q.options ?? []).map((text) => ({
+    options: (q.options ?? []).map((text, i) => ({
       id: uid(),
       text,
       isCorrect: correctSet.has(text),
+      // The API sends responses for Practice questions only.
+      ...(q.option_feedback?.[i] ? {response: q.option_feedback[i] as string} : {}),
     })),
     explanation: q.explanation ?? undefined,
   };

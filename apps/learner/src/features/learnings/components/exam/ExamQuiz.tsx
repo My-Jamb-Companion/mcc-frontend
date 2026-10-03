@@ -7,6 +7,8 @@ import {ApiExamQuestion, ApiExamSubmissionResult} from "@/src/features/exams/ser
 import {useAnalysis, useQuestionHelp} from "@/src/features/brainy/hooks/useAiFeedback";
 import {useCountdown} from "@/src/features/learnings/hooks/useCountdown";
 import {formatCountdown, isCountdownLow} from "@/src/features/learnings/helper/countdown";
+import {isChosenCorrect, responsesForChosen} from "@/src/features/learnings/helper/practiceFeedback";
+import PracticeFeedbackCard from "@/src/features/learnings/components/PracticeFeedbackCard";
 
 interface ExamQuizProps {
   sessionId: string;
@@ -46,6 +48,9 @@ export default function ExamQuiz({
   const [aiHelp, setAiHelp] = useState<Record<string, string>>({});
   const [timedOut, setTimedOut] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  // Practice: question ids the student has checked (their answer is then locked).
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const isPractice = type === "practice";
 
   // The timer's expiry handler reads the answers as they are at that moment.
   const answersRef = useRef(answers);
@@ -85,8 +90,10 @@ export default function ExamQuiz({
   const isFirstQuestion = currentIndex === 0;
   const allAnswered = questions.every((q) => !!answers[q.question_id]);
 
+  const isChecked = isPractice && !reviewMode && !!checked[currentQuestion?.question_id];
+
   const selectOption = (option: string) => {
-    if (reviewMode) return;
+    if (reviewMode || isChecked) return;
     setAnswers((prev) => ({...prev, [currentQuestion.question_id]: option}));
   };
 
@@ -123,6 +130,7 @@ export default function ExamQuiz({
     setSubmitError(null);
     setAiHelp({});
     setTimedOut(false);
+    setChecked({});
     setAttempt((n) => n + 1);
   };
 
@@ -186,6 +194,7 @@ export default function ExamQuiz({
             <ExamQuizResults
               result={result}
               passingScore={passingScore}
+              practice={isPractice}
               onRetry={retry}
               onDone={onDone}
               onReview={() => {
@@ -204,11 +213,17 @@ export default function ExamQuiz({
                 const graded = resultByQuestionId.get(currentQuestion.question_id);
                 const isCorrectOption = graded ? graded.correct_answer === option : false;
                 const isWrongSelected = reviewMode && isSelected && !isCorrectOption;
+                const checkedCorrect = isChecked && option === currentQuestion.correct_option;
+                const checkedWrong = isChecked && isSelected && !checkedCorrect;
 
                 let optionStyle = "border-muted/20 text-foreground";
                 if (reviewMode) {
                   if (isCorrectOption) optionStyle = "border-success bg-success/10 text-success";
                   if (isWrongSelected) optionStyle = "border-danger bg-danger/10 text-danger";
+                } else if (checkedCorrect) {
+                  optionStyle = "border-success bg-success/10 text-success";
+                } else if (checkedWrong) {
+                  optionStyle = "border-amber-500 bg-amber-50 text-amber-700";
                 } else if (isSelected) {
                   optionStyle = "border-primary bg-primary/5 text-primary";
                 }
@@ -218,7 +233,7 @@ export default function ExamQuiz({
                     key={option}
                     type="button"
                     onClick={() => selectOption(option)}
-                    disabled={reviewMode}
+                    disabled={reviewMode || isChecked}
                     className={`flex w-full items-center gap-4 rounded-2xl border px-4 py-3.5 text-left transition-colors ${optionStyle}`}
                   >
                     <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${
@@ -233,6 +248,19 @@ export default function ExamQuiz({
                 );
               })}
             </div>
+
+            {isChecked && (
+              <PracticeFeedbackCard
+                correct={isChosenCorrect([currentAnswer], [currentQuestion.correct_option ?? ""])}
+                chosen={responsesForChosen(
+                  {options: currentQuestion.options, option_feedback: currentQuestion.option_feedback},
+                  [currentAnswer],
+                  [currentQuestion.correct_option ?? ""],
+                )}
+                correctAnswers={[currentQuestion.correct_option ?? ""]}
+                explanation={currentQuestion.explanation}
+              />
+            )}
 
             <div className="flex flex-col-reverse md:flex-row md:justify-end gap-3 pt-6">
               {reviewMode && (
@@ -252,7 +280,7 @@ export default function ExamQuiz({
                   {questionHelp.isPending ? "Asking Brainy…" : "Explain this"}
                 </button>
               )}
-              {!reviewMode && currentQuestion.explanation && (
+              {!reviewMode && !isPractice && currentQuestion.explanation && (
                 <button type="button" onClick={() => setShowExplanation(true)} disabled={showExplanation}
                   className="rounded-full border border-muted/20 px-5 py-2.5 text-sm font-semibold disabled:opacity-40">
                   Explanation
@@ -260,11 +288,22 @@ export default function ExamQuiz({
               )}
               <button
                 type="button"
-                onClick={handleNext}
-                disabled={isLastQuestion && !reviewMode ? !allAnswered || submit.isPending : !currentAnswer}
+                onClick={
+                  isPractice && !reviewMode && !isChecked
+                    ? () => setChecked((prev) => ({...prev, [currentQuestion.question_id]: true}))
+                    : handleNext
+                }
+                disabled={
+                  isPractice && !reviewMode && !isChecked
+                    ? !currentAnswer
+                    : isLastQuestion && !reviewMode
+                      ? !allAnswered || submit.isPending
+                      : !currentAnswer
+                }
                 className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
               >
-                {reviewMode && isLastQuestion ? "Done reviewing"
+                {isPractice && !reviewMode && !isChecked ? "Check answer"
+                  : reviewMode && isLastQuestion ? "Done reviewing"
                   : isLastQuestion ? (submit.isPending ? "Submitting…" : "Submit")
                   : "Next question"}
               </button>
@@ -317,9 +356,9 @@ export default function ExamQuiz({
 }
 
 function ExamQuizResults({
-  result, passingScore, onRetry, onDone, onReview,
+  result, practice, passingScore, onRetry, onDone, onReview,
 }: {
-  result: ApiExamSubmissionResult; passingScore?: number | null;
+  result: ApiExamSubmissionResult; practice?: boolean; passingScore?: number | null;
   onRetry: () => void; onDone: () => void; onReview: () => void;
 }) {
   const correctCount = result.results.filter((r) => r.is_correct).length;
@@ -338,12 +377,13 @@ function ExamQuizResults({
 
   const {title, message, emoji} = useMemo(() => {
     const p = result.score_percent;
+    if (practice) return {emoji: "🌱", title: "Practice complete", message: "Every answer was a chance to learn. Review any you want another look at, or try again."};
     if (p === 100) return {emoji: "🏆", title: "Perfect Score!", message: "Outstanding! You answered every question correctly."};
     if (p >= 80) return {emoji: "🎉", title: "Excellent Work!", message: "Great job! You have a strong understanding of this."};
     if (p >= 60) return {emoji: "👏", title: "Well Done!", message: "Nice work! A little more practice and you'll master it."};
     if (p >= 40) return {emoji: "💪", title: "Keep Going!", message: "You're making progress. Review your mistakes and try again."};
     return {emoji: "📚", title: "Don't Give Up!", message: "Review your answers and give it another shot."};
-  }, [result]);
+  }, [result, practice]);
 
   return (
     <div className="flex flex-col items-center justify-center py-10 text-center">

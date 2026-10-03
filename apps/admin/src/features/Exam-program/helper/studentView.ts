@@ -1,6 +1,7 @@
 import type {Topic} from "../components/CreateProgramSteps/Step2";
 import type {CreatPracticeQuestionType} from "../components/CreateProgramSteps/PracticeQuestions";
 import {youTubeEmbedUrl} from "@/src/features/courses/helper/video";
+import {hasResponses, optionResponses} from "@/src/features/question-editor/types";
 
 /**
  * What a student actually gets from an exam program, built from the
@@ -20,6 +21,8 @@ export interface StudentExamQuestion {
   options: string[];
   correctAnswers: string[];
   explanation: string | null;
+  /** Practice only: the teacher's response for each option, aligned to `options`. */
+  optionFeedback?: (string | null)[];
 }
 
 export interface StudentExamLecture {
@@ -54,13 +57,14 @@ export interface StudentExamTopic {
   subTopics: StudentExamSubTopic[];
 }
 
-function toQuestion(q: CreatPracticeQuestionType): StudentExamQuestion {
+function toQuestion(q: CreatPracticeQuestionType, practice = false): StudentExamQuestion {
   return {
     id: q.id,
     text: q.question,
     options: q.options.map((o) => o.text),
     correctAnswers: q.options.filter((o) => o.isCorrect).map((o) => o.text),
     explanation: q.explanation || null,
+    ...(practice && hasResponses(q) ? {optionFeedback: optionResponses(q)} : {}),
   };
 }
 
@@ -71,7 +75,7 @@ export function toStudentExamTree(topics: Topic[] = []): StudentExamTopic[] {
     subTopics: (topic.subTopics ?? []).map((sub) => ({
       id: sub.id,
       title: sub.label || "Untitled sub-topic",
-      test: sub.hasQuiz ? (sub.quizQuestions ?? []).map(toQuestion) : [],
+      test: sub.hasQuiz ? (sub.quizQuestions ?? []).map((q) => toQuestion(q)) : [],
       testTimerMinutes: sub.hasQuiz ? (sub.testSettings?.timer ?? null) : null,
       testPassingScore: sub.hasQuiz ? (sub.testSettings?.passingScore ?? null) : null,
       modules: (sub.modules ?? []).map((module) => {
@@ -93,8 +97,8 @@ export function toStudentExamTree(topics: Topic[] = []): StudentExamTopic[] {
                 kind: html ? "html" : youTubeEmbedUrl(url) ? "youtube" : "video",
               };
             }),
-          quiz: leaves.filter((l) => l.type === "quiz").flatMap((l) => l.questions ?? []).map(toQuestion),
-          practice: leaves.filter((l) => l.type === "practice").flatMap((l) => l.questions ?? []).map(toQuestion),
+          quiz: leaves.filter((l) => l.type === "quiz").flatMap((l) => l.questions ?? []).map((q) => toQuestion(q)),
+          practice: leaves.filter((l) => l.type === "practice").flatMap((l) => l.questions ?? []).map((q) => toQuestion(q, true)),
         };
       }),
     })),

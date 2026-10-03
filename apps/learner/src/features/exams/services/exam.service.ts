@@ -100,6 +100,8 @@ export const updateProgramProgress = async (
 // --- Quiz / practice / mock-exam sessions -----------------------------------
 
 export interface ApiExamQuestion {
+  /** Practice only: the teacher's response for each option, aligned to `options`. */
+  option_feedback?: (string | null)[] | null;
   question_id: string;
   question_text: string;
   options: string[];

@@ -533,6 +533,7 @@ export default function ContentStep({
 
               {activeContext?.leaf?.type === "practice" && (
                 <PracticeQuestions
+                  withResponses
                   questions={activeQuestions}
                   onChange={setLeafQuestions}
                 />

@@ -202,7 +202,8 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
                   ) : (
                     <CoursePractice
                       key={activeQuizModule.id}
-                      questions={toPracticeCardQuestions(activeQuizModule.questions)}
+                      questions={toPracticeCardQuestions(activeQuizModule.questions, true)}
+                      showFeedback
                       onDone={() => setActiveQuizModuleId(null)}
                     />
                   )

@@ -9,6 +9,8 @@ import {useSubmitModuleAnswers} from "@/src/features/learnings/hooks/useModuleQu
 import {useAnalysis, useQuestionHelp} from "@/src/features/brainy/hooks/useAiFeedback";
 import {useCountdown} from "@/src/features/learnings/hooks/useCountdown";
 import {formatCountdown, isCountdownLow} from "@/src/features/learnings/helper/countdown";
+import {isChosenCorrect, responsesForChosen} from "@/src/features/learnings/helper/practiceFeedback";
+import PracticeFeedbackCard from "@/src/features/learnings/components/PracticeFeedbackCard";
 
 interface PracticeCardProps {
   courseId: string;
@@ -20,6 +22,11 @@ interface PracticeCardProps {
   timerMinutes?: number | null;
   /** Percent needed to pass; adds a pass/fail result. Omit for none. */
   passingScore?: number | null;
+  /**
+   * Practice mode: check each answer as you go and read the teacher's response
+   * for the option you chose, right or wrong. The point is to learn, not to score.
+   */
+  showFeedback?: boolean;
   onDone?: () => void;
 }
 
@@ -30,6 +37,7 @@ export function CoursePractice({
   label = "Practice Quiz",
   timerMinutes,
   passingScore,
+  showFeedback = false,
   onDone,
 }: PracticeCardProps) {
   const submit = useSubmitModuleAnswers(courseId, moduleId);
@@ -47,6 +55,8 @@ export function CoursePractice({
   const [aiHelp, setAiHelp] = useState<Record<string, string>>({});
   const [timedOut, setTimedOut] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  // Practice mode: question ids the student has checked (their answer is then locked).
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
 
   // The timer's expiry handler reads the answers as they are at that moment.
   const answersRef = useRef(answers);
@@ -92,8 +102,12 @@ export function CoursePractice({
   const isFirstQuestion = currentIndex === 0;
   const allAnswered = questions.every((q) => (answers[q.question_id] ?? []).some((a) => a.trim()));
 
+  const isChecked = showFeedback && !reviewMode && !!checked[currentQuestion?.question_id];
+  // The un-shuffled question, so a response is found by its option's text.
+  const originalQuestion = questions.find((q) => q.question_id === currentQuestion?.question_id);
+
   const selectOption = (option: string) => {
-    if (reviewMode) return;
+    if (reviewMode || isChecked) return;
     setAnswers((prev) => {
       const existing = prev[currentQuestion.question_id] ?? [];
       if (isMultiChoice) {
@@ -144,6 +158,7 @@ export function CoursePractice({
     setSubmitError(null);
     setAiHelp({});
     setTimedOut(false);
+    setChecked({});
     setAttempt((n) => n + 1);
   };
 
@@ -153,6 +168,9 @@ export function CoursePractice({
       onError: (error) => showError(extractApiError(error, "Couldn't get an explanation right now")),
     });
   };
+
+  // The question list can be refreshed underneath a running session; render nothing rather than crash.
+  if (!currentQuestion) return null;
 
   return (
     <motion.div
@@ -216,6 +234,7 @@ export function CoursePractice({
           >
             <QuizResults
               result={result}
+              practice={showFeedback}
               passingScore={passingScore}
               onRetry={retry}
               onDone={onDone}
@@ -276,6 +295,9 @@ export function CoursePractice({
                     const graded = resultByQuestionId.get(currentQuestion.question_id);
                     const isCorrectOption = graded ? graded.correct_answer.includes(option) : false;
                     const isWrongSelected = reviewMode && isSelected && !isCorrectOption;
+                    const showCheckColours = isChecked;
+                    const checkedCorrect = showCheckColours && currentQuestion.correct_answers.includes(option);
+                    const checkedWrong = showCheckColours && isSelected && !checkedCorrect;
 
                     let optionStyle = "border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200";
                     if (reviewMode) {
@@ -285,6 +307,10 @@ export function CoursePractice({
                       if (isWrongSelected) {
                         optionStyle = "border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400";
                       }
+                    } else if (showCheckColours && checkedCorrect) {
+                      optionStyle = "border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400";
+                    } else if (checkedWrong) {
+                      optionStyle = "border-amber-500 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400";
                     } else if (isSelected) {
                       optionStyle = "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
                     }
@@ -298,7 +324,7 @@ export function CoursePractice({
                         key={option}
                         type="button"
                         onClick={() => selectOption(option)}
-                        disabled={reviewMode}
+                        disabled={reviewMode || isChecked}
                         className={`flex w-full items-center gap-4 rounded-2xl border px-2 py-4 text-left transition-colors ${optionStyle}`}
                       >
                         <motion.span
@@ -323,6 +349,15 @@ export function CoursePractice({
                     );
                   })}
                 </motion.div>
+              )}
+
+              {isChecked && originalQuestion && (
+                <PracticeFeedbackCard
+                  correct={isChosenCorrect(currentAnswer, currentQuestion.correct_answers)}
+                  chosen={responsesForChosen(originalQuestion, currentAnswer, currentQuestion.correct_answers)}
+                  correctAnswers={currentQuestion.correct_answers}
+                  explanation={currentQuestion.explanation}
+                />
               )}
 
               <motion.div layout variants={fadeUp} className="flex flex-col-reverse md:flex-row md:justify-end gap-3 md:px-8 py-5">
@@ -355,7 +390,7 @@ export function CoursePractice({
                   </motion.button>
                 )}
 
-                {!reviewMode && currentQuestion.explanation && (
+                {!reviewMode && !showFeedback && currentQuestion.explanation && (
                   <motion.button
                     layout
                     whileHover={showExplanation ? {} : {scale: 1.03, y: -2}}
@@ -375,19 +410,27 @@ export function CoursePractice({
                 <motion.button
                   layout
                   type="button"
-                  onClick={handleNext}
+                  onClick={
+                    showFeedback && !reviewMode && !isChecked
+                      ? () => setChecked((prev) => ({...prev, [currentQuestion.question_id]: true}))
+                      : handleNext
+                  }
                   whileHover={{scale: 1.03, y: -2}}
                   whileTap={{scale: 0.96}}
                   disabled={
-                    isLastQuestion && !reviewMode
-                      ? !allAnswered || submit.isPending
-                      : !isAnswered
+                    showFeedback && !reviewMode && !isChecked
+                      ? !isAnswered
+                      : isLastQuestion && !reviewMode
+                        ? !allAnswered || submit.isPending
+                        : !isAnswered
                   }
                   className={`flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 active:scale-95 transition-all text-nowrap ${
                     isLastQuestion && !reviewMode && !allAnswered ? "cursor-not-allowed" : "cursor-pointer"
                   }`}
                 >
-                  {reviewMode && isLastQuestion ? (
+                  {showFeedback && !reviewMode && !isChecked ? (
+                    "Check answer"
+                  ) : reviewMode && isLastQuestion ? (
                     "Done reviewing"
                   ) : isLastQuestion ? (
                     <>
@@ -485,12 +528,15 @@ export function CoursePractice({
 
 function QuizResults({
   result,
+  practice,
   passingScore,
   onRetry,
   onDone,
   onReview,
 }: {
   result: ApiModuleQuizResult;
+  /** Practice: no grade-style verdict, just a note that it is for learning. */
+  practice?: boolean;
   passingScore?: number | null;
   onRetry?: () => void;
   onDone?: () => void;
@@ -519,13 +565,20 @@ function QuizResults({
         message: "Nothing here could be auto-graded, but your answers were recorded.",
       };
     }
+    if (practice) {
+      return {
+        emoji: "🌱",
+        title: "Practice complete",
+        message: "Every answer was a chance to learn. Review any you want another look at, or try again.",
+      };
+    }
     const percentage = result.score_percent;
     if (percentage === 100) return {emoji: "🏆", title: "Perfect Score!", message: "Outstanding! You answered every question correctly."};
     if (percentage >= 80) return {emoji: "🎉", title: "Excellent Work!", message: "Great job! You have a strong understanding of this topic."};
     if (percentage >= 60) return {emoji: "👏", title: "Well Done!", message: "Nice work! A little more practice and you'll master it."};
     if (percentage >= 40) return {emoji: "💪", title: "Keep Going!", message: "You're making progress. Review your mistakes and try again."};
     return {emoji: "📚", title: "Don't Give Up!", message: "Every expert started somewhere. Review your answers and give it another shot."};
-  }, [result]);
+  }, [result, practice]);
 
   return (
     <motion.div

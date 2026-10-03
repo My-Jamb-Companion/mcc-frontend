@@ -6,6 +6,7 @@ import type {
   Topic,
 } from "../types/types";
 import {youTubeEmbedUrl} from "./video";
+import {hasResponses, isMultiple, optionResponses} from "@/src/features/question-editor/types";
 
 /**
  * What a student actually gets from a course, built from the authoring form
@@ -160,11 +161,15 @@ export function studentOverview(modules: StudentModule[]) {
   };
 }
 
-/** A module's questions in the shape the practice-quiz component takes. */
-export function toPracticeCardQuestions(questions: CreatPracticeQuestionType[]): Question[] {
+/**
+ * A module's questions in the shape the practice-quiz component takes. Pass
+ * `practice` for the Practice quiz, whose questions carry the teacher's
+ * response for each option; exercises and quizzes never do.
+ */
+export function toPracticeCardQuestions(questions: CreatPracticeQuestionType[], practice = false): Question[] {
   return questions.map((q) => {
     const correct = q.options.filter((o) => o.isCorrect).map((o) => o.text);
-    const multi = q.type === "multiple";
+    const multi = isMultiple(q.type);
     return {
       id: q.id,
       question: q.question,
@@ -172,6 +177,7 @@ export function toPracticeCardQuestions(questions: CreatPracticeQuestionType[]):
       correctAnswer: multi ? correct : (correct[0] ?? ""),
       explanation: q.explanation || "",
       multiSelect: multi,
+      ...(practice && hasResponses(q) ? {optionFeedback: optionResponses(q)} : {}),
     };
   });
 }

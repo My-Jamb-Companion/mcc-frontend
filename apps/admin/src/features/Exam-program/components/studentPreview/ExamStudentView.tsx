@@ -133,6 +133,7 @@ export default function ExamStudentView({
                   label={session.label}
                   timerMinutes={session.timerMinutes}
                   passingScore={session.passingScore}
+                  showFeedback={session.label === "Practice"}
                   onDone={() => setSession(null)}
                 />
               ) : !activeLecture ? (

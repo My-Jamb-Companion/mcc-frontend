@@ -55,3 +55,20 @@ describe("loading an exam program's timers and pass marks", () => {
     expect(t.subTopics[0].modules[0].quizSettings).toEqual({timer: 10, passingScore: undefined});
   });
 });
+
+describe("loading practice option responses", () => {
+  it("puts each saved response back on its option", () => {
+    const t = topic(
+      {},
+      {
+        practices: [
+          {question_id: "p", question_text: "Q", question_type: "single_choice", options: ["a", "b"], correct_answers: ["a"], explanation: "", description: null, option_feedback: ["Right", null]},
+        ],
+      },
+    );
+    const [loaded] = deserializeExamTopics([t]);
+    const practice = loaded.subTopics[0].modules[0].leaves.find((l) => l.type === "practice");
+    const options = practice && "questions" in practice ? practice.questions?.[0].options : [];
+    expect(options?.map((o) => o.response)).toEqual(["Right", undefined]);
+  });
+});

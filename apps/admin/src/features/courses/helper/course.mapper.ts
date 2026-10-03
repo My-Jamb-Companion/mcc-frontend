@@ -1,3 +1,4 @@
+import {hasResponses, optionResponses} from "@/src/features/question-editor/types";
 import {
   AdditionalCourseTypes,
   ApiCourseDetail,
@@ -89,6 +90,8 @@ export function serializeModulesPayload(topics: Topic[]): ApiModulePayload[] {
         explanation: q.explanation || undefined,
         usage_type: c.type as QuestionUsage,
         set_name: setName?.trim() || undefined,
+        // Responses belong to Practice only.
+        ...(c.type === "practice" && hasResponses(q) ? {option_feedback: optionResponses(q)} : {}),
       }));
     });
 
@@ -159,10 +162,11 @@ export function deserializeModulesPayload(
       const name = q.set_name?.trim() || undefined;
       const key = `${usage}|${name ?? ""}`;
       const correctSet = new Set(q.correct_answers || []);
-      const options: Option[] = (q.options || []).map((optText) => ({
+      const options: Option[] = (q.options || []).map((optText, i) => ({
         id: uid(),
         text: optText,
         isCorrect: correctSet.has(optText),
+        ...(usage === "practice" && q.option_feedback?.[i] ? {response: q.option_feedback[i] as string} : {}),
       }));
       const question: CreatPracticeQuestionType = {
         id: uid(),

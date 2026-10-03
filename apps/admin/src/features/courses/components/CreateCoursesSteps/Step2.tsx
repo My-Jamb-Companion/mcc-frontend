@@ -203,6 +203,7 @@ function PracticeManager({
             Questions in {selectedPractice.name || "this practice"}
           </p>
           <PracticeQuestions
+            withResponses
             questions={selectedPractice.questions}
             onChange={(qs) => setPracticeQuestions(selectedPractice.id, qs)}
           />
