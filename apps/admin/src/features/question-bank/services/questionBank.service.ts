@@ -1,5 +1,5 @@
 import {apiClient} from "@mcc/api";
-import type {ApiBankQuestion, BankQuestionPayload} from "@/src/features/question-editor/bank";
+import type {ApiBankQuestion, BankQuestionPayload, ParseResult} from "@/src/features/question-editor/bank";
 
 export {getApiErrorMessage} from "@/src/features/categories/services/category.service";
 
@@ -79,7 +79,7 @@ export const deleteBankQuestion = async (bankId: string): Promise<void> => {
  * Endpoint: POST /admin/question-bank/from-set
  */
 export const saveSetToBank = async (
-  questions: BankQuestionPayload[],
+  questions: (BankQuestionPayload & BankClassification)[],
   classification: BankClassification = {},
   source: "saved" | "upload" = "saved",
 ): Promise<BankSaveResult> => {
@@ -89,4 +89,26 @@ export const saveSetToBank = async (
     ...classification,
   });
   return res.data.data;
+};
+
+/**
+ * Read a .xlsx / .csv question file. Nothing is saved: the result is reviewed
+ * first. Endpoint: POST /admin/question-bank/parse (multipart)
+ */
+export const parseQuestionFile = async (file: File): Promise<ParseResult> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await apiClient.post<{data: ParseResult}>("/admin/question-bank/parse", formData, {
+    headers: {"Content-Type": "multipart/form-data"},
+  });
+  return res.data.data;
+};
+
+/** The upload template. Endpoint: GET /admin/question-bank/template?format=xlsx|csv */
+export const downloadQuestionTemplate = async (format: "xlsx" | "csv"): Promise<Blob> => {
+  const res = await apiClient.get<Blob>("/admin/question-bank/template", {
+    params: {format},
+    responseType: "blob",
+  });
+  return res.data;
 };

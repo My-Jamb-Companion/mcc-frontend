@@ -3,8 +3,11 @@ import {
   appendQuestions,
   ApiBankQuestion,
   bankQuestionKey,
+  countWithResponses,
   editorQuestionKey,
   fromBankQuestion,
+  ParsedQuestion,
+  parsedToBankPayload,
   questionProblem,
   splitForBank,
   toBankQuestion,
@@ -142,5 +145,53 @@ describe("splitForBank", () => {
     const {ready, problems} = splitForBank([q(), blank, bad]);
     expect(ready).toHaveLength(1);
     expect(problems).toEqual([{index: 2, problem: "has no correct answer marked"}]);
+  });
+});
+
+describe("uploaded questions", () => {
+  const parsed = (over: Partial<ParsedQuestion> = {}): ParsedQuestion => ({
+    row: 2,
+    question_text: "What is 2+2?",
+    question_type: "single_choice",
+    options: ["3", "4"],
+    correct_answers: ["4"],
+    explanation: null,
+    option_feedback: null,
+    subject_id: null,
+    subject_name: null,
+    topic: null,
+    difficulty: null,
+    ...over,
+  });
+
+  it("copies into a set like a bank question, responses only for Practice", () => {
+    const withFeedback = parsed({option_feedback: ["No", "Yes"]});
+    expect(fromBankQuestion(withFeedback, true).options.map((o) => o.response)).toEqual(["No", "Yes"]);
+    expect(fromBankQuestion(withFeedback, false).options.every((o) => !("response" in o))).toBe(true);
+    expect(fromBankQuestion(parsed(), false).options.filter((o) => o.isCorrect).map((o) => o.text)).toEqual(["4"]);
+  });
+
+  it("keeps its own filing and its responses when saved to the bank", () => {
+    expect(
+      parsedToBankPayload(parsed({subject_id: "s1", topic: "Algebra", difficulty: "hard", option_feedback: ["a", null], explanation: "Why"})),
+    ).toEqual({
+      question_text: "What is 2+2?",
+      question_type: "single_choice",
+      options: ["3", "4"],
+      correct_answers: ["4"],
+      explanation: "Why",
+      option_feedback: ["a", null],
+      subject_id: "s1",
+      topic: "Algebra",
+      difficulty: "hard",
+    });
+  });
+
+  it("leaves out what the file did not give", () => {
+    expect(Object.keys(parsedToBankPayload(parsed())).sort()).toEqual(["correct_answers", "options", "question_text", "question_type"]);
+  });
+
+  it("counts the questions that carry responses", () => {
+    expect(countWithResponses([parsed(), parsed({option_feedback: [null, "x"]}), parsed({option_feedback: [null, null]})])).toBe(1);
   });
 });

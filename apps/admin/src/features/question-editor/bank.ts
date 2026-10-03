@@ -27,6 +27,37 @@ export interface ApiBankQuestion
   updated_at: string | null;
 }
 
+/** A question read from an uploaded file (POST /admin/question-bank/parse). */
+export interface ParsedQuestion extends Omit<BankQuestionPayload, "description" | "explanation" | "option_feedback"> {
+  /** The spreadsheet row it came from (the headings are row 1). */
+  row: number;
+  explanation: string | null;
+  option_feedback: (string | null)[] | null;
+  subject_id: string | null;
+  subject_name: string | null;
+  topic: string | null;
+  difficulty: "easy" | "medium" | "hard" | null;
+}
+
+export interface ParseError {
+  row: number;
+  message: string;
+}
+
+export interface ParseResult {
+  filename: string;
+  total_rows: number;
+  questions: ParsedQuestion[];
+  errors: ParseError[];
+}
+
+/** What a copy into a set needs from a bank or uploaded question. */
+export type CopyableQuestion = Pick<BankQuestionPayload, "question_text" | "question_type" | "options" | "correct_answers"> & {
+  description?: string | null;
+  explanation?: string | null;
+  option_feedback?: (string | null)[] | null;
+};
+
 const norm = (s: string) => s.trim().replace(/\s+/g, " ").toLowerCase();
 
 /**
@@ -62,7 +93,7 @@ export function toBankQuestion(q: CreatPracticeQuestionType): BankQuestionPayloa
  * A bank question as a copy for a set: fresh ids, so editing the copy never
  * touches the bank. Responses only come across into a Practice set.
  */
-export function fromBankQuestion(b: ApiBankQuestion, withResponses: boolean): CreatPracticeQuestionType {
+export function fromBankQuestion(b: CopyableQuestion, withResponses: boolean): CreatPracticeQuestionType {
   const correct = new Set(b.correct_answers.map(norm));
   return {
     id: uid(),
@@ -124,3 +155,30 @@ export function splitForBank(questions: CreatPracticeQuestionType[]): BankSaveSu
   });
   return {ready, problems};
 }
+
+/**
+ * An uploaded question as a bank payload, keeping its own subject / topic /
+ * difficulty. Responses go to the bank whatever set it was uploaded into: the
+ * bank keeps them for whoever later picks the question into a Practice set.
+ */
+export function parsedToBankPayload(p: ParsedQuestion): BankQuestionPayload & {
+  subject_id?: string;
+  topic?: string;
+  difficulty?: "easy" | "medium" | "hard";
+} {
+  return {
+    question_text: p.question_text,
+    question_type: p.question_type,
+    options: p.options,
+    correct_answers: p.correct_answers,
+    ...(p.explanation ? {explanation: p.explanation} : {}),
+    ...(p.option_feedback ? {option_feedback: p.option_feedback} : {}),
+    ...(p.subject_id ? {subject_id: p.subject_id} : {}),
+    ...(p.topic ? {topic: p.topic} : {}),
+    ...(p.difficulty ? {difficulty: p.difficulty} : {}),
+  };
+}
+
+/** How many uploaded questions carry Practice responses (they only come into a Practice set). */
+export const countWithResponses = (questions: ParsedQuestion[]): number =>
+  questions.filter((q) => q.option_feedback?.some(Boolean)).length;

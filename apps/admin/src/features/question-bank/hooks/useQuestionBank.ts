@@ -6,6 +6,7 @@ import {
   deleteBankQuestion,
   listBankQuestions,
   listBankTopics,
+  parseQuestionFile,
   saveSetToBank,
   updateBankQuestion,
 } from "../services/questionBank.service";
@@ -59,10 +60,13 @@ export const useSaveSetToBank = () => {
       classification,
       source,
     }: {
-      questions: BankQuestionPayload[];
+      questions: (BankQuestionPayload & BankClassification)[];
       classification?: BankClassification;
       source?: "saved" | "upload";
     }) => saveSetToBank(questions, classification, source),
     onSuccess: invalidate,
   });
 };
+
+/** Reads an uploaded question file; writes nothing. */
+export const useParseQuestionFile = () => useMutation({mutationFn: (file: File) => parseQuestionFile(file)});

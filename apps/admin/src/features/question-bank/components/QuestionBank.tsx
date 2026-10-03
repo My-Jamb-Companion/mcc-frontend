@@ -7,6 +7,7 @@ import type {ApiBankQuestion} from "@/src/features/question-editor/bank";
 import {useBankQuestions, useBankTopics, useDeleteBankQuestion} from "../hooks/useQuestionBank";
 import {Difficulty, getApiErrorMessage} from "../services/questionBank.service";
 import BankQuestionModal from "./BankQuestionModal";
+import UploadQuestionsModal from "./UploadQuestionsModal";
 
 const PAGE_SIZE = 15;
 const select = "rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-[#6C2BD9]";
@@ -34,6 +35,7 @@ export default function QuestionBank() {
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<ApiBankQuestion | null>(null);
   const [creating, setCreating] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState<ApiBankQuestion | null>(null);
 
   const debouncedSearch = useDebounced(search);
@@ -71,14 +73,24 @@ export default function QuestionBank() {
             never changes a course or exam program.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setCreating(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700"
-        >
-          <Icon icon="line-md:plus" size={16} />
-          Add question
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setUploading(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-violet-200 bg-white px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-50"
+          >
+            <Icon icon="lucide:upload" size={16} />
+            Upload questions
+          </button>
+          <button
+            type="button"
+            onClick={() => setCreating(true)}
+            className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+          >
+            <Icon icon="line-md:plus" size={16} />
+            Add question
+          </button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -220,6 +232,8 @@ export default function QuestionBank() {
       </div>
 
       <BankQuestionModal open={creating || !!editing} existing={editing} onClose={() => (setCreating(false), setEditing(null))} />
+
+      <UploadQuestionsModal open={uploading} target={{kind: "bank"}} onClose={() => setUploading(false)} />
 
       <ConfirmModal
         open={!!deleting}
