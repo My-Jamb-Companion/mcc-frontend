@@ -49,5 +49,6 @@ export function fromApiExamProgramSummary(
     price: Number(api.price || 0),
     currency: "₦",
     link: `https://mcc.com/${api.program_id}`,
+    logoUrl: api.cover_image_url || undefined,
   };
 }

@@ -71,15 +71,20 @@ function toApiQuestion(q: CreatPracticeQuestionType, practice = false): ApiQuest
   };
 }
 
+/**
+ * The lecture's stored URL. A `blob:` link only exists in the browser that
+ * picked the file (the upload hadn't finished, or failed), so it is never saved.
+ */
+function lectureUrl(file: FileRow): string | undefined {
+  return [file.src, file.previewUrl].find((u) => u && !u.startsWith("blob:")) || undefined;
+}
+
 function toApiLecture(file: FileRow): ApiLecturePayload {
   return {
     title: file.title,
     content: file.content || undefined,
-    // No dedicated media-upload flow is wired up for exam lectures yet, so
-    // this falls back to the local blob preview URL — same stopgap used by
-    // the courses feature's module mapper until real upload lands.
-    video_url: file.src || file.previewUrl || undefined,
-    file_size_bytes: file.file?.size ?? undefined,
+    video_url: lectureUrl(file),
+    file_size_bytes: file.fileSizeBytes ?? file.file?.size ?? undefined,
   };
 }
 
@@ -90,7 +95,11 @@ function toApiModule(module: MakeModule): ApiModulePayload {
 
   return {
     title: module.label || "Untitled Module",
-    lectures: lectures.flatMap((l) => l.lessons ?? []).map(toApiLecture),
+    // A lecture whose upload hasn't finished (or failed) has nothing to save yet.
+    lectures: lectures
+      .flatMap((l) => l.lessons ?? [])
+      .filter((file) => file.content || lectureUrl(file))
+      .map(toApiLecture),
     quizzes: quizzes.flatMap((l) => l.questions ?? []).map((q) => toApiQuestion(q)),
     practices: practices.flatMap((l) => l.questions ?? []).map((q) => toApiQuestion(q, true)),
     ...(module.quizSettings?.timer ? {quiz_timer_minutes: module.quizSettings.timer} : {}),

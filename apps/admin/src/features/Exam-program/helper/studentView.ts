@@ -1,6 +1,6 @@
 import type {Topic} from "../components/CreateProgramSteps/Step2";
 import type {CreatPracticeQuestionType} from "../components/CreateProgramSteps/PracticeQuestions";
-import {youTubeEmbedUrl} from "@/src/features/courses/helper/video";
+import {isPdfUrl, youTubeEmbedUrl} from "@/src/features/courses/helper/video";
 import {hasResponses, optionResponses} from "@/src/features/question-editor/types";
 
 /**
@@ -13,7 +13,7 @@ import {hasResponses, optionResponses} from "@/src/features/question-editor/type
  * Mirrors the learner app's ExamContentTree / ExamProgramContent, including
  * hiding a Quiz / Practice / Test row when it has no questions.
  */
-export type StudentLectureKind = "video" | "youtube" | "html";
+export type StudentLectureKind = "video" | "youtube" | "pdf" | "html";
 
 export interface StudentExamQuestion {
   id: string;
@@ -94,7 +94,7 @@ export function toStudentExamTree(topics: Topic[] = []): StudentExamTopic[] {
                 title: file.title || "Untitled lecture",
                 url,
                 html,
-                kind: html ? "html" : youTubeEmbedUrl(url) ? "youtube" : "video",
+                kind: html ? "html" : youTubeEmbedUrl(url) ? "youtube" : isPdfUrl(url) ? "pdf" : "video",
               };
             }),
           quiz: leaves.filter((l) => l.type === "quiz").flatMap((l) => l.questions ?? []).map((q) => toQuestion(q)),

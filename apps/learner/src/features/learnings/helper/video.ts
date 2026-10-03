@@ -18,3 +18,8 @@ export function youTubeEmbedUrl(url: string | undefined | null): string | null {
   const id = youTubeVideoId(url);
   return id ? `https://www.youtube.com/embed/${id}` : null;
 }
+
+/** An uploaded PDF, recognised by its file name (uploads keep it at the end of the URL). */
+export function isPdfUrl(url: string | undefined | null): boolean {
+  return !!url && /\.pdf(?:$|[?#])/i.test(url);
+}

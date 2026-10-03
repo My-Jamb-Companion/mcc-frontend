@@ -154,3 +154,39 @@ describe("practice responses in the student preview", () => {
     expect(quizTree.subTopics[0].test[0]).not.toHaveProperty("optionFeedback");
   });
 });
+
+
+describe("lecture kinds in the student preview", () => {
+  it("shows an uploaded PDF as a PDF", () => {
+    const tree = toStudentExamTree([
+      {
+        id: "t",
+        label: "T",
+        subTopics: [
+          {
+            id: "s",
+            label: "S",
+            modules: [
+              {
+                id: "m",
+                label: "M",
+                leaves: [
+                  {
+                    id: "l",
+                    label: "Lectures",
+                    type: "lectures",
+                    lessons: [
+                      {id: "a", title: "Notes", format: "PDF", size: "1mb", src: "https://cdn/x/abc-Notes.pdf"},
+                      {id: "b", title: "Clip", format: "MP4", size: "1mb", src: "https://cdn/x/abc-clip.mp4"},
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+    expect(allExamLectures(tree).map((l) => l.kind)).toEqual(["pdf", "video"]);
+  });
+});

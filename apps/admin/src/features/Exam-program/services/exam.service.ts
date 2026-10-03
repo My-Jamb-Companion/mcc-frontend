@@ -43,6 +43,8 @@ export interface ApiExamProgramSummary {
   // seeded directly.
   teacher_name: string | null;
   teacher_avatar?: string | null;
+  /** The list thumbnail; null until a cover image is uploaded. */
+  cover_image_url?: string | null;
   level: string;
   /** Backend sends this as a decimal string, e.g. "4500.00". */
   price: string;

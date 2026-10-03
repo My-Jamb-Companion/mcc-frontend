@@ -3,7 +3,7 @@ import {useEffect, useMemo, useState} from "react";
 import Link from "next/link";
 import {useSearchParams} from "next/navigation";
 import {Icon} from "@mcc/ui";
-import {youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
+import {isPdfUrl, youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import CoursePlayer from "../course/CoursePlayer";
 import InteractiveLessonContent from "../InteractiveLessonContent";
 import ExamContentTree, {ActiveNode} from "./ExamContentTree";
@@ -189,6 +189,12 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
               className="aspect-video w-full rounded-2xl"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
+            />
+          ) : isPdfUrl(activeLecture.video_url) ? (
+            <iframe
+              src={activeLecture.video_url ?? undefined}
+              title={activeLecture.title}
+              className="aspect-video w-full rounded-2xl border border-muted/20"
             />
           ) : (
             <CoursePlayer
