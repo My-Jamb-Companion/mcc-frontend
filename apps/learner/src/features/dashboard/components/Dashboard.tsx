@@ -18,6 +18,7 @@ import {fromApiEnrolledProgram} from "@/src/features/exams/helper/exam.mapper";
 import {useUpcomingSessions} from "@/src/features/sessions/hooks/useSessions";
 import {RescheduleModal} from "@/src/features/sessions/RescheduleModal";
 import {useProfile} from "@/src/features/account/hooks/useProfile";
+import {displayName} from "@/src/features/account/helper/profile.mapper";
 
 /**
  * The student's personal home: welcome back, live class, quick Brainy
@@ -36,7 +37,7 @@ export default function Dashboard() {
 
   const nextSession = sessions[0];
 
-  const firstName = profile?.full_name?.split(" ")[0] ?? "there";
+  const firstName = profile ? displayName(profile).split(" ")[0] : "there";
 
   return (
     <div className="col-start-2 max-sm:col-start-1 pt-6 px-4">

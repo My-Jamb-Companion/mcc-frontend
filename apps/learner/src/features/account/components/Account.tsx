@@ -100,7 +100,7 @@ export default function AccountSettingsPage() {
             <RankBadge rank={user.rank} />
           </div>
           <div className="max-md:hidden absolute right-10 top-7 mr-10">
-            <AvatarPicker setFile={handleAvatarFile} />
+            <AvatarPicker setFile={handleAvatarFile} selected={typeof user.avatar === "string" ? user.avatar : undefined} />
           </div>
         </div>
 
@@ -108,7 +108,7 @@ export default function AccountSettingsPage() {
           <ProfileHeader user={user} avatar={user.avatar} setFile={handleAvatarFile} />
 
           <div className="relative md:hidden pt-5">
-            <AvatarPicker setFile={handleAvatarFile} />
+            <AvatarPicker setFile={handleAvatarFile} selected={typeof user.avatar === "string" ? user.avatar : undefined} />
           </div>
 
           <ProfileTabs active={tab} onChange={setTab} />

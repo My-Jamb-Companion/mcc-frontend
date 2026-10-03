@@ -1,5 +1,7 @@
 export interface ProfileUser {
   fullName: string;
+  /** What to show as the student's name: full name, else nickname, else email name. */
+  displayName: string;
   username: string;
   parentName: string;
   email: string;
