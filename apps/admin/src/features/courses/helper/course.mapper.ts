@@ -36,6 +36,11 @@ export function normalizeQuestionType(
   return "long_short_answer";
 }
 
+/** An already-uploaded file, shaped so the Upload step shows it and counts it as present. */
+function remoteFile(url: string | null | undefined) {
+  return url ? {previewUrl: url, remoteUrl: url} : null;
+}
+
 /**
  * Serializes UI Topic[] data structure into API ApiModulePayload[] format
  * suitable for PATCH /admin/courses/{course_id}
@@ -276,8 +281,11 @@ export function fromApiCourseDetail(
     tags: api.tags ?? [],
     content: {topics: deserializeModulesPayload(api.modules)},
     upload: {
-      coverImage: null,
-      promoVideo: null,
+      // Already-uploaded media is a real file as far as the form is concerned:
+      // without these, Publish and "View as a student" stay disabled on an
+      // existing course until both files are uploaded again.
+      coverImage: remoteFile(api.cover_image_url),
+      promoVideo: remoteFile(api.promo_video_url),
       coverImageUrl: api.cover_image_url ?? undefined,
       promoVideoUrl: api.promo_video_url ?? undefined,
     },

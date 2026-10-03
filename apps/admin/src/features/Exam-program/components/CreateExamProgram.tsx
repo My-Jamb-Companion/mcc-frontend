@@ -22,6 +22,11 @@ import {
   updateExamProgramContent,
 } from "../services/exam.service";
 import {useExamProgramEdit} from "../hooks/useExamPrograms";
+import ExamStudentView from "./studentPreview/ExamStudentView";
+import {
+  examProgramTitle,
+  hasPreviewableExamContent,
+} from "../helper/studentView";
 import {useCatalogOptions} from "@/src/features/exam-catalog/hooks/useCatalog";
 
 type Step = "details" | "content" | "upload";
@@ -165,6 +170,7 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
 
   const [isPublishing, setIsPublishing] = useState(false);
   const [isUnpublishing, setIsUnpublishing] = useState(false);
+  const [previewView, setPreviewView] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
   const [pricingBannerDismissed, setPricingBannerDismissed] = useState(false);
   const programId = methods.watch("id");
@@ -292,6 +298,44 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
     );
   }
 
+  if (previewView) {
+    const values = methods.getValues();
+    return (
+      <>
+        <div className="flex items-center justify-between mb-5">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="bg-gray-200"
+            leftIcon={<div className="w-3 h-3 rounded-full bg-gray-500 animate-pulse" />}
+          >
+            Preview Mode
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setPreviewView(false)}
+            leftIcon={<Icon icon="lucide:pen" size={14} />}
+            size="sm"
+          >
+            Back to edit view
+          </Button>
+        </div>
+        <ExamStudentView
+          title={examProgramTitle(examName, subjectName)}
+          description={values.description}
+          coverUrl={
+            values.upload?.coverImageUrl ||
+            values.upload?.coverImage?.remoteUrl ||
+            values.upload?.coverImage?.previewUrl ||
+            null
+          }
+          price={Number(values.price || 0)}
+          topics={values.content?.topics ?? []}
+        />
+      </>
+    );
+  }
+
   return (
     <FormProvider {...methods}>
       <div className="flex flex-col h-full">
@@ -365,6 +409,13 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
               shadow={"sm"}
               size={"sm"}
               leftIcon={<Icon icon="lucide:eye" size={16} />}
+              disabled={!hasPreviewableExamContent(topics)}
+              title={
+                hasPreviewableExamContent(topics)
+                  ? undefined
+                  : "Add a lecture or questions to preview"
+              }
+              onClick={() => setPreviewView(true)}
             >
               View as a student
             </Button>
