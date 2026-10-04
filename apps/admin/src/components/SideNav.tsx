@@ -4,6 +4,8 @@ import {AnimatePresence, Icon, motion} from "@mcc/ui";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useEffect, useRef, useState} from "react";
+import {canOpen} from "@/src/features/admin-access/helper/access";
+import {useMyAccess} from "@/src/features/admin-access/hooks/useAdminAccess";
 
 interface NavChild {
   key: string;
@@ -224,6 +226,12 @@ function NavIcon({
 
 export default function SideNav() {
   const [openKey, setOpenKey] = useState<string | null>(null);
+  const {data: access} = useMyAccess();
+  // Only what this admin can open. Unknown access (still loading, or the server can't say) shows everything.
+  const visibleEntries = NAV_ENTRIES.map((entry) =>
+    entry.children ? {...entry, children: entry.children.filter((c) => canOpen(access, c.href))} : entry,
+  ).filter((entry) => (entry.children ? entry.children.length > 0 : canOpen(access, entry.href)));
+  const showSettings = canOpen(access, "/settings");
   const containerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
@@ -273,7 +281,7 @@ export default function SideNav() {
               (setting one axis clips both). All 13 entries comfortably fit
               without scrolling at any real viewport height. */}
           <div className="flex flex-col items-center gap-3 py-1">
-            {NAV_ENTRIES.map((entry) => (
+            {visibleEntries.map((entry) => (
               <NavIcon
                 key={entry.key}
                 entry={entry}
@@ -287,14 +295,16 @@ export default function SideNav() {
           </div>
 
           <div className="flex flex-col items-center gap-4 shrink-0">
-            <NavIcon
-              entry={BOTTOM_ENTRY}
-              isOpen={openKey === BOTTOM_ENTRY.key}
-              onToggle={() =>
-                setOpenKey((prev) => (prev === BOTTOM_ENTRY.key ? null : BOTTOM_ENTRY.key))
-              }
-              pathname={pathname}
-            />
+            {showSettings && (
+              <NavIcon
+                entry={BOTTOM_ENTRY}
+                isOpen={openKey === BOTTOM_ENTRY.key}
+                onToggle={() =>
+                  setOpenKey((prev) => (prev === BOTTOM_ENTRY.key ? null : BOTTOM_ENTRY.key))
+                }
+                pathname={pathname}
+              />
+            )}
           </div>
         </div>
       </div>

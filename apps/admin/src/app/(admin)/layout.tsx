@@ -6,6 +6,7 @@ import {Button, Icon} from "@mcc/ui";
 import {useAuth} from "@mcc/features";
 import {useThemeStore} from "@mcc/store";
 import {useRouter} from "next/navigation";
+import AccessGate from "@/src/features/admin-access/components/AccessGate";
 import {useEffect} from "react";
 
 export default function DashboardLayout({
@@ -80,7 +81,7 @@ export default function DashboardLayout({
               />
             </div>
             <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pt-10 pb-4.5">
-              {children}
+              <AccessGate>{children}</AccessGate>
             </div>
           </div>
         </div>
