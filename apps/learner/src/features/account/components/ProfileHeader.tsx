@@ -1,10 +1,11 @@
 "use client";
 
-import {useState} from "react";
+import {useMemo} from "react";
 import {Icon} from "@mcc/ui";
 import type {ProfileUser} from "../constants/types";
 import {RankBadge} from "./RankBadge";
-import Image from "next/image";
+import ProfileAvatar from "./ProfileAvatar";
+import {locationLine} from "../helper/profile.mapper";
 
 export default function ProfileHeader({
   user,
@@ -15,29 +16,29 @@ export default function ProfileHeader({
   avatar: File | string;
   setFile: (file: File) => void;
 }) {
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-
-  const avatarSrc =
-    avatar instanceof File
-      ? URL.createObjectURL(avatar)
-      : avatar || "/assets/images/profile.png";
+  // Keep one object URL per picked file: creating it during render leaked a new one on every render.
+  const avatarSrc = useMemo(
+    () => (avatar instanceof File ? URL.createObjectURL(avatar) : avatar || undefined),
+    [avatar],
+  );
+  const location = locationLine(user);
   return (
     <header className="relative">
       <div className="relative">
         <div className="flex flex-col gap-6 lg:flex-row">
-          <div className="relative -mt-16 w-fit">
+          <div className="relative -mt-12 w-fit">
             <button
-              // onClick={() => setLightboxOpen(true)}
               onClick={() => document.getElementById("file-input")?.click()}
-              className="relative w-40 h-43 md:h-64 md:w-64 overflow-hidden rounded-[45px] border-2 border-purple-300 bg-white shadow-xl cursor-pointer group"
+              aria-label="Change profile photo"
+              className="relative block h-28 w-28 md:h-36 md:w-36 overflow-hidden rounded-[32px] border-2 border-purple-300 bg-white shadow-lg cursor-pointer group"
             >
-              <Image
+              <ProfileAvatar
                 src={avatarSrc}
-                alt="avatar"
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                fill
+                name={user.displayName}
+                className="h-full w-full transition-transform duration-300 group-hover:scale-105"
+                textClassName="text-3xl md:text-5xl"
               />
-              <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/20 rounded-[45px]">
+              <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/20 rounded-[32px]">
                 <Icon
                   icon="stash:image-plus"
                   className="text-white drop-shadow-lg"
@@ -46,38 +47,6 @@ export default function ProfileHeader({
               </span>
             </button>
 
-            {/* Fullscreen Lightbox */}
-            {lightboxOpen && (
-              <div
-                role="dialog"
-                aria-modal="true"
-                aria-label="Profile photo fullscreen"
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-[fadeIn_0.2s_ease]"
-                onClick={() => setLightboxOpen(false)}
-                style={{animation: "fadeIn 0.2s ease"}}
-              >
-                <style>{`@keyframes fadeIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}`}</style>
-                <div
-                  className="relative max-w-[90vw] max-h-[90vh] w-auto h-auto rounded-3xl overflow-hidden shadow-2xl"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Image
-                    src={avatarSrc}
-                    alt="avatar fullscreen"
-                    width={600}
-                    height={600}
-                    className="object-contain max-w-[90vw] max-h-[90vh] w-auto h-auto"
-                  />
-                </div>
-                <button
-                  onClick={() => setLightboxOpen(false)}
-                  className="absolute top-5 right-5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full p-2 text-white transition-colors"
-                  aria-label="Close fullscreen"
-                >
-                  <Icon icon="material-symbols:close-rounded" size={24} />
-                </button>
-              </div>
-            )}
             <button
               onClick={() => document.getElementById("file-input")?.click()}
               className="md:hidden absolute bottom-0 right-0 bg-white border border-muted/40 rounded-md p-1"
@@ -100,7 +69,7 @@ export default function ProfileHeader({
           <div className="flex-1 md:pt-8">
             <div className="flex items-center gap-2">
               <h1 className="text-xl md:text-4xl font-bold tracking-tight">
-                {user.fullName || " Bright Mac"}
+                {user.displayName}
               </h1>
 
               <Icon
@@ -111,9 +80,7 @@ export default function ProfileHeader({
             </div>
 
             <div className="mt-2 flex items-center gap-2 text-subtle font-medium">
-              <span className="text-sm md:text-xl">
-                {user.city + ", " + user.state + ", " + user.country}
-              </span>
+              {location && <span className="text-sm md:text-xl">{location}</span>}
 
               <span className="flex gap-1">
                 <Icon icon="twemoji:flag-nigeria" size={20} />

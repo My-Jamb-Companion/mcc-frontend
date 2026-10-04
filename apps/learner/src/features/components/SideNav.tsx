@@ -5,9 +5,10 @@ import Link from "next/link";
 import {useEffect, useRef, useState} from "react";
 import {sideBarLinks} from "../dashboard/constants/NavLinks";
 import {usePathname, useRouter} from "next/navigation";
-import Image from "next/image";
 import {useAuth} from "@mcc/features";
-import {CURRENT_USER} from "../account/constants/constants";
+import {useProfile} from "../account/hooks/useProfile";
+import {displayName} from "../account/helper/profile.mapper";
+import ProfileAvatar from "../account/components/ProfileAvatar";
 
 const LANGUAGES = [
   {code: "en", label: "English (US)", icon: "circle-flags:uk"},
@@ -26,6 +27,8 @@ export default function SideNav({
   const pathname = usePathname();
   const router = useRouter();
   const {logoutMutation} = useAuth();
+  const {data: profile} = useProfile();
+  const studentName = profile ? displayName(profile) : "";
   const [linksHovering, setLinksHovering] = useState(false);
   const [accLinksHovering, setAccLinksHovering] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -327,18 +330,12 @@ export default function SideNav({
             onClick={() => setAccountMenuOpen((prev) => !prev)}
             className="px-2 py-2.5 rounded-2xl bg-[#222225] flex items-center gap-2 dark:border dark:border-muted/40 dark:shadow-md w-full text-left cursor-pointer hover:bg-[#2a2a2e] transition-colors"
           >
-            <div className="relative w-10 h-10 min-w-10 rounded-full border-2 border-white overflow-hidden bg-[#B190B6] shrink-0">
-              <Image
-                src={
-                  typeof CURRENT_USER?.avatar === "string" && CURRENT_USER.avatar
-                    ? CURRENT_USER.avatar
-                    : "/images/avatar-placeholder.png"
-                }
-                alt="profile image"
-                fill
-                className="object-cover"
-              />
-            </div>
+            <ProfileAvatar
+              src={profile?.profile_photo_url}
+              name={studentName || "Student"}
+              className="h-10 w-10 min-w-10 shrink-0 rounded-full border-2 border-white bg-[#B190B6]"
+              textClassName="text-xs"
+            />
 
             <div className="flex items-center justify-between w-full overflow-hidden">
               <AnimatePresence initial={false}>
@@ -351,11 +348,11 @@ export default function SideNav({
                     className="overflow-hidden whitespace-nowrap"
                   >
                     <p className="text-xs font-semibold text-white max-sm:text-black">
-                      {CURRENT_USER.fullName}
+                      {studentName}
                     </p>
-                    <p className="text-muted text-xs">
-                      @{CURRENT_USER.username}
-                    </p>
+                    {profile?.username && (
+                      <p className="text-muted text-xs">@{profile.username}</p>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

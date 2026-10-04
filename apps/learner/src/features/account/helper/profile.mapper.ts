@@ -7,6 +7,7 @@ export function fromApiProfile(
 ): ProfileUser {
   return {
     fullName: api.full_name || "",
+    displayName: displayName(api),
     username: api.username || "",
     parentName: api.parent_name || "",
     email: api.email,
@@ -28,4 +29,35 @@ export function fromApiProfile(
     coins: extras.coins ?? 0,
     avatar: api.profile_photo_url || "",
   };
+}
+
+/**
+ * The name to show for a student. Students sign up with an email and pick a
+ * nickname (stored as the username) during onboarding; a full name is only
+ * there if they filled it in, so fall back instead of showing nothing.
+ */
+export function displayName(profile: {
+  full_name?: string | null;
+  username?: string | null;
+  email?: string | null;
+}): string {
+  return (
+    profile.full_name?.trim() ||
+    profile.username?.trim() ||
+    profile.email?.split("@")[0]?.trim() ||
+    "Student"
+  );
+}
+
+/** Up to two capital letters for an avatar when there is no photo. */
+export function initialsOf(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  const letters = words.length === 1 ? words[0].slice(0, 2) : words[0][0] + words[words.length - 1][0];
+  return letters.toUpperCase();
+}
+
+/** "City, State, Country" with the blanks left out (empty when none are set). */
+export function locationLine(parts: {city?: string; state?: string; country?: string}): string {
+  return [parts.city, parts.state, parts.country].map((p) => p?.trim()).filter(Boolean).join(", ");
 }
