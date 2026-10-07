@@ -22,6 +22,9 @@ interface NavEntry {
   /** Parent item: clicking the icon opens a flyout of these instead of
    * navigating anywhere itself. */
   children?: NavChild[];
+  /** Open the flyout upward (anchored to the icon's bottom). For entries at
+   * the foot of the rail, where a flyout that grows downward runs off-screen. */
+  flyoutUp?: boolean;
 }
 
 // Every dashboard section as one flat, ordered rail -- the old split
@@ -127,6 +130,7 @@ const BOTTOM_ENTRY: NavEntry = {
   key: "account",
   icon: "solar:settings-broken",
   label: "Account",
+  flyoutUp: true,
   children: [
     {key: "settings", label: "Settings", href: "/settings"},
     {key: "profile", label: "User Profile", href: "/profile"},
@@ -152,13 +156,27 @@ function NavIcon({
   pathname: string | null;
 }) {
   const active = isEntryActive(pathname, entry);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  // Where an upward flyout sits, in viewport coordinates, worked out when it is opened.
+  const [upwardAt, setUpwardAt] = useState<{left: number; bottom: number} | null>(null);
+
+  function handleClick() {
+    if (entry.flyoutUp && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      // Grow upward from the icon, but never below the bottom of the window: in a short
+      // window the icon itself can sit past the edge, and the menu must still be visible.
+      setUpwardAt({left: rect.right + 8, bottom: Math.max(8, window.innerHeight - rect.bottom)});
+    }
+    onToggle();
+  }
 
   if (entry.children) {
     return (
       <div className="group relative">
         <button
+          ref={buttonRef}
           type="button"
-          onClick={onToggle}
+          onClick={handleClick}
           aria-label={entry.label}
           aria-expanded={isOpen}
           className={`flex justify-center rounded-lg p-2.5 transition-all duration-300 ease-out cursor-pointer w-fit ${
@@ -177,11 +195,12 @@ function NavIcon({
         <AnimatePresence>
           {isOpen && (
             <motion.div
-              initial={{opacity: 0, y: 6}}
+              initial={{opacity: 0, y: entry.flyoutUp ? -6 : 6}}
               animate={{opacity: 1, y: 0}}
-              exit={{opacity: 0, y: 6}}
+              exit={{opacity: 0, y: entry.flyoutUp ? -6 : 6}}
               transition={{duration: 0.15}}
-              className="absolute top-0 left-full z-50 ml-2 w-48 overflow-hidden rounded-xl border border-muted/20 bg-white py-1 shadow-lg"
+              style={entry.flyoutUp && upwardAt ? {left: upwardAt.left, bottom: upwardAt.bottom} : undefined}
+              className={`${entry.flyoutUp ? "fixed" : "absolute top-0 left-full ml-2"} z-50 w-48 overflow-hidden rounded-xl border border-muted/20 bg-white py-1 shadow-lg`}
             >
               <p className="px-4 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
                 {entry.label}
