@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from "react";
-import {Icon, Modal} from "@mcc/ui";
+import {ConfirmModal, Icon, Modal} from "@mcc/ui";
 import {InlineRename} from "./Step2";
 import {FileRow} from "@/src/features/courses/types/types";
 import {uploadMedia} from "@/src/features/courses/services/media.service";
@@ -166,6 +166,8 @@ function FileRowItem({
       <button
         type="button"
         onClick={() => onRemove?.(file.id)}
+        aria-label={`Delete ${file.title}`}
+        title="Delete lesson"
         className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 hover:bg-gray-50"
       >
         <Icon icon="lucide:x" size={14} />
@@ -197,6 +199,8 @@ export default function LessonsCreate({
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
   // Picked files that were turned away (wrong type, too big), until the next pick.
   const [fileProblems, setFileProblems] = useState<string[]>([]);
+  // The lesson awaiting a delete confirmation.
+  const [removing, setRemoving] = useState<FileRow | null>(null);
 
   // Uploads run against whatever the file list looks like *when they finish*,
   // not when they started — a ref keeps that current without re-subscribing
@@ -390,7 +394,7 @@ export default function LessonsCreate({
           file={file}
           error={uploadErrors[file.id]}
           index={index}
-          onRemove={(id) => onFilesChange(files.filter((x) => x.id !== id))}
+          onRemove={(id) => setRemoving(files.find((f) => f.id === id) ?? null)}
           onRename={handleRenameFile}
           onRetry={retryUpload}
           onEditContent={openExistingContentEditor}
@@ -492,6 +496,26 @@ export default function LessonsCreate({
           ))}
         </ul>
       )}
+
+      {/* Removing a lesson loses what the admin wrote or uploaded for it, so it is never one click. */}
+      <ConfirmModal
+        open={!!removing}
+        variant="danger"
+        title="Delete this lesson?"
+        message={
+          <>
+            <strong className="break-words">{removing?.title || "This lesson"}</strong> will be removed, along with
+            everything you wrote or uploaded for it. Once you save, it can&apos;t be brought back.
+          </>
+        }
+        confirmText="Delete lesson"
+        cancelText="Keep it"
+        onConfirm={() => {
+          if (removing) onFilesChange(files.filter((x) => x.id !== removing.id));
+          setRemoving(null);
+        }}
+        onCancel={() => setRemoving(null)}
+      />
 
       <Modal
         open={contentEditorOpen}
