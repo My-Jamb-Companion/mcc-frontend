@@ -39,6 +39,7 @@ describe("areaForPath", () => {
     ["/dashboard/exam-program/catalog", "exams"],
     ["/dashboard/categories", "courses"],
     ["/dashboard/question-bank", "question_bank"],
+    ["/dashboard/landing", "landing"],
     ["/dashboard/students/active-students", "students"],
     ["/finance", "finance"],
     ["/finance/pricing", "finance"],
