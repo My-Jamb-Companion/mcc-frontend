@@ -1,6 +1,7 @@
 "use client";
 
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {createPortal} from "react-dom";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
 import {Icon, showError} from "@mcc/ui";
@@ -62,51 +63,79 @@ const SYMBOL_GROUPS: {label: string; symbols: string[]}[] = [
   },
 ];
 
+const PICKER_WIDTH = 288; // w-72
+const PICKER_HEIGHT = 300; // enough for all four groups
+const PICKER_GAP = 4;
+
 function SymbolPicker({onInsert}: {onInsert: (symbol: string) => void}) {
-  const [open, setOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  // Where the panel sits, in viewport coordinates; null = closed.
+  const [pos, setPos] = useState<{left: number; top?: number; bottom?: number} | null>(null);
+
+  // The editor sits inside overflow-hidden boxes (its own frame and the modal's scroll area),
+  // which clipped the panel to a sliver. So it is portalled to <body> and positioned against
+  // the button, opening upward when there is no room below (the button sits at the bottom).
+  function toggle() {
+    if (pos) return setPos(null);
+    const rect = buttonRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const left = Math.max(8, Math.min(rect.left, window.innerWidth - PICKER_WIDTH - 8));
+    const roomBelow = window.innerHeight - rect.bottom;
+    setPos(
+      roomBelow >= PICKER_HEIGHT + PICKER_GAP
+        ? {left, top: rect.bottom + PICKER_GAP}
+        : {left, bottom: window.innerHeight - rect.top + PICKER_GAP},
+    );
+  }
 
   return (
     <div className="relative">
       <button
+        ref={buttonRef}
         type="button"
         onMouseDown={(e) => e.preventDefault()} // keep focus (and selection) in the editor
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggle}
         className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
       >
         <span className="font-serif italic">Ω</span>
         Insert symbol
       </button>
 
-      {open && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 top-full z-20 mt-1 w-72 rounded-xl border border-gray-200 bg-white p-3 shadow-lg">
-            {SYMBOL_GROUPS.map((group) => (
-              <div key={group.label} className="mb-2 last:mb-0">
-                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
-                  {group.label}
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {group.symbols.map((symbol) => (
-                    <button
-                      key={symbol}
-                      type="button"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => {
-                        onInsert(symbol);
-                        setOpen(false);
-                      }}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-sm text-gray-700 hover:bg-violet-50 hover:text-violet-700"
-                    >
-                      {symbol}
-                    </button>
-                  ))}
+      {pos &&
+        createPortal(
+          <>
+            <div className="fixed inset-0 z-[60]" onClick={() => setPos(null)} />
+            <div
+              style={{left: pos.left, top: pos.top, bottom: pos.bottom, width: PICKER_WIDTH}}
+              className="fixed z-[61] max-h-[70vh] overflow-y-auto rounded-xl border border-gray-200 bg-white p-3 shadow-lg"
+            >
+              {SYMBOL_GROUPS.map((group) => (
+                <div key={group.label} className="mb-2 last:mb-0">
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                    {group.label}
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {group.symbols.map((symbol) => (
+                      <button
+                        key={symbol}
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => {
+                          onInsert(symbol);
+                          setPos(null);
+                        }}
+                        className="flex h-7 w-7 items-center justify-center rounded-md text-sm text-gray-700 hover:bg-violet-50 hover:text-violet-700"
+                      >
+                        {symbol}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+              ))}
+            </div>
+          </>,
+          document.body,
+        )}
     </div>
   );
 }
