@@ -1,0 +1,44 @@
+/* The landing page's own styles: what inline styles can't do (hover, focus, container queries). */
+
+.mcc-root {
+  --mcc-display: var(--font-bagel), "Bagel Fat One", system-ui, sans-serif;
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.mcc-root a { color: inherit; }
+.mcc-root *:focus-visible { outline: 3px solid #6b26ff; outline-offset: 2px; }
+
+.mcc-btn { text-decoration: none; transition: background .15s, color .15s, border-color .15s; }
+.mcc-btn-primary:hover { background: #5512bd !important; color: #fff !important; }
+.mcc-btn-outline:hover { border-color: #6b26ff !important; color: #4f0fb0 !important; }
+.mcc-btn-dark:hover { background: #171717 !important; color: #fff !important; }
+.mcc-btn-white:hover { background: #f1ebff !important; color: #4f0fb0 !important; }
+.mcc-btn-glass:hover { background: rgba(255, 255, 255, 0.12) !important; }
+.mcc-link:hover { color: #4f0fb0 !important; }
+.mcc-navlink:hover { background: #f4efff !important; color: #4f0fb0 !important; }
+.mcc-card { transition: transform .15s, border-color .15s, background .15s; }
+.mcc-card:hover { border-color: #6b26ff !important; transform: translateY(-2px); }
+.mcc-exam:hover { background: #f7f3ff !important; }
+.mcc-footlink:hover { color: #c9b2ff !important; }
+.mcc-teach:hover { border-color: #6b26ff !important; }
+.mcc-chip:hover { border-color: #6b26ff !important; color: #4f0fb0 !important; }
+
+/* Header: the wide layout from 900px up, the compact one below, judged by the header's own width. */
+.mcc-header { container: mcch / inline-size; }
+.mcc-header-wide { display: flex; }
+.mcc-header-compact { display: none; }
+@container mcch (max-width: 899px) {
+  .mcc-header-wide { display: none; }
+  .mcc-header-compact { display: flex; }
+}
+
+/* Floating chips around the hero phone: wide screens only. */
+.mcc-wide-only { display: none; }
+@container (min-width: 900px) {
+  .mcc-wide-only { display: flex; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mcc-card, .mcc-btn { transition: none; }
+  .mcc-card:hover { transform: none; }
+}

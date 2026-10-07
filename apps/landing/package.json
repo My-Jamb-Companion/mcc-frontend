@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@mcc/features": "workspace:*",
+    "@mcc/landing-content": "workspace:*",
     "@mcc/store": "workspace:*",
     "@mcc/ui": "workspace:*",
     "@tanstack/react-query": "^5.96.2",

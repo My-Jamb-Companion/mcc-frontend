@@ -1,0 +1,15 @@
+{
+  "name": "@mcc/landing-content",
+  "version": "1.0.0",
+  "description": "The landing page's content model: block types, their editable fields, defaults and helpers, shared by the landing site and the admin editor.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest"
+  },
+  "license": "ISC",
+  "packageManager": "pnpm@10.32.1"
+}
