@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from "react";
-import {Icon, Modal} from "@mcc/ui";
+import {ConfirmModal, Icon, Modal} from "@mcc/ui";
 import {InlineRename} from "./Step2";
 import LessonHtmlEditor from "@/src/components/LessonHtmlEditor";
 import {relaxSpaces} from "@/src/features/courses/helper/lessonHtml";
@@ -149,6 +149,8 @@ function FileRowItem({
       <button
         type="button"
         onClick={() => onRemove?.(file.id)}
+        aria-label={`Delete ${file.title}`}
+        title="Delete lecture"
         className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 hover:bg-gray-50"
       >
         <Icon icon="lucide:x" size={14} />
@@ -180,6 +182,8 @@ export default function LessonsCreate({
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
   // Picked files that were turned away (wrong type, too big), until the next pick.
   const [fileProblems, setFileProblems] = useState<string[]>([]);
+  // The lecture awaiting a delete confirmation.
+  const [removing, setRemoving] = useState<FileRow | null>(null);
 
   // An upload finishes against whatever the list looks like *then*, not when it
   // started, so refs keep the latest list without re-running anything.
@@ -327,7 +331,7 @@ export default function LessonsCreate({
           index={index}
           error={uploadErrors[file.id]}
           onRetry={retryUpload}
-          onRemove={(id) => onFilesChange(files.filter((x) => x.id !== id))}
+          onRemove={(id) => setRemoving(files.find((f) => f.id === id) ?? null)}
           onRename={handleRenameFile}
           onEditContent={openExistingContentEditor}
           onDragStart={(e, idx) => setDragItemIndex(idx)}
@@ -376,6 +380,26 @@ export default function LessonsCreate({
           ))}
         </ul>
       )}
+
+      {/* Removing a lecture loses what the admin wrote or uploaded for it, so it is never one click. */}
+      <ConfirmModal
+        open={!!removing}
+        variant="danger"
+        title="Delete this lecture?"
+        message={
+          <>
+            <strong className="break-words">{removing?.title || "This lecture"}</strong> will be removed, along with
+            everything you wrote or uploaded for it. Once you save, it can&apos;t be brought back.
+          </>
+        }
+        confirmText="Delete lecture"
+        cancelText="Keep it"
+        onConfirm={() => {
+          if (removing) onFilesChange(files.filter((x) => x.id !== removing.id));
+          setRemoving(null);
+        }}
+        onCancel={() => setRemoving(null)}
+      />
 
       <Modal
         open={contentEditorOpen}
