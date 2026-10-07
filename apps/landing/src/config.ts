@@ -4,3 +4,14 @@
 // a plain link to the Student Platform's own login, not a token transfer.
 export const LEARNER_URL =
   process.env.NEXT_PUBLIC_LEARNER_URL || "http://localhost:3000";
+
+// The other apps a visitor can be sent to from the landing page. Page content links to them
+// as /go/<app>/<path> (see app/go), so the content itself never holds an environment-specific address.
+export const PARENT_URL = process.env.NEXT_PUBLIC_PARENT_URL || "http://localhost:3003";
+export const TEACHER_URL = process.env.NEXT_PUBLIC_TEACHER_URL || "http://localhost:3002";
+
+// The admin console, the only page allowed to send live-preview content to /preview.
+export const ADMIN_URL = process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3001";
+
+// The API the page content is fetched from (server side, so no CORS involved).
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";

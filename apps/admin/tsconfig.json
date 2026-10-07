@@ -19,6 +19,7 @@
     { "path": "../../packages/api" },
     { "path": "../../packages/features" },
     { "path": "../../packages/store" },
+    { "path": "../../packages/landing-content" },
     { "path": "../../packages/types" }
   ]
 }
