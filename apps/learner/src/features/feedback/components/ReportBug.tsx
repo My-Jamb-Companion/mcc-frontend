@@ -3,26 +3,26 @@
 import Link from "next/link";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useRef, useState} from "react";
-import {Icon, showError} from "@mcc/ui";
+import {Button, Icon, showError} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import {BugFormErrors, bugFormErrors, MAX_DESCRIPTION, startingPage, Urgency, URGENCIES} from "../helper/bugForm";
 import {useReportBug} from "../hooks/useFeedback";
 
 const LETTERS = ["A", "B", "C"];
-const input = "w-full rounded-xl border border-muted/30 bg-background px-4 py-3 text-base outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20";
+const input = "w-full rounded-lg border border-muted/30 bg-background px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20";
 
 function Label({children, required}: {children: React.ReactNode; required?: boolean}) {
   return (
-    <span className="mb-3 flex items-center gap-2 text-xl font-semibold md:text-2xl">
+    <span className="mb-2 flex items-center gap-2 text-sm font-medium">
       {children}
-      {required && <span aria-hidden className="flex h-5 w-5 items-center justify-center rounded-full bg-muted/20 text-xs">*</span>}
+      {required && <span aria-hidden className="flex h-4 w-4 items-center justify-center rounded-full bg-muted/20 text-[10px]">*</span>}
       {required && <span className="sr-only">required</span>}
     </span>
   );
 }
 
 function FieldError({message}: {message?: string}) {
-  return message ? <p role="alert" className="mt-2 text-sm text-red-500">{message}</p> : null;
+  return message ? <p role="alert" className="mt-1.5 text-xs text-red-500">{message}</p> : null;
 }
 
 /** The "Report a Bug" form: what happened, which page, how urgent, an optional screenshot. */
@@ -70,26 +70,28 @@ export default function ReportBug() {
 
   if (done) {
     return (
-      <div className="mx-auto flex max-w-xl flex-col items-center px-6 py-24 text-center">
-        <div className="mb-4 text-6xl">✅</div>
-        <h1 className="text-3xl font-bold">Thanks, we&apos;ve got it</h1>
-        <p className="mt-3 text-subtle">Our team will look into it. You won&apos;t need to do anything else.</p>
+      <div className="mx-auto flex max-w-xl flex-col items-center px-4 py-20 text-center">
+        <div className="mb-3 text-5xl">✅</div>
+        <h1 className="text-2xl font-semibold">Thanks, we&apos;ve got it</h1>
+        <p className="mt-2 text-sm text-subtle">Our team will look into it. You won&apos;t need to do anything else.</p>
         {!done.screenshotSaved && (
-          <p className="mt-3 rounded-xl bg-amber-50 px-4 py-2 text-sm text-amber-800">Your report was sent, but we couldn&apos;t attach the screenshot.</p>
+          <p className="mt-3 rounded-xl bg-amber-50 px-4 py-2 text-xs text-amber-800">Your report was sent, but we couldn&apos;t attach the screenshot.</p>
         )}
-        <div className="mt-8 flex gap-3">
-          <button type="button" onClick={() => router.back()} className="rounded-full bg-primary px-6 py-3 font-semibold text-white">Back to what I was doing</button>
-          <Link href="/dashboard" className="rounded-full border border-muted/30 px-6 py-3 font-semibold">Dashboard</Link>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <Button type="button" onClick={() => router.back()}>Back to what I was doing</Button>
+          <Link href="/dashboard">
+            <Button type="button" variant="outline">Dashboard</Button>
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <form onSubmit={submit} noValidate className="mx-auto w-full max-w-3xl px-6 py-10 md:py-14">
-      <h1 className="mb-10 text-4xl font-bold tracking-tight md:text-5xl">Report a Bug <span aria-hidden>⚠️</span></h1>
+    <form onSubmit={submit} noValidate className="mx-auto w-full max-w-3xl px-4 pb-20 pt-7">
+      <h1 className="mb-6 text-2xl font-semibold">Report a bug</h1>
 
-      <div className="mb-9">
+      <div className="mb-6">
         <label htmlFor="bug-description"><Label required>Describe the issue</Label></label>
         <textarea
           id="bug-description"
@@ -103,15 +105,15 @@ export default function ReportBug() {
         <FieldError message={errors.description} />
       </div>
 
-      <div className="mb-9">
+      <div className="mb-6">
         <label htmlFor="bug-page"><Label required>What page were you on? (paste the link)</Label></label>
         <input id="bug-page" value={pageUrl} onChange={(e) => setPageUrl(e.target.value)} className={`${input} md:max-w-xl`} aria-invalid={!!errors.page_url} />
         <FieldError message={errors.page_url} />
       </div>
 
-      <fieldset className="mb-9">
+      <fieldset className="mb-6">
         <legend><Label required>How urgent is this issue?</Label></legend>
-        <div className="flex flex-col items-start gap-3">
+        <div className="flex flex-col items-start gap-2">
           {URGENCIES.map((u, i) => (
             <button
               key={u.value}
@@ -119,11 +121,11 @@ export default function ReportBug() {
               role="radio"
               aria-checked={urgency === u.value}
               onClick={() => setUrgency(u.value)}
-              className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-lg shadow-sm transition-colors ${
+              className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
                 urgency === u.value ? "border-primary bg-primary/5" : "border-muted/30 hover:border-primary/50"
               }`}
             >
-              <span className={`flex h-7 w-7 items-center justify-center rounded-md text-sm font-bold text-white ${urgency === u.value ? "bg-primary" : "bg-neutral-500"}`}>{LETTERS[i]}</span>
+              <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white ${urgency === u.value ? "bg-primary" : "bg-neutral-500"}`}>{LETTERS[i]}</span>
               <span>
                 {u.label}
                 <span className="block text-xs text-subtle">{u.hint}</span>
@@ -134,21 +136,21 @@ export default function ReportBug() {
         <FieldError message={errors.urgency} />
       </fieldset>
 
-      <div className="mb-10">
+      <div className="mb-8">
         <Label>Snap a screenshot! (optional)</Label>
         <div
           onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
           onDragLeave={() => setDragging(false)}
           onDrop={(e) => { e.preventDefault(); setDragging(false); pick(e.dataTransfer.files?.[0]); }}
-          className={`flex flex-col items-center gap-2 rounded-2xl border-2 border-dashed px-4 py-10 text-center transition-colors ${dragging ? "border-primary bg-primary/5" : "border-muted/40"}`}
+          className={`flex flex-col items-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-colors ${dragging ? "border-primary bg-primary/5" : "border-muted/40"}`}
         >
-          <button type="button" onClick={() => fileInput.current?.click()} className="flex items-center gap-2 text-lg font-medium text-subtle hover:text-foreground">
-            <Icon icon="lucide:upload" size={20} />
+          <button type="button" onClick={() => fileInput.current?.click()} className="flex items-center gap-2 text-sm font-medium text-subtle hover:text-foreground">
+            <Icon icon="lucide:upload" size={18} />
             {screenshot ? screenshot.name : "Click to choose a file or drag here"}
           </button>
-          <p className="text-sm text-subtle">Accepts image files (up to 5 MB)</p>
+          <p className="text-xs text-subtle">Accepts image files (up to 5 MB)</p>
           {screenshot && (
-            <button type="button" onClick={() => { setScreenshot(null); if (fileInput.current) fileInput.current.value = ""; setErrors((e) => ({...e, screenshot: undefined})); }} className="text-sm font-medium text-red-500 hover:underline">
+            <button type="button" onClick={() => { setScreenshot(null); if (fileInput.current) fileInput.current.value = ""; setErrors((e) => ({...e, screenshot: undefined})); }} className="text-xs font-medium text-red-500 hover:underline">
               Remove
             </button>
           )}
@@ -157,10 +159,10 @@ export default function ReportBug() {
         <FieldError message={errors.screenshot} />
       </div>
 
-      <button type="submit" disabled={report.isPending} className="inline-flex items-center gap-2 rounded-xl bg-black px-6 py-3.5 text-lg font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60 dark:bg-white dark:text-black">
+      <Button type="submit" size="lg" radius="md" loading={report.isPending}>
         {report.isPending ? "Sending…" : "Submit"}
-        <Icon icon="lucide:arrow-right" size={20} />
-      </button>
+        <Icon icon="lucide:arrow-right" size={18} />
+      </Button>
     </form>
   );
 }
