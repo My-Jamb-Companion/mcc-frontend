@@ -124,10 +124,13 @@ const NAV_ENTRIES: NavEntry[] = [
 // Only routes that exist: Next prefetches every link in view, so a link to a
 // missing page 404s on every page load, in the console and the network log.
 const BOTTOM_ENTRY: NavEntry = {
-  key: "more",
+  key: "account",
   icon: "solar:settings-broken",
-  label: "More",
-  children: [{key: "settings", label: "Settings", href: "/settings"}],
+  label: "Account",
+  children: [
+    {key: "settings", label: "Settings", href: "/settings"},
+    {key: "profile", label: "User Profile", href: "/profile"},
+  ],
 };
 
 function isEntryActive(pathname: string | null, entry: NavEntry): boolean {
@@ -231,7 +234,8 @@ export default function SideNav() {
   const visibleEntries = NAV_ENTRIES.map((entry) =>
     entry.children ? {...entry, children: entry.children.filter((c) => canOpen(access, c.href))} : entry,
   ).filter((entry) => (entry.children ? entry.children.length > 0 : canOpen(access, entry.href)));
-  const showSettings = canOpen(access, "/settings");
+  // The gear always has the profile; Settings only for admins who can open it.
+  const bottomEntry = {...BOTTOM_ENTRY, children: BOTTOM_ENTRY.children!.filter((c) => canOpen(access, c.href))};
   const containerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
@@ -295,16 +299,14 @@ export default function SideNav() {
           </div>
 
           <div className="flex flex-col items-center gap-4 shrink-0">
-            {showSettings && (
-              <NavIcon
-                entry={BOTTOM_ENTRY}
-                isOpen={openKey === BOTTOM_ENTRY.key}
-                onToggle={() =>
-                  setOpenKey((prev) => (prev === BOTTOM_ENTRY.key ? null : BOTTOM_ENTRY.key))
-                }
-                pathname={pathname}
-              />
-            )}
+            <NavIcon
+              entry={bottomEntry}
+              isOpen={openKey === bottomEntry.key}
+              onToggle={() =>
+                setOpenKey((prev) => (prev === bottomEntry.key ? null : bottomEntry.key))
+              }
+              pathname={pathname}
+            />
           </div>
         </div>
       </div>

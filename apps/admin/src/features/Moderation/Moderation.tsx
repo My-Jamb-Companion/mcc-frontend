@@ -5,6 +5,7 @@ import { ConfirmModal, showError, showSuccess } from "@mcc/ui";
 import { extractApiError } from "@mcc/api";
 import { useDismissReport, useReports, useResolveReport } from "./hooks/useModeration";
 import type { ApiContentReport } from "./services/moderation.service";
+import BugReports from "./bugs/BugReports";
 
 const formatWhen = (iso: string) =>
   new Date(iso).toLocaleString("en-US", {
@@ -124,7 +125,13 @@ const TABS: { key: string | undefined; label: string }[] = [
   { key: undefined, label: "All" },
 ];
 
+const VIEWS = [
+  { key: "content", label: "Content reports" },
+  { key: "bugs", label: "Bug reports" },
+] as const;
+
 export default function Moderation() {
+  const [view, setView] = useState<(typeof VIEWS)[number]["key"]>("content");
   const [activeTab, setActiveTab] = useState<string | undefined>("pending");
   const { data: reports, isLoading } = useReports(activeTab);
 
@@ -133,9 +140,34 @@ export default function Moderation() {
   return (
     <section>
       <div className="w-full rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm">
+        <div className="mb-4 inline-flex items-center rounded-xl bg-neutral-100/80 p-1" role="tablist" aria-label="Moderation sections">
+          {VIEWS.map((v) => (
+            <button
+              key={v.key}
+              type="button"
+              role="tab"
+              aria-selected={view === v.key}
+              onClick={() => setView(v.key)}
+              className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-all ${
+                view === v.key ? "bg-white text-neutral-900 shadow-sm" : "text-neutral-500 hover:text-neutral-800"
+              }`}
+            >
+              {v.label}
+            </button>
+          ))}
+        </div>
+
+        {view === "bugs" ? (
+          <>
+            <h1 className="text-lg font-bold text-neutral-900">Bug reports</h1>
+            <p className="mb-4 mt-0.5 text-sm text-neutral-400">Problems students and staff report from the apps, most urgent first.</p>
+            <BugReports />
+          </>
+        ) : (
+        <>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-neutral-900">Moderation</h1>
+            <h1 className="text-lg font-bold text-neutral-900">Content reports</h1>
             <p className="text-sm text-neutral-400 mt-0.5">
               Reports filed against community posts and instructor Q&amp;A messages.
             </p>
@@ -171,6 +203,8 @@ export default function Moderation() {
           )}
           {reports?.map((report) => <ReportRow key={report.id} report={report} />)}
         </div>
+        </>
+        )}
       </div>
     </section>
   );
