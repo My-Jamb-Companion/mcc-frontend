@@ -9,6 +9,8 @@ import {useAuth} from "@mcc/features";
 import {useProfile} from "../account/hooks/useProfile";
 import {displayName} from "../account/helper/profile.mapper";
 import ProfileAvatar from "../account/components/ProfileAvatar";
+import {useSupportContact} from "../feedback/hooks/useFeedback";
+import {chatLink} from "../feedback/helper/chat";
 
 const LANGUAGES = [
   {code: "en", label: "English (US)", icon: "circle-flags:uk"},
@@ -29,6 +31,9 @@ export default function SideNav({
   const {logoutMutation} = useAuth();
   const {data: profile} = useProfile();
   const studentName = profile ? displayName(profile) : "";
+  // "Chat with us" opens WhatsApp with the support number; hidden until one is configured.
+  const {data: support} = useSupportContact();
+  const chatHref = chatLink(support?.whatsapp_url, {name: studentName, email: profile?.email});
   const [linksHovering, setLinksHovering] = useState(false);
   const [accLinksHovering, setAccLinksHovering] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -306,6 +311,49 @@ export default function SideNav({
                     className="shrink-0"
                   />
                   <span>Settings</span>
+                </button>
+
+                <div className="h-px bg-white/10 my-0.5" />
+
+                {chatHref && (
+                  <a
+                    href={chatHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => {
+                      setAccountMenuOpen(false);
+                      setAccLinksHovering(false);
+                    }}
+                    className="flex items-center gap-3 w-full px-3 py-2 text-xs font-medium text-white hover:bg-white/10 rounded-xl transition-colors cursor-pointer"
+                  >
+                    <Icon icon="solar:chat-round-dots-bold" size={18} className="shrink-0" />
+                    <span>Chat with us</span>
+                  </a>
+                )}
+
+                <button
+                  onClick={() => {
+                    setAccountMenuOpen(false);
+                    setAccLinksHovering(false);
+                    // Start the report from the page they were on.
+                    router.push(`/report-bug?from=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+                  }}
+                  className="flex items-center gap-3 w-full px-3 py-2 text-xs font-medium text-white hover:bg-white/10 rounded-xl transition-colors cursor-pointer"
+                >
+                  <Icon icon="solar:bug-bold" size={18} className="shrink-0" />
+                  <span>Report a bug</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setAccountMenuOpen(false);
+                    setAccLinksHovering(false);
+                    router.push("/progress-survey");
+                  }}
+                  className="flex items-center gap-3 w-full px-3 py-2 text-xs font-medium text-white hover:bg-white/10 rounded-xl transition-colors cursor-pointer"
+                >
+                  <Icon icon="solar:clipboard-list-bold" size={18} className="shrink-0" />
+                  <span>Progress survey</span>
                 </button>
 
                 <div className="h-px bg-white/10 my-0.5" />
