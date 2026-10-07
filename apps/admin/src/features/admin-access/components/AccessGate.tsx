@@ -11,6 +11,7 @@ export const LANDING_CANDIDATES = [
   "/dashboard/courses",
   "/dashboard/exam-program",
   "/dashboard/question-bank",
+  "/dashboard/landing",
   "/dashboard/students/active-students",
   "/dashboard/teachers",
   "/dashboard/cra",

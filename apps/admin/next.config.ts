@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
     // own origin instead of the backend -- a real pre-existing gap, not
     // something Phase 8.1 introduced.
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
+    // The public landing site, whose /preview page the Landing page editor shows live edits in.
+    NEXT_PUBLIC_LANDING_URL: process.env.NEXT_PUBLIC_LANDING_URL || "http://localhost:3004",
   },
   turbopack: {},
 };
