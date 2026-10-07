@@ -79,6 +79,7 @@ const NAV_ENTRIES: NavEntry[] = [
       {key: "exam-catalog", label: "Exams & subjects", href: "/dashboard/exam-program/catalog"},
       {key: "categories", label: "Categories", href: "/dashboard/categories"},
       {key: "question-bank", label: "Question Bank", href: "/dashboard/question-bank"},
+      {key: "landing", label: "Landing page", href: "/dashboard/landing"},
     ],
   },
   {
