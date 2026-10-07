@@ -4,6 +4,8 @@ import {useMemo, useState} from "react";
 import {Button, Icon} from "@mcc/ui";
 import {chatReplyText, sendChatMessage} from "@/src/features/brainy/services/brainy.service";
 import {splitIntoBlocks} from "@/src/features/learnings/helper/lessonBlocks";
+import {normalizeLessonHtml, relaxSpaces} from "@/src/features/learnings/helper/lessonHtml";
+import {LESSON_CONTENT_CSS} from "@/src/features/learnings/helper/lessonCss";
 
 interface InteractiveLessonContentProps {
   html: string;
@@ -26,6 +28,8 @@ export default function InteractiveLessonContent({
   const [asking, setAsking] = useState(false);
 
   const block = blocks[index];
+  // Quill's lists need rebuilding to show bullets and numbers without Quill's stylesheet.
+  const blockHtml = useMemo(() => (block ? normalizeLessonHtml(block.html) : ""), [block]);
   const isLast = index >= blocks.length - 1;
   const progress = blocks.length ? ((index + 1) / blocks.length) * 100 : 0;
 
@@ -91,12 +95,12 @@ export default function InteractiveLessonContent({
           // decode them, same as JSX text interpolation never would.
           <h2
             className="mb-4 text-lg font-semibold text-primary break-words"
-            dangerouslySetInnerHTML={{__html: block.heading}}
+            dangerouslySetInnerHTML={{__html: relaxSpaces(block.heading)}}
           />
         )}
         <div
-          className="lesson-block-content max-w-none break-words text-gray-800 [&_img]:max-w-full [&_img]:rounded-lg [&_p]:mb-4 [&_p:last-child]:mb-0"
-          dangerouslySetInnerHTML={{__html: block.html}}
+          className="lesson-block-content"
+          dangerouslySetInnerHTML={{__html: blockHtml}}
         />
       </div>
 
@@ -168,28 +172,9 @@ export default function InteractiveLessonContent({
         </Button>
       </div>
 
-      {/* `.lesson-block-content` used to rely on Tailwind's `prose` classes
-          for table borders, but the typography plugin isn't installed in
-          this app so `prose` resolved to nothing -- tables rendered with
-          no visible column separation. Style tables explicitly instead. */}
-      <style jsx global>{`
-        .lesson-block-content table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-bottom: 1rem;
-        }
-        .lesson-block-content th,
-        .lesson-block-content td {
-          border: 1px solid #e5e7eb;
-          padding: 0.5rem 0.75rem;
-          text-align: left;
-          vertical-align: top;
-        }
-        .lesson-block-content th {
-          background: #f9fafb;
-          font-weight: 600;
-        }
-      `}</style>
+      {/* Lesson typography: lists, headings, quotes, links, tables and Quill's class-based
+          formats (see lessonCss.ts). Tailwind's `prose` isn't installed in this app. */}
+      <style dangerouslySetInnerHTML={{__html: LESSON_CONTENT_CSS}} />
     </div>
   );
 }

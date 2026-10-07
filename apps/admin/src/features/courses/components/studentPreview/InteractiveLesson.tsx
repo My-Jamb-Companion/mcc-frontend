@@ -3,6 +3,8 @@
 import {useMemo, useState} from "react";
 import {Button, Icon} from "@mcc/ui";
 import {splitIntoBlocks} from "@/src/features/courses/helper/lessonBlocks";
+import {normalizeLessonHtml, relaxSpaces} from "@/src/features/courses/helper/lessonHtml";
+import {LESSON_CONTENT_CSS} from "@/src/features/courses/helper/lessonCss";
 
 /**
  * A port of the learner app's InteractiveLessonContent: an HTML lesson is
@@ -21,6 +23,7 @@ export default function InteractiveLesson({
   const [index, setIndex] = useState(0);
 
   const block = blocks[index];
+  const blockHtml = useMemo(() => (block ? normalizeLessonHtml(block.html) : ""), [block]);
   const isLast = index >= blocks.length - 1;
   const progress = blocks.length ? ((index + 1) / blocks.length) * 100 : 0;
 
@@ -42,12 +45,12 @@ export default function InteractiveLesson({
         {block.heading && (
           <h2
             className="mb-4 text-lg font-semibold text-primary break-words"
-            dangerouslySetInnerHTML={{__html: block.heading}}
+            dangerouslySetInnerHTML={{__html: relaxSpaces(block.heading)}}
           />
         )}
         <div
-          className="lesson-block-content max-w-none break-words text-gray-800 [&_img]:max-w-full [&_img]:rounded-lg [&_p]:mb-4 [&_p:last-child]:mb-0"
-          dangerouslySetInnerHTML={{__html: block.html}}
+          className="lesson-block-content"
+          dangerouslySetInnerHTML={{__html: blockHtml}}
         />
       </div>
 
@@ -78,24 +81,7 @@ export default function InteractiveLesson({
         </Button>
       </div>
 
-      <style jsx global>{`
-        .lesson-block-content table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-bottom: 1rem;
-        }
-        .lesson-block-content th,
-        .lesson-block-content td {
-          border: 1px solid #e5e7eb;
-          padding: 0.5rem 0.75rem;
-          text-align: left;
-          vertical-align: top;
-        }
-        .lesson-block-content th {
-          background: #f9fafb;
-          font-weight: 600;
-        }
-      `}</style>
+      <style dangerouslySetInnerHTML={{__html: LESSON_CONTENT_CSS}} />
     </div>
   );
 }

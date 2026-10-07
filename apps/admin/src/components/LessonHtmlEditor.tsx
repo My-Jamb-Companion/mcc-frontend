@@ -1,21 +1,34 @@
 "use client";
 
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
 import {Icon, showError} from "@mcc/ui";
 import {uploadMedia} from "@/src/features/courses/services/media.service";
+import {planPaste} from "@/src/features/courses/helper/lessonPaste";
 
 // react-quill-new touches `document` at import time, so it must never run
 // on the server -- same reasoning as the messaging compose box
 // (SendMessage.tsx) that already depends on it.
-// `as any` -- next/dynamic's wrapper type doesn't declare ref forwarding
-// even though the underlying class component supports it at runtime,
-// which this file needs for the image-upload/symbol-insert handlers.
-const ReactQuill = dynamic(() => import("react-quill-new"), {
-  ssr: false,
-  loading: () => <div className="h-64 w-full animate-pulse rounded-xl bg-gray-100" />,
-}) as any;
+// next/dynamic does NOT forward `ref` to the component it loads, so a plain
+// `<ReactQuill ref=...>` leaves the ref empty and every handler that needs the
+// editor (paste cleaning, image upload, symbol insert) silently does nothing.
+// The loaded component is wrapped to take the ref as an ordinary prop instead.
+// `any` -- react-quill-new ships its own types but the dynamic() wrapper erases them.
+const ReactQuill = dynamic(
+  async () => {
+    const {default: Quill} = await import("react-quill-new");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return function QuillWithRef({forwardedRef, ...props}: any) {
+      return <Quill ref={forwardedRef} {...props} />;
+    };
+  },
+  {
+    ssr: false,
+    loading: () => <div className="h-64 w-full animate-pulse rounded-xl bg-gray-100" />,
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+) as any;
 
 // The H2 button is load-bearing, not decorative: the student-side viewer
 // (apps/learner/.../InteractiveLessonContent.tsx) splits a lesson into
@@ -110,61 +123,51 @@ export default function LessonHtmlEditor({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const quillRef = useRef<any>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  // The editor's root element, once Quill has created it. Set from the ref callback, which
+  // React calls right after Quill mounts, so there is nothing to poll for.
+  const [editorRoot, setEditorRoot] = useState<HTMLElement | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const setQuillRef = useCallback((instance: any) => {
+    quillRef.current = instance;
+    setEditorRoot(instance?.getEditor?.()?.root ?? null);
+  }, []);
 
   function getEditor() {
     return quillRef.current?.getEditor?.();
   }
 
-  // Quill has no table module registered (no toolbar button, no `table`
-  // blot) so a table can only enter the editor via clipboard paste -- and
-  // Quill's default clipboard matchers only understand <table>/<tbody>/
-  // <tr>/<td>. A pasted <th>/<thead> (e.g. from Word/Sheets/a webpage) has
-  // no matching blot, so Quill silently drops the wrapping tags and merges
-  // the header cells' text together with no separator, losing the header
-  // row entirely by the time the paste lands in the editor. Intercept the
-  // paste ourselves, ahead of Quill's own handler, and rewrite <th>/
-  // <thead> into plain <td>/<strong> markup Quill already round-trips
-  // losslessly, before handing it to Quill's clipboard.
+  // Pasted content (from Google Docs, Word, a PDF, a web page) is cleaned before Quill
+  // sees it, ahead of Quill's own paste handler, so formatting carries through to students:
+  // headings, bold/italic, links, lists, tables and alignment are kept, the clutter around
+  // them is dropped, and text copied from a PDF has its page-width line breaks joined back
+  // into paragraphs (see lessonPaste.ts). A table's <th>/<thead> are also rewritten there,
+  // since Quill has no matching blot and would merge the header cells' text together.
+  // A single line, or content copied from this editor, is left to Quill.
   useEffect(() => {
-    let cancelled = false;
-    let root: HTMLElement | null = null;
+    if (!editorRoot) return;
 
     function handlePaste(e: ClipboardEvent) {
-      const html = e.clipboardData?.getData("text/html");
-      if (!html || !/<t(h\b|head\b)/i.test(html)) return;
+      const planned = planPaste(e.clipboardData?.getData("text/html") ?? "", e.clipboardData?.getData("text/plain") ?? "");
+      if (planned === null) return;
       const editor = getEditor();
       if (!editor) return;
 
       e.preventDefault();
       e.stopPropagation();
 
-      const normalized = html
-        .replace(/<thead[^>]*>/gi, "")
-        .replace(/<\/thead>/gi, "")
-        .replace(/<th\b([^>]*)>/gi, "<td$1><strong>")
-        .replace(/<\/th>/gi, "</strong></td>");
-
-      const range = editor.getSelection(true) || {index: editor.getLength()};
-      editor.clipboard.dangerouslyPasteHTML(range.index, normalized, "user");
+      const range = editor.getSelection(true) || {index: Math.max(0, editor.getLength() - 1), length: 0};
+      if (range.length) editor.deleteText(range.index, range.length, "user");
+      const before = editor.getLength();
+      editor.clipboard.dangerouslyPasteHTML(range.index, planned, "user");
+      // Put the cursor after what was pasted, and keep it in view.
+      editor.setSelection(range.index + (editor.getLength() - before), 0, "silent");
+      editor.scrollSelectionIntoView?.();
     }
 
-    function attach() {
-      if (cancelled) return;
-      const editor = getEditor();
-      if (!editor) {
-        requestAnimationFrame(attach);
-        return;
-      }
-      root = editor.root as HTMLElement;
-      root.addEventListener("paste", handlePaste, true);
-    }
-    attach();
-
-    return () => {
-      cancelled = true;
-      root?.removeEventListener("paste", handlePaste, true);
-    };
-  }, []);
+    // Capture phase: ahead of Quill's own paste handler.
+    editorRoot.addEventListener("paste", handlePaste, true);
+    return () => editorRoot.removeEventListener("paste", handlePaste, true);
+  }, [editorRoot]);
 
   function insertSymbol(symbol: string) {
     const editor = getEditor();
@@ -219,7 +222,7 @@ export default function LessonHtmlEditor({
   return (
     <div className="lesson-html-editor-wrapper rounded-xl border border-gray-200 bg-white overflow-hidden">
       <ReactQuill
-        ref={quillRef}
+        forwardedRef={setQuillRef}
         theme="snow"
         value={value}
         onChange={onChange}

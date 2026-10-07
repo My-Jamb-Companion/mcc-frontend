@@ -5,6 +5,7 @@ import {FileRow} from "@/src/features/courses/types/types";
 import {uploadMedia} from "@/src/features/courses/services/media.service";
 import {isYouTubeUrl} from "@/src/features/courses/helper/video";
 import LessonHtmlEditor from "@/src/components/LessonHtmlEditor";
+import {relaxSpaces} from "@/src/features/courses/helper/lessonHtml";
 import {LESSON_FILE_ACCEPT, LESSON_FILE_CAPTION, splitLessonFiles} from "@/src/features/courses/helper/lessonFiles";
 
 function uid() {
@@ -358,7 +359,7 @@ export default function LessonsCreate({
   function saveContentEditor() {
     if (editingContentId) {
       onFilesChange(
-        files.map((f) => (f.id === editingContentId ? {...f, content: draftContent} : f)),
+        files.map((f) => (f.id === editingContentId ? {...f, content: relaxSpaces(draftContent)} : f)),
       );
     } else {
       onFilesChange([
@@ -368,7 +369,7 @@ export default function LessonsCreate({
           title: "Lesson content",
           format: HTML_FORMAT,
           size: "",
-          content: draftContent,
+          content: relaxSpaces(draftContent),
         },
       ]);
     }
