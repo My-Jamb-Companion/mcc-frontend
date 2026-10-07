@@ -20,12 +20,12 @@ const off = "border-muted/30 hover:border-primary/60";
 
 export function QuestionShell({q, error, children}: {q: Question; error?: string; children: ReactNode}) {
   return (
-    <section className="mb-10" aria-labelledby={`q-${q.key}`}>
-      <h2 id={`q-${q.key}`} className="text-xl font-semibold">{q.title}</h2>
-      {q.help && <p className="mb-4 mt-1 text-sm text-subtle">{q.help}</p>}
+    <section className="mb-8" aria-labelledby={`q-${q.key}`}>
+      <h2 id={`q-${q.key}`} className="text-base font-semibold">{q.title}</h2>
+      {q.help && <p className="mb-3 mt-1 text-xs text-subtle">{q.help}</p>}
       {!q.help && <div className="mb-3" />}
       {children}
-      {error && <p role="alert" className="mt-3 text-sm text-red-500">{error}</p>}
+      {error && <p role="alert" className="mt-2 text-xs text-red-500">{error}</p>}
     </section>
   );
 }
@@ -63,7 +63,7 @@ function Results({q, value, onChange}: {q: Extract<Question, {kind: "results"}>;
               placeholder="Subject (choose or type)"
               aria-label={`Subject ${i + 1}`}
               maxLength={100}
-              className="min-w-0 flex-1 rounded-lg border border-muted/30 bg-background px-3 py-2 text-base font-medium outline-none focus:border-primary"
+              className="min-w-0 flex-1 rounded-lg border border-muted/30 bg-background px-3 py-2 text-sm font-medium outline-none focus:border-primary"
             />
             {rows.length > 1 && (
               <button type="button" onClick={() => onChange(rows.filter((_, j) => j !== i))} aria-label={`Remove subject ${i + 1}`} className="text-subtle hover:text-red-500">
@@ -115,7 +115,7 @@ function Scale({options, value, onChange}: {options: Option[]; value: number | u
     <div>
       <div role="radiogroup" className="grid grid-cols-5 gap-2">
         {options.map((o) => (
-          <button key={String(o.value)} type="button" role="radio" aria-checked={value === o.value} onClick={() => onChange(Number(o.value))} className={`${chip} py-3 text-base ${value === o.value ? on : off}`}>
+          <button key={String(o.value)} type="button" role="radio" aria-checked={value === o.value} onClick={() => onChange(Number(o.value))} className={`${chip} py-2.5 ${value === o.value ? on : off}`}>
             {String(o.value)}
           </button>
         ))}
@@ -131,7 +131,7 @@ function Scale({options, value, onChange}: {options: Option[]; value: number | u
 function PairRow({item, label, value, onChange}: {item: PairItem; label: string; value: number | undefined; onChange: (v: number) => void}) {
   return (
     <div className="mb-3">
-      <p className="mb-1.5 text-sm font-medium">{label}</p>
+      <p className="mb-1.5 text-xs font-medium">{label}</p>
       <div role="radiogroup" aria-label={`${item.title}: ${label.toLowerCase()}`} className="grid grid-cols-5 gap-2">
         {item.options.map((o) => (
           <button key={String(o.value)} type="button" role="radio" aria-checked={value === o.value} onClick={() => onChange(Number(o.value))} className={`flex flex-col items-center rounded-xl border py-2.5 text-lg transition-colors ${value === o.value ? "border-primary bg-primary/10" : "border-muted/30 hover:border-primary/50"}`}>
@@ -156,7 +156,7 @@ function Pairs({q, value, onChange}: {q: Extract<Question, {kind: "pairs"}>; val
     <div className="flex flex-col gap-5">
       {q.items.map((item) => (
         <div key={item.key} className="rounded-2xl border border-muted/25 p-4">
-          <h3 className="text-base font-semibold">{item.title}</h3>
+          <h3 className="text-sm font-semibold">{item.title}</h3>
           {item.help && <p className="mb-3 text-xs text-subtle">{item.help}</p>}
           <PairRow item={item} label="Before" value={value[item.key]?.before} onChange={(v) => set(item.key, "before", v)} />
           <PairRow item={item} label="After" value={value[item.key]?.after} onChange={(v) => set(item.key, "after", v)} />
@@ -231,7 +231,7 @@ export function QuestionField({q, value, onChange}: {q: Question; value: unknown
           rows={4}
           placeholder="Optional"
           aria-labelledby={`q-${q.key}`}
-          className="w-full resize-y rounded-xl border border-muted/30 bg-background px-4 py-3 text-base outline-none focus:border-primary"
+          className="w-full resize-y rounded-lg border border-muted/30 bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
         />
       );
   }

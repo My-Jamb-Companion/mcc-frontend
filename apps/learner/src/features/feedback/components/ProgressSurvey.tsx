@@ -3,7 +3,7 @@
 import Link from "next/link";
 import {useEffect, useRef, useState} from "react";
 import {extractApiError} from "@mcc/api";
-import {showError} from "@mcc/ui";
+import {Button, showError} from "@mcc/ui";
 import {Answers, buildPayload, stepOfQuestion, stepProblems} from "../helper/survey";
 import {useSubmitSurvey, useSurvey} from "../hooks/useFeedback";
 import {QuestionField, QuestionShell} from "./SurveyQuestions";
@@ -21,8 +21,8 @@ function readDraft(surveyKey: string): {answers: Answers; step: number} | null {
 
 function Centered({title, children}: {title: string; children?: React.ReactNode}) {
   return (
-    <div className="mx-auto flex max-w-xl flex-col items-center px-6 py-24 text-center">
-      <h1 className="text-3xl font-bold">{title}</h1>
+    <div className="mx-auto flex max-w-xl flex-col items-center px-4 py-20 text-center">
+      <h1 className="text-2xl font-semibold">{title}</h1>
       {children}
     </div>
   );
@@ -67,14 +67,16 @@ export default function ProgressSurvey() {
   }, [step]);
 
   if (survey.isLoading || !definition) {
-    return survey.isError ? <Centered title="Couldn't load the survey"><p className="mt-3 text-subtle">Please try again in a moment.</p></Centered> : <p className="py-24 text-center text-subtle">Loading…</p>;
+    return survey.isError ? <Centered title="Couldn't load the survey"><p className="mt-2 text-sm text-subtle">Please try again in a moment.</p></Centered> : <p className="py-20 text-center text-sm text-muted">Loading…</p>;
   }
 
   if (sent || survey.data?.submitted) {
     return (
       <Centered title={sent ? "Thank you! 🎉" : "You've already answered"}>
-        <p className="mt-3 text-subtle">{sent ? "Your answers help us make MCC better for every student." : "Thanks again, your answers are with us."}</p>
-        <Link href="/dashboard" className="mt-8 rounded-full bg-primary px-6 py-3 font-semibold text-white">Back to dashboard</Link>
+        <p className="mt-2 text-sm text-subtle">{sent ? "Your answers help us make MCC better for every student." : "Thanks again, your answers are with us."}</p>
+        <Link href="/dashboard" className="mt-6">
+          <Button type="button">Back to dashboard</Button>
+        </Link>
       </Centered>
     );
   }
@@ -116,13 +118,13 @@ export default function ProgressSurvey() {
   }
 
   return (
-    <div ref={top} className="mx-auto w-full max-w-3xl px-6 pb-32 pt-8">
+    <div ref={top} className="mx-auto w-full max-w-3xl px-4 pb-28 pt-7">
       <div className="mb-6 flex gap-2" role="progressbar" aria-valuemin={1} aria-valuemax={definition.steps.length} aria-valuenow={step + 1} aria-label="Survey progress">
         {definition.steps.map((s, i) => <span key={s.id} className={`h-1 flex-1 rounded-full ${i <= step ? "bg-foreground" : "bg-muted/25"}`} />)}
       </div>
-      <p className="text-sm text-subtle">Step {step + 1} of {definition.steps.length} · {current.title}</p>
-      <h1 className="mt-1 text-3xl font-bold tracking-tight md:text-4xl">{definition.title}</h1>
-      <p className="mb-10 mt-2 text-subtle">{definition.intro}</p>
+      <p className="text-xs text-subtle">Step {step + 1} of {definition.steps.length} · {current.title}</p>
+      <h1 className="mt-1 text-2xl font-semibold">{definition.title}</h1>
+      <p className="mb-8 mt-1.5 text-sm text-subtle">{definition.intro}</p>
 
       {current.questions.map((q) => (
         <QuestionShell key={q.key} q={q} error={problems[q.key]}>
@@ -130,12 +132,12 @@ export default function ProgressSurvey() {
         </QuestionShell>
       ))}
 
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-muted/20 bg-background/95 px-6 py-4 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-muted/20 bg-background/95 px-4 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <button type="button" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} className="rounded-full bg-muted/15 px-5 py-2.5 text-sm font-semibold disabled:opacity-40">Back</button>
-          <button type="button" onClick={next} disabled={submit.isPending} className="rounded-full bg-black px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-60 dark:bg-white dark:text-black">
+          <Button type="button" variant="outline" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>Back</Button>
+          <Button type="button" onClick={next} loading={submit.isPending}>
             {submit.isPending ? "Sending…" : last ? "Submit" : "Next"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
