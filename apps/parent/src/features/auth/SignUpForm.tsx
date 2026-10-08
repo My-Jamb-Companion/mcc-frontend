@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Controller, FormInputs, useForm } from "@mcc/features";
-import { Button } from "@mcc/ui";
+import { Button, LegalLink } from "@mcc/ui";
 import { extractApiError } from "@mcc/api";
 import { useSignupParentAndChild } from "./useSignupParentAndChild";
 import { ParentChildSignupInput } from "./signup.service";
@@ -115,6 +115,12 @@ export const SignUpForm = () => {
           {extractApiError(signup.error, "Something went wrong. Please try again.")}
         </p>
       )}
+
+      <p className="text-center text-xs text-muted">
+        By creating these accounts you accept the{" "}
+        <LegalLink doc="terms">Terms of Use</LegalLink> and{" "}
+        <LegalLink doc="privacy">Privacy Policy</LegalLink>, for you and your child.
+      </p>
 
       <Button type="submit" width="full" loading={signup.isPending}>
         Create accounts

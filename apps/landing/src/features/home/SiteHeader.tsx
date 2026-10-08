@@ -8,8 +8,9 @@ import { A, BrandMark } from "./ui";
 /**
  * The sticky header. The wide bar (menu + log in) and the compact bar (menu button) are both
  * rendered and swapped by a container query in landing.css, so the page never flashes the wrong one.
+ * `homeHref` is where the logo goes: the top of this page on the home page, "/" elsewhere.
  */
-export function SiteHeader({ site }: { site: FieldData }) {
+export function SiteHeader({ site, homeHref = "#top" }: { site: FieldData; homeHref?: string }) {
   const [open, setOpen] = useState(false);
   const links = list(site, "nav_links");
   const letter = str(site, "logo_letter") || str(site, "brand_name").charAt(0).toLowerCase() || "m";
@@ -20,7 +21,7 @@ export function SiteHeader({ site }: { site: FieldData }) {
   return (
     <header className="mcc-header" style={{ position: "sticky", top: 0, zIndex: 30, background: "#fff", borderBottom: "1px solid #EEEAF5", color: "#171717" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 clamp(16px,4cqw,56px)", height: 72, display: "flex", alignItems: "center", gap: "clamp(12px,2cqw,24px)" }}>
-        <A href="#top" aria-label={`${str(site, "brand_name")}, home`} style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "#171717", flex: "none" }}>
+        <A href={homeHref} aria-label={`${str(site, "brand_name")}, home`} style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "#171717", flex: "none" }}>
           <BrandMark letter={letter} logoUrl={str(site, "logo_url")} />
           <span className="mcc-header-wide" style={{ display: undefined }}>{brand(str(site, "brand_name"))}</span>
           <span className="mcc-header-compact">{brand(str(site, "brand_short") || str(site, "brand_name"), 18)}</span>

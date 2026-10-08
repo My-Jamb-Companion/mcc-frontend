@@ -1,6 +1,6 @@
 "use client";
 import {useState} from "react";
-import {Icon} from "@mcc/ui";
+import {Icon, LegalLink} from "@mcc/ui";
 import {useRouter} from "next/navigation";
 import LiveClassCard from "./LiveClassCard";
 import GamificationStrip from "@/src/features/rewards/components/GamificationStrip";
@@ -162,12 +162,12 @@ export default function Dashboard() {
       <div className="flex items-center justify-between px-16 py-8 text-sm font-medium max-sm:flex-col w-full max-sm:px-3">
         <p className="text-muted">© 2026 MC companion</p>
         <div className="flex items-center gap-5 max-sm:justify-between">
-          <p className="underline text-muted hover:text-primary cursor-pointer">
+          <LegalLink doc="terms" className="underline text-muted hover:text-primary">
             Terms and Conditions
-          </p>
-          <p className="underline text-muted hover:text-primary cursor-pointer">
+          </LegalLink>
+          <LegalLink doc="privacy" className="underline text-muted hover:text-primary">
             Privacy Policy
-          </p>
+          </LegalLink>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { list, str } from "@mcc/landing-content";
 import type { FieldData } from "@mcc/landing-content";
 import { A, Arrow, BrandMark } from "./ui";
+import { legalFallbackHref } from "../legal/documents";
 
 export function SiteFooter({ site }: { site: FieldData }) {
   const columns = list(site, "footer_columns");
@@ -8,9 +9,13 @@ export function SiteFooter({ site }: { site: FieldData }) {
   const letter = str(site, "logo_letter") || str(site, "brand_name").charAt(0).toLowerCase() || "m";
 
   // A link with no address (a page that doesn't exist yet) shows as plain text rather than a dead link.
+  // The legal links are the exception: published content may still hold them blank from before the
+  // pages existed, so a blank "Terms", "Privacy" or "Refund policy" goes to its page.
+  const addressOf = (l: Record<string, unknown>) =>
+    str(l as FieldData, "href").trim() || legalFallbackHref(str(l as FieldData, "label"));
   const item = (l: Record<string, unknown>, i: number) =>
-    str(l as FieldData, "href").trim() ? (
-      <A key={i} href={str(l as FieldData, "href")} className="mcc-footlink" style={{ display: "flex", alignItems: "center", minHeight: 40, fontSize: 15, color: "#EDEDED", textDecoration: "none" }}>
+    addressOf(l) ? (
+      <A key={i} href={addressOf(l)} className="mcc-footlink" style={{ display: "flex", alignItems: "center", minHeight: 40, fontSize: 15, color: "#EDEDED", textDecoration: "none" }}>
         {str(l as FieldData, "label")}
       </A>
     ) : (

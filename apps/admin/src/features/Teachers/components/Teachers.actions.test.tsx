@@ -33,13 +33,25 @@ const bareTeacherRow = {
   date_joined: "2026-09-14T10:00:00Z",
 };
 
+const disabledRow = {
+  teacher_id: "t-3",
+  teacher_name: "Dara Disabled",
+  email: "dara@example.com",
+  status: "approved",
+  is_active: false,
+  programs: [],
+  date_joined: "2026-03-01T10:00:00Z",
+};
+
 vi.mock("@mcc/features", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@mcc/features")>()),
-  useTeachers: () => ({data: [teacherRow, bareTeacherRow], isLoading: false, isError: false}),
+  useTeachers: () => ({data: [teacherRow, bareTeacherRow, disabledRow], isLoading: false, isError: false}),
 }));
 
-const {updateTeacherProfileMock} = vi.hoisted(() => ({
+const {updateTeacherProfileMock, disableTeacherMock, enableTeacherMock} = vi.hoisted(() => ({
   updateTeacherProfileMock: vi.fn(async () => ({teacher_id: "t-1", updates: {}})),
+  disableTeacherMock: vi.fn(async () => ({})),
+  enableTeacherMock: vi.fn(async () => ({})),
 }));
 
 vi.mock("../services/teacherPrograms.service", () => ({
@@ -79,7 +91,8 @@ vi.mock("../services/escalatedAssignments.service", () => ({
 vi.mock("../services/teacherActions.service", () => ({
   approveTeacher: vi.fn(async () => ({})),
   rejectTeacher: vi.fn(async () => ({})),
-  disableTeacher: vi.fn(async () => ({})),
+  disableTeacher: disableTeacherMock,
+  enableTeacher: enableTeacherMock,
 }));
 
 import Teachers from "./Teachers";
@@ -153,6 +166,33 @@ describe("Teachers actions menu", () => {
     document.querySelectorAll("img").forEach((img) => {
       expect(img.getAttribute("src")).toBeTruthy();
     });
+  });
+});
+
+describe("Disabling and enabling a teacher", () => {
+  it("asks for a reason, says it can be undone, and sends it", async () => {
+    renderScreen();
+    openMenu();
+    fireEvent.click(screen.getByText("Disable Teacher"));
+    expect(screen.getByText(/enable them again at any time/)).toBeTruthy();
+    expect(screen.queryByText(/can\s*not be undone/)).toBeNull();
+
+    const confirm = screen.getAllByText("Disable Teacher").find((el) => el.closest("button") && el.closest("button")!.className.includes("danger")) ??
+      screen.getAllByRole("button", {name: "Disable Teacher"}).at(-1)!;
+    expect((confirm.closest("button") as HTMLButtonElement).disabled).toBe(true);
+
+    fireEvent.change(screen.getByPlaceholderText(/Why is this teacher being disabled/), {target: {value: "Breach of the code of conduct"}});
+    fireEvent.click(confirm);
+    await waitFor(() => expect(disableTeacherMock).toHaveBeenCalledWith("t-1", "Breach of the code of conduct"));
+  });
+
+  it("offers Enable (not Disable) for a disabled teacher, and enables them", async () => {
+    renderScreen();
+    expect(screen.getByText("Disabled")).toBeTruthy();
+    fireEvent.click(screen.getAllByLabelText("More actions")[2]);
+    expect(screen.queryByText("Disable Teacher")).toBeNull();
+    fireEvent.click(screen.getByText("Enable Teacher"));
+    await waitFor(() => expect(enableTeacherMock).toHaveBeenCalledWith("t-3"));
   });
 });
 

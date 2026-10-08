@@ -68,6 +68,11 @@ export const SignUpForm = () => {
             {extractApiError(signupMutation.error, "Could not create your account")}
           </p>
         )}
+        <p className="text-xs text-muted text-center">
+          By creating an account you accept the{" "}
+          <Link href="/terms" className="underline hover:text-primary">Terms of Use</Link> and{" "}
+          <Link href="/privacy" className="underline hover:text-primary">Privacy Policy</Link>.
+        </p>
         <Button
           type="submit"
           variant="primary"

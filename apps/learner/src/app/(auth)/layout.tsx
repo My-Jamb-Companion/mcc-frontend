@@ -1,3 +1,5 @@
+import {LegalLink} from "@mcc/ui";
+
 // import SignUpSlider from "@/src/features/signup/components/SideSlider";
 
 export default function Layout({children}: {children: React.ReactNode}) {
@@ -13,9 +15,9 @@ export default function Layout({children}: {children: React.ReactNode}) {
         </div>
         <p className="text-subtle w-full text-xs text-center p-6 self-end">
           By continuing, I acknowledge the
-          <span className="underline cursor-pointer"> Privacy Policy </span>
-          and agree to the
-          <span className="underline cursor-pointer"> Terms of Use</span>
+          {" "}<LegalLink doc="privacy">Privacy Policy</LegalLink>{" "}
+          and agree to the{" "}
+          <LegalLink doc="terms">Terms of Use</LegalLink>
         </p>
       </div>
 

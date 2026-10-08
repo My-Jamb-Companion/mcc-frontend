@@ -9,6 +9,8 @@ export interface Teacher {
   rating?: number | null;
   leaderboard_position?: number | null;
   status?: "pending" | "approved" | "rejected";
+  /** False while the account is disabled; it can be enabled again. */
+  is_active?: boolean;
   // Backward compatibility fields
   id?: string;
   name?: string;

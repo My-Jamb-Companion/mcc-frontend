@@ -2,7 +2,6 @@
 
 import {useState} from "react";
 import {Icon} from "@mcc/ui";
-import {ApiUser} from "../services/users.service";
 
 export default function UserRowMenu({
   user,
@@ -10,7 +9,7 @@ export default function UserRowMenu({
   onDeactivate,
   onActivate,
 }: {
-  user: ApiUser;
+  user: {is_active: boolean};
   onEdit: () => void;
   onDeactivate: () => void;
   onActivate: () => void;

@@ -47,7 +47,21 @@ describe("LandingPage", () => {
     const { container } = render(<LandingPage content={page} />);
     expect(screen.queryByText("TikTok")).toBeNull();
     expect(screen.getByText("Instagram").closest("a")?.getAttribute("href")).toBe("https://instagram.com/x");
-    expect(container.querySelector("footer")?.textContent).toContain("Terms");
-    expect(Array.from(container.querySelectorAll("footer a")).some((a) => a.textContent === "Terms")).toBe(false);
+    // "About" has no page yet: plain text, not a dead link.
+    expect(container.querySelector("footer")?.textContent).toContain("About");
+    expect(Array.from(container.querySelectorAll("footer a")).some((a) => a.textContent === "About")).toBe(false);
+  });
+
+  it("links the legal footer entries to their pages, even when published content left them blank", () => {
+    const page = normalizeContent({
+      site: { footer_columns: [{ title: "LEGAL", links: [{ label: "Terms", href: "" }, { label: "Privacy", href: "" }, { label: "Refund policy", href: "" }] }] },
+      blocks: [],
+    });
+    const { container } = render(<LandingPage content={page} />);
+    const hrefOf = (label: string) =>
+      Array.from(container.querySelectorAll("footer a")).find((a) => a.textContent === label)?.getAttribute("href");
+    expect(hrefOf("Terms")).toBe("/terms");
+    expect(hrefOf("Privacy")).toBe("/privacy");
+    expect(hrefOf("Refund policy")).toBe("/refund");
   });
 });
