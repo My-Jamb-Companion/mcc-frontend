@@ -4,6 +4,7 @@ import {
   LeaderboardFilters,
   claimReward,
   getGamificationRules,
+  getMyGamification,
   getGoalsSummary,
   getLeaderboard,
   getLeaderboardStatus,
@@ -25,6 +26,9 @@ export const useMyLeaderboardStanding = (filters: LeaderboardFilters = DEFAULT_L
 
 export const useLeaderboardStatus = () =>
   useQuery({queryKey: ["leaderboard", "status"], queryFn: getLeaderboardStatus});
+
+export const useMyGamification = () =>
+  useQuery({queryKey: ["gamification", "me"], queryFn: getMyGamification});
 
 export const useGamificationRules = () =>
   useQuery({queryKey: ["gamification", "rules"], queryFn: getGamificationRules});

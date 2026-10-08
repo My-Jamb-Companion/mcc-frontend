@@ -1,9 +1,11 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {confettiCelebrate, showSuccess} from "@mcc/ui";
 import {useGamificationRefresh} from "@/src/features/rewards/hooks/useGamificationRefresh";
-import {progressMessage} from "@/src/features/rewards/helper/earnings";
+import {progressMessage, shouldCelebrate} from "@/src/features/rewards/helper/earnings";
 import {
+  completeProgramLecture,
   getEnrolledPrograms,
+  getProgramProgress,
   getPrograms,
   getProgramContent,
   ProgramListFilters,
@@ -71,6 +73,27 @@ export const useUpdateProgramProgress = () => {
       const message = progressMessage(update);
       if (message) showSuccess(message);
       if (update?.progress_percent === 100 && update.points_earned > 0) confettiCelebrate();
+    },
+  });
+};
+
+/** The lectures the student has already finished in an exam program. */
+export const useProgramProgress = (programId: string) =>
+  useQuery({queryKey: ["exam-programs", programId, "progress"], queryFn: () => getProgramProgress(programId), staleTime: 0});
+
+/** The student finishes a lecture: the server records it, works out progress and pays the points. */
+export const useCompleteProgramLecture = () => {
+  const queryClient = useQueryClient();
+  const refreshGamification = useGamificationRefresh();
+
+  return useMutation({
+    mutationFn: ({programId, lectureId}: {programId: string; lectureId: string}) => completeProgramLecture(programId, lectureId),
+    onSuccess: (update) => {
+      queryClient.invalidateQueries({queryKey: ["exam-programs", "enrolled"]});
+      refreshGamification();
+      const message = progressMessage(update);
+      if (message) showSuccess(message);
+      if (update.progress_percent === 100 && update.points_earned > 0 || shouldCelebrate(update.gamification)) confettiCelebrate();
     },
   });
 };

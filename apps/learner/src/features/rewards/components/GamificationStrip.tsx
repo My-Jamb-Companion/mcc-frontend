@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import {Icon} from "@mcc/ui";
-import {useGoalsSummary, useRewardsBalance} from "../hooks/useRewards";
+import {useGoalsSummary, useMyGamification, useRewardsBalance} from "../hooks/useRewards";
+import LevelBar from "./LevelBar";
 
 function Stat({icon, label, value, accent}: {icon: string; label: string; value: string; accent?: string}) {
   return (
@@ -22,6 +23,7 @@ function Stat({icon, label, value, accent}: {icon: string; label: string; value:
 export default function GamificationStrip() {
   const {data: summary} = useGoalsSummary();
   const {data: balance} = useRewardsBalance();
+  const {data: me} = useMyGamification();
   const daily = summary?.daily;
 
   return (
@@ -36,6 +38,7 @@ export default function GamificationStrip() {
         <Stat icon="solar:medal-star-bold" label="Points" value={(balance?.total_points ?? 0).toLocaleString()} accent="bg-amber-50 text-amber-600" />
         <Stat icon="ri:vip-diamond-fill" label="Gems" value={(balance?.total_gems ?? 0).toLocaleString()} accent="bg-sky-50 text-sky-600" />
       </div>
+      {me && <LevelBar level={me.level} xp={me.xp} className="mt-2.5 rounded-2xl border border-muted/25 px-3 py-2.5" />}
     </Link>
   );
 }

@@ -34,13 +34,25 @@ export interface ProgramTeacher {
   email: string;
 }
 
+export interface ChildBadge {
+  badge_id: string;
+  badge_name: string;
+  description?: string;
+  earned_at: string;
+}
+
 export interface ChildDetail {
   child_id: string;
   email: string;
   full_name: string | null;
   has_active_enrollment: boolean;
   program_performance: ProgramPerformance[];
-  badges: unknown[];
+  /** Badges earned, newest first. */
+  badges: ChildBadge[];
+  /** Lifetime points earned and the level they give. */
+  xp?: number;
+  level?: number | null;
+  level_name?: string | null;
   upcoming_sessions: UpcomingSession[];
   program_teachers: ProgramTeacher[];
 }

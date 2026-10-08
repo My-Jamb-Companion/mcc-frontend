@@ -1,4 +1,5 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
+import {useGamificationRefresh} from "@/src/features/rewards/hooks/useGamificationRefresh";
 import {getModuleQuestions, submitModuleAnswers} from "../services/moduleQuiz.service";
 
 export const useModuleQuestions = (
@@ -14,8 +15,14 @@ export const useModuleQuestions = (
   return {...query, questions: query.data ?? []};
 };
 
-export const useSubmitModuleAnswers = (courseId: string, moduleId: string) =>
-  useMutation({
+export const useSubmitModuleAnswers = (courseId: string, moduleId: string) => {
+  const refreshGamification = useGamificationRefresh();
+  return useMutation({
     mutationFn: (answers: Record<string, string[]>) =>
       submitModuleAnswers(courseId, moduleId, answers),
+    // A passed quiz can earn points, a level or a badge.
+    onSuccess: (result) => {
+      if (result.gamification) refreshGamification();
+    },
   });
+};

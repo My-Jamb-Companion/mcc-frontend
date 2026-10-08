@@ -2,7 +2,7 @@
 import {useEffect, useMemo, useState} from "react";
 import Link from "next/link";
 import {useSearchParams} from "next/navigation";
-import {Icon} from "@mcc/ui";
+import {Icon, showError} from "@mcc/ui";
 import {isPdfUrl, youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import CoursePlayer from "../course/CoursePlayer";
 import InteractiveLessonContent from "../InteractiveLessonContent";
@@ -13,7 +13,8 @@ import {
   useProgramContent,
   useStartMockExam,
   useStartModuleSession,
-  useUpdateProgramProgress,
+  useCompleteProgramLecture,
+  useProgramProgress,
 } from "@/src/features/exams/hooks/useExams";
 import {ApiExamLecture, ApiExamSession, ApiExamTopic} from "@/src/features/exams/services/exam.service";
 import {ApiEnrolledProgram} from "@/src/features/exams/services/exam.service";
@@ -57,7 +58,8 @@ function findLecture(topics: ApiExamTopic[], lectureId: string): ApiExamLecture 
 export default function ExamProgramContent({programId, program}: ExamProgramContentProps) {
   const searchParams = useSearchParams();
   const {topics, isLoading} = useProgramContent(programId);
-  const updateProgress = useUpdateProgramProgress();
+  const completeLecture = useCompleteProgramLecture();
+  const {data: savedProgress} = useProgramProgress(programId);
   const startModuleSession = useStartModuleSession();
   const startMockExam = useStartMockExam();
 
@@ -72,17 +74,11 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
   const [session, setSession] = useState<{kind: "quiz" | "practice" | "exam"; label: string; data: ApiExamSession} | null>(null);
   const [sessionError, setSessionError] = useState<string | null>(null);
 
-  // The server only stores one progress_percent, not which lectures were
-  // watched -- on load, treat that many lectures (in tree order) as already
-  // seen, so a returning student doesn't appear to start over from 0%.
+  // The lectures already finished, as the server recorded them: a reload keeps its ticks.
   useEffect(() => {
-    if (!allLectures.length || completedLectureIds.size > 0) return;
-    const alreadyWatched = Math.round((program.progress_percent / 100) * allLectures.length);
-    if (alreadyWatched > 0) {
-      setCompletedLectureIds(new Set(allLectures.slice(0, alreadyWatched).map((l) => l.lecture_id)));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allLectures.length]);
+    if (!savedProgress?.completed_lecture_ids.length) return;
+    setCompletedLectureIds((prev) => new Set([...prev, ...savedProgress.completed_lecture_ids]));
+  }, [savedProgress]);
 
   useEffect(() => {
     if (active || !allLectures.length) return;
@@ -92,19 +88,26 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allLectures.length]);
 
+  // Finishing a lecture is the server's to record and count: the tick appears at once, and is
+  // taken back if the server refuses.
   const markLectureComplete = (lectureId: string) => {
-    setCompletedLectureIds((prev) => {
-      if (prev.has(lectureId)) return prev;
-      const next = new Set(prev);
-      next.add(lectureId);
-      if (allLectures.length) {
-        updateProgress.mutate({
-          programId,
-          progressPercent: Math.round((next.size / allLectures.length) * 100),
-        });
-      }
-      return next;
-    });
+    if (completedLectureIds.has(lectureId)) return;
+    setCompletedLectureIds((prev) => new Set(prev).add(lectureId));
+    completeLecture.mutate(
+      {programId, lectureId},
+      {
+        onSuccess: (result) =>
+          setCompletedLectureIds((prev) => new Set([...prev, ...result.completed_lecture_ids])),
+        onError: () => {
+          setCompletedLectureIds((prev) => {
+            const next = new Set(prev);
+            next.delete(lectureId);
+            return next;
+          });
+          showError("Couldn't save your progress. Please try again.");
+        },
+      },
+    );
   };
 
   const handleSelect = (node: ActiveNode) => {

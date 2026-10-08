@@ -1,3 +1,4 @@
+import type {ApiGamificationUpdate} from "@/src/features/rewards/services/rewards.service";
 import {apiClient} from "@mcc/api";
 import type {ApiJobCharge} from "./brainy.service";
 
@@ -158,6 +159,14 @@ export const updateStudySet = async (
   await apiClient.patch(`/exams/study-sets/${encodeURIComponent(setId)}`, input);
 };
 
+export interface ReviewOutcome {
+  reviewed: number;
+  summary: ProgressCounts;
+  /** Study-day points this review paid (once a day, after enough different cards). */
+  points_earned?: number;
+  gamification?: ApiGamificationUpdate | null;
+}
+
 export interface ReviewResult {
   card_id: string;
   correct: boolean;
@@ -171,8 +180,8 @@ export interface ReviewResult {
 export const reviewStudySet = async (
   setId: string,
   results: ReviewResult[],
-): Promise<{reviewed: number; summary: ProgressCounts}> => {
-  const res = await apiClient.post<{data: {reviewed: number; summary: ProgressCounts}}>(
+): Promise<ReviewOutcome> => {
+  const res = await apiClient.post<{data: ReviewOutcome}>(
     `/exams/study-sets/${encodeURIComponent(setId)}/review`,
     {results},
   );

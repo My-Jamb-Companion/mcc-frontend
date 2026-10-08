@@ -10,6 +10,7 @@ import {useAnalysis, useQuestionHelp} from "@/src/features/brainy/hooks/useAiFee
 import {useCountdown} from "@/src/features/learnings/hooks/useCountdown";
 import {formatCountdown, isCountdownLow} from "@/src/features/learnings/helper/countdown";
 import {isChosenCorrect, responsesForChosen} from "@/src/features/learnings/helper/practiceFeedback";
+import PointsEarnedCard from "@/src/features/rewards/components/PointsEarnedCard";
 import PracticeFeedbackCard from "@/src/features/learnings/components/PracticeFeedbackCard";
 
 interface PracticeCardProps {
@@ -663,6 +664,12 @@ function QuizResults({
           </motion.div>
         ))}
       </motion.div>
+
+      {result.gamification && (
+        <motion.div variants={itemVariants} className="mb-6 flex w-full justify-center">
+          <PointsEarnedCard gamification={result.gamification} scorePercent={result.score_percent} />
+        </motion.div>
+      )}
 
       {result.graded_count > 0 && (
         <motion.div variants={itemVariants} className="w-full max-w-md mb-8">

@@ -45,6 +45,37 @@ export interface ApiLeaderboardStatus {
 
 export type ApiGamificationRules = Record<string, number>;
 
+export interface ApiLevel {
+  /** 1-based. */
+  level: number;
+  name: string;
+  /** XP at which this level started. */
+  xp_floor: number;
+  /** XP for the next level; null at the top. */
+  next_xp: number | null;
+  next_name: string | null;
+  /** How far from this level to the next, 0-100. */
+  progress_percent: number;
+}
+
+export interface ApiBadge {
+  key: string;
+  name: string;
+  description: string;
+  target: number;
+  /** Toward the target, never above it. */
+  progress: number;
+  earned: boolean;
+  earned_at: string | null;
+}
+
+/** GET /gamification/me */
+export interface ApiGamificationMe {
+  xp: number;
+  level: ApiLevel;
+  badges: ApiBadge[];
+}
+
 /** What an action (a finished quiz, a lesson, a course) just did for the student. */
 export interface ApiGamificationUpdate {
   points_earned: number;
@@ -54,6 +85,13 @@ export interface ApiGamificationUpdate {
   streak: {current_streak: number; extended: boolean} | null;
   /** Rewards waiting to be claimed on the Rewards page. */
   pending_rewards: number;
+  /** Lifetime points earned. Absent from older servers. */
+  xp?: number;
+  level?: ApiLevel | null;
+  /** This action took the student to a new level. */
+  level_up?: boolean;
+  /** Badges this action earned. */
+  new_badges?: ApiBadge[];
 }
 
 /** Response of the course and exam-program progress endpoints. */
@@ -162,6 +200,12 @@ export const getMyLeaderboardStanding = async (
  * POST /rewards/claim, source "leaderboard"). */
 export const getLeaderboardStatus = async (): Promise<ApiLeaderboardStatus> => {
   const res = await apiClient.get<{data: ApiLeaderboardStatus}>("/leaderboard/status");
+  return res.data.data;
+};
+
+/** Endpoint: GET /gamification/me -- level, XP and every badge with progress. */
+export const getMyGamification = async (): Promise<ApiGamificationMe> => {
+  const res = await apiClient.get<{data: ApiGamificationMe}>("/gamification/me");
   return res.data.data;
 };
 
