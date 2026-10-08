@@ -112,6 +112,12 @@ const NAV_ENTRIES: NavEntry[] = [
     href: "/messaging",
   },
   {
+    key: "gamification",
+    icon: "ri:trophy-line",
+    label: "Gamification",
+    href: "/dashboard/gamification",
+  },
+  {
     key: "moderation",
     icon: "ri:flag-2-line",
     label: "Moderation",

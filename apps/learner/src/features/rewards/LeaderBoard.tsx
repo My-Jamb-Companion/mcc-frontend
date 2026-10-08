@@ -98,7 +98,7 @@ export default function Leaderboard() {
               </p>
             ) : (
               <p className="text-xs text-gray-500">
-                Finish the week in the top 40% to win {status.prize_gems} gems.
+                Finish the week in the top {Math.round(100 - (status.min_percentile ?? 60))}% to win {status.prize_gems} gems.
               </p>
             )}
           </div>
