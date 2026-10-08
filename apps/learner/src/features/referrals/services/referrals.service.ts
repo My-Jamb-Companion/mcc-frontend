@@ -15,6 +15,8 @@ export interface ApiReferralInvite {
 }
 
 export interface ApiReferralStatus {
+  /** What one joined friend earns. */
+  reward_gems: number;
   total_invited: number;
   successful: number;
   pending: number;

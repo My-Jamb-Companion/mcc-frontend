@@ -18,6 +18,7 @@ export const LANDING_CANDIDATES = [
   "/dashboard/live-sessions",
   "/messaging",
   "/moderation",
+  "/dashboard/gamification",
   "/finance",
   "/users",
   "/dashboard/performance",

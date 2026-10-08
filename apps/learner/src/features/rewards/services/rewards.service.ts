@@ -35,6 +35,8 @@ export interface ApiLeaderboardStatus {
   can_claim: boolean;
   /** Gems in this week's prize. */
   prize_gems: number;
+  /** The share of active learners a student must be ahead of to win it. */
+  min_percentile: number;
   // Not "message" -- api_success (backend) treats any data["message"] key
   // as the response envelope's own message and strips it out of data, so
   // the service returns this field as status_message instead.

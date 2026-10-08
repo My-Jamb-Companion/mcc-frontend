@@ -62,7 +62,7 @@ export default function Referrals() {
     <div>
       <div className="rounded-3xl bg-gradient-to-br from-violet-500 to-indigo-600 p-6 text-white">
         <p className="text-sm font-medium uppercase text-white/70">Invite friends</p>
-        <h2 className="mt-1 text-xl font-bold">Earn 50 gems for every friend who joins</h2>
+        <h2 className="mt-1 text-xl font-bold">Earn {status?.reward_gems ?? 50} gems for every friend who joins</h2>
         <p className="mt-1 text-sm text-white/80">
           Send an invite by email. Once they sign up with that same email, your reward is ready
           to claim from the Rewards tab.

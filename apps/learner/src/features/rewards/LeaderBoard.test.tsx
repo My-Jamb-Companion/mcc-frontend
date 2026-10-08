@@ -7,7 +7,7 @@ vi.mock("lucide-react", () => ({ChevronDown: () => null, Coins: () => null, Trop
 vi.mock("./hooks/useRewards", () => ({
   useLeaderboard: (filters: unknown) => useLeaderboard(filters),
   useMyLeaderboardStanding: () => ({data: {rank: 2, total_score: 30}}),
-  useLeaderboardStatus: () => ({data: {percentile: 70, can_claim: true, prize_gems: 25, status_message: "This week you're ahead of 70% of other learners"}}),
+  useLeaderboardStatus: () => ({data: {percentile: 70, can_claim: true, prize_gems: 25, min_percentile: 60, status_message: "This week you're ahead of 70% of other learners"}}),
   useGamificationRules: () => ({data: {quiz_completion: 10, daily_quiz_points_cap: 100, some_new_rule: 3}}),
 }));
 vi.mock("../account/hooks/useProfile", () => ({useProfile: () => ({data: {full_name: "Ada", profile_photo_url: null}})}));
