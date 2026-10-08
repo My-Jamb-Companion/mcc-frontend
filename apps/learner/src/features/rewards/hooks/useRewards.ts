@@ -1,5 +1,7 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
+  DEFAULT_LEADERBOARD_FILTERS,
+  LeaderboardFilters,
   claimReward,
   getGamificationRules,
   getGoalsSummary,
@@ -13,13 +15,13 @@ import {
   getWeeklyMilestones,
 } from "../services/rewards.service";
 
-export const useLeaderboard = () => {
-  const query = useQuery({queryKey: ["leaderboard"], queryFn: getLeaderboard});
+export const useLeaderboard = (filters: LeaderboardFilters = DEFAULT_LEADERBOARD_FILTERS) => {
+  const query = useQuery({queryKey: ["leaderboard", "list", filters], queryFn: () => getLeaderboard(filters)});
   return {...query, entries: query.data ?? []};
 };
 
-export const useMyLeaderboardStanding = () =>
-  useQuery({queryKey: ["leaderboard", "me"], queryFn: getMyLeaderboardStanding});
+export const useMyLeaderboardStanding = (filters: LeaderboardFilters = DEFAULT_LEADERBOARD_FILTERS) =>
+  useQuery({queryKey: ["leaderboard", "me", filters], queryFn: () => getMyLeaderboardStanding(filters)});
 
 export const useLeaderboardStatus = () =>
   useQuery({queryKey: ["leaderboard", "status"], queryFn: getLeaderboardStatus});

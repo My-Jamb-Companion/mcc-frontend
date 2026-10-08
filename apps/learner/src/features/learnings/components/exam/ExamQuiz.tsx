@@ -8,6 +8,7 @@ import {useAnalysis, useQuestionHelp} from "@/src/features/brainy/hooks/useAiFee
 import {useCountdown} from "@/src/features/learnings/hooks/useCountdown";
 import {formatCountdown, isCountdownLow} from "@/src/features/learnings/helper/countdown";
 import {isChosenCorrect, responsesForChosen} from "@/src/features/learnings/helper/practiceFeedback";
+import PointsEarnedCard from "@/src/features/rewards/components/PointsEarnedCard";
 import PracticeFeedbackCard from "@/src/features/learnings/components/PracticeFeedbackCard";
 
 interface ExamQuizProps {
@@ -406,6 +407,8 @@ function ExamQuizResults({
         {correctCount}
         <span className="text-2xl font-bold text-subtle"> / {result.results.length}</span>
       </div>
+
+      {result.gamification && <PointsEarnedCard gamification={result.gamification} scorePercent={result.score_percent} />}
 
       <div className="mt-6 flex justify-center gap-2.5">
         {result.results.map((r) => (

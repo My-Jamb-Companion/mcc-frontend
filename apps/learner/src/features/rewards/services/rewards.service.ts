@@ -5,7 +5,25 @@ export interface ApiLeaderboardEntry {
   user: string;
   score: number;
   photo?: string | null;
+  /** This row is the signed-in student. */
+  is_me: boolean;
 }
+
+/** Narrow the leaderboard: this week or all time; everyone, or only the student's own country/state;
+ * and optionally one exam program. */
+export interface LeaderboardFilters {
+  period: "all" | "week";
+  scope: "everyone" | "country" | "state";
+  programId?: string;
+}
+
+export const DEFAULT_LEADERBOARD_FILTERS: LeaderboardFilters = {period: "all", scope: "everyone"};
+
+const leaderboardParams = (f: LeaderboardFilters) => ({
+  period: f.period,
+  scope: f.scope,
+  ...(f.programId ? {program_id: f.programId, program_type: "exam"} : {}),
+});
 
 export interface ApiLeaderboardMe {
   rank: number;
@@ -15,6 +33,8 @@ export interface ApiLeaderboardMe {
 export interface ApiLeaderboardStatus {
   percentile: number;
   can_claim: boolean;
+  /** Gems in this week's prize. */
+  prize_gems: number;
   // Not "message" -- api_success (backend) treats any data["message"] key
   // as the response envelope's own message and strips it out of data, so
   // the service returns this field as status_message instead.
@@ -22,6 +42,25 @@ export interface ApiLeaderboardStatus {
 }
 
 export type ApiGamificationRules = Record<string, number>;
+
+/** What an action (a finished quiz, a lesson, a course) just did for the student. */
+export interface ApiGamificationUpdate {
+  points_earned: number;
+  /** The day's limit on quiz points is used up. */
+  daily_cap_reached: boolean;
+  daily_goal: {earned: number; target: number; status: string; just_achieved: boolean} | null;
+  streak: {current_streak: number; extended: boolean} | null;
+  /** Rewards waiting to be claimed on the Rewards page. */
+  pending_rewards: number;
+}
+
+/** Response of the course and exam-program progress endpoints. */
+export interface ApiProgressUpdate {
+  progress_percent: number;
+  points_earned: number;
+  certificate_issued: boolean;
+  gamification: ApiGamificationUpdate;
+}
 
 export interface ApiGoalPeriod {
   target: number;
@@ -96,21 +135,29 @@ export interface ApiPendingReward {
 }
 
 /** Endpoint: GET /leaderboard */
-export const getLeaderboard = async (): Promise<ApiLeaderboardEntry[]> => {
-  const res = await apiClient.get<{data: ApiLeaderboardEntry[]}>("/leaderboard");
+export const getLeaderboard = async (
+  filters: LeaderboardFilters = DEFAULT_LEADERBOARD_FILTERS,
+): Promise<ApiLeaderboardEntry[]> => {
+  const res = await apiClient.get<{data: ApiLeaderboardEntry[]}>("/leaderboard", {
+    params: leaderboardParams(filters),
+  });
   return res.data.data;
 };
 
 /** Endpoint: GET /leaderboard/me */
-export const getMyLeaderboardStanding = async (): Promise<ApiLeaderboardMe> => {
-  const res = await apiClient.get<{data: ApiLeaderboardMe}>("/leaderboard/me");
+export const getMyLeaderboardStanding = async (
+  filters: LeaderboardFilters = DEFAULT_LEADERBOARD_FILTERS,
+): Promise<ApiLeaderboardMe> => {
+  const res = await apiClient.get<{data: ApiLeaderboardMe}>("/leaderboard/me", {
+    params: leaderboardParams(filters),
+  });
   return res.data.data;
 };
 
-/** Endpoint: GET /leaderboard/status -- the caller's percentile and prize
- * eligibility. can_claim has no corresponding claim action anywhere in the
- * backend (leaderboard_prizes has no claim endpoint, unlike the unrelated
- * pending-rewards flow below) -- informational only. */
+/** Endpoint: GET /leaderboard/status -- the caller's standing this week and
+ * prize eligibility. A learner in the top 40% of the week gets one prize for
+ * the week; when can_claim is true it is waiting under Rewards (claimed with
+ * POST /rewards/claim, source "leaderboard"). */
 export const getLeaderboardStatus = async (): Promise<ApiLeaderboardStatus> => {
   const res = await apiClient.get<{data: ApiLeaderboardStatus}>("/leaderboard/status");
   return res.data.data;

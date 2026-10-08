@@ -33,6 +33,9 @@ export default function ExamResultDetail() {
             <p className="mt-1 text-sm text-muted">
               {result.results.filter((r) => r.is_correct).length} / {result.results.length} correct
             </p>
+            {(result.points_earned ?? 0) > 0 && (
+              <p className="mt-1 text-sm font-semibold text-primary">+{result.points_earned} points</p>
+            )}
           </div>
 
           <ul className="space-y-3">

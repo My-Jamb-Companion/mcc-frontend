@@ -20,8 +20,16 @@ export const loginApi = async (
   return res.data.data;
 };
 
-export const signupApi = async (email: string, password: string): Promise<void> => {
-  await apiClient.post("/auth/signup", { email, password });
+export const signupApi = async (
+  email: string,
+  password: string,
+  referralCode?: string,
+): Promise<void> => {
+  await apiClient.post("/auth/signup", {
+    email,
+    password,
+    ...(referralCode ? { referral_code: referralCode } : {}),
+  });
 };
 
 export const logoutApi = async (): Promise<void> => {
@@ -62,7 +70,7 @@ export const confirmNewPasswordApi = async (
 };
 
 export const resendVerificationApi = async (email: string): Promise<void> => {
-  await apiClient.post("/auth/email/resend", { email });
+  await apiClient.post("/auth/email/verify/resend", { email });
 };
 
 export const getGoogleAuthUrlApi = async (): Promise<{

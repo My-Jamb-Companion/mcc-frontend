@@ -1,4 +1,5 @@
 import {apiClient, whenSessionReady} from "@mcc/api";
+import type {ApiProgressUpdate} from "@/src/features/rewards/services/rewards.service";
 
 export interface ApiTierPrice {
   tier_id: string;
@@ -150,10 +151,11 @@ export const initializeCoursePayment = async (
 export const updateCourseProgress = async (
   courseId: string,
   progressPercent: number,
-): Promise<void> => {
-  await apiClient.post(`/courses/${courseId}/progress`, {
+): Promise<ApiProgressUpdate | undefined> => {
+  const res = await apiClient.post<{data?: ApiProgressUpdate}>(`/courses/${courseId}/progress`, {
     progress_percent: progressPercent,
   });
+  return res.data.data;
 };
 
 /** Endpoint: POST /courses/<course_id>/feedback */

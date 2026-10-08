@@ -1,4 +1,7 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {confettiCelebrate, showSuccess} from "@mcc/ui";
+import {useGamificationRefresh} from "@/src/features/rewards/hooks/useGamificationRefresh";
+import {progressMessage} from "@/src/features/rewards/helper/earnings";
 import {
   getEnrolledPrograms,
   getPrograms,
@@ -57,12 +60,17 @@ export const useProgramContent = (programId: string | null | undefined) => {
 
 export const useUpdateProgramProgress = () => {
   const queryClient = useQueryClient();
+  const refreshGamification = useGamificationRefresh();
 
   return useMutation({
     mutationFn: ({programId, progressPercent}: {programId: string; progressPercent: number}) =>
       updateProgramProgress(programId, progressPercent),
-    onSuccess: () => {
+    onSuccess: (update) => {
       queryClient.invalidateQueries({queryKey: ["exam-programs", "enrolled"]});
+      refreshGamification();
+      const message = progressMessage(update);
+      if (message) showSuccess(message);
+      if (update?.progress_percent === 100 && update.points_earned > 0) confettiCelebrate();
     },
   });
 };
@@ -81,8 +89,10 @@ export const useStartMockExam = () =>
       startMockExam(subject, subTopicId, limit),
   });
 
-export const useSubmitExamSession = () =>
-  useMutation({
+export const useSubmitExamSession = () => {
+  const refreshGamification = useGamificationRefresh();
+
+  return useMutation({
     mutationFn: ({
       sessionId,
       answers,
@@ -92,4 +102,7 @@ export const useSubmitExamSession = () =>
       answers: Record<string, string>;
       type?: "quiz" | "practice" | "exam";
     }) => submitExamSession(sessionId, answers, type),
+    // A graded session may have earned points, moved a goal or extended the streak.
+    onSuccess: () => refreshGamification(),
   });
+};

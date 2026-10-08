@@ -3,6 +3,7 @@ import {useState} from "react";
 import {Icon} from "@mcc/ui";
 import {useRouter} from "next/navigation";
 import LiveClassCard from "./LiveClassCard";
+import GamificationStrip from "@/src/features/rewards/components/GamificationStrip";
 import ScrollRow from "@/src/features/components/RowScroll";
 import CourseCard from "@/src/features/components/CourseCard";
 import CourseCardSkeleton from "@/src/features/components/CourseCardSkeleton";
@@ -63,6 +64,8 @@ export default function Dashboard() {
           </p>
         </div>
       </div>
+
+      <GamificationStrip />
 
       {nextSession && (
         <div className="mt-7 mx-auto w-[70%] max-sm:w-full">

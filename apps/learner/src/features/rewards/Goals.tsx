@@ -43,11 +43,12 @@ function GoalsProgressCard() {
 }
 
 function GoalsSummary() {
-  const {data: summary, isLoading} = useGoalsSummary();
+  const {data: summary, isLoading, isError} = useGoalsSummary();
   const {data: milestonesData} = useWeeklyMilestones();
   const {data: stats} = useRewardsStats();
 
-  const todayIso = new Date().toISOString().slice(0, 10);
+  // The backend's calendar is Lagos time (UTC+1), not the browser's or UTC.
+  const todayIso = new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 10);
   const days: {day: string; date: string; status: "completed" | "failed" | "current" | "upcoming"}[] =
     (milestonesData?.milestones ?? []).map((m) => ({
       day: m.day,
@@ -76,8 +77,20 @@ function GoalsSummary() {
           </h3>
 
           <p className="text-sm text-gray-500">
-            {summary?.weekly.description ?? "Loading your weekly goal…"}
+            {summary?.weekly.description ?? (isError ? "Couldn't load your goals." : "Loading your weekly goal…")}
           </p>
+
+          {summary && (
+            <div className="mt-3">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted/40" role="progressbar" aria-valuemin={0} aria-valuemax={summary.weekly.target} aria-valuenow={summary.weekly.earned} aria-label="Weekly goal">
+                <div className="h-full rounded-full bg-primary" style={{width: `${Math.min(100, summary.weekly.completion_percent)}%`}} />
+              </div>
+              <p className="mt-1 text-xs font-medium text-gray-500">
+                {summary.weekly.earned}/{summary.weekly.target} this week
+                {summary.weekly.status === "achieved" && " · achieved"}
+              </p>
+            </div>
+          )}
 
           {/* Calendar */}
           {days.length > 0 && <WeeklyGoalCalendar days={days} />}
@@ -107,7 +120,7 @@ function GoalsSummary() {
         </div>
 
         {/* Achievement */}
-        {summary?.daily.status === "completed" && (
+        {summary?.daily.status === "achieved" && (
           <div className="mt-6 rounded-full bg-[#1d1d1f] py-4 text-center text-sm max-md:text-xs font-medium text-white shadow-lg">
             Congratulations, Daily Goal Achieved!
           </div>
@@ -118,7 +131,10 @@ function GoalsSummary() {
           {isLoading && (
             <p className="px-3 py-6 text-center text-sm text-gray-400">Loading…</p>
           )}
-          {!isLoading && (stats?.rewards.length ?? 0) === 0 && (
+          {!isLoading && isError && (
+            <p className="px-3 py-6 text-center text-sm text-red-500">Couldn&apos;t load your activity. Please refresh.</p>
+          )}
+          {!isLoading && !isError && (stats?.rewards.length ?? 0) === 0 && (
             <p className="px-3 py-6 text-center text-sm text-gray-400">
               No activity yet.
             </p>
@@ -129,7 +145,9 @@ function GoalsSummary() {
               className="flex items-center justify-between border-b border-gray-100 px-3 py-2.5 last:border-b-0"
             >
               <div className="flex items-center gap-4">
-                <div className="h-10 w-[48px] rounded-xl bg-violet-600" />
+                <div className="flex h-10 w-[48px] items-center justify-center rounded-xl bg-violet-600 text-white">
+                  <Icon icon="solar:gift-bold" size={20} />
+                </div>
 
                 <div>
                   <h4 className="text-sm font-semibold text-gray-900">
@@ -170,7 +188,7 @@ function WeeklyGoalCalendar({
     <div className="mt-6 overflow-x-auto">
       <div className="flex w-max items-center gap-2">
         {days.map((day) => (
-          <button
+          <div
             key={day.date}
             className={`flex h-10 shrink-0 rounded-xl transition-all ${
               day.status === "completed"
@@ -203,7 +221,7 @@ function WeeklyGoalCalendar({
             >
               {day.date}
             </div>
-          </button>
+          </div>
         ))}
       </div>
     </div>
@@ -211,11 +229,11 @@ function WeeklyGoalCalendar({
 }
 
 function MonthlyGoalCardPreview() {
-  const {data: monthly} = useMonthlyGoal();
+  const {data: monthly, isError} = useMonthlyGoal();
 
   const current = monthly?.earned ?? 0;
-  const target = monthly?.target ?? 1;
-  const percent = Math.round((current / target) * 100);
+  const target = monthly?.target ?? 0;
+  const percent = target > 0 ? Math.round((current / target) * 100) : 0;
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -236,13 +254,15 @@ function MonthlyGoalCardPreview() {
           </div>
         </div>
 
-        <p className="mt-1 text-sm text-subtle">{monthly?.description}</p>
+        <p className="mt-1 text-sm text-subtle">
+          {monthly?.description ?? (isError ? "Couldn't load your monthly goal." : "")}
+        </p>
 
         <div className="mt-5 flex items-end justify-between">
           <p className="text-2xl font-bold text-gray-900">
             {current.toLocaleString()}
             <span className="text-sm font-medium text-subtle">
-              /{target.toLocaleString()} points
+              /{target ? target.toLocaleString() : "—"} points
             </span>
           </p>
           <p className="text-sm font-bold text-gray-700">{percent}%</p>

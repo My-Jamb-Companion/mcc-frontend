@@ -1,4 +1,5 @@
 import {apiClient, whenSessionReady} from "@mcc/api";
+import type {ApiGamificationUpdate, ApiProgressUpdate} from "@/src/features/rewards/services/rewards.service";
 
 export interface ApiTierPrice {
   tier_id: string;
@@ -93,8 +94,11 @@ export const getProgramContent = async (programId: string): Promise<ApiExamTopic
 export const updateProgramProgress = async (
   programId: string,
   progressPercent: number,
-): Promise<void> => {
-  await apiClient.post(`/exams/${programId}/progress`, {progress_percent: progressPercent});
+): Promise<ApiProgressUpdate | undefined> => {
+  const res = await apiClient.post<{data?: ApiProgressUpdate}>(`/exams/${programId}/progress`, {
+    progress_percent: progressPercent,
+  });
+  return res.data.data;
 };
 
 // --- Quiz / practice / mock-exam sessions -----------------------------------
@@ -130,6 +134,8 @@ export interface ApiGradedAnswer {
 
 export interface ApiExamSubmissionResult {
   score_percent: number;
+  /** What this submission earned: points, daily goal, streak. Absent from older servers. */
+  gamification?: ApiGamificationUpdate;
   passing_score?: number | null;
   /** score_percent >= passing_score; null/absent without a pass mark. */
   passed?: boolean | null;

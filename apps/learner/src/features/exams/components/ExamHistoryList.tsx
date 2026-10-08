@@ -56,6 +56,9 @@ export default function ExamHistoryList() {
                   <p className="text-xs text-muted">{formatWhen(item.timestamp)}</p>
                 </div>
                 <div className="flex items-center gap-3">
+                  {(item.points_earned ?? 0) > 0 && (
+                    <span className="text-xs font-semibold text-primary">+{item.points_earned} pts</span>
+                  )}
                   {item.score !== null && (
                     <span
                       className={`text-sm font-semibold ${item.score >= 50 ? "text-success" : "text-danger"}`}
