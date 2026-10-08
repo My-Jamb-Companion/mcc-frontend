@@ -96,9 +96,11 @@ export default function AccountSettingsPage() {
           <div className="absolute left-40 top-0 h-40 w-40 rounded-full bg-purple-300/20 blur-3xl" />
           <div className="absolute right-20 top-0 h-40 w-40 rounded-full bg-blue-200/20 blur-3xl" />
 
-          <div className="md:hidden absolute right-13 bottom-0 ">
-            <RankBadge rank={user.rank} />
-          </div>
+          {user.rank > 0 && (
+            <div className="md:hidden absolute right-13 bottom-0 ">
+              <RankBadge rank={user.rank} />
+            </div>
+          )}
           <div className="max-md:hidden absolute right-10 top-7 mr-10">
             <AvatarPicker setFile={handleAvatarFile} selected={typeof user.avatar === "string" ? user.avatar : undefined} />
           </div>

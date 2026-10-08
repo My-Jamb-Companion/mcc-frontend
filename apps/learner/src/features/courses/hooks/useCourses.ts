@@ -1,4 +1,7 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {confettiCelebrate, showSuccess} from "@mcc/ui";
+import {useGamificationRefresh} from "@/src/features/rewards/hooks/useGamificationRefresh";
+import {progressMessage} from "@/src/features/rewards/helper/earnings";
 import {
   CourseListFilters,
   enrollCourse,
@@ -88,15 +91,20 @@ export const useInitializeCoursePayment = () => {
 
 export const useUpdateCourseProgress = () => {
   const queryClient = useQueryClient();
+  const refreshGamification = useGamificationRefresh();
 
   return useMutation({
     mutationFn: ({courseId, progressPercent}: {courseId: string; progressPercent: number}) =>
       updateCourseProgress(courseId, progressPercent),
-    onSuccess: () => {
+    onSuccess: (update) => {
       queryClient.invalidateQueries({queryKey: ["courses", "enrolled"]});
       // A progress push that completes the course issues a certificate
       // server-side -- refetch so it shows up without a reload.
       queryClient.invalidateQueries({queryKey: ["courses", "certificates"]});
+      refreshGamification();
+      const message = progressMessage(update);
+      if (message) showSuccess(message);
+      if (update?.certificate_issued || update?.gamification?.daily_goal?.just_achieved) confettiCelebrate();
     },
   });
 };

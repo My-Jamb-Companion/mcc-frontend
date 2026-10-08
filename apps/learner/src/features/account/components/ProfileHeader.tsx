@@ -129,9 +129,11 @@ export default function ProfileHeader({
               <span>🪙 {user.coins}</span>
             </div>
 
-            <div className="max-md:hidden">
-              <RankBadge rank={1} />
-            </div>
+            {user.rank > 0 && (
+              <div className="max-md:hidden">
+                <RankBadge rank={user.rank} />
+              </div>
+            )}
           </div>
         </div>
       </div>

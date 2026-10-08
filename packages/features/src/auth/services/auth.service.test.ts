@@ -86,6 +86,18 @@ describe("signupApi", () => {
       password: "password",
     });
   });
+
+  it("sends the referral code from a friend's invite when there is one", async () => {
+    mockPost.mockResolvedValueOnce({ data: {} });
+
+    await signupApi("new@user.com", "password", "mcc-123");
+
+    expect(mockPost).toHaveBeenCalledWith("/auth/signup", {
+      email: "new@user.com",
+      password: "password",
+      referral_code: "mcc-123",
+    });
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -184,12 +196,12 @@ describe("getGoogleAuthUrlApi", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe("resendVerificationApi", () => {
   // TC-3.10
-  it("calls POST /auth/email/resend with email", async () => {
+  it("calls POST /auth/email/verify/resend with email", async () => {
     mockPost.mockResolvedValueOnce({ data: {} });
 
     await resendVerificationApi("user@example.com");
 
-    expect(mockPost).toHaveBeenCalledWith("/auth/email/resend", {
+    expect(mockPost).toHaveBeenCalledWith("/auth/email/verify/resend", {
       email: "user@example.com",
     });
   });

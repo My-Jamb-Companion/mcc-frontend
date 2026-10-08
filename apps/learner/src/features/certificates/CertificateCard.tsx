@@ -1,8 +1,25 @@
 "use client";
 
-import {Icon} from "@mcc/ui";
+import {Icon, showError, showSuccess} from "@mcc/ui";
 import {useCertificates} from "@/src/features/courses/hooks/useCourses";
 import {ApiCertificate} from "@/src/features/courses/services/course.service";
+
+/** Share the achievement: the phone's share sheet where there is one, otherwise copy the message. */
+async function shareCertificate(certificate: ApiCertificate) {
+  const text = `I completed "${certificate.course_title}" on My Course Companion! 🎓`;
+  const url = window.location.origin;
+  try {
+    if (navigator.share) {
+      await navigator.share({title: certificate.course_title, text, url});
+      return;
+    }
+    await navigator.clipboard.writeText(`${text} ${url}`);
+    showSuccess("Copied. Paste it anywhere to share.");
+  } catch (error) {
+    // Closing the share sheet is not a failure.
+    if ((error as {name?: string})?.name !== "AbortError") showError("Couldn't share. Please try again.");
+  }
+}
 
 function CertificateRow({certificate}: {certificate: ApiCertificate}) {
   return (
@@ -40,7 +57,11 @@ function CertificateRow({certificate}: {certificate: ApiCertificate}) {
       </div>
 
       {/* Share */}
-      <button className="flex items-center gap-3 md:self-center font-medium text-gray-900 transition hover:text-black mb-2">
+      <button
+        type="button"
+        onClick={() => void shareCertificate(certificate)}
+        className="flex items-center gap-3 md:self-center font-medium text-gray-900 transition hover:text-black mb-2"
+      >
         <Icon icon="ri:share-line" size={20} />
         Share
       </button>
