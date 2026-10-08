@@ -17,6 +17,16 @@ const defaults: ApiGamificationConfig = {
   weekly_prize: {gems: 25, min_percentile: 60},
   referral: {reward_gems: 50},
   gem_packs: {packs: [10, 50, 100, 250], custom_max: 5000},
+  actions: {
+    lesson_points: 3, lesson_daily_cap: 30, module_quiz_points: 10, module_quiz_daily_cap: 50,
+    attendance_points: 20, attendance_min_percent: 60, study_day_points: 5, study_day_min_cards: 5,
+    daily_login_points: 2, onboarding_points: 20, survey_points: 20,
+  },
+  levels: [{xp: 0, name: "Beginner"}, {xp: 100, name: "Explorer"}, {xp: 250, name: "Learner"}],
+  badges: [
+    {key: "first_quiz_passed", name: "First Steps", description: "Pass your first quiz", target: 1, enabled: true},
+    {key: "level_5", name: "Level 5", description: "", target: 5, enabled: false},
+  ],
 };
 
 describe("rules form", () => {
@@ -91,6 +101,42 @@ describe("rules form", () => {
     expect(fingerprint(a)).toBe(fingerprint(b));
     b.referralGems = "51";
     expect(fingerprint(a)).not.toBe(fingerprint(b));
+  });
+
+  it("checks the new action points against their limits", () => {
+    const form = fromApi(defaults);
+    form.actions.attendance_min_percent = "0";
+    form.actions.lesson_points = "-2";
+    form.actions.study_day_min_cards = "x";
+    const errors = validate(form);
+    expect(errors["actions.attendance_min_percent"]).toMatch(/between 1 and 100/);
+    expect(errors["actions.lesson_points"]).toMatch(/whole number/);
+    expect(errors["actions.study_day_min_cards"]).toMatch(/whole number/);
+  });
+
+  it("needs levels that start at 0 and keep rising", () => {
+    const form = fromApi(defaults);
+    form.levels[0].xp = "5";
+    expect(validate(form)["levels.0.xp"]).toMatch(/start at 0/);
+    form.levels[0].xp = "0";
+    form.levels[2].xp = "100";
+    expect(validate(form)["levels.2.xp"]).toMatch(/more XP than the one before/);
+    form.levels[2].xp = "250";
+    form.levels[1].name = "  ";
+    expect(validate(form)["levels.1.name"]).toMatch(/name/);
+    form.levels.pop();
+    form.levels.pop();
+    expect(validate(form).levels).toMatch(/at least two/);
+  });
+
+  it("needs a name and a target for every badge, and keeps the off switch", () => {
+    const form = fromApi(defaults);
+    form.badges[0].name = "";
+    form.badges[1].target = "0";
+    const errors = validate(form);
+    expect(errors["badges.0.name"]).toMatch(/name/);
+    expect(errors["badges.1.target"]).toMatch(/between 1/);
+    expect(toConfig(fromApi(defaults)).badges[1].enabled).toBe(false);
   });
 
   it("describes each goal in words", () => {

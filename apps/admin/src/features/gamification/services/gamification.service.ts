@@ -18,6 +18,33 @@ export interface ApiStreakMilestone {
   title: string;
 }
 
+export interface ApiActionRules {
+  lesson_points: number;
+  lesson_daily_cap: number;
+  module_quiz_points: number;
+  module_quiz_daily_cap: number;
+  attendance_points: number;
+  attendance_min_percent: number;
+  study_day_points: number;
+  study_day_min_cards: number;
+  daily_login_points: number;
+  onboarding_points: number;
+  survey_points: number;
+}
+
+export interface ApiLevelRule {
+  xp: number;
+  name: string;
+}
+
+export interface ApiBadgeRule {
+  key: string;
+  name: string;
+  description: string;
+  target: number;
+  enabled: boolean;
+}
+
 export interface ApiGamificationConfig {
   quiz: {points: number; pass_percent: number; daily_cap: number};
   progress: {step_points: number; step_daily_cap: number; completion_points: number};
@@ -26,6 +53,9 @@ export interface ApiGamificationConfig {
   weekly_prize: {gems: number; min_percentile: number};
   referral: {reward_gems: number};
   gem_packs: {packs: number[]; custom_max: number};
+  actions: ApiActionRules;
+  levels: ApiLevelRule[];
+  badges: ApiBadgeRule[];
 }
 
 export interface ApiGamificationVersion {

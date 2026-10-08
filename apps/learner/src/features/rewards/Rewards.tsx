@@ -7,6 +7,7 @@ import RewardsPage from "./Reward";
 import {Icon} from "@mcc/ui";
 import BannerCarousel from "../components/BannerCarousel";
 import Referrals from "../referrals/Referrals";
+import Badges from "./Badges";
 
 export default function Rewards() {
   const [tab, setTab] = useState("goals");
@@ -18,6 +19,7 @@ export default function Rewards() {
         <TopNav active={tab} onChange={setTab} />
         {tab === "goals" && <GoalsProgressPage />}
         {tab === "leaderboard" && <Leaderboard />}
+        {tab === "badges" && <Badges />}
         {tab === "rewards" && <RewardsPage />}
         {tab === "invite" && <Referrals />}
       </div>
@@ -35,6 +37,7 @@ function TopNav({
   const items = [
     {key: "goals", label: "Goals & Progress", icon: "ri:progress-5-line"},
     {key: "leaderboard", label: "Leaderboard", icon: "ri:bard-fill"},
+    {key: "badges", label: "Badges", icon: "solar:medal-ribbons-star-bold"},
     {key: "rewards", label: "Rewards", icon: "ri:trophy-fill"},
     {key: "invite", label: "Invite Friends", icon: "ri:user-add-fill"},
   ];

@@ -11,15 +11,28 @@ export function pointsHeadline(g: ApiGamificationUpdate, scorePercent: number): 
 /** A short message for a lesson or course progress update, or null when it earned nothing worth saying. */
 export function progressMessage(update: ApiProgressUpdate | undefined): string | null {
   if (!update) return null;
-  if (update.certificate_issued) {
-    return `Course complete! Certificate earned${update.points_earned > 0 ? ` and +${update.points_earned} points` : ""}.`;
-  }
-  if (update.gamification?.daily_goal?.just_achieved) return "Daily goal achieved!";
-  if (update.points_earned > 0) return `+${update.points_earned} points`;
-  return null;
+  const extras = milestoneMessages(update.gamification);
+  const lead = update.certificate_issued
+    ? `Course complete! Certificate earned${update.points_earned > 0 ? ` and +${update.points_earned} points` : ""}.`
+    : update.gamification?.daily_goal?.just_achieved
+      ? "Daily goal achieved!"
+      : update.points_earned > 0
+        ? `+${update.points_earned} points`
+        : null;
+  const parts = [lead, ...extras].filter(Boolean);
+  return parts.length ? parts.join(" ") : null;
 }
 
-/** Whether to throw confetti: a course finished, or the day's goal just reached. */
+/** "Level 3: Learner!" and "Badge earned: First Steps" for a level-up or new badges, in the order they happened. */
+export function milestoneMessages(g: ApiGamificationUpdate | undefined): string[] {
+  if (!g) return [];
+  const out: string[] = [];
+  if (g.level_up && g.level) out.push(`Level ${g.level.level}: ${g.level.name}!`);
+  for (const badge of g.new_badges ?? []) out.push(`Badge earned: ${badge.name}.`);
+  return out;
+}
+
+/** Whether to throw confetti: a course finished, the day's goal just reached, a new level or a new badge. */
 export function shouldCelebrate(g: ApiGamificationUpdate | undefined, certificateIssued = false): boolean {
-  return certificateIssued || !!g?.daily_goal?.just_achieved;
+  return certificateIssued || !!g?.daily_goal?.just_achieved || !!g?.level_up || !!g?.new_badges?.length;
 }

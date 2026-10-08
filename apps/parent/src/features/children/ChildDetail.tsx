@@ -32,6 +32,31 @@ export const ChildDetail = () => {
 
           <ChildAdvisor childId={child.child_id} childName={child.full_name || "your child"} />
 
+          <section>
+            <h2 className="text-sm font-medium text-muted uppercase tracking-wide mb-3">
+              Level and badges
+            </h2>
+            <p className="font-medium">
+              {child.level ? `Level ${child.level} · ${child.level_name}` : "No level yet"}
+              <span className="ml-2 text-sm font-normal text-muted">{(child.xp ?? 0).toLocaleString()} XP</span>
+            </p>
+            {(child.badges ?? []).length === 0 ? (
+              <p className="text-sm text-muted mt-2">No badges earned yet.</p>
+            ) : (
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {child.badges.map((badge) => (
+                  <li
+                    key={badge.badge_id}
+                    title={badge.description}
+                    className="rounded-full border border-muted/20 px-3 py-1 text-sm"
+                  >
+                    {badge.badge_name}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
           {!child.has_active_enrollment ? (
             <p className="text-sm text-muted rounded-lg border border-muted/20 p-4">
               {`${child.full_name || "Your child"} hasn't enrolled in a course or exam-prep program yet — progress and sessions will show up here once they do.`}

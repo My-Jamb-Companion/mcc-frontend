@@ -17,19 +17,39 @@ import {
   gamificationErrorMessage,
 } from "../services/gamification.service";
 import {
+  ACTION_FIELDS,
   GOAL_PERIODS,
+  MAX_LEVELS,
   MAX_PACKS,
   MAX_STREAKS,
   RulesForm,
   describeGoal,
   fingerprint,
   fromApi,
+  newLevel,
   newPack,
   newStreak,
   toInput,
   validate,
 } from "../helper/rulesForm";
 import VersionHistory from "./VersionHistory";
+
+/** What each starter badge measures, so the admin knows what its target counts. */
+const BADGE_MEASURES: Record<string, string> = {
+  first_quiz_passed: "Counts quizzes passed",
+  quiz_master: "Counts quizzes passed",
+  perfect_score: "Counts quizzes scored 100%",
+  streak_7: "Counts the longest streak, in days",
+  streak_30: "Counts the longest streak, in days",
+  course_finisher: "Counts courses completed",
+  program_finisher: "Counts exam programs completed",
+  lesson_learner: "Counts lessons finished",
+  class_regular: "Counts live classes attended",
+  flashcard_fan: "Counts flashcard study days",
+  top_of_the_week: "Counts weekly leaderboard prizes won",
+  referrer: "Counts friends who joined from an invite",
+  level_5: "Reaches a level",
+};
 
 const REWARD_LABEL: Record<RewardType, string> = {points: "points", gems: "gems", silver: "silver"};
 
@@ -214,6 +234,24 @@ function RulesEditor({
   return (
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
       <div className="flex min-w-0 flex-col gap-6">
+        <Section title="Other ways to earn" description="Points for what students do besides quizzes. Set a reward to 0 to turn it off. A class counts as attended when the student was in the Zoom call for the share of its length set here (students only).">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {ACTION_FIELDS.map((field) => (
+              <NumberField
+                key={field.key}
+                id={`action-${field.key}`}
+                label={field.label}
+                hint={field.hint}
+                suffix={field.suffix}
+                value={form.actions[field.key]}
+                onChange={(v) => setForm((prev) => ({...prev, actions: {...prev.actions, [field.key]: v}}))}
+                error={err(`actions.${field.key}`)}
+                readOnly={readOnly}
+              />
+            ))}
+          </div>
+        </Section>
+
         <Section title="Quizzes and practice" description="Points for finishing a quiz, test or practice session with a good enough score. The daily cap stops the same effort being farmed.">
           <div className="grid gap-4 sm:grid-cols-3">
             {f("quizPoints", "Points per session", "quizPoints", form.quizPoints, (v) => patch({quizPoints: v}))}
@@ -325,6 +363,78 @@ function RulesEditor({
             <div className="max-w-xs">
               {f("customMax", "Largest custom purchase", "customMax", form.customMax, (v) => patch({customMax: v}), {suffix: "gems"})}
             </div>
+          </div>
+        </Section>
+
+        <Section title="Levels" description="A student's level comes from their XP: every point they have earned, whether or not they have spent it. The first level starts at 0 and each one needs more XP than the last.">
+          <div className="flex flex-col gap-3">
+            {errors.levels && showErrors && <p className="text-sm text-red-600">{errors.levels}</p>}
+            {form.levels.map((level, i) => (
+              <div key={level.key} className="grid items-end gap-3 sm:grid-cols-[60px_160px_1fr_auto]">
+                <p className="pb-3 text-base font-semibold tabular-nums text-neutral-900">{i + 1}</p>
+                {f(`level-xp-${level.key}`, "XP needed", `levels.${i}.xp`, level.xp, (v) => patch({levels: form.levels.map((l, j) => j === i ? {...l, xp: v} : l)}))}
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor={`level-name-${level.key}`} className="text-base font-medium text-neutral-900">Name</label>
+                  <input
+                    id={`level-name-${level.key}`}
+                    value={level.name}
+                    readOnly={readOnly}
+                    onChange={(e) => patch({levels: form.levels.map((l, j) => j === i ? {...l, name: e.target.value} : l)})}
+                    className="rounded-xl border border-neutral-200 px-3 py-2.5 text-base text-neutral-900 outline-none focus:border-violet-500"
+                  />
+                  {err(`levels.${i}.name`) && <p className="text-sm text-red-600">{err(`levels.${i}.name`)}</p>}
+                </div>
+                {!readOnly && form.levels.length > 2 && (
+                  <button type="button" aria-label={`Remove level ${i + 1}`}
+                    onClick={() => patch({levels: form.levels.filter((_, j) => j !== i)})}
+                    className="mb-1 rounded-full p-2 text-neutral-600 hover:bg-neutral-100">
+                    <Icon icon="ph:trash" size={18} />
+                  </button>
+                )}
+              </div>
+            ))}
+            {!readOnly && form.levels.length < MAX_LEVELS && (
+              <button type="button" onClick={() => patch({levels: [...form.levels, newLevel()]})}
+                className="self-start rounded-full border border-neutral-200 px-4 py-2 text-base font-medium text-neutral-900 hover:bg-neutral-50">
+                Add a level
+              </button>
+            )}
+          </div>
+        </Section>
+
+        <Section title="Badges" description="Milestones students earn once. What each badge measures is fixed (shown below); you set its name, description and target, or switch it off. A badge already earned stays on a student's profile even if you switch it off.">
+          <div className="flex flex-col gap-4">
+            {form.badges.map((badge, i) => (
+              <div key={badge.key} className="rounded-xl border border-neutral-100 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-neutral-600">{BADGE_MEASURES[badge.key] ?? badge.key}</p>
+                  <label className="flex items-center gap-2 text-base text-neutral-900">
+                    <input
+                      type="checkbox" checked={badge.enabled} disabled={readOnly} className="accent-violet-600"
+                      onChange={(e) => patch({badges: form.badges.map((b, j) => j === i ? {...b, enabled: e.target.checked} : b)})}
+                    />
+                    On
+                  </label>
+                </div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_2fr_120px]">
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor={`badge-name-${badge.key}`} className="text-base font-medium text-neutral-900">Name</label>
+                    <input id={`badge-name-${badge.key}`} value={badge.name} readOnly={readOnly}
+                      onChange={(e) => patch({badges: form.badges.map((b, j) => j === i ? {...b, name: e.target.value} : b)})}
+                      className="rounded-xl border border-neutral-200 px-3 py-2.5 text-base text-neutral-900 outline-none focus:border-violet-500" />
+                    {err(`badges.${i}.name`) && <p className="text-sm text-red-600">{err(`badges.${i}.name`)}</p>}
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor={`badge-desc-${badge.key}`} className="text-base font-medium text-neutral-900">Description</label>
+                    <input id={`badge-desc-${badge.key}`} value={badge.description} readOnly={readOnly}
+                      onChange={(e) => patch({badges: form.badges.map((b, j) => j === i ? {...b, description: e.target.value} : b)})}
+                      className="rounded-xl border border-neutral-200 px-3 py-2.5 text-base text-neutral-900 outline-none focus:border-violet-500" />
+                    {err(`badges.${i}.description`) && <p className="text-sm text-red-600">{err(`badges.${i}.description`)}</p>}
+                  </div>
+                  {f(`badge-target-${badge.key}`, "Target", `badges.${i}.target`, badge.target, (v) => patch({badges: form.badges.map((b, j) => j === i ? {...b, target: v} : b)}))}
+                </div>
+              </div>
+            ))}
           </div>
         </Section>
       </div>

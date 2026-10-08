@@ -175,6 +175,8 @@ export default function ViewActiveStudent({
 
                 <LearningInformation detail={detail} isLoading={isLoading} />
 
+                <LevelAndBadges detail={detail} isLoading={isLoading} />
+
                 <UpcomingSessions
                   sessions={detail?.upcoming_sessions ?? []}
                   teachers={detail?.program_teachers ?? []}
@@ -333,6 +335,50 @@ function ProgramOfChoice({
             </div>
           ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+function LevelAndBadges({
+  detail,
+  isLoading,
+}: {
+  detail: ApiActiveStudentDetail | undefined;
+  isLoading: boolean;
+}) {
+  const badges = detail?.badges ?? [];
+  return (
+    <div className="w-full border-t border-muted/30 mt-6 pt-4">
+      <h2 className="text-sm font-semibold text-subtle mb-2">Level and badges</h2>
+      {isLoading ? (
+        <p className="text-xs text-gray-400 py-2">Loading…</p>
+      ) : (
+        <>
+          <p className="text-sm font-semibold text-gray-900">
+            {detail?.level ? `Level ${detail.level} · ${detail.level_name}` : "No level yet"}
+            <span className="ml-2 text-xs font-normal text-gray-500">{(detail?.xp ?? 0).toLocaleString()} XP</span>
+          </p>
+          {badges.length === 0 ? (
+            <p className="text-xs text-gray-400 py-3">No badges earned yet.</p>
+          ) : (
+            <ul className="mt-3 flex flex-wrap gap-2">
+              {badges.map((badge) => (
+                <li
+                  key={badge.badge_id}
+                  title={badge.description}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-amber-200/70 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800"
+                >
+                  <Icon icon="solar:medal-ribbons-star-bold" size={14} />
+                  {badge.badge_name}
+                  <span className="text-amber-600/70">
+                    {new Date(badge.earned_at).toLocaleDateString("en-GB", {day: "2-digit", month: "short", year: "numeric"})}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </div>
   );

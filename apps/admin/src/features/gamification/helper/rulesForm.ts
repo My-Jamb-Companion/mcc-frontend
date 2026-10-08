@@ -1,4 +1,5 @@
 import type {
+  ApiActionRules,
   ApiGamificationConfig,
   GamificationConfigInput,
   GoalPeriod,
@@ -30,6 +31,23 @@ export interface PackForm {
   gems: string;
 }
 
+export interface LevelForm {
+  key: string;
+  xp: string;
+  name: string;
+}
+
+export interface BadgeForm {
+  key: string;
+  name: string;
+  description: string;
+  target: string;
+  enabled: boolean;
+}
+
+/** The point and limit fields for the activities beyond quizzes, as typed. */
+export type ActionsForm = Record<keyof ApiActionRules, string>;
+
 export interface RulesForm {
   quizPoints: string;
   quizPass: string;
@@ -44,7 +62,29 @@ export interface RulesForm {
   referralGems: string;
   packs: PackForm[];
   customMax: string;
+  actions: ActionsForm;
+  levels: LevelForm[];
+  badges: BadgeForm[];
 }
+
+export const MAX_LEVELS = 20;
+
+/** Each action field: its label, hint and limits, in the order the page shows them. */
+export const ACTION_FIELDS: {key: keyof ApiActionRules; label: string; hint?: string; min: number; max: number; suffix?: string}[] = [
+  {key: "lesson_points", label: "Points per lesson finished", min: 0, max: 1000},
+  {key: "lesson_daily_cap", label: "Most lesson points per day", min: 0, max: 100000},
+  {key: "module_quiz_points", label: "Points for passing a module quiz", hint: "The first pass of each quiz set", min: 0, max: 1000},
+  {key: "module_quiz_daily_cap", label: "Most module-quiz points per day", min: 0, max: 100000},
+  {key: "attendance_points", label: "Points for attending a live class", min: 0, max: 1000},
+  {key: "attendance_min_percent", label: "Share of the class to be in the call", hint: "Counted from the Zoom call log", min: 1, max: 100, suffix: "%"},
+  {key: "study_day_points", label: "Points for a flashcard study day", min: 0, max: 1000},
+  {key: "study_day_min_cards", label: "Different cards to review that day", min: 1, max: 1000},
+  {key: "daily_login_points", label: "Points for the first visit of a day", min: 0, max: 1000},
+  {key: "onboarding_points", label: "Points for finishing the welcome questions", min: 0, max: 10000},
+  {key: "survey_points", label: "Points for the progress survey", min: 0, max: 10000},
+];
+
+export const newLevel = (): LevelForm => ({key: nextKey("level"), xp: "", name: ""});
 
 export const GOAL_PERIODS: GoalPeriod[] = ["daily", "weekly", "monthly"];
 export const MAX_STREAKS = 10;
@@ -78,6 +118,9 @@ export function fromApi(c: ApiGamificationConfig): RulesForm {
     referralGems: str(c.referral.reward_gems),
     packs: c.gem_packs.packs.map((g) => ({key: nextKey("pack"), gems: str(g)})),
     customMax: str(c.gem_packs.custom_max),
+    actions: Object.fromEntries(ACTION_FIELDS.map((f) => [f.key, str(c.actions[f.key])])) as ActionsForm,
+    levels: c.levels.map((l) => ({key: nextKey("level"), xp: str(l.xp), name: l.name})),
+    badges: c.badges.map((b) => ({key: b.key, name: b.name, description: b.description, target: str(b.target), enabled: b.enabled})),
   };
 }
 
@@ -151,6 +194,35 @@ export function validate(form: RulesForm): RulesErrors {
   if (form.packs.length === 0) errors.packs = "Keep at least one gem pack.";
   if (form.packs.length > MAX_PACKS) errors.packs = `At most ${MAX_PACKS} gem packs.`;
 
+  for (const field of ACTION_FIELDS) {
+    put(`actions.${field.key}`, checkInt(form.actions[field.key], field.min, field.max, field.label));
+  }
+
+  form.levels.forEach((level, i) => {
+    put(`levels.${i}.xp`, checkInt(level.xp, 0, 10_000_000, "XP"));
+    if (!level.name.trim()) errors[`levels.${i}.name`] = "Give the level a name.";
+    else if (level.name.length > 30) errors[`levels.${i}.name`] = "Keep the name under 30 characters.";
+  });
+  if (form.levels.length < 2) errors.levels = "Keep at least two levels.";
+  else if (form.levels.length > MAX_LEVELS) errors.levels = `At most ${MAX_LEVELS} levels.`;
+  else {
+    const xps = form.levels.map((l) => whole(l.xp));
+    if (xps[0] !== null && xps[0] !== 0) errors["levels.0.xp"] = "The first level must start at 0 XP.";
+    xps.forEach((xp, i) => {
+      const before = xps[i - 1];
+      if (i > 0 && xp !== null && before !== null && before !== undefined && !errors[`levels.${i}.xp`] && xp <= before) {
+        errors[`levels.${i}.xp`] = "Each level needs more XP than the one before.";
+      }
+    });
+  }
+
+  form.badges.forEach((badge, i) => {
+    if (!badge.name.trim()) errors[`badges.${i}.name`] = "Give the badge a name.";
+    else if (badge.name.length > 40) errors[`badges.${i}.name`] = "Keep the name under 40 characters.";
+    if (badge.description.length > 140) errors[`badges.${i}.description`] = "Keep the description under 140 characters.";
+    put(`badges.${i}.target`, checkInt(badge.target, 1, 100000, "Target"));
+  });
+
   return errors;
 }
 
@@ -167,6 +239,9 @@ export function toConfig(form: RulesForm): ApiGamificationConfig {
     weekly_prize: {gems: n(form.prizeGems), min_percentile: n(form.prizePercentile)},
     referral: {reward_gems: n(form.referralGems)},
     gem_packs: {packs: form.packs.map((p) => n(p.gems)), custom_max: n(form.customMax)},
+    actions: Object.fromEntries(ACTION_FIELDS.map((f) => [f.key, n(form.actions[f.key])])) as unknown as ApiActionRules,
+    levels: form.levels.map((l) => ({xp: n(l.xp), name: l.name.trim()})),
+    badges: form.badges.map((b) => ({key: b.key, name: b.name.trim(), description: b.description.trim(), target: n(b.target), enabled: b.enabled})),
   };
 }
 
@@ -182,6 +257,7 @@ export function fingerprint(form: RulesForm): string {
     ...c,
     streaks: [...c.streaks].sort((a, b) => a.days - b.days),
     gem_packs: {...c.gem_packs, packs: [...c.gem_packs.packs].sort((a, b) => a - b)},
+    levels: [...c.levels].sort((a, b) => a.xp - b.xp),
   });
 }
 

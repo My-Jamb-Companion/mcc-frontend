@@ -49,6 +49,20 @@ export default function PointsEarnedCard({gamification, scorePercent}: {gamifica
         </p>
       )}
 
+      {gamification.level_up && gamification.level && (
+        <p className="mt-3 flex items-center gap-1.5 text-sm font-semibold text-violet-700">
+          <Icon icon="solar:cup-star-bold" size={16} />
+          Level up! You&apos;re now Level {gamification.level.level}: {gamification.level.name}
+        </p>
+      )}
+
+      {(gamification.new_badges ?? []).map((badge) => (
+        <p key={badge.key} className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-amber-700">
+          <Icon icon="solar:medal-ribbons-star-bold" size={16} />
+          Badge earned: {badge.name}
+        </p>
+      ))}
+
       {gamification.pending_rewards > 0 && (
         <Link href="/rewards" className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
           <Icon icon="solar:gift-bold" size={14} />

@@ -1,6 +1,8 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {showError, showSuccess} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
+import {useGamificationRefresh} from "@/src/features/rewards/hooks/useGamificationRefresh";
+import {milestoneMessages} from "@/src/features/rewards/helper/earnings";
 import {
   Flashcard,
   FlashcardOptions,
@@ -79,13 +81,22 @@ export const useDeleteStudySet = () => {
 
 /**
  * Saves a finished study or quiz session. Refreshes both the list (its "to
- * review" counts) and this set's own progress. No toast: the results screen
- * is the feedback, and a failure there offers its own retry.
+ * review" counts) and this set's own progress. No toast for the review itself:
+ * the results screen is the feedback, and a failure there offers its own retry.
+ * The day's first enough-cards review pays study-day points, which does get a toast.
  */
 export const useReviewStudySet = (setId: string) => {
   const queryClient = useQueryClient();
+  const refreshGamification = useGamificationRefresh();
   return useMutation({
     mutationFn: (results: ReviewResult[]) => reviewStudySet(setId, results),
-    onSuccess: () => queryClient.invalidateQueries({queryKey: STUDY_SETS_KEY}),
+    onSuccess: (outcome) => {
+      queryClient.invalidateQueries({queryKey: STUDY_SETS_KEY});
+      if (outcome.points_earned) {
+        refreshGamification();
+        const extras = milestoneMessages(outcome.gamification ?? undefined);
+        showSuccess([`Study day complete: +${outcome.points_earned} points.`, ...extras].join(" "));
+      }
+    },
   });
 };

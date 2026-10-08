@@ -9,7 +9,7 @@ import {useQueryClient} from "@tanstack/react-query";
 export const useGamificationRefresh = () => {
   const queryClient = useQueryClient();
   return useCallback(() => {
-    for (const key of ["rewards", "goals", "leaderboard"]) {
+    for (const key of ["rewards", "goals", "leaderboard", "gamification"]) {
       queryClient.invalidateQueries({queryKey: [key]});
     }
   }, [queryClient]);

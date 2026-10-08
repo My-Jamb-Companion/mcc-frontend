@@ -42,6 +42,13 @@ export interface ApiProgramTeacher {
   email: string;
 }
 
+export interface ApiStudentBadge {
+  badge_id: string;
+  badge_name: string;
+  description?: string;
+  earned_at: string;
+}
+
 export interface ApiActiveStudentDetail {
   user_id: string;
   full_name: string;
@@ -65,7 +72,12 @@ export interface ApiActiveStudentDetail {
   assigned_cra_id?: string | null;
   assigned_cra_name?: string | null;
   program_performance: ApiProgramPerformance[];
-  badges: unknown[];
+  /** Badges earned, newest first. */
+  badges: ApiStudentBadge[];
+  /** Lifetime points earned, and the level they give. */
+  xp?: number;
+  level?: number | null;
+  level_name?: string | null;
   upcoming_sessions: ApiUpcomingSession[];
   program_teachers: ApiProgramTeacher[];
 }

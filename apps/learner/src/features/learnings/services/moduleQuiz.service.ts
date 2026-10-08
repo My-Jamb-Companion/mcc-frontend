@@ -1,3 +1,4 @@
+import type {ApiGamificationUpdate} from "@/src/features/rewards/services/rewards.service";
 import {apiClient} from "@mcc/api";
 
 export interface ApiModuleQuestion {
@@ -32,6 +33,8 @@ export interface ApiModuleQuizResult {
   passed?: boolean | null;
   graded_count: number;
   results: ApiModuleGradedAnswer[];
+  /** What passing a quiz did for the student: points, level, badges. Quiz sets only. */
+  gamification?: ApiGamificationUpdate | null;
 }
 
 /**

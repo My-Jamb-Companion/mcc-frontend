@@ -3,7 +3,7 @@
 import {useCallback, useState, useEffect} from "react";
 import Link from "next/link";
 import {useRouter, usePathname, useSearchParams} from "next/navigation";
-import {Button, Icon, motion, AnimatePresence} from "@mcc/ui";
+import {Button, Icon, motion, AnimatePresence, showError} from "@mcc/ui";
 import CoursePlayModules from "./CourseModules";
 import CoursePlayer from "./CoursePlayer";
 import BrainyCourseSidePanel from "./BrainyCourseSidePanel";
@@ -17,10 +17,9 @@ import {BookingSection} from "@/src/features/booking/components/BookingSection";
 import {Lesson, Module, lessonKind} from "@/src/features/learnings/helper/content.mapper";
 import {youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import {useAllLessons, useLessonsDuration, formatDuration} from "@/src/features/learnings/hooks/useLesson";
-import {useCertificates, useUpdateCourseProgress} from "@/src/features/courses/hooks/useCourses";
+import {useCertificates, useCompleteLecture, useCourseProgress} from "@/src/features/courses/hooks/useCourses";
 import {useModuleQuestions} from "@/src/features/learnings/hooks/useModuleQuiz";
 import {chatReplyText, sendChatMessage} from "@/src/features/brainy/services/brainy.service";
-import {calculateProgress} from "@/src/features/learnings/hooks/useLesson";
 
 interface CourseContentProps {
   courseId: string;
@@ -42,7 +41,8 @@ export default function CourseContent({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const updateProgress = useUpdateCourseProgress();
+  const completeLecture = useCompleteLecture();
+  const {data: savedProgress} = useCourseProgress(courseId);
   const {certificates} = useCertificates();
 
   const allLessons = useAllLessons(modules);
@@ -114,19 +114,35 @@ export default function CourseContent({
     setActiveQuizSet({moduleId, name});
   };
 
+  // The lessons already finished, as the server recorded them: a reload keeps its ticks.
+  useEffect(() => {
+    if (!savedProgress?.completed_lecture_ids.length) return;
+    setCompletedLessonIds((prev) => new Set([...prev, ...savedProgress.completed_lecture_ids]));
+  }, [savedProgress]);
+
+  // Finishing a lesson is the server's to record and count: the tick appears at once, and is taken
+  // back if the server refuses.
   const markComplete = useCallback(
     (lessonId: string) => {
-      setCompletedLessonIds((prev) => {
-        if (prev.has(lessonId)) return prev;
-        const next = new Set(prev);
-        next.add(lessonId);
-        if (allLessons.length) {
-          updateProgress.mutate({courseId, progressPercent: calculateProgress(allLessons, next)});
-        }
-        return next;
-      });
+      if (completedLessonIds.has(lessonId)) return;
+      setCompletedLessonIds((prev) => new Set(prev).add(lessonId));
+      completeLecture.mutate(
+        {courseId, lectureId: lessonId},
+        {
+          onSuccess: (result) =>
+            setCompletedLessonIds((prev) => new Set([...prev, ...result.completed_lecture_ids])),
+          onError: () => {
+            setCompletedLessonIds((prev) => {
+              const next = new Set(prev);
+              next.delete(lessonId);
+              return next;
+            });
+            showError("Couldn't save your progress. Please try again.");
+          },
+        },
+      );
     },
-    [allLessons, courseId, updateProgress],
+    [completedLessonIds, completeLecture, courseId],
   );
 
   const handleLessonEnded = () => {

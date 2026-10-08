@@ -1,5 +1,6 @@
 import {apiClient, whenSessionReady} from "@mcc/api";
 import type {ApiGamificationUpdate, ApiProgressUpdate} from "@/src/features/rewards/services/rewards.service";
+import type {ApiLessonCompleted, ApiLessonProgress} from "@/src/features/courses/services/course.service";
 
 export interface ApiTierPrice {
   tier_id: string;
@@ -88,6 +89,18 @@ export const getProgramContent = async (programId: string): Promise<ApiExamTopic
     `/exams/${programId}/content`,
   );
   return res.data.data.topics;
+};
+
+/** Endpoint: GET /exams/<program_id>/progress -- the lectures already finished, for the ticks after a reload. */
+export const getProgramProgress = async (programId: string): Promise<ApiLessonProgress> => {
+  const res = await apiClient.get<{data: ApiLessonProgress}>(`/exams/${programId}/progress`);
+  return res.data.data;
+};
+
+/** Endpoint: POST /exams/<program_id>/lectures/<lecture_id>/complete */
+export const completeProgramLecture = async (programId: string, lectureId: string): Promise<ApiLessonCompleted> => {
+  const res = await apiClient.post<{data: ApiLessonCompleted}>(`/exams/${programId}/lectures/${lectureId}/complete`);
+  return res.data.data;
 };
 
 /** Endpoint: POST /exams/<program_id>/progress */

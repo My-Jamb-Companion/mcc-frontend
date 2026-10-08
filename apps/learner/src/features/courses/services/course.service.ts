@@ -147,6 +147,34 @@ export const initializeCoursePayment = async (
   return res.data.data;
 };
 
+/** What a student has finished in a course or exam program. */
+export interface ApiLessonProgress {
+  progress_percent: number;
+  completed_lecture_ids: string[];
+  total_lectures: number;
+}
+
+/** Result of finishing one lesson: the new progress (worked out by the server) and what it earned. */
+export interface ApiLessonCompleted extends ApiProgressUpdate {
+  lecture_id: string;
+  newly_completed: boolean;
+  lesson_points: number;
+  completed_lecture_ids: string[];
+  total_lectures: number;
+}
+
+/** Endpoint: GET /courses/<course_id>/progress -- the lessons already finished, for the ticks after a reload. */
+export const getCourseProgress = async (courseId: string): Promise<ApiLessonProgress> => {
+  const res = await apiClient.get<{data: ApiLessonProgress}>(`/courses/${courseId}/progress`);
+  return res.data.data;
+};
+
+/** Endpoint: POST /courses/<course_id>/lectures/<lecture_id>/complete -- the server records it and works out progress. */
+export const completeLecture = async (courseId: string, lectureId: string): Promise<ApiLessonCompleted> => {
+  const res = await apiClient.post<{data: ApiLessonCompleted}>(`/courses/${courseId}/lectures/${lectureId}/complete`);
+  return res.data.data;
+};
+
 /** Endpoint: POST /courses/<course_id>/progress */
 export const updateCourseProgress = async (
   courseId: string,
