@@ -2,16 +2,16 @@ import {apiClient} from "@mcc/api";
 
 export interface PaymentStatus {
   tx_ref: string;
-  user_id: string;
   purpose: "course_enrollment" | "exam_access" | "gems";
-  target_id: string | null;
   amount: string;
   currency: string;
   gems_amount: number | null;
-  status: "pending" | "successful" | "failed" | "refunded";
-  created_at: string;
+  status: "pending" | "successful" | "failed" | "refunded" | "expired";
+  receipt_number: string | null;
+  /** Whether what was paid for has been given yet; a paid payment can read false for a few minutes while a retry runs. */
+  granted: boolean;
+  created_at: string | null;
   completed_at: string | null;
-  refunded_at: string | null;
 }
 
 /**

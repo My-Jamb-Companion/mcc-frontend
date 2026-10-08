@@ -8,6 +8,8 @@ import {Button, Icon} from "@mcc/ui";
 import {useInitializeCoursePayment} from "@/src/features/courses/hooks/useCourses";
 import {ApiCourse} from "@/src/features/courses/services/course.service";
 import {TierPicker} from "@/src/features/components/TierPicker";
+import {useGemPacks, useUnlockCourseWithGems, useWalletBalance} from "@/src/features/wallet/hooks/useWallet";
+import {courseGemCost} from "@/src/features/wallet/helper/wallet";
 
 const FALLBACK_IMAGE = "/assets/images/tower.jpg";
 
@@ -33,6 +35,24 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
     () => tiers.find((t) => Number(t.price) === price)?.tier_id ?? tiers[0]?.tier_id ?? null,
   );
   const selectedPrice = tiers.find((t) => t.tier_id === selectedTierId)?.price ?? price;
+
+  const unlock = useUnlockCourseWithGems();
+  const {data: balance} = useWalletBalance();
+  const {data: packs} = useGemPacks();
+  const gemCost = !isFree && packs ? courseGemCost(Number(selectedPrice), packs.naira_per_gem) : 0;
+  const purchasedGems = balance?.purchased_gems ?? 0;
+  const canUnlock = gemCost > 0 && purchasedGems >= gemCost;
+
+  const handleUnlock = () => {
+    setError(null);
+    unlock.mutate(
+      {courseId: course.course_id, tierId: selectedTierId ?? undefined},
+      {
+        onSuccess: () => router.push("/learnings"),
+        onError: (err) => setError(extractApiError(err, "Couldn't unlock the course. Please try again.")),
+      },
+    );
+  };
 
   const handleEnroll = () => {
     setError(null);
@@ -121,6 +141,28 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
               </p>
             </Button>
           </div>
+
+          {gemCost > 0 && (
+            <div className="flex flex-col gap-2 rounded-2xl border border-muted/25 p-4">
+              <p className="flex items-center gap-2 text-sm font-semibold">
+                <Icon icon="ri:vip-diamond-fill" size={16} className="text-sky-500" />
+                Or unlock it with {gemCost.toLocaleString()} gems
+              </p>
+              <p className="text-xs text-subtle">
+                Only gems you bought can unlock a course. You have {purchasedGems.toLocaleString()} bought gem
+                {purchasedGems === 1 ? "" : "s"}.
+              </p>
+              {canUnlock ? (
+                <Button onClick={handleUnlock} disabled={unlock.isPending} width="fit" variant="outline">
+                  <span className="px-4">{unlock.isPending ? "Unlocking…" : `Unlock for ${gemCost.toLocaleString()} gems`}</span>
+                </Button>
+              ) : (
+                <Link href="/wallet" className="text-sm font-semibold text-violet-600 underline underline-offset-2">
+                  Buy gems
+                </Link>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </section>

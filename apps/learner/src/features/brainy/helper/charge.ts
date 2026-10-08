@@ -33,3 +33,6 @@ export const isAllowanceUsed = (error: unknown): boolean => {
   const response = (error as {response?: {status?: number; data?: {error?: {code?: string}}}})?.response;
   return response?.status === 402 || response?.data?.error?.code === "BRAINY_ALLOWANCE_USED";
 };
+
+/** Whether a notice shown under a failed answer is telling the student to add gems (so it can link to the wallet). */
+export const noticeMentionsGems = (notice?: string | null): boolean => /\bgems?\b/i.test(notice ?? "");
