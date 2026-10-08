@@ -20,7 +20,7 @@ const PURPOSE_LABEL: Record<PaymentStatus["purpose"], string> = {
 const RETRY_PATH: Record<PaymentStatus["purpose"], string> = {
   course_enrollment: "/learnings",
   exam_access: "/learnings/exams",
-  gems: "/rewards",
+  gems: "/wallet",
 };
 
 export default function PaymentCallbackPage() {
@@ -43,11 +43,14 @@ export default function PaymentCallbackPage() {
     return () => clearTimeout(timer);
   }, [data?.status]);
 
+  // Where a paid student lands: gems go back to the wallet that was buying them.
+  const destination = data?.purpose === "gems" ? `/wallet?paid=${data.tx_ref}` : "/dashboard";
+
   useEffect(() => {
     if (data?.status !== "successful") return;
-    const redirect = setTimeout(() => router.replace("/dashboard"), 4000);
+    const redirect = setTimeout(() => router.replace(destination), 4000);
     return () => clearTimeout(redirect);
-  }, [data?.status, router]);
+  }, [data?.status, destination, router]);
 
   // No tx_ref at all -- not a payment redirect we recognise.
   if (txRef === null) {
@@ -109,9 +112,15 @@ export default function PaymentCallbackPage() {
         <Icon icon="solar:check-circle-bold" size={48} className="text-success" />
         <h1 className="text-xl font-bold">Payment successful</h1>
         <p className="text-sm text-subtle text-center max-w-sm">
-          Your {label} purchase is confirmed. Taking you to your dashboard…
+          Your {label} purchase is confirmed
+          {data.receipt_number ? ` (receipt ${data.receipt_number})` : ""}.{" "}
+          {data.purpose === "gems" ? "Taking you to your wallet…" : "Taking you to your dashboard…"}
         </p>
-        <GoToDashboard />
+        {data.purpose === "gems" ? (
+          <Button onClick={() => router.replace(destination)} width="fit">Go to Wallet</Button>
+        ) : (
+          <GoToDashboard />
+        )}
       </Shell>
     );
   }

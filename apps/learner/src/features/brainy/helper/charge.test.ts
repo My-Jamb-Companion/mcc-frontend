@@ -47,3 +47,12 @@ describe("isAllowanceUsed", () => {
     expect(isAllowanceUsed(new Error("offline"))).toBe(false);
   });
 });
+
+describe("noticeMentionsGems", () => {
+  it("spots the add-gems message and ignores others", async () => {
+    const {noticeMentionsGems} = await import("./charge");
+    expect(noticeMentionsGems("You've used your Brainy allowance. Add gems to keep going.")).toBe(true);
+    expect(noticeMentionsGems("Brainy is busy right now.")).toBe(false);
+    expect(noticeMentionsGems(undefined)).toBe(false);
+  });
+});

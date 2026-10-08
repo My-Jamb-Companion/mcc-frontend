@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {Icon} from "@mcc/ui";
 import {allowanceSummary} from "../helper/charge";
 import {useAllowance} from "../hooks/useBrainyChat";
@@ -34,6 +35,11 @@ export default function AllowanceMeter({className = ""}: {className?: string}) {
         {gemsNote}
         {empty && allowance.gems > 0 && " — answers now cost gems"}
       </span>
+      {empty && (
+        <Link href="/wallet" className="shrink-0 font-semibold underline underline-offset-2">
+          Add gems
+        </Link>
+      )}
     </p>
   );
 }

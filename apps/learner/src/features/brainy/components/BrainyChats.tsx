@@ -13,7 +13,8 @@ import AiUsageLog, {MessageUsage} from "./AiUsageLog";
 import {useQueryClient} from "@tanstack/react-query";
 import {ALLOWANCE_QUERY_KEY, USAGE_QUERY_KEY} from "../hooks/useBrainyChat";
 import AllowanceMeter from "./AllowanceMeter";
-import {isAllowanceUsed} from "../helper/charge";
+import {isAllowanceUsed, noticeMentionsGems} from "../helper/charge";
+import Link from "next/link";
 
 // The conversation column: centered, capped, with responsive side padding.
 // Shared by the message list and the composer so their edges line up.
@@ -249,6 +250,15 @@ export default function BrainyChats() {
                         </>
                       )}
                     </p>
+                    {noticeMentionsGems(msg.notice) && (
+                      <Link
+                        href="/wallet"
+                        className="flex items-center gap-1.5 rounded-full bg-violet-600 px-3 py-1 text-xs font-semibold text-white hover:bg-violet-700"
+                      >
+                        <Icon icon="ri:vip-diamond-fill" size={14} />
+                        Add gems
+                      </Link>
+                    )}
                     {msg.retryable !== false && (
                       <button
                         type="button"

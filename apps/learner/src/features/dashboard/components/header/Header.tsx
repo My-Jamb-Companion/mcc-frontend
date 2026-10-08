@@ -54,8 +54,8 @@ export default function Header({
       </div>
       <div className="flex items-center gap-5 max-sm:gap-3">
         <Link
-          href="/rewards"
-          aria-label={`Rewards: ${balance?.total_points ?? 0} points, ${balance?.total_gems ?? 0} gems`}
+          href="/wallet"
+          aria-label={`Wallet: ${balance?.total_points ?? 0} points, ${balance?.total_gems ?? 0} gems`}
           className="flex items-center gap-2.5 max-sm:gap-1.5 rounded-full border border-muted/30 px-3 max-sm:px-2 py-1.5 text-xs font-semibold text-foreground hover:bg-muted/10"
         >
           <span className="flex items-center gap-1"><Icon icon="solar:medal-star-bold" size={14} className="text-amber-500" />{(balance?.total_points ?? 0).toLocaleString()}</span>
