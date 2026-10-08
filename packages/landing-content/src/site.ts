@@ -77,7 +77,7 @@ export const SITE_DEFAULTS: FieldData = {
       { label: "About", href: "" }, { label: "Contact", href: "#contact" },
       { label: "Teach on MCC", href: "/go/teacher/signup" }, { label: "Help centre", href: "" } ] },
     { title: "LEGAL", links: [
-      { label: "Terms", href: "" }, { label: "Privacy", href: "" }, { label: "Refund policy", href: "" } ] },
+      { label: "Terms", href: "/terms" }, { label: "Privacy", href: "/privacy" }, { label: "Refund policy", href: "/refund" } ] },
   ],
   socials: [
     { label: "Instagram", href: "" }, { label: "TikTok", href: "" }, { label: "X", href: "" },

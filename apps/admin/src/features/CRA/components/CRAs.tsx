@@ -11,13 +11,12 @@ import {
 import {Search} from "lucide-react";
 import {Icon, showError, showSuccess} from "@mcc/ui";
 import EnhancedTable from "@/src/components/Table";
-import {ApiUser, getApiErrorMessage} from "@/src/features/Users/services/users.service";
-import {useActivateUser} from "@/src/features/Users/hooks/useUsers";
+import {useDebouncedValue} from "@/src/features/students/hooks/useDebouncedValue";
 import UserRowMenu from "@/src/features/Users/components/UserRowMenu";
-import UpdateUserModal from "@/src/features/Users/components/UpdateUserModal";
-import DeactivateUserModal from "@/src/features/Users/components/DeactivateUserModal";
-import {useCras} from "../hooks/useCras";
+import {ApiCra, getApiErrorMessage} from "../services/cra.service";
+import {useActivateCra, useCras} from "../hooks/useCras";
 import CreateCraModal from "./CreateCraModal";
+import {DeactivateCraModal, EditCraModal} from "./CraModals";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -28,31 +27,26 @@ function formatDate(iso: string): string {
 }
 
 export default function CRAs() {
-  const {cras, isLoading} = useCras();
-  const activateUser = useActivateUser();
-  const [sorting, setSorting] = useState<SortingState>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const search = useDebouncedValue(searchQuery.trim(), 300);
+  const {cras, total, isLoading} = useCras(search);
+  const activateCra = useActivateCra();
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [creating, setCreating] = useState(false);
-  const [editingUser, setEditingUser] = useState<ApiUser | null>(null);
-  const [deactivatingUser, setDeactivatingUser] = useState<ApiUser | null>(null);
+  const [editingCra, setEditingCra] = useState<ApiCra | null>(null);
+  const [deactivatingCra, setDeactivatingCra] = useState<ApiCra | null>(null);
 
-  const filtered = searchQuery.trim()
-    ? cras.filter(
-        (u) =>
-          u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          u.email.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
-    : cras;
+  const filtered = cras;
 
-  function handleActivate(user: ApiUser) {
-    activateUser.mutate(user.user_id, {
+  function handleActivate(user: ApiCra) {
+    activateCra.mutate(user.cra_id, {
       onSuccess: () => showSuccess("CRA has been activated."),
       onError: (error) =>
         showError(getApiErrorMessage(error, "Failed to activate CRA. Please try again.")),
     });
   }
 
-  const columns: ColumnDef<ApiUser>[] = [
+  const columns: ColumnDef<ApiCra>[] = [
     {
       accessorKey: "full_name",
       header: "Name",
@@ -74,7 +68,7 @@ export default function CRAs() {
       },
     },
     {
-      accessorKey: "phone_number",
+      accessorKey: "phone",
       header: "Phone",
       cell: ({getValue}) => (
         <span className="text-slate-500">{(getValue() as string | null) || "—"}</span>
@@ -140,6 +134,7 @@ export default function CRAs() {
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold text-slate-900">All CRAs</h2>
+            {total > 0 && <span className="text-sm text-slate-400">{total}</span>}
           </div>
 
           <div className="relative w-72">
@@ -158,7 +153,7 @@ export default function CRAs() {
           <p className="py-10 text-center text-sm text-slate-400">Loading CRAs…</p>
         ) : filtered.length === 0 ? (
           <p className="py-10 text-center text-sm text-slate-400">
-            {cras.length === 0 ? "No CRAs yet." : "No CRAs found."}
+            {searchQuery.trim() ? "No CRAs found." : "No CRAs yet."}
           </p>
         ) : (
           <EnhancedTable
@@ -168,8 +163,8 @@ export default function CRAs() {
             renderRowActions={(user) => (
               <UserRowMenu
                 user={user}
-                onEdit={() => setEditingUser(user)}
-                onDeactivate={() => setDeactivatingUser(user)}
+                onEdit={() => setEditingCra(user)}
+                onDeactivate={() => setDeactivatingCra(user)}
                 onActivate={() => handleActivate(user)}
               />
             )}
@@ -178,8 +173,8 @@ export default function CRAs() {
       </div>
 
       <CreateCraModal open={creating} onClose={() => setCreating(false)} />
-      <UpdateUserModal user={editingUser} onClose={() => setEditingUser(null)} />
-      <DeactivateUserModal user={deactivatingUser} onClose={() => setDeactivatingUser(null)} />
+      <EditCraModal cra={editingCra} onClose={() => setEditingCra(null)} />
+      <DeactivateCraModal cra={deactivatingCra} onClose={() => setDeactivatingCra(null)} />
     </div>
   );
 }

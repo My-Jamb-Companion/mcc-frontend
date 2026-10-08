@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { FormInputs, useForm } from "@mcc/features";
-import { Button } from "@mcc/ui";
+import { Button, LegalLink } from "@mcc/ui";
 import { extractApiError } from "@mcc/api";
 import { useTeacherRegistration } from "../hooks/useTeacherRegistration";
 import { TeacherRegistrationInputs } from "../types";
@@ -107,7 +107,8 @@ export function TeacherSignUpForm() {
             })}
           />
           <label htmlFor="agree_to_terms" className="text-sm text-muted">
-            I agree to the Terms of Use and Privacy Policy
+            I agree to the <LegalLink doc="terms" className="underline hover:text-primary">Terms of Use</LegalLink> and{" "}
+            <LegalLink doc="privacy" className="underline hover:text-primary">Privacy Policy</LegalLink>
           </label>
         </div>
         {errors.agree_to_terms && (

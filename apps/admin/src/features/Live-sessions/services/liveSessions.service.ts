@@ -84,3 +84,52 @@ export const markSessionDelivered = async (sessionId: string): Promise<DeliveryR
 /** Endpoint: DELETE /admin/live-sessions/{session_id}/delivered -- reverses the teacher's pay for it. */
 export const undoSessionDelivered = async (sessionId: string): Promise<DeliveryResult> =>
   (await apiClient.delete<{data: DeliveryResult}>(`/admin/live-sessions/${sessionId}/delivered`)).data.data;
+
+export interface CreateSessionInput {
+  title: string;
+  teacher_id: string;
+  program_type?: "course" | "exam";
+  program_id?: string;
+  /** ISO 8601, in the future. */
+  scheduled_at: string;
+  duration_minutes: number;
+  price: number;
+  meeting_url?: string;
+}
+
+/** Endpoint: POST /admin/live-sessions/ -- schedules a class (a Zoom meeting is created when Zoom is set up). */
+export const createSession = async (input: CreateSessionInput): Promise<{session_id: string}> =>
+  (await apiClient.post<{data: {session_id: string}}>("/admin/live-sessions/", input)).data.data;
+
+export interface TeacherOption {
+  teacher_id: string;
+  teacher_name: string | null;
+  subject: string | null;
+  email: string;
+}
+
+export interface ProgramOption {
+  program_id: string;
+  program_name: string;
+  program_type: "course" | "exam";
+  teacher_id: string | null;
+}
+
+/** Endpoint: GET /admin/live-sessions/lookup/teachers -- under the live sessions area, so no Teachers access is needed. */
+export const lookupTeachers = async (q: string): Promise<TeacherOption[]> =>
+  (await apiClient.get<{data: TeacherOption[]}>("/admin/live-sessions/lookup/teachers", {params: {q, limit: 8}})).data.data;
+
+/** Endpoint: GET /admin/live-sessions/lookup/programs */
+export const lookupPrograms = async (q: string): Promise<ProgramOption[]> =>
+  (await apiClient.get<{data: ProgramOption[]}>("/admin/live-sessions/lookup/programs", {params: {q, limit: 8}})).data.data;
+
+export interface CallSummaryDay {
+  date: string;
+  calls: number;
+  // Decimal serializes as a string over the wire.
+  revenue: number | string;
+}
+
+/** Endpoint: GET /admin/live-sessions/call-summary -- days is 1 to 365. */
+export const getCallSummary = async (days: number): Promise<CallSummaryDay[]> =>
+  (await apiClient.get<{data: CallSummaryDay[]}>("/admin/live-sessions/call-summary", {params: {days}})).data.data;

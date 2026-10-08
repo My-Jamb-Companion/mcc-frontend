@@ -33,3 +33,40 @@ export const createCra = async (
   const res = await apiClient.post<{data: ApiCraCreated}>("/admin/cra", payload);
   return res.data.data;
 };
+
+export interface ApiCra {
+  cra_id: string;
+  full_name: string | null;
+  email: string;
+  phone: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface ApiCraList {
+  items: ApiCra[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+/**
+ * Endpoint: GET /admin/cra -- under the CRAs access area, so an admin who manages CRAs doesn't need
+ * the Users area (the generic /admin/users routes live there).
+ */
+export const listCras = async (search: string): Promise<ApiCraList> =>
+  (await apiClient.get<{data: ApiCraList}>("/admin/cra", {params: {limit: 200, ...(search ? {search} : {})}})).data.data;
+
+/** Endpoint: PATCH /admin/cra/{id} -- name and phone; the email is their sign-in. */
+export const updateCra = async (id: string, payload: {full_name?: string; phone?: string}): Promise<ApiCra> =>
+  (await apiClient.patch<{data: ApiCra}>(`/admin/cra/${id}`, payload)).data.data;
+
+/** Endpoint: PATCH /admin/cra/{id}/deactivate -- a reason is required. */
+export const deactivateCra = async (id: string, reason: string): Promise<void> => {
+  await apiClient.patch(`/admin/cra/${id}/deactivate`, {reason});
+};
+
+/** Endpoint: PATCH /admin/cra/{id}/activate */
+export const activateCra = async (id: string): Promise<void> => {
+  await apiClient.patch(`/admin/cra/${id}/activate`);
+};

@@ -40,6 +40,7 @@ export function fromApiTeacher(api: ApiTeacher): Teacher {
     rating: api.rating != null ? String(api.rating) : "—",
     sessions: {total: api.no_of_sessions ?? 0},
     status: api.status ?? "approved",
+    isActive: api.is_active ?? true,
     subject: api.subject ?? undefined,
   };
 }

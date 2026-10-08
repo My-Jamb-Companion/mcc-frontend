@@ -59,8 +59,19 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
       if (!isControlled) setInternalOpen(true);
     }, [isControlled]);
 
+    // Set when the user closes a controlled modal (Escape, backdrop, the X), so the parent hears
+    // about it once, from here, and not again when the open -> closed change is noticed below.
+    const closedByUserRef = useRef(false);
+
     const closeDialog = useCallback(() => {
-      if (!isControlled) setInternalOpen(false);
+      if (!isControlled) {
+        setInternalOpen(false);
+        return;
+      }
+      // A controlled modal's parent decides whether it is open, so ask it to close; before this,
+      // Escape, the backdrop and the X did nothing at all for a controlled modal.
+      closedByUserRef.current = true;
+      onCloseRef.current?.();
     }, [isControlled]);
 
     useImperativeHandle(ref, () => ({openDialog, closeDialog}));
@@ -71,7 +82,10 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
       prevOpenRef.current = open;
 
       if (!wasOpen && open) onOpenRef.current?.();
-      if (wasOpen && !open) onCloseRef.current?.();
+      if (wasOpen && !open) {
+        if (closedByUserRef.current) closedByUserRef.current = false;
+        else onCloseRef.current?.();
+      }
     }, [open]);
 
     useEffect(() => {

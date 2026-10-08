@@ -17,6 +17,7 @@ interface TeachersTableProps {
   onOpenProfile?: (teacher: Teacher) => void;
   onMessageTeacher?: (teacher: Teacher) => void;
   onDisableTeacher?: (teacher: Teacher) => void;
+  onEnableTeacher?: (teacher: Teacher) => void;
   onAssignProgram?: (teacher: Teacher) => void;
   onAssignCra?: (teacher: Teacher) => void;
   onApproveTeacher?: (teacher: Teacher) => void;
@@ -243,6 +244,7 @@ function ActionsMenuPortal({
   onOpenProfile,
   onMessageTeacher,
   onDisableTeacher,
+  onEnableTeacher,
   onAssignProgram,
   onAssignCra,
   onApproveTeacher,
@@ -254,6 +256,7 @@ function ActionsMenuPortal({
   onOpenProfile?: (teacher: Teacher) => void;
   onMessageTeacher?: (teacher: Teacher) => void;
   onDisableTeacher?: (teacher: Teacher) => void;
+  onEnableTeacher?: (teacher: Teacher) => void;
   onAssignProgram?: (teacher: Teacher) => void;
   onAssignCra?: (teacher: Teacher) => void;
   onApproveTeacher?: (teacher: Teacher) => void;
@@ -311,13 +314,21 @@ function ActionsMenuPortal({
       danger: false,
       action: onAssignCra,
     },
-    {
-      id: "disable",
-      label: "Disable Teacher",
-      icon: "ri:user-forbid-line",
-      danger: true,
-      action: onDisableTeacher,
-    },
+    teacher.isActive === false
+      ? {
+          id: "enable",
+          label: "Enable Teacher",
+          icon: "mdi:account-check-outline",
+          danger: false,
+          action: onEnableTeacher,
+        }
+      : {
+          id: "disable",
+          label: "Disable Teacher",
+          icon: "ri:user-forbid-line",
+          danger: true,
+          action: onDisableTeacher,
+        },
   ];
 
   useLayoutEffect(() => {
@@ -392,6 +403,7 @@ function ActionsCell({
   onOpenProfile,
   onMessageTeacher,
   onDisableTeacher,
+  onEnableTeacher,
   onAssignProgram,
   onAssignCra,
   onApproveTeacher,
@@ -401,6 +413,7 @@ function ActionsCell({
   onOpenProfile?: (teacher: Teacher) => void;
   onMessageTeacher?: (teacher: Teacher) => void;
   onDisableTeacher?: (teacher: Teacher) => void;
+  onEnableTeacher?: (teacher: Teacher) => void;
   onAssignProgram?: (teacher: Teacher) => void;
   onAssignCra?: (teacher: Teacher) => void;
   onApproveTeacher?: (teacher: Teacher) => void;
@@ -429,6 +442,7 @@ function ActionsCell({
           onOpenProfile={onOpenProfile}
           onMessageTeacher={onMessageTeacher}
           onDisableTeacher={onDisableTeacher}
+          onEnableTeacher={onEnableTeacher}
           onAssignProgram={onAssignProgram}
           onAssignCra={onAssignCra}
           onApproveTeacher={onApproveTeacher}
@@ -447,6 +461,7 @@ export default function TeachersTable({
   onMessageTeacher,
   onAssignCra,
   onDisableTeacher,
+  onEnableTeacher,
   onApproveTeacher,
   onRejectTeacher,
 }: TeachersTableProps) {
@@ -462,7 +477,14 @@ export default function TeachersTable({
       }),
       columnHelper.accessor("status", {
         header: "Status",
-        cell: (info) => <StatusPill status={info.getValue()} />,
+        cell: (info) => (
+          <div className="flex flex-col items-start gap-1">
+            <StatusPill status={info.getValue()} />
+            {info.row.original.isActive === false && (
+              <span className="rounded-full bg-gray-200 px-2.5 py-1 text-xs font-medium text-gray-700">Disabled</span>
+            )}
+          </div>
+        ),
       }),
       columnHelper.accessor((row) => row.programs[0]?.title ?? "", {
         id: "programs",
@@ -528,6 +550,7 @@ export default function TeachersTable({
             onOpenProfile={onOpenProfile}
             onMessageTeacher={onMessageTeacher}
             onDisableTeacher={onDisableTeacher}
+            onEnableTeacher={onEnableTeacher}
             onAssignProgram={onAssignProgram}
             onAssignCra={onAssignCra}
             onApproveTeacher={onApproveTeacher}
@@ -540,6 +563,7 @@ export default function TeachersTable({
       onOpenProfile,
       onMessageTeacher,
       onDisableTeacher,
+      onEnableTeacher,
       onAssignProgram,
       onAssignCra,
       onApproveTeacher,

@@ -4,6 +4,10 @@ import {showError, showSuccess} from "@mcc/ui";
 import {
   ApiLiveSession,
   cancelSession,
+  createSession,
+  getCallSummary,
+  lookupPrograms,
+  lookupTeachers,
   markSessionDelivered,
   undoSessionDelivered,
   getLiveSessionsOverview,
@@ -52,6 +56,24 @@ export const useLiveSessionsOverview = (days = 30) => {
     queryFn: () => getLiveSessionsOverview(days),
   });
 };
+
+export const useCallSummary = (days = 30) =>
+  useQuery({queryKey: ["live-sessions", "call-summary", days], queryFn: () => getCallSummary(days)});
+
+export const useCreateSession = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createSession,
+    onSuccess: () => queryClient.invalidateQueries({queryKey: ["live-sessions"]}),
+  });
+};
+
+/** Teacher autocomplete for the create form. Nothing is fetched until something is typed. */
+export const useTeacherLookup = (q: string) =>
+  useQuery({queryKey: ["live-sessions", "lookup-teachers", q], queryFn: () => lookupTeachers(q), enabled: q.trim().length > 0});
+
+export const useProgramLookup = (q: string) =>
+  useQuery({queryKey: ["live-sessions", "lookup-programs", q], queryFn: () => lookupPrograms(q), enabled: q.trim().length > 0});
 
 export const useRescheduleSession = () => {
   const queryClient = useQueryClient();

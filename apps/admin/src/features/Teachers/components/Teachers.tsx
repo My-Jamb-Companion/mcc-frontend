@@ -8,6 +8,7 @@ import {Teacher} from "../types/types";
 import TeachersTable from "./TeachersTable";
 import ViewTeacher from "./ViewTeacher";
 import Image from "next/image";
+import Link from "next/link";
 import SendMessage from "./SendMessage";
 import AssignCRAModal from "./AssignCRA";
 import AssignProgram from "./AssignProgram";
@@ -16,6 +17,7 @@ import {
   useApproveTeacher,
   useAssignTeacherToAssignment,
   useDisableTeacher,
+  useEnableTeacher,
   useEscalatedAssignments,
   useRejectTeacher,
 } from "../hooks/useAdminTeachers";
@@ -30,9 +32,11 @@ export default function Teachers() {
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [assignProgram, setAssignProgram] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);
+  const [disableReason, setDisableReason] = useState("");
   const [confirmReject, setConfirmReject] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const disableTeacherMutation = useDisableTeacher();
+  const enableTeacherMutation = useEnableTeacher();
   const approveTeacherMutation = useApproveTeacher();
   const rejectTeacherMutation = useRejectTeacher();
   const assignTeacherMutation = useAssignTeacherToAssignment();
@@ -48,6 +52,19 @@ export default function Teachers() {
   const handleDisableTeacher = (teacher: Teacher) => {
     setConfirmDisable(true);
     setTeacher(teacher);
+  };
+
+  const handleEnableTeacher = (teacher: Teacher) => {
+    enableTeacherMutation.mutate(teacher.id, {
+      onSuccess: () => {
+        showSuccess(`${teacher.name} can sign in again`);
+        if (viewTeacher) {
+          setViewTeacher(false);
+          setTeacher(null);
+        }
+      },
+      onError: (error) => showError(extractApiError(error, "Couldn't enable this teacher")),
+    });
   };
 
   const handleApproveTeacher = (teacher: Teacher) => {
@@ -92,6 +109,13 @@ export default function Teachers() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Teachers</h1>
         <div className="relative">
+          <Link
+            href="/dashboard/teachers/verifications"
+            className="inline-flex items-center gap-2 rounded-full border border-muted/30 px-4 py-2 text-sm font-medium hover:bg-muted/10"
+          >
+            <Icon icon="mdi:shield-account-outline" size={18} />
+            Identity verifications
+          </Link>
           {/* <Button
             width="fit"
             className="p-2! pr-4!"
@@ -155,6 +179,7 @@ export default function Teachers() {
           onOpenProfile={handleOpenProfile}
           onMessageTeacher={() => setMessageCall(true)}
           onDisableTeacher={handleDisableTeacher}
+          onEnableTeacher={handleEnableTeacher}
           onAssignProgram={handleAssignProgram}
           onAssignCra={handleAssignCra}
           onApproveTeacher={handleApproveTeacher}
@@ -167,6 +192,7 @@ export default function Teachers() {
           isOpen={viewTeacher}
           teacher={teacher}
           onDisableTeacher={handleDisableTeacher}
+          onEnableTeacher={handleEnableTeacher}
           onClose={() => {
             setViewTeacher(false);
             setTeacher(null);
@@ -198,7 +224,13 @@ export default function Teachers() {
           isOpen={assignProgram}
           onClose={() => setAssignProgram(false)}
         />
-        <Modal open={confirmDisable} onClose={() => setConfirmDisable(false)}>
+        <Modal
+          open={confirmDisable}
+          onClose={() => {
+            setConfirmDisable(false);
+            setDisableReason("");
+          }}
+        >
           <div className="flex flex-col ">
             <div className="flex flex-col relative">
               <Image
@@ -229,7 +261,7 @@ export default function Teachers() {
                     </h1>
                     <h1 className="flex items-center gap-1 text-gray-400 text-xs">
                       <div className="h-1.5 w-1.5  bg-green-500 rounded-full" />
-                      <span>Active Teacher</span>
+                      <span>{teacher?.isActive === false ? "Disabled teacher" : "Active Teacher"}</span>
                     </h1>
                   </div>
 
@@ -259,28 +291,40 @@ export default function Teachers() {
 
             <h2 className="text-2xl font-semibold pt-6">Disable Teacher</h2>
 
-            <p className="text-sm text-muted py-5">
-              Are you sure you want to disable {teacher?.name}? This action can
-              not be undone.
+            <p className="text-sm text-muted pt-5 pb-3">
+              {teacher?.name} won&apos;t be able to sign in or teach while disabled. Nothing is
+              deleted, and you can enable them again at any time.
             </p>
+            <textarea
+              value={disableReason}
+              onChange={(e) => setDisableReason(e.target.value)}
+              placeholder="Why is this teacher being disabled? (required, kept in the account history)"
+              rows={3}
+              className="w-full rounded-xl border border-muted/30 p-3 text-sm outline-none focus:border-muted/60"
+            />
             {disableTeacherMutation.isError && (
-              <p className="text-sm text-red-500 pb-3">
-                Failed to disable teacher. Please try again.
+              <p className="text-sm text-red-500 pt-3">
+                {extractApiError(disableTeacherMutation.error, "Failed to disable teacher. Please try again.")}
               </p>
             )}
             <div className="inline-flex items-center gap-3 pt-6  w-full ">
               <Button
                 variant="danger"
                 width="full"
-                disabled={disableTeacherMutation.isPending}
+                disabled={disableTeacherMutation.isPending || !disableReason.trim()}
                 onClick={() => {
                   if (!teacher) return;
-                  disableTeacherMutation.mutate(teacher.id, {
-                    onSuccess: () => {
-                      setConfirmDisable(false);
-                      setTeacher(null);
+                  disableTeacherMutation.mutate(
+                    {teacherId: teacher.id, reason: disableReason.trim()},
+                    {
+                      onSuccess: () => {
+                        showSuccess(`${teacher.name} was disabled`);
+                        setConfirmDisable(false);
+                        setDisableReason("");
+                        setTeacher(null);
+                      },
                     },
-                  });
+                  );
                 }}
               >
                 {disableTeacherMutation.isPending ? "Disabling…" : "Disable Teacher"}
@@ -288,7 +332,10 @@ export default function Teachers() {
               <Button
                 variant="outline"
                 width="full"
-                onClick={() => setConfirmDisable(false)}
+                onClick={() => {
+                  setConfirmDisable(false);
+                  setDisableReason("");
+                }}
               >
                 Cancel
               </Button>

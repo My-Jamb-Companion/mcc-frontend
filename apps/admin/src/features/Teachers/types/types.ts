@@ -27,6 +27,8 @@ export interface Teacher {
   };
   location?: string;
   status: "pending" | "approved" | "rejected";
+  /** False while the account is disabled (it can be enabled again). */
+  isActive?: boolean;
   subject?: string;
 }
 export interface ProspectiveStudent {

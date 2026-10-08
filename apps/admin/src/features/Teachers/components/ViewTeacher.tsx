@@ -8,6 +8,9 @@ import {Teacher} from "../types/types";
 import TeacherAvatar from "./TeacherAvatar";
 import {useTeacherDetail, useUpdateTeacherProfile} from "../hooks/useAdminTeachers";
 import {uploadTeacherAvatar} from "../services/media.service";
+import {useMyAccess} from "@/src/features/admin-access/hooks/useAdminAccess";
+import {canManage, MyAccess} from "@/src/features/admin-access/helper/access";
+import {usePayoutDetails} from "../hooks/useVerifications";
 import type {
   CoTeacher,
   TeacherDetail,
@@ -19,6 +22,7 @@ interface ViewTeacherProps {
   isOpen: boolean;
   teacher: Teacher | null;
   onDisableTeacher: (teacher: Teacher) => void;
+  onEnableTeacher: (teacher: Teacher) => void;
   onClose: () => void;
 }
 
@@ -27,6 +31,7 @@ export default function ViewTeacher({
   teacher,
   onClose,
   onDisableTeacher,
+  onEnableTeacher,
 }: ViewTeacherProps) {
   // Optional: Close on Escape key press
   useEffect(() => {
@@ -247,17 +252,25 @@ export default function ViewTeacher({
                   <UpcomingSessionSection session={detail?.upcoming_session} />
 
                   <CoTeachersSection teachers={detail?.co_teachers} />
+
+                  <PayoutDetailsSection teacherId={teacher.id} />
                 </div>
               )}
 
-              <Button
-                variant={"ghost"}
-                width={"full"}
-                className="text-red-500"
-                onClick={() => onDisableTeacher(teacher)}
-              >
-                Disable Teacher
-              </Button>
+              {teacher.isActive === false ? (
+                <Button variant={"outline"} width={"full"} onClick={() => onEnableTeacher(teacher)}>
+                  Enable Teacher
+                </Button>
+              ) : (
+                <Button
+                  variant={"ghost"}
+                  width={"full"}
+                  className="text-red-500"
+                  onClick={() => onDisableTeacher(teacher)}
+                >
+                  Disable Teacher
+                </Button>
+              )}
             </div>
           </motion.section>
         </>
@@ -651,6 +664,65 @@ function CoTeachersSection({teachers}: {teachers: CoTeacher[] | undefined}) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+
+/** The bank account a teacher is paid into. Fetched only when asked for, because the account number is decrypted for the admin. */
+function PayoutDetailsSection({teacherId}: {teacherId: string}) {
+  const {data: access} = useMyAccess();
+  const mayView = !access || canManage(access as MyAccess, "teachers");
+  const [shown, setShown] = useState(false);
+  const {data, isLoading, isError} = usePayoutDetails(teacherId, shown && mayView);
+
+  if (!mayView) return null;
+
+  const copy = async () => {
+    if (!data?.account_number) return;
+    try {
+      await navigator.clipboard.writeText(data.account_number);
+      showSuccess("Account number copied.");
+    } catch {
+      showError("Couldn't copy. Select the number and copy it by hand.");
+    }
+  };
+
+  return (
+    <div className="w-full border-t border-muted/30 mt-6 pt-4">
+      <h2 className="text-sm font-semibold text-subtle mb-2">Payout details</h2>
+      {!shown ? (
+        <button
+          type="button"
+          onClick={() => setShown(true)}
+          className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition-colors"
+        >
+          Show bank details
+        </button>
+      ) : isLoading ? (
+        <p className="text-xs text-gray-400">Loading…</p>
+      ) : isError ? (
+        <p className="text-xs text-red-600">Couldn&apos;t load the bank details.</p>
+      ) : !data?.account_number ? (
+        <p className="text-xs text-gray-500">This teacher hasn&apos;t added bank details yet.</p>
+      ) : (
+        <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+          <dt className="text-gray-500">Bank</dt>
+          <dd className="font-medium text-gray-900">{data.bank_name}</dd>
+          <dt className="text-gray-500">Account name</dt>
+          <dd className="font-medium text-gray-900">{data.account_name}</dd>
+          <dt className="text-gray-500">Account number</dt>
+          <dd className="flex items-center gap-2 font-mono font-medium text-gray-900">
+            {data.account_number}
+            <button type="button" onClick={copy} className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 hover:bg-slate-200">
+              Copy
+            </button>
+            <button type="button" onClick={() => setShown(false)} className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 hover:bg-slate-200">
+              Hide
+            </button>
+          </dd>
+        </dl>
+      )}
     </div>
   );
 }
