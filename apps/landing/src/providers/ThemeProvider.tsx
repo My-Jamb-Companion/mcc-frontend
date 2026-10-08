@@ -7,11 +7,20 @@ type ThemeProviderProps = {
   children: ReactNode;
 };
 
+// Browsers can refuse storage access (private modes, blocked third-party storage); the theme then just follows the OS.
+const readSavedTheme = (): "light" | "dark" | null => {
+  try {
+    return localStorage.getItem("theme") as "light" | "dark" | null;
+  } catch {
+    return null;
+  }
+};
+
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const { setTheme, applyTheme } = useThemeStore();
 
   useEffect(() => {
-    const saved = localStorage.getItem("theme") as "light" | "dark" | null;
+    const saved = readSavedTheme();
 
     if (saved) {
       setTheme(saved);
@@ -24,7 +33,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     applyTheme(mq.matches ? "dark" : "light");
 
     const handleChange = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem("theme")) {
+      if (!readSavedTheme()) {
         applyTheme(e.matches ? "dark" : "light");
       }
     };

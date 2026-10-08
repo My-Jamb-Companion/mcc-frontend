@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Bagel_Fat_One, Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-import { AppProviders } from "@/src/providers/AppProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -44,7 +43,7 @@ export default function RootLayout({
       className={`${inter.variable} ${bagel.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="h-full flex flex-col">
-        <AppProviders>{children}</AppProviders>
+        {children}
       </body>
     </html>
   );
