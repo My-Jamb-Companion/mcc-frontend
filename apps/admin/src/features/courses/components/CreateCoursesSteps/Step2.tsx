@@ -5,6 +5,7 @@ import Step2Sidebar from "./Step2SideBar";
 import PracticeQuestions from "./CreatePractice";
 import LessonsCreate from "./CreateLessons";
 import ContentReorderPanel from "./ContentReorder";
+import {patchById} from "@/src/features/courses/helper/patchById";
 import {
   ContentFormValues,
   CreatPracticeQuestionType,
@@ -689,10 +690,20 @@ export default function ContentStep({
   courseName: string;
   onSaveDraft?: () => void;
 }) {
-  const {watch, setValue} = useFormContext<ContentFormValues>();
+  const {watch, setValue, getValues} = useFormContext<ContentFormValues>();
   const topics = watch("content.topics") ?? [];
   function setTopics(newTopics: Topic[]) {
     setValue("content.topics", newTopics, {shouldDirty: true});
+  }
+
+  /**
+   * An upload finished: record its file address on the lesson it belongs to. This reads the form as
+   * it is *now* (the admin may have gone elsewhere and added more since the upload began), so it can
+   * only ever change that one lesson. Writing back the module as it looked when the upload started
+   * used to wipe every lesson added after that.
+   */
+  function patchLesson(id: string, patch: Partial<FileRow>) {
+    setValue("content.topics", patchById(getValues("content.topics") ?? [], id, patch), {shouldDirty: true});
   }
 
   const [selectedContentId, setSelectedContentId] = useState("");
@@ -903,6 +914,7 @@ export default function ContentStep({
                 <LessonsCreate
                   files={activeFiles}
                   onFilesChange={setLessonFiles}
+                  onFilePatch={patchLesson}
                 />
               )}
 
