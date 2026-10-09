@@ -21,3 +21,9 @@ export const useMarkAllNotificationsRead = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
   });
 };
+
+/** The unread count for a header badge; 0 until loaded or when signed out. */
+export const useUnreadNotificationCount = () => {
+  const { data } = useNotifications();
+  return data?.unread_count ?? 0;
+};

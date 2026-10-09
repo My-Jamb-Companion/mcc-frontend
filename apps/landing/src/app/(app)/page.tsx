@@ -16,7 +16,16 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: title ? { absolute: title } : undefined,
     description: description || undefined,
-    openGraph: { title: title || undefined, description: description || undefined, images: image ? [image] : undefined },
+    alternates: { canonical: "/" },
+    openGraph: {
+      type: "website",
+      siteName: str(site, "brand_name") || "My Course Companion",
+      url: "/",
+      title: title || undefined,
+      description: description || undefined,
+      images: image ? [image] : undefined,
+    },
+    twitter: { card: image ? "summary_large_image" : "summary", title: title || undefined, description: description || undefined },
   };
 }
 

@@ -3,6 +3,7 @@
 import {useAssignmentForTarget} from "../hooks/useAssignment";
 import {SlotPicker} from "./SlotPicker";
 import {AssignmentStatusCard} from "./AssignmentStatusCard";
+import {CoordinatorMessages} from "./CoordinatorMessages";
 
 interface BookingSectionProps {
   purpose: "course" | "exam";
@@ -27,7 +28,10 @@ export function BookingSection({purpose, targetId}: BookingSectionProps) {
   return (
     <div className="px-4 pb-6">
       {assignment ? (
-        <AssignmentStatusCard assignment={assignment} />
+        <>
+          <AssignmentStatusCard assignment={assignment} />
+          {assignment.cra_user_id && <CoordinatorMessages assignmentId={assignment.id} />}
+        </>
       ) : (
         <SlotPicker purpose={purpose} targetId={targetId} />
       )}

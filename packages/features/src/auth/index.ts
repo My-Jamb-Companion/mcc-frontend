@@ -33,3 +33,6 @@ export * from "./components/LoginForm";
 export {default as ForgetPassword} from "./components/ForgetPassword";
 export {default as OTPVerify} from "./components/OTPVerify";
 export {default as NewPassword} from "./components/NewPassword";
+export * from "./hooks/useWhatsAppLogin";
+export { WhatsAppLogin } from "./components/WhatsAppLogin";
+export { toE164 } from "./services/phone";

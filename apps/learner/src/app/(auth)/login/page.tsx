@@ -8,6 +8,7 @@ export default function LoginPage() {
 
   return (
     <LoginForm
+      whatsAppHref="/login/whatsapp"
       onSuccess={(user) =>
         router.push(user.is_onboarded ? "/dashboard" : "/onboarding")
       }

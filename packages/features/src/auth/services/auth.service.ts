@@ -130,3 +130,20 @@ export const facebookExchangeApi = async (
   }>("/auth/facebook/exchange", { code });
   return res.data.data;
 };
+
+/** Endpoint: POST /auth/whatsapp/otp/request -- sends a 6-digit code to the number on WhatsApp. */
+export const requestWhatsAppOtpApi = async (phone: string): Promise<void> => {
+  await apiClient.post("/auth/whatsapp/otp/request", { phone });
+};
+
+/** Endpoint: POST /auth/whatsapp/otp/verify -- exchanges the code for a session. */
+export const verifyWhatsAppOtpApi = async (
+  phone: string,
+  code: string,
+): Promise<LoginResponseData> => {
+  const res = await apiClient.post<{ success: boolean; data: LoginResponseData }>(
+    "/auth/whatsapp/otp/verify",
+    { phone, code },
+  );
+  return res.data.data;
+};

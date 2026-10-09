@@ -70,3 +70,16 @@ export const getChildDetail = async (childId: string): Promise<ChildDetail> => {
   );
   return res.data.data;
 };
+
+export interface AddChildInput {
+  child_email: string;
+  child_password: string;
+  child_full_name?: string;
+  relationship: string;
+}
+
+/** Endpoint: POST /parent/children -- creates a new child account and links it. 409 when the email is already registered. */
+export const addChild = async (input: AddChildInput): Promise<ChildSummary> => {
+  const res = await apiClient.post<{ data: ChildSummary }>("/parent/children", input);
+  return res.data.data;
+};

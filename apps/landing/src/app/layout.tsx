@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bagel_Fat_One, Geist, Geist_Mono, Inter } from "next/font/google";
+import { SITE_URL } from "@/src/config";
 import "./globals.css";
 
 const inter = Inter({
@@ -24,6 +25,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "My Course Companion",
     template: "MCC | %s",

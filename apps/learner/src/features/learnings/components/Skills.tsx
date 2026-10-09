@@ -3,7 +3,7 @@
 import CourseCard from "@/src/features/components/CourseCard";
 import CourseCardSkeleton from "@/src/features/components/CourseCardSkeleton";
 import ScrollRow from "@/src/features/components/RowScroll";
-import {demoStats} from "../constants/demoHeaderStats";
+import {skillsStats} from "../helper/skillsStats";
 import LearningsHeader from "./LearningsHeader";
 import {useCourses, useEnrolledCourses} from "@/src/features/courses/hooks/useCourses";
 import {fromApiCourse, fromApiEnrolledCourse} from "@/src/features/courses/helper/course.mapper";
@@ -18,14 +18,9 @@ export default function Skills() {
   return (
     <section className="py-6 px-4">
       <LearningsHeader
-        stats={demoStats}
+        stats={skillsStats(allCourses.length, enrolledCourses)}
         title={"Acquire high value skills"}
-        paragraph="
-                  Python is a versatile programming language known for its simplicity
-                  and readability. Learning Python boosts your ability to develop web
-                  applications, data analysis tools, and automation scripts, making it
-                  essential for many tech careers.
-            "
+        paragraph="Pick up a new skill at your own pace. Courses you have started stay below, and new ones are one tap away."
       />
 
       <div className="pt-16">

@@ -75,3 +75,22 @@ export const getProspectiveStudentsTotal = async (): Promise<number> => {
   );
   return res.data.data.total;
 };
+
+export interface ApiStaffCount {
+  total: number;
+  new_in_period: number;
+  new_in_previous_period: number;
+}
+
+export interface ApiStaffOverview {
+  days: number;
+  teachers: ApiStaffCount;
+  admins: ApiStaffCount;
+  pending_teachers: number;
+  live_sessions: number;
+  live_sessions_previous: number;
+}
+
+/** Endpoint: GET /admin/analytics/staff */
+export const getStaffOverview = async (days: number): Promise<ApiStaffOverview> =>
+  (await apiClient.get<{ data: ApiStaffOverview }>("/admin/analytics/staff", { params: { days } })).data.data;

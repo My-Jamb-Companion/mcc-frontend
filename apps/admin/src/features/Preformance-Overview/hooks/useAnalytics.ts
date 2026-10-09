@@ -4,6 +4,7 @@ import {
   getAtRiskStudents,
   getPlatformOverview,
   getProspectiveStudentsTotal,
+  getStaffOverview,
   getTeacherPerformance,
 } from "../services/analytics.service";
 
@@ -41,3 +42,9 @@ export const useStudentPopulationCounts = () => {
     isLoading: active.isLoading || prospective.isLoading,
   };
 };
+
+export const useStaffOverview = (days: number) =>
+  useQuery({
+    queryKey: ["admin", "analytics", "staff", days],
+    queryFn: () => getStaffOverview(days),
+  });

@@ -9,6 +9,7 @@ export const LoginForm = ({
   more = true,
   showForgotPassword,
   onSuccess,
+  whatsAppHref,
 }: {
   more?: boolean;
   /** Independent of `more` -- every app benefits from a working password
@@ -19,6 +20,8 @@ export const LoginForm = ({
    * a /forget-password route yet) until it opts in explicitly. */
   showForgotPassword?: boolean;
   onSuccess?: (user: User) => void;
+  /** Where the "Log in with WhatsApp" page lives; the link only shows when set. */
+  whatsAppHref?: string;
 }) => {
   const resolvedShowForgotPassword = showForgotPassword ?? more;
   const {loginMutation} = useAuth();
@@ -129,6 +132,17 @@ export const LoginForm = ({
                 </div>
               )}
             </form>
+
+            {whatsAppHref && (
+              <p className="text-sm text-center mt-4 dark:text-muted">
+                <a
+                  href={whatsAppHref}
+                  className="underline cursor-pointer text-black dark:text-white hover:text-primary transition-all duration-300"
+                >
+                  Log in with WhatsApp instead
+                </a>
+              </p>
+            )}
 
             {more && (
               <p className="text-sm text-center mt-4 dark:text-muted">

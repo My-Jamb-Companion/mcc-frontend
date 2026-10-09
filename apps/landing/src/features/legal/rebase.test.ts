@@ -26,7 +26,11 @@ describe("legalFallbackHref", () => {
     expect(legalFallbackHref("Privacy")).toBe("/privacy");
     expect(legalFallbackHref("Refund policy")).toBe("/refund");
   });
+  it("sends a blank About or Contact link to its page", () => {
+    expect(legalFallbackHref("About")).toBe("/about");
+    expect(legalFallbackHref("Contact")).toBe("/contact");
+  });
   it("leaves other links alone", () => {
-    expect(legalFallbackHref("About")).toBe("");
+    expect(legalFallbackHref("Help centre")).toBe("");
   });
 });

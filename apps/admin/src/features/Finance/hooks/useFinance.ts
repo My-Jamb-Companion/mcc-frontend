@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   approvePayout,
+  getFinanceOverview,
   getMonthlyFlow,
+  OverviewPeriod,
   getProgramRevenue,
   getRecentPayments,
   listPayments,
@@ -62,4 +64,10 @@ export const useRecentPayments = (limit = 20) =>
   useQuery({
     queryKey: ["admin", "finance", "payments", limit],
     queryFn: () => getRecentPayments(limit),
+  });
+
+export const useFinanceOverview = (period: OverviewPeriod) =>
+  useQuery({
+    queryKey: ["admin", "finance", "overview", period],
+    queryFn: () => getFinanceOverview(period),
   });

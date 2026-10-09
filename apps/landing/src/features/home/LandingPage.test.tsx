@@ -47,9 +47,21 @@ describe("LandingPage", () => {
     const { container } = render(<LandingPage content={page} />);
     expect(screen.queryByText("TikTok")).toBeNull();
     expect(screen.getByText("Instagram").closest("a")?.getAttribute("href")).toBe("https://instagram.com/x");
-    // "About" has no page yet: plain text, not a dead link.
-    expect(container.querySelector("footer")?.textContent).toContain("About");
-    expect(Array.from(container.querySelectorAll("footer a")).some((a) => a.textContent === "About")).toBe(false);
+    // "Help centre" has no page yet: plain text, not a dead link.
+    expect(container.querySelector("footer")?.textContent).toContain("Help centre");
+    expect(Array.from(container.querySelectorAll("footer a")).some((a) => a.textContent === "Help centre")).toBe(false);
+  });
+
+  it("links a blank About and Contact footer entry to their pages", () => {
+    const page = normalizeContent({
+      site: { footer_columns: [{ title: "COMPANY", links: [{ label: "About", href: "" }, { label: "Contact", href: "" }] }] },
+      blocks: [],
+    });
+    const { container } = render(<LandingPage content={page} />);
+    const hrefOf = (label: string) =>
+      Array.from(container.querySelectorAll("footer a")).find((a) => a.textContent === label)?.getAttribute("href");
+    expect(hrefOf("About")).toBe("/about");
+    expect(hrefOf("Contact")).toBe("/contact");
   });
 
   it("links the legal footer entries to their pages, even when published content left them blank", () => {
