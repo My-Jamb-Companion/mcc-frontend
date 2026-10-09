@@ -8,7 +8,11 @@ import Step2Sidebar from "./Step2SideBar";
 import LessonsCreate, {FileRow} from "./LessonsCreate";
 import {patchById} from "@/src/features/courses/helper/patchById";
 import QuizSettingsFields, {QuizSettings} from "@/src/features/question-editor/QuizSettingsFields";
-import {serializeTopicsPayload} from "@/src/features/Exam-program/helper/content.mapper";
+import {
+  serializeTopicsPayload,
+  unfinishedLectureCount,
+  unfinishedUploadsNotice,
+} from "@/src/features/Exam-program/helper/content.mapper";
 import {
   getApiErrorMessage,
   updateExamProgramContent,
@@ -186,9 +190,11 @@ export default function ContentStep({
     setIsSubmitting(true);
 
     try {
+      const skipped = unfinishedLectureCount(topics);
       await updateExamProgramContent(programId, {
         topics: serializeTopicsPayload(topics),
       });
+      if (skipped > 0) showError(unfinishedUploadsNotice(skipped));
       onNext?.();
     } catch (error) {
       setSubmitError(
@@ -214,10 +220,12 @@ export default function ContentStep({
     setIsSavingDraft(true);
 
     try {
+      const skipped = unfinishedLectureCount(topics);
       await updateExamProgramContent(programId, {
         topics: serializeTopicsPayload(topics),
       });
       showSuccess("Exam program draft saved successfully!");
+      if (skipped > 0) showError(unfinishedUploadsNotice(skipped));
     } catch (error) {
       const msg = getApiErrorMessage(
         error,
