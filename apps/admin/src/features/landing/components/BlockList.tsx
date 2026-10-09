@@ -3,18 +3,16 @@
 import {useState} from "react";
 import {ConfirmModal, Icon, Modal} from "@mcc/ui";
 import {BLOCK_BY_TYPE, BLOCKS} from "@mcc/landing-content";
-import type {LandingBlock} from "@mcc/landing-content";
+import type {BlockDefinition, LandingBlock} from "@mcc/landing-content";
 import {blockSubtitle, blockTitle, positionLabel} from "../helper/editor";
 
 export const SITE_SELECTION = "__site__";
 
-function Row({block, index, total, selected, disabled, onSelect, onToggle, onMove, onDuplicate, onRemove, dragging, onDragStart, onDragOver, onDragEnd}: {
-  block: LandingBlock; index: number; total: number; selected: boolean; disabled?: boolean;
+function Row({block, def, title, sub, index, total, selected, disabled, onSelect, onToggle, onMove, onDuplicate, onRemove, dragging, onDragStart, onDragOver, onDragEnd}: {
+  block: LandingBlock; def?: BlockDefinition; title: string; sub: string; index: number; total: number; selected: boolean; disabled?: boolean;
   onSelect: () => void; onToggle: () => void; onMove: (to: number) => void; onDuplicate: () => void; onRemove: () => void;
   dragging: boolean; onDragStart: () => void; onDragOver: () => void; onDragEnd: () => void;
 }) {
-  const def = BLOCK_BY_TYPE[block.type];
-  const sub = blockSubtitle(block);
   const small = "flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-30 disabled:hover:bg-transparent";
   return (
     <li
@@ -31,7 +29,7 @@ function Row({block, index, total, selected, disabled, onSelect, onToggle, onMov
             <Icon icon={def?.icon ?? "lucide:square"} size={16} />
           </span>
           <span className="min-w-0">
-            <span className={`block truncate text-sm font-medium ${block.visible ? "text-gray-800" : "text-gray-400"}`}>{blockTitle(block)}</span>
+            <span className={`block truncate text-sm font-medium ${block.visible ? "text-gray-800" : "text-gray-400"}`}>{title}</span>
             {(sub || !block.visible) && (
               <span className="block truncate text-xs text-gray-400">{block.visible ? sub : `Hidden${sub ? ` · ${sub}` : ""}`}</span>
             )}
@@ -58,8 +56,16 @@ function Row({block, index, total, selected, disabled, onSelect, onToggle, onMov
 }
 
 /** The sections of the page, in order: pick one to edit it, drag or use the arrows to reorder, hide, copy or delete. */
-export default function BlockList({blocks, selectedId, disabled, onSelect, onMove, onToggle, onDuplicate, onRemove, onAdd}: {
+export default function BlockList({
+  blocks, selectedId, disabled, onSelect, onMove, onToggle, onDuplicate, onRemove, onAdd,
+  defs = BLOCKS, defByType = BLOCK_BY_TYPE,
+  describe = (b) => ({title: blockTitle(b), subtitle: blockSubtitle(b)}),
+  siteTitle = "Header, footer and search", siteHint = "Name, menu, footer links, SEO", sectionNoun = "section",
+}: {
   blocks: LandingBlock[]; selectedId: string | null; disabled?: boolean;
+  defs?: BlockDefinition[]; defByType?: Record<string, BlockDefinition>;
+  describe?: (block: LandingBlock) => {title: string; subtitle: string};
+  siteTitle?: string; siteHint?: string; sectionNoun?: string;
   onSelect: (id: string) => void; onMove: (id: string, to: number) => void; onToggle: (id: string) => void;
   onDuplicate: (id: string) => void; onRemove: (id: string) => void; onAdd: (type: string) => void;
 }) {
@@ -76,8 +82,8 @@ export default function BlockList({blocks, selectedId, disabled, onSelect, onMov
       >
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500"><Icon icon="lucide:settings-2" size={16} /></span>
         <span>
-          <span className="block text-sm font-medium text-gray-800">Header, footer and search</span>
-          <span className="block text-xs text-gray-400">Name, menu, footer links, SEO</span>
+          <span className="block text-sm font-medium text-gray-800">{siteTitle}</span>
+          <span className="block text-xs text-gray-400">{siteHint}</span>
         </span>
       </button>
 
@@ -87,6 +93,9 @@ export default function BlockList({blocks, selectedId, disabled, onSelect, onMov
           <Row
             key={block.id}
             block={block}
+            def={defByType[block.type]}
+            title={describe(block).title}
+            sub={describe(block).subtitle}
             index={i}
             total={blocks.length}
             selected={selectedId === block.id}
@@ -103,7 +112,7 @@ export default function BlockList({blocks, selectedId, disabled, onSelect, onMov
           />
         ))}
       </ul>
-      {blocks.length === 0 && <p className="rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-500">The page has no sections yet.</p>}
+      {blocks.length === 0 && <p className="rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-500">The page has no {sectionNoun}s yet.</p>}
 
       <button
         type="button"
@@ -111,12 +120,12 @@ export default function BlockList({blocks, selectedId, disabled, onSelect, onMov
         onClick={() => setAdding(true)}
         className="mt-1 flex items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 px-3 py-2.5 text-sm font-medium text-gray-600 hover:border-violet-400 hover:text-violet-700 disabled:opacity-50"
       >
-        <Icon icon="lucide:plus" size={16} /> Add a section
+        <Icon icon="lucide:plus" size={16} /> Add a {sectionNoun}
       </button>
 
-      <Modal open={adding} title="Add a section" maxWidth="max-w-2xl" onClose={() => setAdding(false)} x>
+      <Modal open={adding} title={`Add a ${sectionNoun}`} maxWidth="max-w-2xl" onClose={() => setAdding(false)} x>
         <div className="grid gap-2 sm:grid-cols-2">
-          {BLOCKS.map((def) => (
+          {defs.map((def) => (
             <button
               key={def.type}
               type="button"
@@ -136,14 +145,14 @@ export default function BlockList({blocks, selectedId, disabled, onSelect, onMov
       <ConfirmModal
         open={!!removing}
         variant="danger"
-        title="Delete this section?"
+        title={`Delete this ${sectionNoun}?`}
         message={
           <>
-            <strong>{removing ? blockTitle(removing) : ""}</strong> and everything written in it will be taken off the page once you save.
+            <strong>{removing ? describe(removing).title : ""}</strong> and everything written in it will be taken off the page once you save.
             You can hide it instead if you might want it back.
           </>
         }
-        confirmText="Delete section"
+        confirmText={`Delete ${sectionNoun}`}
         cancelText="Keep it"
         onConfirm={() => { if (removing) onRemove(removing.id); setRemoving(null); }}
         onCancel={() => setRemoving(null)}

@@ -4,51 +4,60 @@ import {
   getLandingPage,
   LandingPageState,
   listLandingVersions,
+  PageKey,
   publishLandingPage,
   restoreLandingVersion,
   saveLandingDraft,
 } from "../services/landing.service";
 import type {LandingContent} from "@mcc/landing-content";
 
-export const LANDING_KEY = ["admin-landing", "home"];
+export const landingKey = (page: PageKey = "home") => ["admin-landing", page];
+const versionsKey = (page: PageKey) => ["admin-landing", "versions", page];
 
-export const useLandingPage = () => useQuery({queryKey: LANDING_KEY, queryFn: getLandingPage, refetchOnWindowFocus: false});
+/** The home page's key (kept for callers that only ever edit the home page). */
+export const LANDING_KEY = landingKey("home");
 
-export const useSaveLandingDraft = () => {
+export const useLandingPage = (page: PageKey = "home") =>
+  useQuery({queryKey: landingKey(page), queryFn: () => getLandingPage(page), refetchOnWindowFocus: false});
+
+export const useSaveLandingDraft = (page: PageKey = "home") => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({content, baseRevision}: {content: LandingContent; baseRevision: number | null}) =>
-      saveLandingDraft(content, baseRevision),
+      saveLandingDraft(content, baseRevision, page),
     onSuccess: (draft) =>
-      queryClient.setQueryData<LandingPageState>(LANDING_KEY, (old) =>
+      queryClient.setQueryData<LandingPageState>(landingKey(page), (old) =>
         old ? {...old, draft, has_unpublished_changes: true} : old,
       ),
   });
 };
 
-export const useDiscardLandingDraft = () => {
-  const queryClient = useQueryClient();
-  return useMutation({mutationFn: discardLandingDraft, onSuccess: () => queryClient.invalidateQueries({queryKey: LANDING_KEY})});
-};
-
-export const usePublishLandingPage = () => {
+export const useDiscardLandingDraft = (page: PageKey = "home") => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (note: string) => publishLandingPage(note),
+    mutationFn: () => discardLandingDraft(page),
+    onSuccess: () => queryClient.invalidateQueries({queryKey: landingKey(page)}),
+  });
+};
+
+export const usePublishLandingPage = (page: PageKey = "home") => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (note: string) => publishLandingPage(note, page),
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: LANDING_KEY});
-      queryClient.invalidateQueries({queryKey: ["admin-landing", "versions"]});
+      queryClient.invalidateQueries({queryKey: landingKey(page)});
+      queryClient.invalidateQueries({queryKey: versionsKey(page)});
     },
   });
 };
 
-export const useLandingVersions = (enabled: boolean) =>
-  useQuery({queryKey: ["admin-landing", "versions"], queryFn: listLandingVersions, enabled});
+export const useLandingVersions = (enabled: boolean, page: PageKey = "home") =>
+  useQuery({queryKey: versionsKey(page), queryFn: () => listLandingVersions(page), enabled});
 
-export const useRestoreLandingVersion = () => {
+export const useRestoreLandingVersion = (page: PageKey = "home") => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (versionId: string) => restoreLandingVersion(versionId),
-    onSuccess: () => queryClient.invalidateQueries({queryKey: LANDING_KEY}),
+    mutationFn: (versionId: string) => restoreLandingVersion(versionId, page),
+    onSuccess: () => queryClient.invalidateQueries({queryKey: landingKey(page)}),
   });
 };

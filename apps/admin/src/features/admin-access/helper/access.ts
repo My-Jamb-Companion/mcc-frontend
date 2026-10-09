@@ -46,6 +46,7 @@ const ROUTE_AREAS: [string, string][] = [
   ["/dashboard/categories", "courses"],
   ["/dashboard/question-bank", "question_bank"],
   ["/dashboard/landing", "landing"],
+  ["/dashboard/legal", "landing"],
   ["/dashboard/gamification", "gamification"],
   ["/dashboard/students", "students"],
   ["/finance", "finance"],

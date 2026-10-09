@@ -5,3 +5,5 @@ export * from "./site";
 export * from "./defaults";
 export * from "./helpers";
 export * from "./preview";
+export * from "./legalDocuments";
+export * from "./legal";

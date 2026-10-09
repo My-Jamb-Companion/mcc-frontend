@@ -51,6 +51,10 @@ export type StringsField = {
   help?: string;
   itemLabel: string;
   max?: number;
+  /** Each string is a paragraph: edited in a taller box that grows, with a longer limit. */
+  multiline?: boolean;
+  /** The longest an item may be (120 by default). */
+  maxLength?: number;
 };
 
 /** A list of small records (e.g. FAQ questions), each edited with `fields`. */
