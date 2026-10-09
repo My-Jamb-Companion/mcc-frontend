@@ -54,6 +54,7 @@ export const config = {
     "/brainy/:path*",
     "/learnings/:path*",
     "/rewards/:path*",
+    "/support/:path*",
     "/certifications/:path*",
   ],
 };

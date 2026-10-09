@@ -3,3 +3,4 @@ export * from "./onboarding";
 export * from "./teachers";
 export * from "./messaging";
 export * from "./notifications";
+export * from "./support";

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { NotificationLink, useAuth } from "@mcc/features";
+import { NotificationLink, SupportLink, useAuth } from "@mcc/features";
 import { Button, Icon } from "@mcc/ui";
 import { useThemeStore } from "@mcc/store";
 
@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/dashboard", label: "Sessions" },
   { href: "/availability", label: "Availability" },
   { href: "/messages", label: "Messages" },
+  { href: "/support", label: "MCC team" },
   { href: "/earnings", label: "Earnings" },
   { href: "/notifications", label: "Notifications" },
   { href: "/account", label: "Account" },
@@ -43,7 +44,7 @@ export const Header = () => {
                   : "text-muted hover:text-primary"
               }`}
             >
-              {link.href === "/notifications" ? <NotificationLink label={link.label} /> : link.label}
+              {link.href === "/notifications" ? <NotificationLink label={link.label} /> : link.href === "/support" ? <SupportLink label={link.label} /> : link.label}
             </Link>
           ))}
         </nav>
