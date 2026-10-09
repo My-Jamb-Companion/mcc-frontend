@@ -80,6 +80,7 @@ const NAV_ENTRIES: NavEntry[] = [
       {key: "categories", label: "Categories", href: "/dashboard/categories"},
       {key: "question-bank", label: "Question Bank", href: "/dashboard/question-bank"},
       {key: "landing", label: "Landing page", href: "/dashboard/landing"},
+      {key: "legal", label: "Legal pages", href: "/dashboard/legal"},
     ],
   },
   {

@@ -2,13 +2,14 @@ import "../home/landing.css";
 import { SiteFooter } from "../home/SiteFooter";
 import { SiteHeader } from "../home/SiteHeader";
 import { getLandingContent } from "../home/content";
-import { DOCUMENTS, LEGAL_LINKS } from "./documents";
-import type { LegalDocument } from "./documents";
+import { LEGAL_LINKS } from "./documents";
+import type { LegalSlug } from "@mcc/landing-content";
+import { getLegalDocument } from "./content";
 import { rebaseSite } from "./rebase";
 
 /** Terms, Privacy or Refund: the same header and footer as the home page around a plain, readable document. */
-export async function LegalPage({ slug }: { slug: LegalDocument["slug"] }) {
-  const doc = DOCUMENTS[slug];
+export async function LegalPage({ slug }: { slug: LegalSlug }) {
+  const doc = await getLegalDocument(slug);
   const { site } = await getLandingContent();
   const pageSite = rebaseSite(site);
 
@@ -16,13 +17,15 @@ export async function LegalPage({ slug }: { slug: LegalDocument["slug"] }) {
     <div className="mcc-root" style={{ width: "100%", background: "#fff", color: "#171717" }}>
       <SiteHeader site={pageSite} homeHref="/" />
       <main style={{ maxWidth: 780, margin: "0 auto", padding: "clamp(32px,6vw,72px) clamp(20px,5vw,40px) 96px" }}>
-        <p
-          role="note"
-          style={{ margin: "0 0 28px", padding: "14px 18px", borderRadius: 14, background: "#FFF7E0", border: "1px solid #F2D98A", color: "#5C4300", fontSize: 15, lineHeight: 1.5 }}
-        >
-          <strong>Draft, pending legal review.</strong> This page describes how My Course Companion works today. It has not yet been reviewed by a
-          lawyer and may change. Items marked TO CONFIRM still need company details or decisions.
-        </p>
+        {doc.showDraftNotice !== false && (
+          <p
+            role="note"
+            style={{ margin: "0 0 28px", padding: "14px 18px", borderRadius: 14, background: "#FFF7E0", border: "1px solid #F2D98A", color: "#5C4300", fontSize: 15, lineHeight: 1.5 }}
+          >
+            <strong>Draft, pending legal review.</strong> This page describes how My Course Companion works today. It has not yet been reviewed by a
+            lawyer and may change. Items marked TO CONFIRM still need company details or decisions.
+          </p>
+        )}
 
         <h1 style={{ margin: 0, fontSize: "clamp(32px,5vw,44px)", lineHeight: 1.1, letterSpacing: "-0.02em" }}>{doc.title}</h1>
         <p style={{ margin: "12px 0 4px", fontSize: 18, lineHeight: 1.55, color: "#404040" }}>{doc.summary}</p>

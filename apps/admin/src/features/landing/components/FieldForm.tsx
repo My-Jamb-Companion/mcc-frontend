@@ -39,15 +39,27 @@ function StringsEditor({field, value, onChange, disabled}: {field: StringsField;
   return (
     <div className="flex flex-col gap-2">
       {value.map((item, i) => (
-        <div key={i} className="flex items-center gap-1">
-          <input
-            aria-label={`${field.itemLabel} ${i + 1}`}
-            value={item}
-            disabled={disabled}
-            maxLength={120}
-            onChange={(e) => onChange(value.map((v, j) => (j === i ? e.target.value : v)))}
-            className={inputClass}
-          />
+        <div key={i} className={`flex gap-1 ${field.multiline ? "items-start" : "items-center"}`}>
+          {field.multiline ? (
+            <textarea
+              aria-label={`${field.itemLabel} ${i + 1}`}
+              value={item}
+              disabled={disabled}
+              maxLength={field.maxLength ?? 4000}
+              rows={Math.min(14, Math.max(3, Math.ceil(item.length / 70)))}
+              onChange={(e) => onChange(value.map((v, j) => (j === i ? e.target.value : v)))}
+              className={`${inputClass} resize-y leading-relaxed`}
+            />
+          ) : (
+            <input
+              aria-label={`${field.itemLabel} ${i + 1}`}
+              value={item}
+              disabled={disabled}
+              maxLength={field.maxLength ?? 120}
+              onChange={(e) => onChange(value.map((v, j) => (j === i ? e.target.value : v)))}
+              className={inputClass}
+            />
+          )}
           <IconButton label="Move up" icon="lucide:chevron-up" disabled={disabled || i === 0} onClick={() => onChange(moveItem(value, i, i - 1))} />
           <IconButton label="Move down" icon="lucide:chevron-down" disabled={disabled || i === value.length - 1} onClick={() => onChange(moveItem(value, i, i + 1))} />
           <IconButton label={`Remove ${field.itemLabel.toLowerCase()} ${i + 1}`} icon="lucide:x" danger disabled={disabled} onClick={() => onChange(value.filter((_, j) => j !== i))} />

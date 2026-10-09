@@ -29,29 +29,35 @@ export interface LandingVersionSummary {
   published_by_name: string | null;
 }
 
-const PAGE = "home";
-const base = `/admin/landing/pages/${PAGE}`;
+/** The pages the CMS manages: the home page and the legal pages. */
+export type PageKey = "home" | "terms" | "privacy" | "refund";
 
-/** The draft and published versions of the landing page. Endpoint: GET /admin/landing/pages/home */
-export const getLandingPage = async (): Promise<LandingPageState> =>
-  (await apiClient.get<{data: LandingPageState}>(base)).data.data;
+const base = (page: PageKey) => `/admin/landing/pages/${page}`;
+
+/** The draft and published versions of a page. Endpoint: GET /admin/landing/pages/{page} */
+export const getLandingPage = async (page: PageKey = "home"): Promise<LandingPageState> =>
+  (await apiClient.get<{data: LandingPageState}>(base(page))).data.data;
 
 /** Save the working draft. `baseRevision` is the draft's revision the edit started from (null: no draft yet). */
-export const saveLandingDraft = async (content: LandingContent, baseRevision: number | null): Promise<LandingVersion> =>
-  (await apiClient.put<{data: LandingVersion}>(`${base}/draft`, {content, base_revision: baseRevision})).data.data;
+export const saveLandingDraft = async (
+  content: LandingContent,
+  baseRevision: number | null,
+  page: PageKey = "home",
+): Promise<LandingVersion> =>
+  (await apiClient.put<{data: LandingVersion}>(`${base(page)}/draft`, {content, base_revision: baseRevision})).data.data;
 
-export const discardLandingDraft = async (): Promise<void> => {
-  await apiClient.delete(`${base}/draft`);
+export const discardLandingDraft = async (page: PageKey = "home"): Promise<void> => {
+  await apiClient.delete(`${base(page)}/draft`);
 };
 
-export const publishLandingPage = async (note: string): Promise<LandingVersion> =>
-  (await apiClient.post<{data: LandingVersion}>(`${base}/publish`, note.trim() ? {note: note.trim()} : {})).data.data;
+export const publishLandingPage = async (note: string, page: PageKey = "home"): Promise<LandingVersion> =>
+  (await apiClient.post<{data: LandingVersion}>(`${base(page)}/publish`, note.trim() ? {note: note.trim()} : {})).data.data;
 
-export const listLandingVersions = async (): Promise<LandingVersionSummary[]> =>
-  (await apiClient.get<{data: {versions: LandingVersionSummary[]}}>(`${base}/versions`)).data.data.versions;
+export const listLandingVersions = async (page: PageKey = "home"): Promise<LandingVersionSummary[]> =>
+  (await apiClient.get<{data: {versions: LandingVersionSummary[]}}>(`${base(page)}/versions`)).data.data.versions;
 
-export const restoreLandingVersion = async (versionId: string): Promise<LandingVersion> =>
-  (await apiClient.post<{data: LandingVersion}>(`${base}/versions/${versionId}/restore`)).data.data;
+export const restoreLandingVersion = async (versionId: string, page: PageKey = "home"): Promise<LandingVersion> =>
+  (await apiClient.post<{data: LandingVersion}>(`${base(page)}/versions/${versionId}/restore`)).data.data;
 
 interface ApiErrorBody {
   message?: string;

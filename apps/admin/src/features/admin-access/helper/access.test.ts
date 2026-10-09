@@ -40,6 +40,7 @@ describe("areaForPath", () => {
     ["/dashboard/categories", "courses"],
     ["/dashboard/question-bank", "question_bank"],
     ["/dashboard/landing", "landing"],
+    ["/dashboard/legal", "landing"],
     ["/dashboard/students/active-students", "students"],
     ["/finance", "finance"],
     ["/finance/pricing", "finance"],

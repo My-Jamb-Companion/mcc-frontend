@@ -30,11 +30,11 @@ export type EditorStatus = {label: string; tone: "ok" | "warn" | "muted"};
  * The one-line state of the page, shown beside the Save and Publish buttons.
  * `dirty`: edits in the editor not yet saved. `hasDraft`: a saved draft exists.
  */
-export function editorStatus(s: {dirty: boolean; hasDraft: boolean; hasPublished: boolean; draftDiffers: boolean}): EditorStatus {
+export function editorStatus(s: {dirty: boolean; hasDraft: boolean; hasPublished: boolean; draftDiffers: boolean; notPublishedLabel?: string}): EditorStatus {
   if (s.dirty) return {label: "Unsaved changes", tone: "warn"};
   if (s.hasDraft && s.draftDiffers) return {label: "Draft saved, not published", tone: "warn"};
   if (s.hasPublished) return {label: "Published", tone: "ok"};
-  return {label: "Not published yet: visitors see the built-in design", tone: "muted"};
+  return {label: s.notPublishedLabel ?? "Not published yet: visitors see the built-in design", tone: "muted"};
 }
 
 /** The text the reorder buttons announce. */

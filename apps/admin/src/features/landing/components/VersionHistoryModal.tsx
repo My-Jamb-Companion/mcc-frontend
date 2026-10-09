@@ -3,18 +3,18 @@
 import {useState} from "react";
 import {ConfirmModal, Modal, showError, showSuccess} from "@mcc/ui";
 import {landingErrorMessage} from "../services/landing.service";
-import type {LandingVersionSummary} from "../services/landing.service";
+import type {LandingVersionSummary, PageKey} from "../services/landing.service";
 import {useLandingVersions, useRestoreLandingVersion} from "../hooks/useLanding";
 
 const when = (iso: string | null) =>
   iso ? new Date(iso).toLocaleString(undefined, {day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit"}) : "";
 
 /** Earlier published versions. Restoring one puts it in the draft; it goes live only when published. */
-export default function VersionHistoryModal({open, onClose, onRestored, disabled}: {
-  open: boolean; onClose: () => void; onRestored: () => void; disabled?: boolean;
+export default function VersionHistoryModal({open, onClose, onRestored, disabled, page = "home"}: {
+  open: boolean; onClose: () => void; onRestored: () => void; disabled?: boolean; page?: PageKey;
 }) {
-  const versions = useLandingVersions(open);
-  const restore = useRestoreLandingVersion();
+  const versions = useLandingVersions(open, page);
+  const restore = useRestoreLandingVersion(page);
   const [choice, setChoice] = useState<LandingVersionSummary | null>(null);
 
   return (
