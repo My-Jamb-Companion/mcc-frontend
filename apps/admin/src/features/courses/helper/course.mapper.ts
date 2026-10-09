@@ -49,6 +49,35 @@ function remoteFile(url: string | null | undefined) {
 }
 
 /**
+ * The lesson's stored address. A `blob:` link exists only in the browser that picked the file (the
+ * upload hasn't finished, or failed), so it is never saved: it would be a dead link for everyone else.
+ */
+export function lessonUrl(lesson: Pick<LessonModuleContent, "src" | "previewUrl">): string | undefined {
+  return [lesson.src, lesson.previewUrl].find((u) => u && !u.startsWith("blob:")) || undefined;
+}
+
+/** A lesson whose file is still uploading, or failed to: it has a local link only, and nothing else to save. */
+export function isUnfinishedUpload(lesson: LessonModuleContent): boolean {
+  const hasLocalLink = [lesson.src, lesson.previewUrl].some((u) => u?.startsWith("blob:"));
+  return hasLocalLink && !lesson.content && !lessonUrl(lesson);
+}
+
+/** How many lessons a save would have to leave out because their upload isn't finished. */
+export function unfinishedLessonCount(topics: Topic[] | undefined): number {
+  return (topics ?? [])
+    .flatMap((t) => t.modules)
+    .flatMap((m) => m.content)
+    .filter((c): c is LessonModuleContent => c.type === "lesson" && isUnfinishedUpload(c)).length;
+}
+
+/** The sentence shown when a save left unfinished uploads out. */
+export function unfinishedUploadsNotice(count: number): string {
+  return `${count} ${count === 1 ? "lesson is" : "lessons are"} still uploading (or the upload failed), so ${
+    count === 1 ? "it was" : "they were"
+  } not saved. Save again once ${count === 1 ? "it has" : "they have"} finished.`;
+}
+
+/**
  * Serializes UI Topic[] data structure into API ApiModulePayload[] format
  * suitable for PATCH /admin/courses/{course_id}
  */
@@ -63,11 +92,13 @@ export function serializeModulesPayload(topics: Topic[]): ApiModulePayload[] {
       (c): c is LessonModuleContent => c.type === "lesson",
     );
 
-    const lectures: ApiLecturePayload[] = lessons.map((lesson) => ({
+    // A lesson still uploading has only a link that works in this browser; saving it would leave a
+    // dead lesson for students, so it is left out until the upload finishes.
+    const lectures: ApiLecturePayload[] = lessons.filter((lesson) => !isUnfinishedUpload(lesson)).map((lesson) => ({
       lecture_id: lesson.id,
       title: lesson.title,
       content: lesson.content || undefined,
-      video_url: lesson.src || lesson.previewUrl || undefined,
+      video_url: lessonUrl(lesson),
       file_format: lesson.format || "MP4",
       file_size_bytes: lesson.fileSizeBytes ?? lesson.file?.size ?? undefined,
       duration_seconds: lesson.duration ?? undefined,
