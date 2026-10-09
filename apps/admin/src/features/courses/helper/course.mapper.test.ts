@@ -209,3 +209,56 @@ describe("practice option responses", () => {
     }
   });
 });
+
+
+describe("keeping lesson and module ids across saves", () => {
+  const topics: Topic[] = [
+    {
+      id: "t",
+      label: "Main Topic",
+      modules: [
+        {
+          id: "mod_abc",
+          label: "Module 1",
+          content: [
+            {id: "lec_one", type: "lesson", title: "One", format: "MP4", size: "", src: "https://cdn/one.mp4"},
+            {id: "lec_two", type: "lesson", title: "Two", format: "MP4", size: "", src: "https://cdn/two.mp4"},
+          ],
+        },
+      ],
+    },
+  ];
+
+  it("sends each module's and lesson's id with the save", () => {
+    const [module] = serializeModulesPayload(topics);
+    expect(module.module_id).toBe("mod_abc");
+    expect(module.lectures.map((l) => l.lecture_id)).toEqual(["lec_one", "lec_two"]);
+  });
+
+  it("gives a loaded course's modules and lessons the ids the server gave them", () => {
+    const [topic] = deserializeModulesPayload([
+      {
+        module_id: "mod_server",
+        title: "Module 1",
+        lectures: [{lecture_id: "lec_server", title: "One", video_url: "https://cdn/one.mp4"}],
+        quizzes: [],
+      },
+    ]);
+    expect(topic.modules[0].id).toBe("mod_server");
+    expect(topic.modules[0].content[0].id).toBe("lec_server");
+  });
+
+  it("keeps the same ids through a save and a reload", () => {
+    const [topic] = deserializeModulesPayload(serializeModulesPayload(topics));
+    expect(topic.modules[0].id).toBe("mod_abc");
+    expect(topic.modules[0].content.map((c) => c.id)).toEqual(["lec_one", "lec_two"]);
+  });
+
+  it("still makes up ids for content from before the server sent them", () => {
+    const [topic] = deserializeModulesPayload([
+      {title: "Old", lectures: [{title: "A", video_url: "https://cdn/a.mp4"}], quizzes: []},
+    ]);
+    expect(topic.modules[0].id).toBeTruthy();
+    expect(topic.modules[0].content[0].id).toBeTruthy();
+  });
+});

@@ -231,6 +231,9 @@ export type QuestionTypeApi =
 
 // API PAYLOAD TYPES MATCHING BACKEND SCHEMA
 export interface ApiLecturePayload {
+  /** The lecture's id. Sent back on save so the same lecture is kept (students' progress, notes and
+   * bookmarks follow it); the editor's own id for a lecture it just created is accepted too. */
+  lecture_id?: string;
   title: string;
   content?: string;
   video_url?: string;
@@ -268,6 +271,8 @@ export interface ApiQuizSettings {
 }
 
 export interface ApiModulePayload {
+  /** The module's id, sent back on save for the same reason as `lecture_id`. */
+  module_id?: string;
   title: string;
   lectures: ApiLecturePayload[];
   quizzes: ApiQuizQuestionPayload[];

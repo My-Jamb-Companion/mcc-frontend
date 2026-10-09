@@ -64,6 +64,7 @@ export function serializeModulesPayload(topics: Topic[]): ApiModulePayload[] {
     );
 
     const lectures: ApiLecturePayload[] = lessons.map((lesson) => ({
+      lecture_id: lesson.id,
       title: lesson.title,
       content: lesson.content || undefined,
       video_url: lesson.src || lesson.previewUrl || undefined,
@@ -110,6 +111,7 @@ export function serializeModulesPayload(topics: Topic[]): ApiModulePayload[] {
     );
 
     return {
+      module_id: module.id,
       title: module.label || "Untitled Module",
       lectures,
       quizzes,
@@ -128,12 +130,15 @@ export function deserializeModulesPayload(
   if (!apiModules || apiModules.length === 0) return [];
 
   const convertedModules: MakeModule[] = apiModules.map((apiMod) => {
-    const moduleId = uid();
+    // The module's own id, so saving again updates it instead of replacing it.
+    const moduleId = apiMod.module_id ?? uid();
 
     // Map lectures back to LessonModuleContent
     const lessons: LessonModuleContent[] = (apiMod.lectures || []).map(
       (lec) => ({
-        id: uid(),
+        // The lecture's own id, so saving again updates it instead of replacing it: students'
+        // progress, notes and bookmarks are tied to that id.
+        id: lec.lecture_id ?? uid(),
         type: "lesson" as const,
         title: lec.title,
         format: lec.content ? "HTML" : lec.file_format || "MP4",
