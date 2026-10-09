@@ -10,6 +10,7 @@
     "dev:teacher": "pnpm --filter teacher dev -p 3002",
     "dev:parent": "pnpm --filter parent dev -p 3003",
     "dev:landing": "pnpm --filter landing dev -p 3004",
+    "dev:cra": "pnpm --filter cra dev -p 3005",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit --pretty false --diagnostics --extendedDiagnostics",
     "build": "turbo run build",

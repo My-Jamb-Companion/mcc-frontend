@@ -124,3 +124,27 @@ export const getRecentPayments = async (limit = 20): Promise<ApiRecentPaymentIte
   );
   return res.data.data.items;
 };
+
+export type OverviewPeriod = "this_month" | "last_month" | "last_3_months" | "last_12_months" | "all_time";
+
+export interface ApiFinanceOverview {
+  period: {key: OverviewPeriod; start: string | null; end: string | null};
+  collected: {
+    total: string | number;
+    payments: number;
+    by_method: {card: string | number; transfer: string | number; other: string | number};
+    by_purpose: {course: string | number; exam: string | number; gems: string | number};
+    refunded: string | number;
+  };
+  teachers: {
+    earned: string | number;
+    paid_out: string | number;
+    owed_now: string | number;
+    pending_requests: string | number;
+  };
+  left_for_mcc: string | number;
+}
+
+/** Endpoint: GET /admin/finance/overview -- the headline money figures for a period. */
+export const getFinanceOverview = async (period: OverviewPeriod): Promise<ApiFinanceOverview> =>
+  (await apiClient.get<{data: ApiFinanceOverview}>("/admin/finance/overview", {params: {period}})).data.data;

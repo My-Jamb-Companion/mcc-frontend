@@ -38,5 +38,6 @@ export const config = {
     "/dashboard/:path*",
     "/availability/:path*",
     "/account/:path*",
+    "/notifications/:path*",
   ],
 };

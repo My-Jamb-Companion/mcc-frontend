@@ -17,8 +17,7 @@ export const ChildList = () => {
   if (!children || children.length === 0) {
     return (
       <p className="text-sm text-muted">
-        No children linked to your account yet. They&apos;re added when you sign up a child
-        through the combined registration form.
+        No children linked to your account yet. Use &ldquo;Add another child&rdquo; to create an account for one.
       </p>
     );
   }

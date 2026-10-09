@@ -35,5 +35,7 @@ export const config = {
     "/signup",
     "/children/:path*",
     "/notifications/:path*",
+    "/payments/:path*",
+    "/account/:path*",
   ],
 };

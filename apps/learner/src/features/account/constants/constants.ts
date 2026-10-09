@@ -19,6 +19,12 @@ export const NOTIFICATION_SETTINGS: NotificationSetting[] = [
     enabled: true,
   },
   {
+    id: "rewardAlerts",
+    title: "Goals and rewards",
+    description: "Tell me when I reach a goal or win a prize",
+    enabled: true,
+  },
+  {
     id: "leaderboardAlerts",
     title: "Leaderboard alerts",
     description: "Alert me when I drop in rank",

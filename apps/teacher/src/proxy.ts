@@ -47,5 +47,6 @@ export const config = {
     "/messages/:path*",
     "/earnings/:path*",
     "/account/:path*",
+    "/notifications/:path*",
   ],
 };

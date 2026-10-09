@@ -297,7 +297,14 @@ export const LEGAL_LINKS: { label: string; href: string; match: RegExp }[] = [
   { label: "Refund policy", href: "/refund", match: /^refund/i },
 ];
 
-/** The address for a footer link left blank, if its label names a legal page. */
+/** Company pages a blank footer link goes to, so "About" and "Contact" work without republishing the site settings. */
+const COMPANY_LINKS: { href: string; match: RegExp }[] = [
+  { href: "/about", match: /^about/i },
+  { href: "/contact", match: /^contact/i },
+];
+
+/** The address for a footer link left blank, if its label names a legal or company page. */
 export function legalFallbackHref(label: string): string {
-  return LEGAL_LINKS.find((l) => l.match.test(label.trim()))?.href ?? "";
+  const name = label.trim();
+  return [...LEGAL_LINKS, ...COMPANY_LINKS].find((l) => l.match.test(name))?.href ?? "";
 }

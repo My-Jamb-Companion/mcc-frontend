@@ -74,7 +74,7 @@ export const SITE_DEFAULTS: FieldData = {
     { title: "PARENTS", links: [
       { label: "Parent app", href: "#parents" }, { label: "Safety", href: "#parents" }, { label: "Pricing", href: "#faq" } ] },
     { title: "COMPANY", links: [
-      { label: "About", href: "" }, { label: "Contact", href: "#contact" },
+      { label: "About", href: "/about" }, { label: "Contact", href: "/contact" },
       { label: "Teach on MCC", href: "/go/teacher/signup" }, { label: "Help centre", href: "" } ] },
     { title: "LEGAL", links: [
       { label: "Terms", href: "/terms" }, { label: "Privacy", href: "/privacy" }, { label: "Refund policy", href: "/refund" } ] },

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@mcc/features";
+import { NotificationLink, useAuth } from "@mcc/features";
 import { Button, Icon } from "@mcc/ui";
 import { useThemeStore } from "@mcc/store";
 
@@ -12,6 +12,7 @@ const LINKS = [
   { href: "/availability", label: "Availability" },
   { href: "/messages", label: "Messages" },
   { href: "/earnings", label: "Earnings" },
+  { href: "/notifications", label: "Notifications" },
   { href: "/account", label: "Account" },
 ];
 
@@ -31,7 +32,7 @@ export const Header = () => {
     <header className="border-b border-muted/20 px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-8">
         <span className="font-semibold text-primary">MCC Teacher</span>
-        <nav className="flex items-center gap-5">
+        <nav className="flex items-center gap-5 overflow-x-auto">
           {LINKS.map((link) => (
             <Link
               key={link.href}
@@ -42,7 +43,7 @@ export const Header = () => {
                   : "text-muted hover:text-primary"
               }`}
             >
-              {link.label}
+              {link.href === "/notifications" ? <NotificationLink label={link.label} /> : link.label}
             </Link>
           ))}
         </nav>

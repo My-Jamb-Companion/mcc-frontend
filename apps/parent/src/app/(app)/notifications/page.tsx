@@ -1,4 +1,6 @@
-import { NotificationInbox } from "@/src/features/notifications/NotificationInbox";
+"use client";
+
+import { NotificationInbox } from "@mcc/features";
 
 export default function NotificationsPage() {
   return (

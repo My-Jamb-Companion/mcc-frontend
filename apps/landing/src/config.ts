@@ -15,3 +15,11 @@ export const ADMIN_URL = process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:
 
 // The API the page content is fetched from (server side, so no CORS involved).
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
+// This site's own public address (no trailing slash): used for canonical links, social sharing and the sitemap.
+// The other apps read the same variable to link to the legal pages (see LegalLink in @mcc/ui).
+export const SITE_URL = (process.env.NEXT_PUBLIC_LANDING_URL || "http://localhost:3004").replace(/\/+$/, "");
+
+// How people reach the company. Shown on the Contact page only when set, so nothing is invented.
+export const SUPPORT_EMAIL = (process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "").trim();
+export const SUPPORT_WHATSAPP = (process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "").trim();
