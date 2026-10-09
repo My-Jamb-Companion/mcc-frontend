@@ -82,6 +82,30 @@ function lectureUrl(file: FileRow): string | undefined {
   return [file.src, file.previewUrl].find((u) => u && !u.startsWith("blob:")) || undefined;
 }
 
+/** A lecture whose file is still uploading, or failed to: it has a local link only, and nothing else to save. */
+function isUnfinishedUpload(file: FileRow): boolean {
+  const hasLocalLink = [file.src, file.previewUrl].some((u) => u?.startsWith("blob:"));
+  return hasLocalLink && !file.content && !lectureUrl(file);
+}
+
+/** How many lectures a save has to leave out because their upload isn't finished. */
+export function unfinishedLectureCount(topics: Topic[] | undefined): number {
+  return (topics ?? [])
+    .flatMap((t) => t.subTopics)
+    .flatMap((st) => st.modules)
+    .flatMap((m) => m.leaves)
+    .filter((leaf) => leaf.type === "lectures")
+    .flatMap((leaf) => leaf.lessons ?? [])
+    .filter(isUnfinishedUpload).length;
+}
+
+/** The sentence shown when a save left unfinished uploads out. */
+export function unfinishedUploadsNotice(count: number): string {
+  return `${count} ${count === 1 ? "lecture is" : "lectures are"} still uploading (or the upload failed), so ${
+    count === 1 ? "it was" : "they were"
+  } not saved. Save again once ${count === 1 ? "it has" : "they have"} finished.`;
+}
+
 function toApiLecture(file: FileRow): ApiLecturePayload {
   return {
     lecture_id: file.id,

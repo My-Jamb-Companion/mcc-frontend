@@ -14,7 +14,7 @@ import PromotionalCoverUpload, {
   hasCompleteUpload,
 } from "./CreateProgramSteps/Step3";
 import CreateDetails from "./CreateProgramSteps/Step1";
-import {serializeTopicsPayload} from "../helper/content.mapper";
+import {serializeTopicsPayload, unfinishedLectureCount} from "../helper/content.mapper";
 import {
   getApiErrorMessage,
   publishExamProgram,
@@ -234,6 +234,14 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
     if (!programId) {
       setPublishError(
         "Missing exam program id — go back and complete Details first.",
+      );
+      return;
+    }
+
+    const unfinished = unfinishedLectureCount(methods.getValues("content.topics"));
+    if (unfinished > 0) {
+      setPublishError(
+        `Wait for ${unfinished === 1 ? "a lecture" : `${unfinished} lectures`} to finish uploading before publishing.`,
       );
       return;
     }

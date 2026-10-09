@@ -1,5 +1,5 @@
 import {describe, it, expect} from "vitest";
-import {serializeTopicsPayload, toApiQuestionType} from "./content.mapper";
+import {serializeTopicsPayload, toApiQuestionType, unfinishedLectureCount, unfinishedUploadsNotice} from "./content.mapper";
 import {Topic} from "../components/CreateProgramSteps/Step2";
 import {CreatPracticeQuestionType} from "../components/CreateProgramSteps/PracticeQuestions";
 import {FileRow} from "../components/CreateProgramSteps/LessonsCreate";
@@ -234,6 +234,52 @@ describe("lecture uploads", () => {
 
   it("keeps a text lesson, which has no file", () => {
     expect(saved(makeLecture({src: undefined, previewUrl: undefined, file: undefined, content: "<p>Hi</p>"})).content).toBe("<p>Hi</p>");
+  });
+});
+
+describe("lectures whose upload has not finished", () => {
+  const withLectures = (...lessons: FileRow[]): Topic[] => [
+    {
+      id: "t",
+      label: "T",
+      subTopics: [
+        {
+          id: "s",
+          label: "S",
+          modules: [
+            {
+              id: "m",
+              label: "M",
+              leaves: [
+                {id: "l", label: "Lectures", type: "lectures", lessons},
+                {id: "p", label: "Practice", type: "practice", questions: []},
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ];
+
+  it("counts the lectures a save has to leave out", () => {
+    const topics = withLectures(
+      makeLecture({id: "a", src: "blob:x", previewUrl: "blob:x", file: undefined}),
+      makeLecture({id: "b", src: undefined, previewUrl: "blob:y", file: undefined}),
+      makeLecture({id: "c", src: "https://cdn/c.mp4"}),
+      makeLecture({id: "d", src: undefined, previewUrl: undefined, file: undefined, content: "<p>hi</p>"}),
+    );
+    expect(unfinishedLectureCount(topics)).toBe(2);
+    expect(unfinishedLectureCount(undefined)).toBe(0);
+    expect(unfinishedLectureCount(withLectures(makeLecture()))).toBe(0);
+  });
+
+  it("does not count a lecture that finished, even if it still remembers its local link", () => {
+    expect(unfinishedLectureCount(withLectures(makeLecture({src: "https://cdn/a.mp4", previewUrl: "blob:old"})))).toBe(0);
+  });
+
+  it("says so in plain words, singular and plural", () => {
+    expect(unfinishedUploadsNotice(1)).toBe("1 lecture is still uploading (or the upload failed), so it was not saved. Save again once it has finished.");
+    expect(unfinishedUploadsNotice(3)).toBe("3 lectures are still uploading (or the upload failed), so they were not saved. Save again once they have finished.");
   });
 });
 
