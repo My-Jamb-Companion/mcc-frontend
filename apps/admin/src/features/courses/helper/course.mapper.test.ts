@@ -1,5 +1,11 @@
 import {describe, expect, it} from "vitest";
-import {deserializeModulesPayload, fromApiCourseDetail, serializeModulesPayload} from "./course.mapper";
+import {
+  deserializeModulesPayload,
+  fromApiCourseDetail,
+  serializeModulesPayload,
+  unfinishedLessonCount,
+  unfinishedUploadsNotice,
+} from "./course.mapper";
 import type {CreatPracticeQuestionType, Topic} from "../types/types";
 
 const api = (over: Record<string, unknown>) =>
@@ -260,5 +266,42 @@ describe("keeping lesson and module ids across saves", () => {
     ]);
     expect(topic.modules[0].id).toBeTruthy();
     expect(topic.modules[0].content[0].id).toBeTruthy();
+  });
+});
+
+
+describe("lessons whose upload has not finished", () => {
+  const lesson = (id: string, extra: Record<string, unknown>) => ({id, type: "lesson" as const, title: id, format: "MP4", size: "", ...extra});
+  const topics = (...lessons: ReturnType<typeof lesson>[]): Topic[] => [
+    {id: "t", label: "T", modules: [{id: "m", label: "M", content: lessons}]},
+  ];
+
+  it("leaves out a lesson that only has a link from this browser, and keeps the rest", () => {
+    const [module] = serializeModulesPayload(
+      topics(
+        lesson("uploading", {src: "blob:http://localhost/abc", previewUrl: "blob:http://localhost/abc"}),
+        lesson("done", {src: "https://cdn/done.mp4", previewUrl: "blob:http://localhost/old"}),
+        lesson("text", {content: "<p>hi</p>"}),
+      ),
+    );
+    expect(module.lectures.map((l) => l.title)).toEqual(["done", "text"]);
+  });
+
+  it("never saves a local link as a lesson's address", () => {
+    const [module] = serializeModulesPayload(topics(lesson("done", {src: "blob:http://localhost/new", previewUrl: "https://cdn/done.mp4"})));
+    expect(module.lectures[0].video_url).toBe("https://cdn/done.mp4");
+  });
+
+  it("counts what a save would leave out, and says so in plain words", () => {
+    const t = topics(lesson("a", {src: "blob:x"}), lesson("b", {src: "blob:y"}), lesson("c", {src: "https://cdn/c.mp4"}));
+    expect(unfinishedLessonCount(t)).toBe(2);
+    expect(unfinishedLessonCount(undefined)).toBe(0);
+    expect(unfinishedUploadsNotice(1)).toBe("1 lesson is still uploading (or the upload failed), so it was not saved. Save again once it has finished.");
+    expect(unfinishedUploadsNotice(2)).toContain("2 lessons are still uploading");
+  });
+
+  it("does not drop a lesson that has nothing yet and no local link", () => {
+    const [module] = serializeModulesPayload(topics(lesson("empty", {})));
+    expect(module.lectures).toHaveLength(1);
   });
 });

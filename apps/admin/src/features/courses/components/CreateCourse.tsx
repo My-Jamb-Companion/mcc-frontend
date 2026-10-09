@@ -12,7 +12,12 @@ import PromotionalCoverUpload, {
 import CourseStudentView from "./studentPreview/CourseStudentView";
 import {calculateTotalHours} from "../helper/helper";
 import {AdditionalCourseTypes, CoursesFormValues, LEVELS, UpdateCoursePayload} from "../types/types";
-import {serializeModulesPayload, toApiLevel} from "../helper/course.mapper";
+import {
+  serializeModulesPayload,
+  toApiLevel,
+  unfinishedLessonCount,
+  unfinishedUploadsNotice,
+} from "../helper/course.mapper";
 import {
   createCourseDetails,
   getApiErrorMessage,
@@ -242,6 +247,7 @@ export default function CreateCourseForm() {
       setApiError(null);
       setIsSavingDraft(true);
       const finalPayload = buildCoursePayload("draft");
+      const skipped = unfinishedLessonCount(finalPayload.content.topics);
       let savedCourse = finalPayload;
 
       // Construct PATCH payload matching target API schema
@@ -284,6 +290,7 @@ export default function CreateCourseForm() {
       methods.reset(savedCourse);
       setIsPublished(false);
       showSuccess("Course draft saved successfully!");
+      if (skipped > 0) showError(unfinishedUploadsNotice(skipped));
     } catch (err) {
       console.error("Failed to save draft:", err);
       const errorMsg = getApiErrorMessage(
@@ -303,6 +310,14 @@ export default function CreateCourseForm() {
 
   async function handlePublish() {
     if (!canPublish) return;
+
+    const unfinished = unfinishedLessonCount(methods.getValues("content.topics"));
+    if (unfinished > 0) {
+      const message = `Wait for ${unfinished === 1 ? "a lesson" : `${unfinished} lessons`} to finish uploading before publishing.`;
+      setApiError(message);
+      showError(message);
+      return;
+    }
 
     try {
       setApiError(null);
