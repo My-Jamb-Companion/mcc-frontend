@@ -116,6 +116,7 @@ describe("serializeTopicsPayload", () => {
                 title: "Module 1: Basic Conversions",
                 lectures: [
                   {
+                    lecture_id: "lec1",
                     title: "Intro to Binary",
                     video_url: "https://video.com/lec1.mp4",
                     file_size_bytes: 52428800,
@@ -199,6 +200,7 @@ describe("serializeTopicsPayload", () => {
     expect(payload[0].sub_topics[0].title).toBe("Untitled sub-topic");
     expect(payload[0].sub_topics[0].modules[0].title).toBe("Untitled Module");
     expect(payload[0].sub_topics[0].modules[0].lectures[0]).toEqual({
+      lecture_id: "lec1",
       title: "Intro to Binary",
       video_url: "https://cdn.example.com/exams/intro.mp4",
       file_size_bytes: undefined,

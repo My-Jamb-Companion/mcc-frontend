@@ -20,6 +20,9 @@ export interface ApiQuestionPayload {
 }
 
 export interface ApiLecturePayload {
+  /** The lecture's id, sent back on save so the same lecture is kept (students' progress and
+   * bookmarks follow it); the editor's own id for a lecture it just created is accepted too. */
+  lecture_id?: string;
   title: string;
   content?: string;
   video_url?: string;
@@ -81,6 +84,7 @@ function lectureUrl(file: FileRow): string | undefined {
 
 function toApiLecture(file: FileRow): ApiLecturePayload {
   return {
+    lecture_id: file.id,
     title: file.title,
     content: file.content || undefined,
     video_url: lectureUrl(file),
