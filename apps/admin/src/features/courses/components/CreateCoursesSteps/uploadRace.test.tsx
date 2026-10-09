@@ -12,6 +12,9 @@ import ContentStep from "./Step2";
 import type {ContentFormValues, LessonModuleContent, Topic} from "@/src/features/courses/types/types";
 
 vi.mock("@/src/components/LessonHtmlEditor", () => ({default: () => null}));
+// The real icon loads its artwork on a timer, which can fire after the test has finished and its
+// window is gone ("window is not defined" on a slow machine). These tests are not about icons.
+vi.mock("@mcc/ui", async (importOriginal) => ({...(await importOriginal<typeof import("@mcc/ui")>()), Icon: () => null}));
 
 const pending: {resolve: (url: string) => void}[] = [];
 vi.mock("@/src/features/courses/services/media.service", () => ({
