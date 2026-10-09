@@ -6,6 +6,7 @@ import {usePathname} from "next/navigation";
 import {useEffect, useRef, useState} from "react";
 import {canOpen} from "@/src/features/admin-access/helper/access";
 import {useMyAccess} from "@/src/features/admin-access/hooks/useAdminAccess";
+import {useUnreadMessages} from "@/src/features/Messaging/hooks/useConversations";
 
 interface NavChild {
   key: string;
@@ -151,6 +152,20 @@ function isEntryActive(pathname: string | null, entry: NavEntry): boolean {
   return entry.children?.some((child) => pathname === child.href) ?? false;
 }
 
+/** The number of messages from students and teachers nobody has opened yet, on the Messaging icon. */
+function MessagesBadge() {
+  const {data: unread = 0} = useUnreadMessages();
+  if (unread <= 0) return null;
+  return (
+    <span
+      aria-label={`${unread} unread messages`}
+      className="pointer-events-none absolute -right-1 -top-1 min-w-4 rounded-full bg-red-500 px-1 text-center text-[10px] font-semibold leading-4 text-white"
+    >
+      {unread > 99 ? "99+" : unread}
+    </span>
+  );
+}
+
 function NavIcon({
   entry,
   isOpen,
@@ -246,6 +261,7 @@ function NavIcon({
       >
         <Icon icon={entry.icon} />
       </Link>
+      {entry.key === "messaging" && <MessagesBadge />}
       <span className="pointer-events-none absolute left-full top-1/2 z-40 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100">
         {entry.label}
       </span>

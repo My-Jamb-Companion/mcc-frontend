@@ -33,7 +33,7 @@ export function AssignmentThread({
   self: "student" | "cra";
   otherLabel: string;
 }) {
-  const {messages, isLoading, isError} = useAssignmentThread(assignmentId);
+  const {messages, isPending, isError} = useAssignmentThread(assignmentId);
   const send = usePostAssignmentMessage(assignmentId);
   const [text, setText] = useState("");
 
@@ -46,7 +46,7 @@ export function AssignmentThread({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex max-h-96 min-h-24 flex-col gap-3 overflow-y-auto" aria-live="polite">
-        {isLoading ? (
+        {isPending && !isError ? (
           <p className="py-6 text-center text-sm text-muted">Loading…</p>
         ) : isError ? (
           <p className="py-6 text-center text-sm text-red-500">The messages couldn&apos;t be loaded.</p>
@@ -69,7 +69,7 @@ export function AssignmentThread({
           placeholder="Write a message…"
           aria-label="Message"
           rows={3}
-          className="w-full resize-none bg-transparent text-sm leading-relaxed outline-none placeholder:text-hint"
+          className="w-full resize-none bg-transparent text-sm leading-relaxed outline-none placeholder:text-muted"
         />
         <div className="mt-1 flex justify-end">
           <button

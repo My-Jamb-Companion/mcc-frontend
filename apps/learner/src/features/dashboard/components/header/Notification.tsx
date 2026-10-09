@@ -1,7 +1,9 @@
 "use client";
 
 import {useState} from "react";
+import {useRouter} from "next/navigation";
 import {Icon} from "@mcc/ui";
+import {SupportLink} from "@mcc/features";
 import {
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
@@ -18,16 +20,24 @@ function formatWhen(iso: string): string {
   });
 }
 
+/** A message from the MCC team opens the conversation, where it can be answered. */
+const OPENS_MESSAGES = new Set(["admin_message"]);
+
 function NotificationRow({
   notification,
   onRead,
+  onOpen,
 }: {
   notification: ApiNotification;
   onRead: (id: string) => void;
+  onOpen: (path: string) => void;
 }) {
   return (
     <button
-      onClick={() => !notification.read && onRead(notification.id)}
+      onClick={() => {
+        if (!notification.read) onRead(notification.id);
+        if (OPENS_MESSAGES.has(notification.type)) onOpen("/support");
+      }}
       className={`w-full px-4 py-3 text-left transition-colors hover:bg-muted/10 ${
         notification.read ? "" : "bg-primary/5"
       }`}
@@ -46,6 +56,7 @@ function NotificationRow({
 
 export default function Notifications() {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
   const {items, unreadCount, isLoading} = useNotifications();
   const markRead = useMarkNotificationRead();
   const markAllRead = useMarkAllNotificationsRead();
@@ -89,10 +100,28 @@ export default function Notifications() {
                 <p className="px-4 py-6 text-center text-sm text-muted">No notifications yet.</p>
               ) : (
                 items.map((n) => (
-                  <NotificationRow key={n.id} notification={n} onRead={(id) => markRead.mutate(id)} />
+                  <NotificationRow
+                    key={n.id}
+                    notification={n}
+                    onRead={(id) => markRead.mutate(id)}
+                    onOpen={(path) => {
+                      setOpen(false);
+                      router.push(path);
+                    }}
+                  />
                 ))
               )}
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                router.push("/support");
+              }}
+              className="w-full border-t border-muted/10 px-4 py-3 text-left text-sm font-medium text-primary hover:bg-muted/10"
+            >
+              <SupportLink label="Messages from MCC" />
+            </button>
           </div>
         </>
       )}
