@@ -166,12 +166,19 @@ function FileRowItem({
 export default function LessonsCreate({
   files,
   onFilesChange,
+  onFilePatch,
   addLabel = "content",
 }: {
   /** The active leaf's current file list (e.g. activeContext?.leaf?.lessons). */
   files: FileRow[];
   /** Called with the full next list whenever files are added, removed, renamed, or reordered. */
   onFilesChange: (files: FileRow[]) => void;
+  /**
+   * Called when an upload finishes, with the one change to make to the lecture it belongs to. It must
+   * apply that change to the form's current content, not to this component's copy of the list: the
+   * admin may have moved elsewhere and added more lectures while a large video was uploading.
+   */
+  onFilePatch?: (id: string, patch: Partial<FileRow>) => void;
   /** Used for the "Add {addLabel}" button text, e.g. activeContext?.leaf?.label. */
   addLabel?: string;
 }) {
@@ -195,6 +202,10 @@ export default function LessonsCreate({
   useEffect(() => {
     onFilesChangeRef.current = onFilesChange;
   }, [onFilesChange]);
+  const onFilePatchRef = useRef(onFilePatch);
+  useEffect(() => {
+    onFilePatchRef.current = onFilePatch;
+  }, [onFilePatch]);
 
   // Drag & drop reorder state
   const [dragItemIndex, setDragItemIndex] = useState<number | null>(null);
@@ -215,6 +226,10 @@ export default function LessonsCreate({
       setUploadsProgress((prev) => ({...prev, [id]: percent}));
     })
       .then((remoteUrl) => {
+        if (onFilePatchRef.current) {
+          onFilePatchRef.current(id, {src: remoteUrl});
+          return;
+        }
         onFilesChangeRef.current(
           filesRef.current.map((f) => (f.id === id ? {...f, src: remoteUrl} : f)),
         );

@@ -6,6 +6,7 @@ import PracticeQuestions, {
 } from "./PracticeQuestions";
 import Step2Sidebar from "./Step2SideBar";
 import LessonsCreate, {FileRow} from "./LessonsCreate";
+import {patchById} from "@/src/features/courses/helper/patchById";
 import QuizSettingsFields, {QuizSettings} from "@/src/features/question-editor/QuizSettingsFields";
 import {serializeTopicsPayload} from "@/src/features/Exam-program/helper/content.mapper";
 import {
@@ -154,10 +155,19 @@ export default function ContentStep({
   subject: string;
   programId: string;
 }) {
-  const {watch, setValue} = useFormContext<ContentFormValues>();
+  const {watch, setValue, getValues} = useFormContext<ContentFormValues>();
   const topics = watch("content.topics") ?? [];
   function setTopics(newTopics: Topic[]) {
     setValue("content.topics", newTopics, {shouldDirty: true});
+  }
+
+  /**
+   * An upload finished: record its file address on the lecture it belongs to. This reads the form as
+   * it is *now* (the admin may have gone elsewhere and added more since the upload began), so it can
+   * only ever change that one lecture.
+   */
+  function patchFile(id: string, patch: Partial<FileRow>) {
+    setValue("content.topics", patchById(getValues("content.topics") ?? [], id, patch), {shouldDirty: true});
   }
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -525,6 +535,7 @@ export default function ContentStep({
                 <LessonsCreate
                   files={activeFiles}
                   onFilesChange={setLeafFiles}
+                  onFilePatch={patchFile}
                   addLabel={
                     activeContext?.leaf?.label?.toLowerCase() || "content"
                   }
