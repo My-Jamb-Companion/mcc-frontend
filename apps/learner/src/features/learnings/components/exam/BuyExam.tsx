@@ -8,6 +8,8 @@ import {Button, Icon} from "@mcc/ui";
 import {useRegisterForProgram} from "@/src/features/exams/hooks/useExams";
 import {ApiExamProgram} from "@/src/features/exams/services/exam.service";
 import {TierPicker} from "@/src/features/components/TierPicker";
+import {FormatPicker} from "@/src/features/components/FormatPicker";
+import {defaultFormat, tierAfterFormatChange, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
 
 const FALLBACK_IMAGE = "/assets/images/tower.jpg";
 
@@ -27,12 +29,19 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
     "Exam prep program";
   const price = Number(program.price);
   const isFree = !price;
-  const tiers = program.tier_prices ?? [];
+  const formats = program.formats ?? [];
+  // Live teaching is optional: the buyer picks self-paced, a live group or 1-to-1, each priced on its own.
+  const [format, setFormat] = useState<LiveFormat | null>(() => defaultFormat(formats));
+  const tiers = tiersFor(formats, format, program.tier_prices);
   // The catalogue's flat price is always the default tier's price, so
   // that's the sensible pre-selected choice.
   const [selectedTierId, setSelectedTierId] = useState<string | null>(
     () => tiers.find((t) => Number(t.price) === price)?.tier_id ?? tiers[0]?.tier_id ?? null,
   );
+  const chooseFormat = (next: LiveFormat) => {
+    setFormat(next);
+    setSelectedTierId((prev) => tierAfterFormatChange(tiersFor(formats, next, program.tier_prices), prev, price));
+  };
   const selectedPrice = tiers.find((t) => t.tier_id === selectedTierId)?.price ?? price;
 
   const handleRegister = () => {
@@ -42,6 +51,7 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
         programId: program.program_id,
         email: email || undefined,
         tierId: selectedTierId ?? undefined,
+        liveFormat: format ?? undefined,
       },
       {
         onSuccess: (result) => {
@@ -100,6 +110,8 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
               </>
             )}
           </p>
+
+          {!isFree && <FormatPicker formats={formats} selected={format} onSelect={chooseFormat} />}
 
           {!isFree && (
             <TierPicker tiers={tiers} selectedTierId={selectedTierId} onSelect={setSelectedTierId} />

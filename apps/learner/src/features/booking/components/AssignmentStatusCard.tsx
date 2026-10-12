@@ -5,6 +5,13 @@ import {Icon} from "@mcc/ui";
 import {ApiAssignmentStatus} from "../services/booking.service";
 import {OnboardingRescheduleModal} from "./OnboardingRescheduleModal";
 
+/** What happens after the onboarding call, which depends on the live-teaching format the student chose. */
+const AFTER_CALL: Record<string, string> = {
+  self_paced: "After the call you can start learning right away.",
+  group: "After the call, our team will add you to a live group class and tell you when it meets.",
+  one_to_one: "After the call we'll match you with a teacher for your weekly 1-to-1 sessions.",
+};
+
 function formatWhen(iso: string): string {
   return new Date(iso).toLocaleString("en-US", {
     weekday: "short",
@@ -36,6 +43,7 @@ export function AssignmentStatusCard({assignment}: {assignment: ApiAssignmentSta
             {assignment.onboarding_scheduled_at && (
               <p className="text-sm text-muted">{formatWhen(assignment.onboarding_scheduled_at)}</p>
             )}
+            {assignment.live_format && <p className="mt-1 text-sm text-muted">{AFTER_CALL[assignment.live_format]}</p>}
           </div>
         </div>
         <div className="flex items-center gap-2">

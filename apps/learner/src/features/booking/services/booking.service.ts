@@ -12,6 +12,8 @@ export interface ApiAssignmentStatus {
   teacher_user_id?: string | null;
   teacher_escalated: boolean;
   series_id?: string | null;
+  /** What the student bought: self_paced, group or one_to_one. Null for older or free enrolments. */
+  live_format?: "self_paced" | "group" | "one_to_one" | null;
   created_at: string;
   updated_at: string;
 }

@@ -8,6 +8,8 @@ import {Button, Icon} from "@mcc/ui";
 import {useInitializeCoursePayment} from "@/src/features/courses/hooks/useCourses";
 import {ApiCourse} from "@/src/features/courses/services/course.service";
 import {TierPicker} from "@/src/features/components/TierPicker";
+import {FormatPicker} from "@/src/features/components/FormatPicker";
+import {defaultFormat, gemsApply, tierAfterFormatChange, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
 import {useGemPacks, useUnlockCourseWithGems, useWalletBalance} from "@/src/features/wallet/hooks/useWallet";
 import {courseGemCost} from "@/src/features/wallet/helper/wallet";
 
@@ -28,25 +30,32 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
 
   const price = Number(course.price);
   const isFree = !price;
-  const tiers = course.tier_prices ?? [];
+  const formats = course.formats ?? [];
+  // Live teaching is optional: the buyer picks self-paced, a live group or 1-to-1, each priced on its own.
+  const [format, setFormat] = useState<LiveFormat | null>(() => defaultFormat(formats));
+  const tiers = tiersFor(formats, format, course.tier_prices);
   // The catalogue's flat price is always the default tier's price, so that's
   // the sensible pre-selected choice.
   const [selectedTierId, setSelectedTierId] = useState<string | null>(
     () => tiers.find((t) => Number(t.price) === price)?.tier_id ?? tiers[0]?.tier_id ?? null,
   );
+  const chooseFormat = (next: LiveFormat) => {
+    setFormat(next);
+    setSelectedTierId((prev) => tierAfterFormatChange(tiersFor(formats, next, course.tier_prices), prev, price));
+  };
   const selectedPrice = tiers.find((t) => t.tier_id === selectedTierId)?.price ?? price;
 
   const unlock = useUnlockCourseWithGems();
   const {data: balance} = useWalletBalance();
   const {data: packs} = useGemPacks();
-  const gemCost = !isFree && packs ? courseGemCost(Number(selectedPrice), packs.naira_per_gem) : 0;
+  const gemCost = !isFree && gemsApply(format) && packs ? courseGemCost(Number(selectedPrice), packs.naira_per_gem) : 0;
   const purchasedGems = balance?.purchased_gems ?? 0;
   const canUnlock = gemCost > 0 && purchasedGems >= gemCost;
 
   const handleUnlock = () => {
     setError(null);
     unlock.mutate(
-      {courseId: course.course_id, tierId: selectedTierId ?? undefined},
+      {courseId: course.course_id, tierId: selectedTierId ?? undefined, liveFormat: format ? "self_paced" : undefined},
       {
         onSuccess: () => router.push("/learnings"),
         onError: (err) => setError(extractApiError(err, "Couldn't unlock the course. Please try again.")),
@@ -62,6 +71,7 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
         courseType: isFree ? "free" : "paid",
         email: email || undefined,
         tierId: selectedTierId ?? undefined,
+        liveFormat: format ?? undefined,
       },
       {
         onSuccess: (result) => {
@@ -120,6 +130,8 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
               </>
             )}
           </p>
+
+          {!isFree && <FormatPicker formats={formats} selected={format} onSelect={chooseFormat} />}
 
           {!isFree && (
             <TierPicker tiers={tiers} selectedTierId={selectedTierId} onSelect={setSelectedTierId} />

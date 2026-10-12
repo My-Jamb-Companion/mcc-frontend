@@ -57,8 +57,8 @@ export const useUnlockCourseWithGems = () => {
   const refresh = useRefreshBalances();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({courseId, tierId}: {courseId: string; tierId?: string}) =>
-      unlockCourseWithGems(courseId, tierId),
+    mutationFn: ({courseId, tierId, liveFormat}: {courseId: string; tierId?: string; liveFormat?: "self_paced"}) =>
+      unlockCourseWithGems(courseId, tierId, liveFormat),
     onSuccess: () => {
       refresh();
       queryClient.invalidateQueries({queryKey: ["courses"]});

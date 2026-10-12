@@ -1,5 +1,6 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {confettiCelebrate, showSuccess} from "@mcc/ui";
+import type {LiveFormat} from "@/src/features/courses/helper/liveFormats";
 import {useGamificationRefresh} from "@/src/features/rewards/hooks/useGamificationRefresh";
 import {progressMessage, shouldCelebrate} from "@/src/features/rewards/helper/earnings";
 import {
@@ -41,8 +42,8 @@ export const useRegisterForProgram = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({programId, email, tierId}: {programId: string; email?: string; tierId?: string}) =>
-      registerForProgram(programId, email, tierId),
+    mutationFn: ({programId, email, tierId, liveFormat}: {programId: string; email?: string; tierId?: string; liveFormat?: LiveFormat}) =>
+      registerForProgram(programId, email, tierId, liveFormat),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ["exam-programs", "enrolled"]});
     },

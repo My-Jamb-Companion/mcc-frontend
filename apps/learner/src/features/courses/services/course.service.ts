@@ -1,5 +1,6 @@
 import {apiClient, whenSessionReady} from "@mcc/api";
 import type {ApiProgressUpdate} from "@/src/features/rewards/services/rewards.service";
+import type {ApiFormatOffer, LiveFormat} from "../helper/liveFormats";
 
 export interface ApiTierPrice {
   tier_id: string;
@@ -18,6 +19,8 @@ export interface ApiCourse {
   category_name?: string | null;
   /** Every published tier's price, for a tier picker; empty if nothing is published. */
   tier_prices: ApiTierPrice[];
+  /** The live-teaching formats on sale (self-paced, live group, live 1-to-1), each with its tier prices. */
+  formats?: ApiFormatOffer[];
 }
 
 export interface CourseListFilters {
@@ -140,10 +143,11 @@ export const initializeCoursePayment = async (
   courseType: "free" | "paid",
   email?: string,
   tierId?: string,
+  liveFormat?: LiveFormat,
 ): Promise<EnrollResult & {checkout_url?: string; tx_ref?: string}> => {
   const res = await apiClient.post<{
     data: EnrollResult & {checkout_url?: string; tx_ref?: string};
-  }>("/payments/initialize", {course_id: courseId, course_type: courseType, email, tier_id: tierId});
+  }>("/payments/initialize", {course_id: courseId, course_type: courseType, email, tier_id: tierId, live_format: liveFormat});
   return res.data.data;
 };
 

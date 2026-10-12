@@ -9,11 +9,14 @@ export interface QueueItem {
   subject_name: string | null;
   onboarding_meeting_url: string | null;
   onboarding_scheduled_at: string | null;
+  /** What the student bought. Null for a purchase from before live-teaching formats. */
+  live_format: "self_paced" | "group" | "one_to_one" | null;
 }
 
+/** The weekly slot is only for a 1-to-1 student; self-paced and group students need none. */
 export interface CompleteOnboardingPayload {
-  weekly_day_of_week: number; // ISO 8601: 1=Monday..7=Sunday
-  weekly_start_time: string; // HH:MM, 24-hour
+  weekly_day_of_week?: number; // ISO 8601: 1=Monday..7=Sunday
+  weekly_start_time?: string; // HH:MM, 24-hour
   duration_minutes?: number;
 }
 
