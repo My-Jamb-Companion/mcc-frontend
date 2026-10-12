@@ -11,8 +11,8 @@ import {pricingErrorMessage} from "./services/pricing.service";
 const naira = (v: string | number) => `₦${new Intl.NumberFormat("en-NG", {maximumFractionDigits: 0}).format(Number(v))}`;
 
 /**
- * Pricing model build step 3 -- every course and exam program with its
- * editions, and what each would cost at the default city tier.
+ * Pricing model build step 3 -- every course and exam program with the ways a student can take it
+ * (self-paced, live group, live 1-to-1), and what each would cost at the default tier.
  */
 export default function ProgramPricing() {
   const {data, isLoading, isError, error, refetch} = usePricedPrograms();
@@ -40,7 +40,7 @@ export default function ProgramPricing() {
           <h1 className="mt-2 text-2xl font-bold text-neutral-900">Program pricing</h1>
           <p className="mt-1 max-w-2xl text-sm text-neutral-500">
             What each course and exam program costs to deliver and build, and the price that works out
-            to in every city tier. Courses come in two editions; exam programs in one. Prices shown here
+            to in every tier. Each program can be sold self-paced, in a live group of five, or live one-to-one. Prices shown here
             aren&apos;t charged until they&apos;re published.
           </p>
         </div>
@@ -70,7 +70,7 @@ export default function ProgramPricing() {
               ))}
             </div>
           </div>
-          {data && <p className="text-sm text-neutral-500">{costed} of {total} editions costed</p>}
+          {data && <p className="text-sm text-neutral-500">{costed} of {total} formats costed</p>}
         </div>
 
         {isLoading ? (
@@ -89,7 +89,7 @@ export default function ProgramPricing() {
                 <tr className="border-b border-neutral-100 text-xs uppercase tracking-wide text-neutral-400">
                   <th className="pb-2 pr-3 font-medium">Program</th>
                   <th className="pb-2 pr-3 text-right font-medium">Charged today</th>
-                  <th className="pb-2 pr-3 font-medium">Editions · default tier price (published / formula)</th>
+                  <th className="pb-2 pr-3 font-medium">Formats · default tier price (published / formula)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-50">
@@ -127,7 +127,7 @@ function ProgramRow({program}: {program: ApiProgramSummary}) {
 
 function EditionChip({program, edition}: {program: ApiProgramSummary; edition: ApiEditionSummary}) {
   const href = `/finance/pricing/programs/${program.program_type}/${encodeURIComponent(program.program_id)}/${edition.edition}`;
-  const name = edition.edition === "premium" ? "Premium" : "Standard";
+  const name = edition.label;
   return (
     <Link href={href}
       className={`flex min-w-44 items-center justify-between gap-3 rounded-xl border px-3 py-2 transition-colors hover:border-violet-400 ${

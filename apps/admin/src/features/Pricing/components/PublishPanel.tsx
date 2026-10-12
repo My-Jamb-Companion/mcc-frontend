@@ -21,7 +21,7 @@ import {pricingErrorMessage} from "../services/pricing.service";
 const naira = (v: string | number) => `₦${new Intl.NumberFormat("en-NG", {maximumFractionDigits: 0}).format(Number(v))}`;
 
 /**
- * Pricing model build step 4 -- publish this edition's prices, with the
+ * Pricing model build step 4 -- publish this format's prices, with the
  * guardrails shown before the admin commits: the phase-in cap (D11), the
  * market ceiling (D12), overrides and the second-admin rule (D9).
  */
@@ -29,12 +29,14 @@ export default function PublishPanel({
   programType,
   programId,
   edition,
+  formatLabel,
   savedVersion,
   unsavedChanges,
 }: {
   programType: ProgramType;
   programId: string;
   edition: Edition;
+  formatLabel: string;
   savedVersion: number | null;
   unsavedChanges: boolean;
 }) {
@@ -77,9 +79,7 @@ export default function PublishPanel({
 
   const description = inForce
     ? `Publication ${inForce.publication_number} is in force${inForce.published_at ? ` since ${new Date(inForce.published_at).toLocaleDateString("en-NG", {day: "numeric", month: "short", year: "numeric"})}` : ""}. Publishing again changes what new purchases pay; purchases already started keep their price.`
-    : edition === "premium"
-      ? "Nothing published yet. Premium is sold as an upgrade to standard, so publishing it doesn't change the course's headline price."
-      : "Nothing published yet, so new purchases pay the program's flat price. Once published, each student pays their city tier's price.";
+    : `Nothing published yet for ${formatLabel}, so it isn't offered at signup. Once published, each student pays their tier's price. Each format is published on its own.`;
 
   return (
     <Section title="Publish prices" description={description}>
@@ -155,7 +155,7 @@ export default function PublishPanel({
                     value={reasons.belowCost} onChange={(belowCost) => setReasons((r) => ({...r, belowCost}))} />
                 )}
                 <Reason id="publish-reason" label="Why publish these prices?"
-                  placeholder="e.g. First city-tier prices for the new term"
+                  placeholder="e.g. First prices for the new term"
                   value={reasons.change} onChange={(change) => setReasons((r) => ({...r, change}))} />
               </div>
 

@@ -5,6 +5,7 @@ import {useState} from "react";
 import {showSuccess} from "@mcc/ui";
 import {useCancelPublication, useConfirmPublication} from "../hooks/usePublications";
 import type {ApiPublication} from "../services/publications.service";
+import {EDITION_LABELS} from "../helper/templateForm";
 import {pricingErrorMessage} from "../services/pricing.service";
 
 const naira = (v: string | number) => `₦${new Intl.NumberFormat("en-NG", {maximumFractionDigits: 0}).format(Number(v))}`;
@@ -61,7 +62,7 @@ function PublicationItem({publication: p, showProgram}: {publication: ApiPublica
         <p className="text-sm font-semibold text-neutral-900">
           {showProgram ? (
             <Link href={editionHref} className="hover:text-violet-700">
-              {p.program_title} · {p.edition === "premium" ? "Premium" : "Standard"}
+              {p.program_title} · {EDITION_LABELS[p.edition]}
             </Link>
           ) : (
             `Publication ${p.publication_number}`

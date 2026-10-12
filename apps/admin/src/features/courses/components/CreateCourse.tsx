@@ -450,7 +450,7 @@ export default function CreateCourseForm() {
                   <span>
                     This course doesn&apos;t have a real price yet. Set one up in{" "}
                     <Link
-                      href={`/finance/pricing/programs/course/${encodeURIComponent(courseId)}/standard`}
+                      href={`/finance/pricing/programs/course/${encodeURIComponent(courseId)}/self_paced`}
                       className="font-semibold underline hover:text-violet-900"
                     >
                       Finance &gt; Pricing

@@ -24,15 +24,15 @@ describe("Brainy settings on company parameters", () => {
 
 describe("AI allowance months on a cost template", () => {
   it("defaults to a year for courses and six months for exam programs", () => {
-    expect(emptyTemplateForm("course", "standard").aiMonths).toBe("12");
-    expect(emptyTemplateForm("exam", "standard").aiMonths).toBe("6");
+    expect(emptyTemplateForm("course").aiMonths).toBe("12");
+    expect(emptyTemplateForm("exam").aiMonths).toBe("6");
   });
 
   it("must be 1 to 60 whole months, and is sent as a number", () => {
-    const form = {...emptyTemplateForm("course", "standard"), aiMonths: "0"};
-    expect(validateTemplate(form, "standard").aiMonths).toBeDefined();
-    expect(validateTemplate({...form, aiMonths: "61"}, "standard").aiMonths).toBeDefined();
-    expect(validateTemplate({...form, aiMonths: "4"}, "standard").aiMonths).toBeUndefined();
-    expect(templateInput({...form, aiMonths: "4"}, "standard").ai_allowance_months).toBe(4);
+    const form = {...emptyTemplateForm("course"), aiMonths: "0"};
+    expect(validateTemplate(form).aiMonths).toBeDefined();
+    expect(validateTemplate({...form, aiMonths: "61"}).aiMonths).toBeDefined();
+    expect(validateTemplate({...form, aiMonths: "4"}).aiMonths).toBeUndefined();
+    expect(templateInput({...form, aiMonths: "4"}).ai_allowance_months).toBe(4);
   });
 });

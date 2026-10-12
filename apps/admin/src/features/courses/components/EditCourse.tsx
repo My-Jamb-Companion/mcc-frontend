@@ -131,11 +131,10 @@ export default function CreateCourseForm() {
   const [pricingBannerDismissed, setPricingBannerDismissed] = useState(false);
 
   const {data: pricedPrograms} = usePricedPrograms();
-  const priceTemplate = pricedPrograms?.programs
-    .find((p) => p.program_type === "course" && p.program_id === editId)
-    ?.editions.find((e) => e.edition === "standard");
-  const hasPricingSetUp = Boolean(priceTemplate?.latest_version);
-  const isPricePublished = Boolean(priceTemplate?.published_price);
+  // Costed or priced in any live-teaching format counts: the course is sold once any of them is.
+  const courseFormats = pricedPrograms?.programs.find((p) => p.program_type === "course" && p.program_id === editId)?.editions ?? [];
+  const hasPricingSetUp = courseFormats.some((e) => e.latest_version);
+  const isPricePublished = courseFormats.some((e) => e.published_price);
 
   // ─────────────────────────────────────────────
   // COURSE STORE
@@ -405,7 +404,7 @@ export default function CreateCourseForm() {
                       <>
                         This course&apos;s price is managed in{" "}
                         <Link
-                          href={`/finance/pricing/programs/course/${encodeURIComponent(editId)}/standard`}
+                          href={`/finance/pricing/programs/course/${encodeURIComponent(editId)}/self_paced`}
                           className="font-semibold underline hover:text-violet-900"
                         >
                           Finance &gt; Pricing
@@ -416,7 +415,7 @@ export default function CreateCourseForm() {
                       <>
                         This course has a pricing draft that isn&apos;t published yet. Finish it in{" "}
                         <Link
-                          href={`/finance/pricing/programs/course/${encodeURIComponent(editId)}/standard`}
+                          href={`/finance/pricing/programs/course/${encodeURIComponent(editId)}/self_paced`}
                           className="font-semibold underline hover:text-violet-900"
                         >
                           Finance &gt; Pricing
@@ -427,7 +426,7 @@ export default function CreateCourseForm() {
                       <>
                         This course doesn&apos;t have a real price set up yet. Set one up in{" "}
                         <Link
-                          href={`/finance/pricing/programs/course/${encodeURIComponent(editId)}/standard`}
+                          href={`/finance/pricing/programs/course/${encodeURIComponent(editId)}/self_paced`}
                           className="font-semibold underline hover:text-violet-900"
                         >
                           Finance &gt; Pricing

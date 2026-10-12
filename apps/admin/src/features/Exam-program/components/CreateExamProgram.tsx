@@ -354,7 +354,7 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
               <span>
                 This exam program doesn&apos;t have a real price yet. Set one up in{" "}
                 <Link
-                  href={`/finance/pricing/programs/exam/${encodeURIComponent(programId)}/standard`}
+                  href={`/finance/pricing/programs/exam/${encodeURIComponent(programId)}/self_paced`}
                   className="font-semibold underline hover:text-violet-900"
                 >
                   Finance &gt; Pricing
