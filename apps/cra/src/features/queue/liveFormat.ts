@@ -9,6 +9,10 @@ type LiveFormat = QueueItem["live_format"];
  */
 export const needsWeeklySlot = (format: LiveFormat): boolean => format === null || format === "one_to_one";
 
+/** The format as the student chose it. Older purchases were always 1-to-1. */
+export const formatLabel = (format: LiveFormat): string =>
+  format === "self_paced" ? "Self-paced" : format === "group" ? "Live group" : "Live 1-to-1";
+
 export const onboardingBlurb = (format: LiveFormat, who: string): string => {
   if (needsWeeklySlot(format)) {
     return `Record the weekly day and time ${who} agreed to for their recurring 1:1 teacher session.`;

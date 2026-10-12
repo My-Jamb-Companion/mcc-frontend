@@ -86,7 +86,13 @@ export default function CostTemplateEditor({
 }
 
 /** One tab per format with what it would cost the student, so the three can be compared at a glance. */
-function FormatTabs({formats, selected, onSelect}: {formats: ApiFormat[]; selected: Edition; onSelect: (e: Edition) => void}) {
+function FormatTabs({formats, costed, selected, onSelect}: {
+  formats: ApiFormat[];
+  /** False until figures exist, when nothing can be priced yet. */
+  costed: boolean;
+  selected: Edition;
+  onSelect: (e: Edition) => void;
+}) {
   return (
     <div role="tablist" aria-label="Live-teaching format" className="grid gap-2 sm:grid-cols-3">
       {EDITIONS.map((e) => {
@@ -98,11 +104,13 @@ function FormatTabs({formats, selected, onSelect}: {formats: ApiFormat[]; select
             className={`rounded-xl border p-3 text-left transition-colors ${active ? "border-violet-500 bg-violet-50/60" : "border-neutral-200 bg-white hover:bg-neutral-50"}`}>
             <p className="text-sm font-semibold text-neutral-900">{EDITION_LABELS[e]}</p>
             <p className="mt-1 text-xs text-neutral-500">
-              {f && !f.applicable
-                ? "Needs live sessions"
-                : tier
-                  ? `Costs the student ${naira(tier.student_pays)}`
-                  : "No price yet"}
+              {!costed
+                ? "Not costed yet"
+                : f && !f.applicable
+                  ? "Needs live sessions"
+                  : tier
+                    ? `Costs the student ${naira(tier.student_pays)}`
+                    : "No price yet"}
               {f?.published_price ? ` · on sale at ${naira(f.published_price)}` : ""}
             </p>
           </button>
@@ -186,7 +194,7 @@ function TemplateEditorForm({detail, programType, programId, initialEdition}: {
 
   return (
     <>
-    <FormatTabs formats={formats} selected={edition} onSelect={setEdition} />
+    <FormatTabs formats={formats} costed={complete || detail.version !== null} selected={edition} onSelect={setEdition} />
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
       <div className="flex min-w-0 flex-col gap-6">
         <Section title="Live teaching"
@@ -297,7 +305,7 @@ function TemplateEditorForm({detail, programType, programId, initialEdition}: {
         </div>
       </aside>
     </div>
-    {current && !current.applicable ? (
+    {detail.version !== null && current && !current.applicable ? (
       <Section title="Publish prices" description={`${EDITION_LABELS[edition]} isn't offered while this program has no live sessions. Add live sessions above to cost and publish it.`}>
         <p className="text-sm text-neutral-500">Nothing to publish for this format.</p>
       </Section>

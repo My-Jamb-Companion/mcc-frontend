@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { needsWeeklySlot, onboardingBlurb } from "./liveFormat";
+import { formatLabel, needsWeeklySlot, onboardingBlurb } from "./liveFormat";
 
 describe("onboarding by live-teaching format", () => {
   it("asks for a weekly slot only for 1-to-1 and older purchases", () => {
@@ -7,6 +7,13 @@ describe("onboarding by live-teaching format", () => {
     expect(needsWeeklySlot(null)).toBe(true);
     expect(needsWeeklySlot("self_paced")).toBe(false);
     expect(needsWeeklySlot("group")).toBe(false);
+  });
+
+  it("names the format, treating older purchases as 1-to-1", () => {
+    expect(formatLabel("self_paced")).toBe("Self-paced");
+    expect(formatLabel("group")).toBe("Live group");
+    expect(formatLabel("one_to_one")).toBe("Live 1-to-1");
+    expect(formatLabel(null)).toBe("Live 1-to-1");
   });
 
   it("tells the coordinator what completing means for each format", () => {
