@@ -1,4 +1,5 @@
 import { apiClient } from "@mcc/api";
+import type { CatalogueFormat, LiveFormat } from "./formats";
 
 export interface CatalogueTierPrice {
   tier_id: string;
@@ -14,6 +15,8 @@ export interface CatalogueCourse {
   price: string;
   /** Every published tier's price, for a tier picker; empty if nothing is published. */
   tier_prices: CatalogueTierPrice[];
+  /** The live-teaching formats on sale, each with its tier prices. */
+  formats?: CatalogueFormat[];
 }
 
 export interface CatalogueProgram {
@@ -25,6 +28,7 @@ export interface CatalogueProgram {
   level: string;
   cover_image_url: string | null;
   tier_prices: CatalogueTierPrice[];
+  formats?: CatalogueFormat[];
 }
 
 export interface ChildPaymentResult {
@@ -61,10 +65,11 @@ export const enrollChildInCourse = async (
   courseId: string,
   price: string,
   tierId?: string,
+  liveFormat?: LiveFormat,
 ): Promise<ChildPaymentResult> => {
   const res = await apiClient.post<{ success: boolean; data: ChildPaymentResult }>(
     `/parent/children/${childId}/courses/enroll`,
-    { course_id: courseId, course_type: Number(price) > 0 ? "paid" : "free", tier_id: tierId },
+    { course_id: courseId, course_type: Number(price) > 0 ? "paid" : "free", tier_id: tierId, live_format: liveFormat },
   );
   return res.data.data;
 };
@@ -73,10 +78,11 @@ export const registerChildForExam = async (
   childId: string,
   programId: string,
   tierId?: string,
+  liveFormat?: LiveFormat,
 ): Promise<ChildPaymentResult> => {
   const res = await apiClient.post<{ success: boolean; data: ChildPaymentResult }>(
     `/parent/children/${childId}/exams/register`,
-    { program_id: programId, tier_id: tierId },
+    { program_id: programId, tier_id: tierId, live_format: liveFormat },
   );
   return res.data.data;
 };

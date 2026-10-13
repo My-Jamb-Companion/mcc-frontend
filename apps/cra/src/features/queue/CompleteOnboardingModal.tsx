@@ -3,6 +3,7 @@
 import { Controller, FormInputs, useForm } from "@mcc/features";
 import { Button, Modal } from "@mcc/ui";
 import { QueueItem } from "./queue.service";
+import { needsWeeklySlot, onboardingBlurb } from "./liveFormat";
 import { useCompleteOnboarding } from "./useQueue";
 
 const DAYS = [
@@ -43,7 +44,7 @@ export function CompleteOnboardingModal({
     completeOnboarding.mutate(
       {
         assignmentId: item.assignment_id,
-        payload: {
+        payload: !needsWeeklySlot(item.live_format) ? {} : {
           weekly_day_of_week: Number(data.weekly_day_of_week),
           weekly_start_time: data.weekly_start_time,
           duration_minutes: Number(data.duration_minutes) || 60,
@@ -58,11 +59,12 @@ export function CompleteOnboardingModal({
       {item && (
         <div className="space-y-4">
           <p className="text-sm text-muted">
-            Record the weekly day and time <strong>{item.student_name ?? item.student_email}</strong> agreed
-            to for their recurring 1:1 teacher session.
+            {onboardingBlurb(item.live_format, item.student_name ?? item.student_email)}
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {needsWeeklySlot(item.live_format) && (
+              <>
             <Controller
               name="weekly_day_of_week"
               control={control}
@@ -97,6 +99,8 @@ export function CompleteOnboardingModal({
               })}
               errors={formState.errors.duration_minutes}
             />
+              </>
+            )}
 
             <div className="flex justify-end gap-2 pt-2">
               <Button type="button" variant="ghost" width="fit" onClick={handleClose}>

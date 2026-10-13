@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Button } from "@mcc/ui";
 import { useCourseCatalogue, useEnrollChildInCourse, useProgramCatalogue, useRegisterChildForExam } from "./usePayments";
 import { TierSelect } from "./TierSelect";
+import { FormatSelect } from "./FormatSelect";
+import { formatFor, tierFor, tiersFor, type CatalogueFormat, type LiveFormat } from "./formats";
 
 const formatPrice = (price: string) => {
   const amount = Number(price);
@@ -28,17 +30,29 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
   // catalogue's own flat price (the default tier) once loaded.
   const [selectedTiers, setSelectedTiers] = useState<Record<string, string>>({});
 
-  const tierFor = (id: string, price: string, tierPrices: {tier_id: string; price: string}[]) =>
-    selectedTiers[id] ??
-    tierPrices.find((t) => Number(t.price) === Number(price))?.tier_id ??
-    tierPrices[0]?.tier_id;
+  // Live teaching is optional: the parent picks self-paced, a live group of five, or 1-to-1 per program.
+  const [selectedFormats, setSelectedFormats] = useState<Record<string, LiveFormat>>({});
 
-  const handleEnroll = async (courseId: string, price: string, tierId?: string) => {
+  /** Everything the row needs for one program once the format and tier are resolved. */
+  const choiceFor = (
+    id: string,
+    price: string,
+    tierPrices: {tier_id: string; tier_name: string; price: string}[],
+    formats: CatalogueFormat[] | undefined,
+  ) => {
+    const format = formatFor(formats, selectedFormats[id]);
+    const tiers = tiersFor(formats, format, tierPrices);
+    const tierId = tierFor(tiers, selectedTiers[id], price);
+    const shown = tiers.find((t) => t.tier_id === tierId)?.price ?? price;
+    return { format, tiers, tierId, shown };
+  };
+
+  const handleEnroll = async (courseId: string, price: string, tierId?: string, liveFormat?: LiveFormat) => {
     setPendingId(courseId);
     setMessage(null);
     setError(null);
     try {
-      const result = await enrollInCourse.mutateAsync({ courseId, price, tierId });
+      const result = await enrollInCourse.mutateAsync({ courseId, price, tierId, liveFormat });
       if (result.checkout_url) {
         window.location.href = result.checkout_url;
         return;
@@ -51,12 +65,12 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
     }
   };
 
-  const handleRegister = async (programId: string, tierId?: string) => {
+  const handleRegister = async (programId: string, tierId?: string, liveFormat?: LiveFormat) => {
     setPendingId(programId);
     setMessage(null);
     setError(null);
     try {
-      const result = await registerForExam.mutateAsync({ programId, tierId });
+      const result = await registerForExam.mutateAsync({ programId, tierId, liveFormat });
       if (result.checkout_url) {
         window.location.href = result.checkout_url;
         return;
@@ -87,7 +101,7 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
           )}
           <ul className="space-y-2">
             {courses?.map((course) => {
-              const tierId = tierFor(course.course_id, course.price, course.tier_prices);
+              const { format, tiers, tierId, shown } = choiceFor(course.course_id, course.price, course.tier_prices, course.formats);
               return (
                 <li
                   key={course.course_id}
@@ -95,18 +109,23 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
                 >
                   <div>
                     <p className="font-medium">{course.title}</p>
-                    <p className="text-xs text-muted">{formatPrice(course.price)}</p>
+                    <p className="text-xs text-muted">{formatPrice(shown)}</p>
                   </div>
                   <div className="flex items-center gap-2">
+                    <FormatSelect
+                      formats={course.formats ?? []}
+                      value={format}
+                      onChange={(f) => setSelectedFormats((prev) => ({...prev, [course.course_id]: f}))}
+                    />
                     <TierSelect
-                      tiers={course.tier_prices}
+                      tiers={tiers}
                       value={tierId ?? null}
                       onChange={(id) => setSelectedTiers((prev) => ({...prev, [course.course_id]: id}))}
                     />
                     <Button
                       size="sm"
                       loading={pendingId === course.course_id}
-                      onClick={() => handleEnroll(course.course_id, course.price, tierId)}
+                      onClick={() => handleEnroll(course.course_id, course.price, tierId, format)}
                     >
                       Enroll
                     </Button>
@@ -125,7 +144,7 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
           )}
           <ul className="space-y-2">
             {programs?.map((program) => {
-              const tierId = tierFor(program.program_id, program.price, program.tier_prices);
+              const { format, tiers, tierId, shown } = choiceFor(program.program_id, program.price, program.tier_prices, program.formats);
               return (
                 <li
                   key={program.program_id}
@@ -133,18 +152,23 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
                 >
                   <div>
                     <p className="font-medium">{program.exam_name || program.subject_name}</p>
-                    <p className="text-xs text-muted">{formatPrice(program.price)}</p>
+                    <p className="text-xs text-muted">{formatPrice(shown)}</p>
                   </div>
                   <div className="flex items-center gap-2">
+                    <FormatSelect
+                      formats={program.formats ?? []}
+                      value={format}
+                      onChange={(f) => setSelectedFormats((prev) => ({...prev, [program.program_id]: f}))}
+                    />
                     <TierSelect
-                      tiers={program.tier_prices}
+                      tiers={tiers}
                       value={tierId ?? null}
                       onChange={(id) => setSelectedTiers((prev) => ({...prev, [program.program_id]: id}))}
                     />
                     <Button
                       size="sm"
                       loading={pendingId === program.program_id}
-                      onClick={() => handleRegister(program.program_id, tierId)}
+                      onClick={() => handleRegister(program.program_id, tierId, format)}
                     >
                       Register
                     </Button>

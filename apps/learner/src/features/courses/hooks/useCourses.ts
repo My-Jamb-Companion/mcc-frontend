@@ -1,5 +1,6 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {confettiCelebrate, showSuccess} from "@mcc/ui";
+import type {LiveFormat} from "@/src/features/courses/helper/liveFormats";
 import {useGamificationRefresh} from "@/src/features/rewards/hooks/useGamificationRefresh";
 import {progressMessage, shouldCelebrate} from "@/src/features/rewards/helper/earnings";
 import {
@@ -79,12 +80,14 @@ export const useInitializeCoursePayment = () => {
       courseType,
       email,
       tierId,
+      liveFormat,
     }: {
       courseId: string;
       courseType: "free" | "paid";
       email?: string;
       tierId?: string;
-    }) => initializeCoursePayment(courseId, courseType, email, tierId),
+      liveFormat?: LiveFormat;
+    }) => initializeCoursePayment(courseId, courseType, email, tierId, liveFormat),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ["courses", "enrolled"]});
     },

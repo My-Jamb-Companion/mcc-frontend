@@ -36,11 +36,13 @@ const grouped = (tier: ApiTierPrice): Record<GroupKey, number> => {
 };
 
 export default function QuotePanel({
+  formatLabel,
   quote,
   currentPrice,
   loading,
   message,
 }: {
+  formatLabel: string;
   quote: ApiPriceQuote | null;
   currentPrice: number;
   loading: boolean;
@@ -51,7 +53,8 @@ export default function QuotePanel({
   if (!quote) {
     return (
       <div className="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm">
-        <h2 className="text-base font-bold text-neutral-900">Price in each city tier</h2>
+        <h2 className="text-base font-bold text-neutral-900">Price in each tier</h2>
+        <p className="mt-0.5 text-xs text-neutral-500">{formatLabel}</p>
         <p className={`mt-3 text-sm ${message ? "text-amber-700" : "text-neutral-400"}`}>
           {loading ? "Working out prices…" : message ?? "Fill in the figures to see prices."}
         </p>
@@ -67,7 +70,10 @@ export default function QuotePanel({
   return (
     <div className={`rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm transition-opacity ${loading ? "opacity-60" : ""}`}>
       <div className="flex items-start justify-between gap-3">
-        <h2 className="text-base font-bold text-neutral-900">Price in each city tier</h2>
+        <div>
+          <h2 className="text-base font-bold text-neutral-900">Price in each tier</h2>
+          <p className="mt-0.5 text-xs text-neutral-500">{formatLabel}</p>
+        </div>
         <span className="text-xs text-neutral-400">
           Parameters v{quote.parameter_version} · tiers r{quote.tier_revision}
         </span>
@@ -77,7 +83,7 @@ export default function QuotePanel({
 
       {quote.within_market_ceiling === false && (
         <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">
-          Prices in red are above the market ceiling of {naira(quote.market_ceiling!)}, so this edition can&apos;t be
+          Prices in red are above the market ceiling of {naira(quote.market_ceiling!)}, so this format can&apos;t be
           published at these costs.
         </p>
       )}

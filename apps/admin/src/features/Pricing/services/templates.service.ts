@@ -6,7 +6,11 @@ import {apiClient} from "@mcc/api";
  */
 
 export type ProgramType = "course" | "exam";
-export type Edition = "standard" | "premium";
+/**
+ * A pricing "edition" is the live-teaching format a student picks at signup: self-paced (no live teaching),
+ * a live group (one teacher to five students) or live one-to-one.
+ */
+export type Edition = "self_paced" | "group" | "one_to_one";
 export type DirectCostCategory = "ai" | "messaging" | "hosting" | "acquisition" | "marking" | "materials" | "other";
 
 export interface ApiEditionSummary {
@@ -115,25 +119,60 @@ export interface ApiPriceQuote {
   tiers: ApiTierPrice[];
 }
 
-export interface ApiTemplateDetail {
-  program: Omit<ApiProgramSummary, "editions">;
+/** One live-teaching format of a program: its latest saved cost version, price quote and published price. */
+export interface ApiFormat {
   edition: Edition;
-  edition_label: string;
-  version: ApiTemplateVersion | null;
+  label: string;
+  /** Students taught together in one live session (1 = one-to-one). */
+  seats: number;
+  live: boolean;
+  /** False for a live format of a program with no live sessions. */
+  applicable: boolean;
+  version_number: number | null;
   quote: ApiPriceQuote | null;
   quote_unavailable_reason: string | null;
+  published_price: string | null;
+  published_number: number | null;
+  pending_publication: number | null;
+}
+
+/** The program's shared cost inputs as last saved. */
+export interface ApiProgramVersion {
+  /** The program's revision: send it back as based_on_version. Null until the first save. */
+  version_number: number | null;
+  live_sessions: number;
+  hours_per_session: string;
+  teacher_hourly_rate: string;
+  direct_costs: ApiDirectCostLine[];
+  development_cost: string;
+  amortisation_periods: string;
+  enrolments_per_period: number;
+  ai_allowance_months: number;
+  market_ceilings: Partial<Record<Edition, string | null>>;
+  margin_override: string | null;
+  margin_override_reason: string | null;
+  change_reason: string;
+  created_by_name: string | null;
+  created_at: string;
+}
+
+export interface ApiProgramTemplate {
+  program: Omit<ApiProgramSummary, "editions">;
+  version: ApiProgramVersion | null;
+  formats: ApiFormat[];
+  /** Which edition's history lists this program's saves. */
+  history_edition: Edition;
 }
 
 export interface TemplateInput {
   live_sessions: number;
   hours_per_session: string;
   teacher_hourly_rate: string;
-  seats_per_session: number;
   direct_costs: {category: DirectCostCategory; label: string; amount: string; currency: "NGN" | "USD"; vatable: boolean}[];
   development_cost: string;
   amortisation_periods: string;
   enrolments_per_period: number;
-  market_ceiling: string | null;
+  market_ceilings: Partial<Record<Edition, string | null>>;
   ai_allowance_months: number;
   margin_override: string | null;
   margin_override_reason: string | null;
@@ -148,21 +187,22 @@ export const listPricedPrograms = async () =>
     "/admin/pricing/programs",
   )).data.data;
 
-/** Endpoint: GET /admin/pricing/programs/{type}/{id}/editions/{edition} */
-export const getTemplate = async (type: ProgramType, id: string, edition: Edition) =>
-  (await apiClient.get<{data: ApiTemplateDetail}>(path(type, id, edition))).data.data;
+const programPath = (type: ProgramType, id: string) => `/admin/pricing/programs/${type}/${encodeURIComponent(id)}/template`;
 
-/** Endpoint: POST .../quote -- prices unsaved inputs; nothing is stored. */
-export const previewQuote = async (type: ProgramType, id: string, edition: Edition, input: TemplateInput) =>
-  (await apiClient.post<{data: ApiPriceQuote}>(`${path(type, id, edition)}/quote`, input)).data.data;
+/** Endpoint: GET /admin/pricing/programs/{type}/{id}/template -- the program's cost template and each format's price. */
+export const getProgramTemplate = async (type: ProgramType, id: string) =>
+  (await apiClient.get<{data: ApiProgramTemplate}>(programPath(type, id))).data.data;
 
-/** Endpoint: POST .../versions */
-export const saveTemplateVersion = async (
+/** Endpoint: POST .../template/quote -- prices unsaved inputs in every format; nothing is stored. */
+export const previewProgramQuotes = async (type: ProgramType, id: string, input: TemplateInput) =>
+  (await apiClient.post<{data: {formats: ApiFormat[]}}>(`${programPath(type, id)}/quote`, input)).data.data.formats;
+
+/** Endpoint: POST .../template/versions -- saves a new version of every format that applies. */
+export const saveProgramTemplate = async (
   type: ProgramType,
   id: string,
-  edition: Edition,
   input: TemplateInput & {based_on_version: number | null; change_reason: string},
-) => (await apiClient.post<{data: ApiTemplateDetail}>(`${path(type, id, edition)}/versions`, input)).data.data;
+) => (await apiClient.post<{data: ApiProgramTemplate}>(`${programPath(type, id)}/versions`, input)).data.data;
 
 /** Endpoint: GET .../versions */
 export const listTemplateVersions = async (type: ProgramType, id: string, edition: Edition) =>

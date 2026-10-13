@@ -2,12 +2,12 @@ import {keepPreviousData, useMutation, useQuery, useQueryClient} from "@tanstack
 import {useEffect, useState} from "react";
 import {
   Edition,
-  getTemplate,
+  getProgramTemplate,
   listPricedPrograms,
   listTemplateVersions,
-  previewQuote,
+  previewProgramQuotes,
   ProgramType,
-  saveTemplateVersion,
+  saveProgramTemplate,
   TemplateInput,
 } from "../services/templates.service";
 
@@ -16,8 +16,8 @@ const ROOT = ["admin", "pricing", "templates"] as const;
 export const usePricedPrograms = () =>
   useQuery({queryKey: [...ROOT, "programs"], queryFn: listPricedPrograms});
 
-export const useTemplate = (type: ProgramType, id: string, edition: Edition) =>
-  useQuery({queryKey: [...ROOT, "detail", type, id, edition], queryFn: () => getTemplate(type, id, edition)});
+export const useProgramTemplate = (type: ProgramType, id: string) =>
+  useQuery({queryKey: [...ROOT, "detail", type, id], queryFn: () => getProgramTemplate(type, id)});
 
 export const useTemplateVersions = (type: ProgramType, id: string, edition: Edition) =>
   useQuery({
@@ -36,26 +36,26 @@ export function useDebounced<T>(value: T, ms: number): T {
 }
 
 /**
- * The live price preview. Priced by the server so it can never disagree with
- * what saving produces. Waits for typing to pause, and keeps showing the last
- * prices while the next ones load so the panel doesn't flicker on each key.
+ * The live price preview, in every format. Priced by the server so it can never disagree with what saving
+ * produces. Waits for typing to pause, and keeps showing the last prices while the next ones load so the
+ * panel doesn't flicker on each key.
  */
-export const useQuotePreview = (type: ProgramType, id: string, edition: Edition, input: TemplateInput | null) => {
+export const useQuotePreview = (type: ProgramType, id: string, input: TemplateInput | null) => {
   const serialized = input ? JSON.stringify(input) : null;
   const settled = useDebounced(serialized, 400);
   return useQuery({
-    queryKey: [...ROOT, "quote", type, id, edition, settled],
-    queryFn: () => previewQuote(type, id, edition, JSON.parse(settled as string)),
+    queryKey: [...ROOT, "quote", type, id, settled],
+    queryFn: () => previewProgramQuotes(type, id, JSON.parse(settled as string)),
     enabled: settled !== null,
     placeholderData: keepPreviousData,
     retry: false,
   });
 };
 
-export const useSaveTemplateVersion = (type: ProgramType, id: string, edition: Edition) => {
+export const useSaveProgramTemplate = (type: ProgramType, id: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: Parameters<typeof saveTemplateVersion>[3]) => saveTemplateVersion(type, id, edition, input),
+    mutationFn: (input: Parameters<typeof saveProgramTemplate>[2]) => saveProgramTemplate(type, id, input),
     onSuccess: () => queryClient.invalidateQueries({queryKey: ROOT}),
   });
 };

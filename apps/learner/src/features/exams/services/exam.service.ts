@@ -1,6 +1,7 @@
 import {apiClient, whenSessionReady} from "@mcc/api";
 import type {ApiGamificationUpdate, ApiProgressUpdate} from "@/src/features/rewards/services/rewards.service";
 import type {ApiLessonCompleted, ApiLessonProgress} from "@/src/features/courses/services/course.service";
+import type {ApiFormatOffer, LiveFormat} from "@/src/features/courses/helper/liveFormats";
 
 export interface ApiTierPrice {
   tier_id: string;
@@ -19,6 +20,8 @@ export interface ApiExamProgram {
   cover_image_url?: string | null;
   /** Every published tier's price, for a tier picker; empty if nothing is published. */
   tier_prices: ApiTierPrice[];
+  /** The live-teaching formats on sale (self-paced, live group, live 1-to-1), each with its tier prices. */
+  formats?: ApiFormatOffer[];
 }
 
 export interface ProgramListFilters {
@@ -237,11 +240,13 @@ export const registerForProgram = async (
   programId: string,
   email?: string,
   tierId?: string,
+  liveFormat?: LiveFormat,
 ): Promise<RegisterResult> => {
   const res = await apiClient.post<{data: RegisterResult}>("/exams/register", {
     program_id: programId,
     email,
     tier_id: tierId,
+    live_format: liveFormat,
   });
   return res.data.data;
 };

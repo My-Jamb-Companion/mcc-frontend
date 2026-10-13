@@ -137,7 +137,7 @@ export const getReceipt = async (txRef: string): Promise<ApiReceipt> =>
   (await apiClient.get<{data: ApiReceipt}>(`/payments/${txRef}/receipt`)).data.data;
 
 /** Endpoint: POST /payments/gems/unlock-course -- spends purchased gems on a paid course. */
-export const unlockCourseWithGems = async (courseId: string, tierId?: string): Promise<ApiGemUnlock> =>
+export const unlockCourseWithGems = async (courseId: string, tierId?: string, liveFormat?: "self_paced"): Promise<ApiGemUnlock> =>
   (await apiClient.post<{data: ApiGemUnlock}>("/payments/gems/unlock-course", {
-    course_id: courseId, tier_id: tierId,
+    course_id: courseId, tier_id: tierId, live_format: liveFormat,
   })).data.data;

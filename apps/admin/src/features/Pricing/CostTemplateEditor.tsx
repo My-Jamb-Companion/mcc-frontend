@@ -9,35 +9,39 @@ import QuotePanel from "./components/QuotePanel";
 import {
   DIRECT_COST_CATEGORIES,
   DirectCostForm,
+  EDITION_LABELS,
+  EDITIONS,
   emptyTemplateForm,
+  GROUP_SEATS,
   newDirectCost,
   TemplateErrors,
   TemplateForm,
   templateFormFromVersion,
   templateInput,
+  teachingCostPerStudent,
   validateTemplate,
 } from "./helper/templateForm";
-import {useQuotePreview, useSaveTemplateVersion, useTemplate, useTemplateVersions} from "./hooks/useTemplates";
-import type {ApiTemplateDetail, DirectCostCategory, Edition, ProgramType} from "./services/templates.service";
+import {useProgramTemplate, useQuotePreview, useSaveProgramTemplate, useTemplateVersions} from "./hooks/useTemplates";
+import type {ApiFormat, ApiProgramTemplate, DirectCostCategory, Edition, ProgramType} from "./services/templates.service";
 import {pricingErrorMessage} from "./services/pricing.service";
 
 const naira = (v: string | number) => `₦${new Intl.NumberFormat("en-NG", {maximumFractionDigits: 0}).format(Number(v))}`;
 
 /**
- * Pricing model build step 3 -- one edition's cost template, with its price in
- * every city tier recalculated by the server as the admin types.
+ * Pricing model build step 3 -- a program's cost template and its price in every tier, for each way a student
+ * can take it: self-paced, a live group of five, or live one-to-one. The costs are shared; the formats differ in
+ * how the teacher's time is divided. Prices are recalculated by the server as the admin types.
  */
 export default function CostTemplateEditor({
   programType,
   programId,
-  edition,
+  initialEdition,
 }: {
   programType: ProgramType;
   programId: string;
-  edition: Edition;
+  initialEdition: Edition;
 }) {
-  const {data, isLoading, isError, error, refetch} = useTemplate(programType, programId, edition);
-  const base = `/finance/pricing/programs/${programType}/${encodeURIComponent(programId)}`;
+  const {data, isLoading, isError, error, refetch} = useProgramTemplate(programType, programId);
 
   return (
     <section className="flex flex-col gap-6 pb-10">
@@ -51,24 +55,14 @@ export default function CostTemplateEditor({
             <div>
               <h1 className="text-2xl font-bold text-neutral-900">{data.program.title}</h1>
               <p className="mt-1 text-sm text-neutral-500">
-                {programType === "course" ? "Course" : "Exam program"} · {data.edition_label} · charged today:{" "}
+                {programType === "course" ? "Course" : "Exam program"} · charged today:{" "}
                 {Number(data.program.current_price) > 0 ? naira(data.program.current_price) : "free"}
               </p>
             </div>
-            <span className={`rounded-full px-3 py-1.5 text-sm font-medium ${data.version ? "bg-green-50 text-green-700" : "bg-neutral-100 text-neutral-600"}`}>
-              {data.version ? `Version ${data.version.version_number}` : "Not costed yet"}
+            <span className={`rounded-full px-3 py-1.5 text-sm font-medium ${data.version?.version_number ? "bg-green-50 text-green-700" : "bg-neutral-100 text-neutral-600"}`}>
+              {data.version?.version_number ? `Version ${data.version.version_number}` : "Not costed yet"}
             </span>
           </div>
-        )}
-        {programType === "course" && (
-          <nav aria-label="Edition" className="mt-4 inline-flex rounded-xl bg-neutral-100/80 p-1">
-            {(["standard", "premium"] as const).map((e) => (
-              <Link key={e} href={`${base}/${e}`} aria-current={e === edition ? "page" : undefined}
-                className={`rounded-lg px-4 py-1.5 text-sm font-semibold ${e === edition ? "bg-white text-neutral-900 shadow-sm" : "text-neutral-500 hover:text-neutral-800"}`}>
-                {e === "standard" ? "Standard · group classes" : "Premium · one-on-one"}
-              </Link>
-            ))}
-          </nav>
         )}
       </div>
 
@@ -82,51 +76,92 @@ export default function CostTemplateEditor({
       ) : (
         <>
           {/* Keyed on the saved version: saving re-initialises the form from the server. */}
-          <TemplateEditorForm key={`${edition}-${data.version?.version_number ?? "new"}`} detail={data}
-            programType={programType} programId={programId} edition={edition} />
-          <VersionHistory programType={programType} programId={programId} edition={edition} />
+          <TemplateEditorForm key={data.version?.version_number ?? "new"} detail={data}
+            programType={programType} programId={programId} initialEdition={initialEdition} />
+          <VersionHistory programType={programType} programId={programId} edition={data.history_edition} />
         </>
       )}
     </section>
   );
 }
 
-function TemplateEditorForm({detail, programType, programId, edition}: {
-  detail: ApiTemplateDetail;
+/** One tab per format with what it would cost the student, so the three can be compared at a glance. */
+function FormatTabs({formats, costed, selected, onSelect}: {
+  formats: ApiFormat[];
+  /** False until figures exist, when nothing can be priced yet. */
+  costed: boolean;
+  selected: Edition;
+  onSelect: (e: Edition) => void;
+}) {
+  return (
+    <div role="tablist" aria-label="Live-teaching format" className="grid gap-2 sm:grid-cols-3">
+      {EDITIONS.map((e) => {
+        const f = formats.find((x) => x.edition === e);
+        const tier = f?.quote?.tiers.find((t) => t.is_default) ?? f?.quote?.tiers[0];
+        const active = e === selected;
+        return (
+          <button key={e} type="button" role="tab" aria-selected={active} onClick={() => onSelect(e)}
+            className={`rounded-xl border p-3 text-left transition-colors ${active ? "border-violet-500 bg-violet-50/60" : "border-neutral-200 bg-white hover:bg-neutral-50"}`}>
+            <p className="text-sm font-semibold text-neutral-900">{EDITION_LABELS[e]}</p>
+            <p className="mt-1 text-xs text-neutral-500">
+              {!costed
+                ? "Not costed yet"
+                : f && !f.applicable
+                  ? "Needs live sessions"
+                  : tier
+                    ? `Costs the student ${naira(tier.student_pays)}`
+                    : "No price yet"}
+              {f?.published_price ? ` · on sale at ${naira(f.published_price)}` : ""}
+            </p>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function TemplateEditorForm({detail, programType, programId, initialEdition}: {
+  detail: ApiProgramTemplate;
   programType: ProgramType;
   programId: string;
-  edition: Edition;
+  initialEdition: Edition;
 }) {
   const [form, setForm] = useState<TemplateForm>(() =>
-    detail.version ? templateFormFromVersion(detail.version) : emptyTemplateForm(programType, edition),
+    detail.version ? templateFormFromVersion(detail.version) : emptyTemplateForm(programType),
   );
+  const [edition, setEdition] = useState<Edition>(initialEdition);
   const [reason, setReason] = useState("");
   const [showErrors, setShowErrors] = useState(false);
   const [saveError, setSaveError] = useState<{message: string; conflict: boolean} | null>(null);
 
-  const errors = useMemo(() => validateTemplate(form, edition), [form, edition]);
+  const errors = useMemo(() => validateTemplate(form), [form]);
   const complete = Object.keys(errors).length === 0;
-  const input = useMemo(() => (complete ? templateInput(form, edition) : null), [complete, form, edition]);
+  const input = useMemo(() => (complete ? templateInput(form) : null), [complete, form]);
 
-  const preview = useQuotePreview(programType, programId, edition, input);
-  const save = useSaveTemplateVersion(programType, programId, edition);
+  const preview = useQuotePreview(programType, programId, input);
+  const save = useSaveProgramTemplate(programType, programId);
 
   const savedInput = useMemo(
-    () => (detail.version ? JSON.stringify(templateInput(templateFormFromVersion(detail.version), edition)) : null),
-    [detail.version, edition],
+    () => (detail.version ? JSON.stringify(templateInput(templateFormFromVersion(detail.version))) : null),
+    [detail.version],
   );
   const unchanged = input !== null && savedInput === JSON.stringify(input);
 
   const set = <K extends keyof TemplateForm>(key: K) => (value: TemplateForm[K]) => setForm((f) => ({...f, [key]: value}));
   const err = (key: keyof TemplateForm) => (showErrors ? errors[key] : undefined);
+  const setCeiling = (e: Edition) => (value: string) => setForm((f) => ({...f, ceilings: {...f.ceilings, [e]: value}}));
 
-  // The preview shows the server's own objection (edition rules, a margin that
+  // Until the figures are complete, tabs show what was last saved; after that, the server's live preview.
+  const formats = (complete ? preview.data : null) ?? detail.formats;
+  const current = formats.find((f) => f.edition === edition);
+
+  // The preview shows the server's own objection (format rules, a margin that
   // leaves nothing for costs, missing company parameters) rather than a guess.
   const previewMessage = !complete
     ? "Fill in the figures to see prices."
     : preview.isError
       ? pricingErrorMessage(preview.error, "Prices couldn't be worked out.")
-      : null;
+      : current?.quote_unavailable_reason ?? null;
 
   const handleSave = () => {
     setSaveError(null);
@@ -154,23 +189,35 @@ function TemplateEditorForm({detail, programType, programId, edition}: {
   const hasSessions = Number(form.liveSessions) > 0;
   const periodLabel = programType === "exam" ? "Exam cycles in use" : "Years in use";
   const perPeriodLabel = programType === "exam" ? "Enrolments per exam cycle" : "Enrolments per year";
+  const groupCost = teachingCostPerStudent(form, "group");
+  const oneCost = teachingCostPerStudent(form, "one_to_one");
 
   return (
     <>
+    <FormatTabs formats={formats} costed={complete || detail.version !== null} selected={edition} onSelect={setEdition} />
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
       <div className="flex min-w-0 flex-col gap-6">
         <Section title="Live teaching"
-          description={edition === "premium"
-            ? "One-on-one sessions: each student has the teacher to themselves, so the whole session is their cost."
-            : "Group classes share the teacher's time, so each student's cost is the session divided by the class size. Use 0 sessions for a purely self-paced edition."}>
-          <div className="grid gap-4 sm:grid-cols-2">
+          description={`Students choose at signup whether to learn self-paced, in a live group of ${GROUP_SEATS}, or one-to-one. The live sessions, their length and the teacher's pay are shared by the two live formats; the difference is who the teacher's time is divided between. Use 0 sessions for a program with no live teaching.`}>
+          <div className="grid gap-4 sm:grid-cols-3">
             <NumberField id="liveSessions" label="Live sessions per enrolment" value={form.liveSessions} onChange={set("liveSessions")} error={err("liveSessions")} />
             <NumberField id="hoursPerSession" label="Hours per session" value={form.hoursPerSession} onChange={set("hoursPerSession")} error={err("hoursPerSession")} disabled={!hasSessions} />
             <NumberField id="hourlyRate" label="Teacher pay per hour" prefix="₦" value={form.hourlyRate} onChange={set("hourlyRate")} error={err("hourlyRate")} disabled={!hasSessions} />
-            <NumberField id="seats" label="Students per session" value={edition === "premium" ? "1" : form.seats} onChange={set("seats")}
-              error={err("seats")} disabled={!hasSessions} readOnly={edition === "premium"}
-              hint={edition === "premium" ? "Always 1 for one-on-one" : "The typical class size"} />
           </div>
+          <dl className="mt-4 grid gap-3 rounded-xl bg-neutral-50 p-4 text-sm sm:grid-cols-3">
+            <div>
+              <dt className="text-xs text-neutral-500">Self-paced</dt>
+              <dd className="font-semibold tabular-nums text-neutral-900">{naira(0)} teaching</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-neutral-500">Live group · shared by {GROUP_SEATS}</dt>
+              <dd className="font-semibold tabular-nums text-neutral-900">{groupCost === null ? "—" : `${naira(groupCost)} per student`}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-neutral-500">Live 1-to-1 · one student</dt>
+              <dd className="font-semibold tabular-nums text-neutral-900">{oneCost === null ? "—" : `${naira(oneCost)} per student`}</dd>
+            </div>
+          </dl>
         </Section>
 
         <Section title="Other direct costs per enrolment"
@@ -184,7 +231,7 @@ function TemplateEditorForm({detail, programType, programId, edition}: {
         </Section>
 
         <Section title="Development"
-          description={`The one-off cost of building this ${programType === "course" ? "course" : "program"} — development teachers' pay and any equipment bought for it — spread across the students expected over its life. Fewer expected students means more per student.`}>
+          description={`The one-off cost of building this ${programType === "course" ? "course" : "program"} — development teachers' pay and any equipment bought for it — spread across the students expected over its life, in any format. Fewer expected students means more per student.`}>
           <div className="grid gap-4 sm:grid-cols-3">
             <NumberField id="developmentCost" label="Development cost" prefix="₦" value={form.developmentCost} onChange={set("developmentCost")} error={err("developmentCost")} />
             <NumberField id="periods" label={periodLabel} value={form.periods} onChange={set("periods")} error={err("periods")} />
@@ -192,11 +239,17 @@ function TemplateEditorForm({detail, programType, programId, edition}: {
           </div>
         </Section>
 
-        <Section title="Market ceiling"
-          description="The most students will realistically pay for this edition, VAT included. Prices can't be published while any tier's price is above it — a sign to rethink the costs, class size or expected enrolments rather than charge more than the market bears.">
-          <div className="max-w-xs">
-            <NumberField id="marketCeiling" label="Highest viable price" prefix="₦" value={form.marketCeiling}
-              onChange={set("marketCeiling")} error={err("marketCeiling")} hint="Needed before publishing" />
+        <Section title="Market ceilings"
+          description="The most students will realistically pay for each format, VAT included. A format can't be published while any tier's price is above its ceiling — a sign to rethink the costs, class size or expected enrolments rather than charge more than the market bears.">
+          <div className="grid gap-4 sm:grid-cols-3">
+            {EDITIONS.map((e) => {
+              const unavailable = e !== "self_paced" && !hasSessions;
+              return (
+                <NumberField key={e} id={`ceiling-${e}`} label={EDITION_LABELS[e]} prefix="₦" value={form.ceilings[e]}
+                  onChange={setCeiling(e)} error={showErrors ? errors[`ceiling-${e}`] : undefined} disabled={unavailable}
+                  hint={unavailable ? "Needs live sessions" : "Needed before publishing"} />
+              );
+            })}
           </div>
         </Section>
 
@@ -222,7 +275,8 @@ function TemplateEditorForm({detail, programType, programId, edition}: {
 
       <aside className="flex flex-col gap-4 xl:sticky xl:top-6">
         <QuotePanel
-          quote={complete ? preview.data ?? null : null}
+          formatLabel={EDITION_LABELS[edition]}
+          quote={complete ? current?.quote ?? null : null}
           currentPrice={Number(detail.program.current_price)}
           loading={preview.isFetching}
           message={previewMessage}
@@ -247,12 +301,19 @@ function TemplateEditorForm({detail, programType, programId, edition}: {
             className="mt-4 w-full rounded-full bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50">
             {save.isPending ? "Saving…" : unchanged ? "No changes to save" : `Save as version ${(detail.version?.version_number ?? 0) + 1}`}
           </button>
-          <p className="mt-2 text-xs text-neutral-400">Saving doesn&apos;t change what students pay. Prices apply once published.</p>
+          <p className="mt-2 text-xs text-neutral-400">Saves every format together. It doesn&apos;t change what students pay; prices apply once published.</p>
         </div>
       </aside>
     </div>
-    <PublishPanel programType={programType} programId={programId} edition={edition}
-      savedVersion={detail.version?.version_number ?? null} unsavedChanges={detail.version !== null && !unchanged} />
+    {detail.version !== null && current && !current.applicable ? (
+      <Section title="Publish prices" description={`${EDITION_LABELS[edition]} isn't offered while this program has no live sessions. Add live sessions above to cost and publish it.`}>
+        <p className="text-sm text-neutral-500">Nothing to publish for this format.</p>
+      </Section>
+    ) : (
+      <PublishPanel key={edition} programType={programType} programId={programId} edition={edition}
+        formatLabel={EDITION_LABELS[edition]}
+        savedVersion={current?.version_number ?? null} unsavedChanges={detail.version !== null && !unchanged} />
+    )}
     </>
   );
 }
