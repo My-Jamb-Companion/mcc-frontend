@@ -158,7 +158,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
                 <td className="py-1.5 pr-3">
                   <input aria-label="Tier name" value={r.name} onChange={(e) => update(r.tier_id, {name: e.target.value})} className={`${input} min-w-44`} />
                   <input aria-label={`Line shown to buyers for ${r.name}`} value={r.description} maxLength={MAX_DESCRIPTION + 40}
-                    placeholder="Shown to buyers, e.g. The standard price for most students"
+                    placeholder="Shown to buyers, e.g. For most students"
                     onChange={(e) => update(r.tier_id, {description: e.target.value})} className={`${input} mt-1.5 min-w-44 font-normal`} />
                   <p className={`mt-0.5 text-[11px] ${r.description.length > MAX_DESCRIPTION ? "text-red-600" : "text-neutral-400"}`}>
                     {r.description.length}/{MAX_DESCRIPTION}
