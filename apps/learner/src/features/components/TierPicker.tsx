@@ -4,6 +4,8 @@ export interface TierPriceOption {
   tier_id: string;
   tier_name: string;
   price: number | string;
+  /** Admin-written line saying who this price is for. Empty when none. */
+  description?: string;
 }
 
 interface TierPickerProps {
@@ -16,10 +18,12 @@ const formatPrice = (price: number | string) => `₦${Number(price).toLocaleStri
 
 /**
  * Lets a buyer pick which published tier's price to pay at enrolment
- * (docs/pricing-model.md §4, D2/D3 revised in the backend repo -- a tier
- * used to be derived from a city the student was locked into; now it's
- * picked directly, per purchase). Renders nothing when a program has no
- * published tiers, since there's nothing to choose -- the flat price applies.
+ * (docs/pricing-model.md §4, D2/D3 revised in the backend repo: a tier is
+ * picked directly, per purchase, and nothing is derived from the buyer's
+ * profile). A tier is only a price level, so each option shows the admin's
+ * line saying who the price is for, and one fixed note says every tier gets
+ * the same course. Renders nothing when a program has no published tiers,
+ * since there's nothing to choose -- the flat price applies.
  */
 export function TierPicker({tiers, selectedTierId, onSelect}: TierPickerProps) {
   if (tiers.length === 0) return null;
@@ -27,27 +31,35 @@ export function TierPicker({tiers, selectedTierId, onSelect}: TierPickerProps) {
   return (
     <fieldset className="flex flex-col gap-2">
       <legend className="text-sm font-semibold mb-1">Choose your price tier</legend>
+      {tiers.length > 1 && (
+        <p className="text-xs text-subtle -mt-1 mb-1">
+          Every price includes the same course and features. The tier only sets what you pay.
+        </p>
+      )}
       {tiers.map((tier) => (
         <label
           key={tier.tier_id}
-          className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-colors ${
+          className={`flex items-start justify-between gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-colors ${
             selectedTierId === tier.tier_id
               ? "border-primary bg-primary/5"
               : "border-muted/30 hover:border-muted/60"
           }`}
         >
-          <span className="flex items-center gap-2">
+          <span className="flex items-start gap-2">
             <input
               type="radio"
               name="pricing-tier"
               value={tier.tier_id}
               checked={selectedTierId === tier.tier_id}
               onChange={() => onSelect(tier.tier_id)}
-              className="accent-primary"
+              className="mt-1 accent-primary"
             />
-            <span className="text-sm font-medium">{tier.tier_name}</span>
+            <span>
+              <span className="block text-sm font-medium">{tier.tier_name}</span>
+              {tier.description && <span className="block text-xs text-subtle">{tier.description}</span>}
+            </span>
           </span>
-          <span className="text-sm font-semibold">{formatPrice(tier.price)}</span>
+          <span className="text-sm font-semibold whitespace-nowrap">{formatPrice(tier.price)}</span>
         </label>
       ))}
     </fieldset>

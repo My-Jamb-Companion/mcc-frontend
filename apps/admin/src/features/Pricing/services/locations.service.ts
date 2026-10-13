@@ -13,6 +13,8 @@ export interface ApiTier {
   tier_id: string;
   code: string;
   name: string;
+  /** One line shown to buyers beside this tier's price. May be empty. */
+  description: string;
   multiplier: string;
   expected_sales_share: string;
   is_default: boolean;
@@ -33,6 +35,8 @@ export interface TierSetInput {
   tiers: {
     tier_id: string;
     name: string;
+    /** Omit to keep the saved text; "" clears it. */
+    description?: string;
     multiplier: string;
     expected_sales_share: string;
     is_default: boolean;

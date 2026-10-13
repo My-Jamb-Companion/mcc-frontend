@@ -151,7 +151,7 @@ export default function PublishPanel({
                 {proposal.below_cost_reason_required && (
                   <Reason id="below-cost-reason"
                     label={`Why are tier discounts unfunded? (weighted multiplier ${Number(Number(proposal.weighted_multiplier).toFixed(4))})`}
-                    placeholder="e.g. Growth investment in emerging cities for the launch year"
+                    placeholder="e.g. Growth investment in lower tiers for the launch year"
                     value={reasons.belowCost} onChange={(belowCost) => setReasons((r) => ({...r, belowCost}))} />
                 )}
                 <Reason id="publish-reason" label="Why publish these prices?"

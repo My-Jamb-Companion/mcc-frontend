@@ -7,6 +7,8 @@ export interface ApiTierPrice {
   tier_id: string;
   tier_name: string;
   price: number | string;
+  /** Admin-written line saying who this price is for. Empty when none. */
+  description?: string;
 }
 
 export interface ApiExamProgram {

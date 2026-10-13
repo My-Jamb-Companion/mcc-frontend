@@ -5,6 +5,8 @@ export interface CatalogueTierPrice {
   tier_id: string;
   tier_name: string;
   price: string;
+  /** Admin-written line saying who this price is for. Empty when none. */
+  description?: string;
 }
 
 export interface CatalogueCourse {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@mcc/ui";
 import { useCourseCatalogue, useEnrollChildInCourse, useProgramCatalogue, useRegisterChildForExam } from "./usePayments";
-import { TierSelect } from "./TierSelect";
+import { TierCards } from "./TierCards";
 import { FormatSelect } from "./FormatSelect";
 import { formatFor, tierFor, tiersFor, type CatalogueFormat, type LiveFormat } from "./formats";
 
@@ -105,23 +105,13 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
               return (
                 <li
                   key={course.course_id}
-                  className="flex items-center justify-between rounded-lg border border-muted/20 px-4 py-3"
+                  className="rounded-lg border border-muted/20 px-4 py-3 space-y-3"
                 >
-                  <div>
-                    <p className="font-medium">{course.title}</p>
-                    <p className="text-xs text-muted">{formatPrice(shown)}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FormatSelect
-                      formats={course.formats ?? []}
-                      value={format}
-                      onChange={(f) => setSelectedFormats((prev) => ({...prev, [course.course_id]: f}))}
-                    />
-                    <TierSelect
-                      tiers={tiers}
-                      value={tierId ?? null}
-                      onChange={(id) => setSelectedTiers((prev) => ({...prev, [course.course_id]: id}))}
-                    />
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-medium">{course.title}</p>
+                      <p className="text-xs text-muted">{formatPrice(shown)}</p>
+                    </div>
                     <Button
                       size="sm"
                       loading={pendingId === course.course_id}
@@ -130,6 +120,17 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
                       Enroll
                     </Button>
                   </div>
+                  <FormatSelect
+                    formats={course.formats ?? []}
+                    value={format}
+                    onChange={(f) => setSelectedFormats((prev) => ({...prev, [course.course_id]: f}))}
+                  />
+                  <TierCards
+                    groupId={course.course_id}
+                    tiers={tiers}
+                    value={tierId ?? null}
+                    onChange={(id) => setSelectedTiers((prev) => ({...prev, [course.course_id]: id}))}
+                  />
                 </li>
               );
             })}
@@ -148,23 +149,13 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
               return (
                 <li
                   key={program.program_id}
-                  className="flex items-center justify-between rounded-lg border border-muted/20 px-4 py-3"
+                  className="rounded-lg border border-muted/20 px-4 py-3 space-y-3"
                 >
-                  <div>
-                    <p className="font-medium">{program.exam_name || program.subject_name}</p>
-                    <p className="text-xs text-muted">{formatPrice(shown)}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FormatSelect
-                      formats={program.formats ?? []}
-                      value={format}
-                      onChange={(f) => setSelectedFormats((prev) => ({...prev, [program.program_id]: f}))}
-                    />
-                    <TierSelect
-                      tiers={tiers}
-                      value={tierId ?? null}
-                      onChange={(id) => setSelectedTiers((prev) => ({...prev, [program.program_id]: id}))}
-                    />
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-medium">{program.exam_name || program.subject_name}</p>
+                      <p className="text-xs text-muted">{formatPrice(shown)}</p>
+                    </div>
                     <Button
                       size="sm"
                       loading={pendingId === program.program_id}
@@ -173,6 +164,17 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
                       Register
                     </Button>
                   </div>
+                  <FormatSelect
+                    formats={program.formats ?? []}
+                    value={format}
+                    onChange={(f) => setSelectedFormats((prev) => ({...prev, [program.program_id]: f}))}
+                  />
+                  <TierCards
+                    groupId={program.program_id}
+                    tiers={tiers}
+                    value={tierId ?? null}
+                    onChange={(id) => setSelectedTiers((prev) => ({...prev, [program.program_id]: id}))}
+                  />
                 </li>
               );
             })}

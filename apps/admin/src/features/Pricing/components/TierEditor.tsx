@@ -8,9 +8,13 @@ import type {ApiTierSet} from "../services/locations.service";
 import {pricingErrorMessage} from "../services/pricing.service";
 import {Section} from "./Fields";
 
+/** The most the API accepts for a tier's buyer-facing line. */
+const MAX_DESCRIPTION = 160;
+
 interface TierRow {
   tier_id: string;
   name: string;
+  description: string;
   multiplier: string;
   sharePct: string;
   is_default: boolean;
@@ -48,6 +52,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
     tierSet.tiers.map((t) => ({
       tier_id: t.tier_id,
       name: t.name,
+      description: t.description ?? "",
       multiplier: String(Number(t.multiplier)),
       sharePct: fractionToPct(t.expected_sales_share),
       is_default: t.is_default,
@@ -65,6 +70,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
     const errors: Record<string, string> = {};
     rows.forEach((r) => {
       if (!r.name.trim()) errors[r.tier_id] = "Name the tier";
+      else if (r.description.trim().length > MAX_DESCRIPTION) errors[r.tier_id] = `Keep the buyer-facing line under ${MAX_DESCRIPTION} characters`;
       else if (!DECIMAL.test(r.multiplier) || Number(r.multiplier) <= 0 || Number(r.multiplier) > 5 || decimals(r.multiplier) > 3)
         errors[r.tier_id] = "Multiplier must be above 0 and at most 5, up to 3 decimals";
       else if (!DECIMAL.test(r.sharePct) || Number(r.sharePct) > 100 || decimals(r.sharePct) > 3)
@@ -87,6 +93,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
       const t = tierSet.tiers.find((x) => x.tier_id === r.tier_id)!;
       return (
         r.name.trim() === t.name &&
+        r.description.trim() === (t.description ?? "") &&
         Number(r.multiplier) === Number(t.multiplier) &&
         pctToFraction(r.sharePct) === pctToFraction(fractionToPct(t.expected_sales_share)) &&
         r.is_default === t.is_default
@@ -115,6 +122,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
         tiers: rows.map((r) => ({
           tier_id: r.tier_id,
           name: r.name.trim(),
+          description: r.description.trim(),
           multiplier: r.multiplier,
           expected_sales_share: pctToFraction(r.sharePct),
           is_default: r.is_default,
@@ -138,7 +146,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="text-xs uppercase tracking-wide text-neutral-400">
-              <th className="pb-2 pr-3 font-medium">Tier</th>
+              <th className="pb-2 pr-3 font-medium">Tier and the line buyers see</th>
               <th className="pb-2 pr-3 font-medium">Multiplier</th>
               <th className="pb-2 pr-3 font-medium">Expected share of sales</th>
               <th className="pb-2 font-medium">Default</th>
@@ -149,6 +157,12 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
               <tr key={r.tier_id} className="align-top">
                 <td className="py-1.5 pr-3">
                   <input aria-label="Tier name" value={r.name} onChange={(e) => update(r.tier_id, {name: e.target.value})} className={`${input} min-w-44`} />
+                  <input aria-label={`Line shown to buyers for ${r.name}`} value={r.description} maxLength={MAX_DESCRIPTION + 40}
+                    placeholder="Shown to buyers, e.g. The standard price for most students"
+                    onChange={(e) => update(r.tier_id, {description: e.target.value})} className={`${input} mt-1.5 min-w-44 font-normal`} />
+                  <p className={`mt-0.5 text-[11px] ${r.description.length > MAX_DESCRIPTION ? "text-red-600" : "text-neutral-400"}`}>
+                    {r.description.length}/{MAX_DESCRIPTION}
+                  </p>
                   {rowErrors[r.tier_id] && <p className="mt-1 text-xs text-red-600">{rowErrors[r.tier_id]}</p>}
                 </td>
                 <td className="py-1.5 pr-3">
@@ -181,7 +195,8 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
         </table>
       </div>
       <p className="text-xs text-neutral-500">
-        The default tier is used for any checkout where no tier is chosen.
+        The default tier is used for any checkout where no tier is chosen. Every tier gets the same course, so the line should say who the
+        price is for, not what it includes. It shows beside the price at checkout and takes effect as soon as you save, with no republish.
       </p>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -211,7 +226,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
             Why is under-recovering costs deliberate?
           </label>
           <textarea id="below-cost-reason" rows={2} value={belowCostReason} onChange={(e) => setBelowCostReason(e.target.value)}
-            placeholder="e.g. Growth investment in emerging cities for the first two terms"
+            placeholder="e.g. Growth investment in lower tiers for the first two terms"
             className="rounded-xl border border-amber-200 p-3 text-sm outline-none focus:border-violet-500" />
         </div>
       )}
