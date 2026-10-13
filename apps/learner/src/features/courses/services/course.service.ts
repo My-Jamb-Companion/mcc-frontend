@@ -6,6 +6,8 @@ export interface ApiTierPrice {
   tier_id: string;
   tier_name: string;
   price: number | string;
+  /** Admin-written line saying who this price is for. Empty when none. */
+  description?: string;
 }
 
 export interface ApiCourse {
@@ -68,7 +70,7 @@ export interface ApiCourseContentRow {
 /**
  * Endpoint: GET /courses/ (public catalogue)
  *
- * Prices are this student's city tier price, so the request waits for the
+ * Prices can depend on the signed-in student's own access, so the request waits for the
  * session's token rather than going out as a visitor's on a fresh page load.
  * search/category_id/level are all optional and independent -- omitting
  * all three is the full unfiltered catalogue, same as calling with no args.
