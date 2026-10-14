@@ -13,6 +13,10 @@ export type FormValues = {
   purpose: string[];
   purposeOther: string;
   selectedItems: SelectedOnboardingItem[];
+  /** YYYY-MM-DD. Decides whether the student is a child who needs a guardian's consent. */
+  dateOfBirth: string;
+  /** Only asked when the student is under 18. */
+  guardianEmail: string;
 };
 
 // Shared types
@@ -44,7 +48,17 @@ export type SelectField = BaseField & {
   default?: string;
 };
 
-export type Field = TextField | SelectField;
+/** Date of birth. Not shown when a parent already recorded it. */
+export type DateOfBirthField = BaseField & {
+  inputType: "date-of-birth";
+};
+
+/** A parent or guardian's email, shown only once the date of birth says the student is under 18. */
+export type GuardianEmailField = BaseField & {
+  inputType: "guardian-email";
+};
+
+export type Field = TextField | SelectField | DateOfBirthField | GuardianEmailField;
 
 // ---- Step Types ----
 export type MixedStep = {

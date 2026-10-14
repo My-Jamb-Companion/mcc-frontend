@@ -17,7 +17,7 @@ export const SignUpForm = () => {
   const signup = useSignupParentAndChild();
   const [submitted, setSubmitted] = useState<{ parentEmail: string } | null>(null);
   const { register, control, handleSubmit, formState, watch } = useForm<ParentChildSignupInput>({
-    defaultValues: { relationship: "parent" },
+    defaultValues: { relationship: "parent", guardian_consent: false },
   });
 
   const onSubmit = (data: ParentChildSignupInput) => {
@@ -109,6 +109,29 @@ export const SignUpForm = () => {
         })}
         errors={formState.errors.child_password}
       />
+      <FormInputs
+        label="Child's date of birth"
+        type="text"
+        inputProps={{ type: "date", max: new Date().toISOString().slice(0, 10) }}
+        registration={register("child_date_of_birth", { required: "Required" })}
+        errors={formState.errors.child_date_of_birth}
+      />
+
+      <label className="flex items-start gap-2 text-sm">
+        <input
+          type="checkbox"
+          className="mt-1 accent-primary"
+          {...register("guardian_consent", { validate: (v) => v === true || "You need to give your consent to continue" })}
+        />
+        <span>
+          I am this child&apos;s parent or legal guardian. I consent to them using My Course Companion and to their
+          information being used as described in the{" "}
+          <LegalLink doc="privacy">Privacy Policy</LegalLink>.
+        </span>
+      </label>
+      {formState.errors.guardian_consent && (
+        <p role="alert" className="text-xs text-red-500">{formState.errors.guardian_consent.message}</p>
+      )}
 
       {signup.isError && (
         <p className="text-red-500 text-sm text-center">

@@ -1,5 +1,9 @@
 import {useFormContext} from "@mcc/features";
+import {useConsentState} from "@/src/features/consent/hooks/useConsent";
+import {isPlausibleDob, isUnder18} from "@/src/features/consent/helper/age";
 import {FormStep, SelectedOnboardingItem} from "../types/formTypes";
+
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function StepNavigation({
   step,
@@ -15,6 +19,8 @@ export function StepNavigation({
   back: () => void;
 }) {
   const {trigger, watch} = useFormContext();
+  const {data: consent} = useConsentState();
+  const ageKnown = Boolean(consent?.age_known);
   // Subscribes this component to every field change (not just tile
   // selections) so isStepValid re-evaluates live as the student types --
   // getValues() alone is a one-off snapshot with no reactivity, which left
@@ -27,7 +33,9 @@ export function StepNavigation({
     let fields: string[] = [];
 
     if (currentStep.inputType === "mixed") {
-      fields = currentStep.fields.map((f) => f.id);
+      fields = currentStep.fields
+        .filter((f) => !(ageKnown && f.inputType === "date-of-birth"))
+        .map((f) => f.id);
     }
 
     if (currentStep.inputType === "tile-multi") {
@@ -53,6 +61,15 @@ export function StepNavigation({
   const isStepValid = (() => {
     if (currentStep.inputType === "mixed") {
       return currentStep.fields.every((f) => {
+        // The date of birth is real and, for a child, a guardian's email is given. Neither is asked when a
+        // parent already recorded the age.
+        if (f.inputType === "date-of-birth") {
+          return ageKnown || isPlausibleDob(values[f.id] ?? "");
+        }
+        if (f.inputType === "guardian-email") {
+          if (ageKnown || !isUnder18(values.dateOfBirth ?? "")) return true;
+          return EMAIL.test((values[f.id] ?? "").trim());
+        }
         if (f.validation?.required) {
           return values[f.id];
         }

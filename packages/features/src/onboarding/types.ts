@@ -6,6 +6,10 @@ export interface OnboardingPayload {
   referral_source_other?: string;
   purpose: string[];
   purpose_other?: string;
+  /** YYYY-MM-DD; needed unless a parent already recorded it. */
+  date_of_birth?: string;
+  /** Needed when the student is under 18 and no parent created the account. */
+  guardian_email?: string;
 }
 
 export interface OnboardingResponseData {

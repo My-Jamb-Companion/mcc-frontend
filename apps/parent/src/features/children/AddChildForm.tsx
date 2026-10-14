@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Controller, FormInputs, useForm } from "@mcc/features";
-import { Button } from "@mcc/ui";
+import { Button, LegalLink } from "@mcc/ui";
 import { extractApiError } from "@mcc/api";
 import { useAddChild } from "./useChildren";
 import { AddChildInput } from "./children.service";
@@ -18,7 +18,7 @@ export const AddChildForm = () => {
   const router = useRouter();
   const addChild = useAddChild();
   const { register, control, handleSubmit, formState } = useForm<AddChildInput>({
-    defaultValues: { relationship: "parent" },
+    defaultValues: { relationship: "parent", guardian_consent: false },
   });
 
   const onSubmit = (data: AddChildInput) => {
@@ -48,6 +48,13 @@ export const AddChildForm = () => {
         })}
         errors={formState.errors.child_password}
       />
+      <FormInputs
+        label="Child's date of birth"
+        type="text"
+        inputProps={{ type: "date", max: new Date().toISOString().slice(0, 10) }}
+        registration={register("child_date_of_birth", { required: "Required" })}
+        errors={formState.errors.child_date_of_birth}
+      />
       <Controller
         name="relationship"
         control={control}
@@ -62,6 +69,21 @@ export const AddChildForm = () => {
           />
         )}
       />
+
+      <label className="flex items-start gap-2 text-sm">
+        <input
+          type="checkbox"
+          className="mt-1 accent-primary"
+          {...register("guardian_consent", { validate: (v) => v === true || "You need to give your consent to continue" })}
+        />
+        <span>
+          I am this child&apos;s parent or legal guardian. I consent to them using My Course Companion and to their
+          information being used as described in the <LegalLink doc="privacy">Privacy Policy</LegalLink>.
+        </span>
+      </label>
+      {formState.errors.guardian_consent && (
+        <p role="alert" className="text-xs text-red-500">{formState.errors.guardian_consent.message}</p>
+      )}
 
       <p className="text-xs text-muted">
         This creates a new account for your child, ready to use straight away. The email must not already be

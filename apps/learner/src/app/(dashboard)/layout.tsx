@@ -8,6 +8,7 @@ import Header from "@/src/features/dashboard/components/header/Header";
 import SideNav from "@/src/features/components/SideNav";
 import Help from "@/src/features/dashboard/components/Help";
 import {useIsMobile} from "@/src/features/hooks/isMobile";
+import {ConsentBanner} from "@/src/features/consent/components/ConsentBanner";
 
 export default function DashboardLayout({
   children,
@@ -39,6 +40,7 @@ export default function DashboardLayout({
     <RoleLayout allowedRoles={["student"]}>
       <div className="flex flex-col h-screen scrollbar-hide">
         <Header open={sideNav} setOpen={setSideNav} />
+        <ConsentBanner />
 
         {isClassroom && !isMobile ? (
           <section className="flex-1 overflow-y-scroll">{children}</section>
