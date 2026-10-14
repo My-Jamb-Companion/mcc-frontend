@@ -46,7 +46,7 @@ export const QueueList = () => {
               <div>
                 <p className="font-medium">{item.student_name ?? item.student_email}</p>
                 <p className="text-sm text-muted">
-                  {item.subject_name ?? item.purpose} · {formatLabel(item.live_format)} · {formatScheduledAt(item.onboarding_scheduled_at)}
+                  {item.subject_name ?? item.purpose} · {formatLabel(item.live_format, item.is_paid)} · {formatScheduledAt(item.onboarding_scheduled_at)}
                 </p>
                 {item.onboarding_meeting_url && (
                   <a
