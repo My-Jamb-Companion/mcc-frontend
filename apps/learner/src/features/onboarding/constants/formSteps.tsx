@@ -39,6 +39,18 @@ export const formSteps: FormSteps = [
         default: "undergrad",
         validation: {},
       },
+      {
+        id: "dateOfBirth",
+        inputType: "date-of-birth",
+        question: "Date of birth",
+        validation: {required: "Please enter your date of birth"},
+      },
+      {
+        id: "guardianEmail",
+        inputType: "guardian-email",
+        question: "Parent or guardian's email",
+        validation: {},
+      },
     ],
   },
   {

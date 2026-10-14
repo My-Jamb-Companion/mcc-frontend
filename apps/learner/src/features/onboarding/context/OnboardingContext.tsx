@@ -13,6 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useOnboarding, OnboardingPayload } from "@mcc/features";
 import { useAuthStore } from "@mcc/store";
 import { extractApiError, USER_KEY } from "@mcc/api";
+import { isUnder18 } from "@/src/features/consent/helper/age";
 import { formSteps } from "../constants/formSteps";
 import { FormValues, SelectedOnboardingItem } from "../types/formTypes";
 import { enrollCourse, initializeCoursePayment } from "@/src/features/courses/services/course.service";
@@ -81,6 +82,9 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         referral_source_other: data.referral.includes("other") ? data.referralOther : undefined,
         purpose: data.purpose,
         purpose_other: data.purpose.includes("other") ? data.purposeOther : undefined,
+        // Empty when a parent already recorded it, so the server keeps what it has.
+        date_of_birth: data.dateOfBirth || undefined,
+        guardian_email: data.dateOfBirth && isUnder18(data.dateOfBirth) ? data.guardianEmail.trim() || undefined : undefined,
       };
       const response = await completeMutation.mutateAsync(payload);
       if (user) {
@@ -88,6 +92,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         setUser(updated);
         localStorage.setItem(USER_KEY, JSON.stringify(updated));
       }
+      // The age (and any guardian request) just changed; the dashboard banner reads it.
+      queryClient.invalidateQueries({ queryKey: ["consent"] });
       queryClient.invalidateQueries({ queryKey: ["courses", "enrolled"] });
       queryClient.invalidateQueries({ queryKey: ["exam-programs", "enrolled"] });
       try {
