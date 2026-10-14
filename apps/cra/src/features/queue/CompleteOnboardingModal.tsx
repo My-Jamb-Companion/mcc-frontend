@@ -44,7 +44,7 @@ export function CompleteOnboardingModal({
     completeOnboarding.mutate(
       {
         assignmentId: item.assignment_id,
-        payload: !needsWeeklySlot(item.live_format) ? {} : {
+        payload: !needsWeeklySlot(item.live_format, item.is_paid) ? {} : {
           weekly_day_of_week: Number(data.weekly_day_of_week),
           weekly_start_time: data.weekly_start_time,
           duration_minutes: Number(data.duration_minutes) || 60,
@@ -59,11 +59,11 @@ export function CompleteOnboardingModal({
       {item && (
         <div className="space-y-4">
           <p className="text-sm text-muted">
-            {onboardingBlurb(item.live_format, item.student_name ?? item.student_email)}
+            {onboardingBlurb(item.live_format, item.student_name ?? item.student_email, item.is_paid)}
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {needsWeeklySlot(item.live_format) && (
+            {needsWeeklySlot(item.live_format, item.is_paid) && (
               <>
             <Controller
               name="weekly_day_of_week"

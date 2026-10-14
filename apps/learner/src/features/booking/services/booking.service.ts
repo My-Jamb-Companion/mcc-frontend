@@ -14,6 +14,8 @@ export interface ApiAssignmentStatus {
   series_id?: string | null;
   /** What the student bought: self_paced, group or one_to_one. Null for older or free enrolments. */
   live_format?: "self_paced" | "group" | "one_to_one" | null;
+  /** False for a free enrolment, which has no live teaching. Absent from an older backend. */
+  is_paid?: boolean;
   created_at: string;
   updated_at: string;
 }

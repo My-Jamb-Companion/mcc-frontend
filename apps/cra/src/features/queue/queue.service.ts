@@ -11,6 +11,8 @@ export interface QueueItem {
   onboarding_scheduled_at: string | null;
   /** What the student bought. Null for a purchase from before live-teaching formats. */
   live_format: "self_paced" | "group" | "one_to_one" | null;
+  /** False for a free enrolment, which is never matched with a teacher. Absent from an older backend. */
+  is_paid?: boolean;
 }
 
 /** The weekly slot is only for a 1-to-1 student; self-paced and group students need none. */
