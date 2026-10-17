@@ -149,7 +149,7 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
 
       <BookingSection purpose="exam" targetId={programId} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_22rem] gap-6 px-4 pb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_22rem] gap-6 px-4 pb-8">
         <div className="min-w-0">
           {isLoading ? (
             <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
