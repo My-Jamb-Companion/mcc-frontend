@@ -188,7 +188,7 @@ export default function CourseContent({
       <BookingSection purpose="course" targetId={courseId} />
 
       <div
-        className={`grid grid-cols-1 ${isSidePanelOpen ? "lg:grid-cols-[1fr_.1fr]" : "lg:grid-cols-[1fr_2rem]"} gap-6 transition-[grid-template-columns] duration-400 ease-in-out`}
+        className={`grid grid-cols-1 ${isSidePanelOpen ? "lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_20rem]" : "lg:grid-cols-[minmax(0,1fr)_2rem]"} gap-6 transition-[grid-template-columns] duration-400 ease-in-out`}
       >
         <motion.div layout transition={{type: "spring", stiffness: 120, damping: 20}} className="min-w-0 pb-8">
           <div className="w-full min-w-0 overflow-hidden">
@@ -394,7 +394,7 @@ export default function CourseContent({
           ) : (
             <motion.div
               key="side-panel"
-              className="w-full min-w-fit md:max-w-80 max-sm:w-full pt-6 px-1 lg:flex flex-col rounded-xl overflow-hidden bg-background h-fit hidden"
+              className="w-full min-w-0 max-w-full pt-6 px-1 lg:flex flex-col rounded-xl overflow-hidden bg-background h-fit hidden"
               initial={{opacity: 0, x: 40}}
               animate={{opacity: 1, x: 0}}
               exit={{opacity: 0, x: 40}}
