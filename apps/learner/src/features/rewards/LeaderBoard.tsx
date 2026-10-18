@@ -51,9 +51,9 @@ export default function Leaderboard() {
   return (
     <div className="mx-auto max-w-6xl  p-8 max-md:p-0">
       {/* Heading */}
-      <h2 className="font-semibold text-gray-800">My Ranking.</h2>
+      <h2 className="font-semibold text-foreground">My Ranking.</h2>
 
-      <div className="mt-4 h-px bg-gray-200 mb-6" />
+      <div className="mt-4 h-px bg-muted/20 mb-6" />
 
       {/* Top Card */}
       <div className="flex items-center">
@@ -70,7 +70,7 @@ export default function Leaderboard() {
 
         <div className="relative flex w-full items-center justify-between h-[95px] md:h-[112px] bg-[#121A22] px-4 pr-7 py-5  rounded-r-3xl">
           <div>
-            <p className="text-xs uppercase  text-gray-400">
+            <p className="text-xs uppercase  text-muted">
               {mine && mine.rank > 0 ? `${ordinal(mine.rank)} Position` : "Unranked"}
             </p>
 
@@ -82,7 +82,7 @@ export default function Leaderboard() {
           <div className="flex items-center gap-2 text-white text-xs">
             <Coins size={14} className="text-yellow-400" />
             <span className="font-semibold">{mine?.total_score ?? 0}</span>
-            <span className="text-gray-400">points</span>
+            <span className="text-muted">points</span>
           </div>
         </div>
       </div>
@@ -91,13 +91,13 @@ export default function Leaderboard() {
         <div className="mt-6 flex items-center gap-3 rounded-2xl border border-yellow-200 bg-yellow-50 px-4 py-3">
           <Trophy size={20} className="shrink-0 text-yellow-500" />
           <div>
-            <p className="text-sm font-medium text-gray-800">{status.status_message}</p>
+            <p className="text-sm font-medium text-foreground">{status.status_message}</p>
             {status.can_claim ? (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-subtle">
                 Your weekly prize of {status.prize_gems} gems is ready: claim it on the Rewards tab.
               </p>
             ) : (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-subtle">
                 Finish the week in the top {Math.round(100 - (status.min_percentile ?? 60))}% to win {status.prize_gems} gems.
               </p>
             )}
@@ -112,7 +112,7 @@ export default function Leaderboard() {
         <button
           onClick={() => setRulesOpen((v) => !v)}
           aria-expanded={rulesOpen}
-          className="flex items-center gap-2 text-gray-500 hover:text-gray-700"
+          className="flex items-center gap-2 text-subtle hover:text-foreground"
         >
           How points work
           <ChevronDown size={16} className={rulesOpen ? "rotate-180" : ""} />
@@ -121,7 +121,7 @@ export default function Leaderboard() {
 
       {/* Filters */}
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <div className="flex rounded-full border border-gray-200 p-0.5" role="group" aria-label="Time period">
+        <div className="flex rounded-full border border-muted/20 p-0.5" role="group" aria-label="Time period">
           {PERIODS.map((p) => (
             <button
               key={p.value}
@@ -129,7 +129,7 @@ export default function Leaderboard() {
               aria-pressed={filters.period === p.value}
               onClick={() => setFilters((f) => ({...f, period: p.value}))}
               className={`rounded-full px-3 py-1 text-xs font-medium ${
-                filters.period === p.value ? "bg-gray-900 text-white" : "text-gray-500 hover:text-gray-800"
+                filters.period === p.value ? "bg-gray-900 text-white" : "text-subtle hover:text-foreground"
               }`}
             >
               {p.label}
@@ -141,7 +141,7 @@ export default function Leaderboard() {
           aria-label="Location"
           value={filters.scope}
           onChange={(e) => setFilters((f) => ({...f, scope: e.target.value as LeaderboardFilters["scope"]}))}
-          className="rounded-full border border-gray-200 bg-transparent px-3 py-1.5 text-xs font-medium text-gray-700"
+          className="rounded-full border border-muted/20 bg-transparent px-3 py-1.5 text-xs font-medium text-foreground"
         >
           {SCOPES.map((s) => (
             <option key={s.value} value={s.value}>
@@ -155,7 +155,7 @@ export default function Leaderboard() {
             aria-label="Program"
             value={filters.programId ?? ""}
             onChange={(e) => setFilters((f) => ({...f, programId: e.target.value || undefined}))}
-            className="max-w-[220px] rounded-full border border-gray-200 bg-transparent px-3 py-1.5 text-xs font-medium text-gray-700"
+            className="max-w-[220px] rounded-full border border-muted/20 bg-transparent px-3 py-1.5 text-xs font-medium text-foreground"
           >
             <option value="">All programs</option>
             {programs?.map((p) => (
@@ -168,11 +168,11 @@ export default function Leaderboard() {
       </div>
 
       {rulesOpen && rules && (
-        <ul className="mt-4 space-y-2 rounded-2xl border border-gray-200 bg-white p-4">
+        <ul className="mt-4 space-y-2 rounded-2xl border border-muted/20 bg-background p-4">
           {Object.entries(rules).map(([key, points]) => (
             <li key={key} className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">{RULE_LABEL[key] ?? key.replace(/_/g, " ")}</span>
-              <span className="flex items-center gap-1 font-semibold text-gray-800">
+              <span className="text-subtle">{RULE_LABEL[key] ?? key.replace(/_/g, " ")}</span>
+              <span className="flex items-center gap-1 font-semibold text-foreground">
                 <Coins size={14} className="text-yellow-400" />
                 {points}
               </span>
@@ -184,13 +184,13 @@ export default function Leaderboard() {
       {/* List */}
       <div className="mt-8 space-y-5">
         {isLoading && (
-          <p className="text-sm text-gray-400 text-center py-8">Loading leaderboard…</p>
+          <p className="text-sm text-muted text-center py-8">Loading leaderboard…</p>
         )}
         {isError && (
           <p className="text-sm text-red-500 text-center py-8">Couldn&apos;t load the leaderboard. Please try again.</p>
         )}
         {!isLoading && !isError && entries.length === 0 && (
-          <p className="text-sm text-gray-400 text-center py-8">
+          <p className="text-sm text-muted text-center py-8">
             {filters.scope === "everyone"
               ? "No leaderboard activity yet."
               : `Nobody to show for this view yet. Check your ${filters.scope} is set in your account.`}
@@ -201,7 +201,7 @@ export default function Leaderboard() {
             key={`${user.rank}-${user.user}`}
             aria-current={user.is_me ? "true" : undefined}
             className={`flex items-center justify-between rounded-full border p-2 shadow-sm transition hover:shadow-md ${
-              user.is_me ? "border-violet-300 bg-violet-50" : "border-gray-200 bg-white"
+              user.is_me ? "border-violet-300 bg-violet-50" : "border-muted/20 bg-background"
             }`}
           >
             <div className="flex items-center gap-4">
@@ -211,19 +211,19 @@ export default function Leaderboard() {
                 className="h-12 w-12 rounded-full bg-indigo-500"
               />
 
-              <span className="md:text-lg font-semibold text-gray-800">
+              <span className="md:text-lg font-semibold text-foreground">
                 {user.user}
                 {user.is_me && <span className="ml-2 rounded-full bg-violet-600 px-2 py-0.5 align-middle text-[10px] font-semibold text-white">You</span>}
               </span>
             </div>
 
             <div className="flex items-center gap-8">
-              <div className="flex items-center gap-2 text-gray-600 text-xs font-semibold">
+              <div className="flex items-center gap-2 text-subtle text-xs font-semibold">
                 <Coins size={14} className="text-yellow-400" />
                 <span>{user.score}</span>
               </div>
 
-              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-gray-200 text-lg font-bold">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-muted/20 text-lg font-bold">
                 {user.rank}
               </div>
             </div>

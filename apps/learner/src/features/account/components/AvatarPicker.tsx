@@ -21,10 +21,10 @@ export default function AvatarPicker({
 
   return (
     <div className="lg:block">
-      <p className="mb-3 text-sm text-gray-500">You can also select avatars</p>
+      <p className="mb-3 text-sm text-subtle">You can also select avatars</p>
 
       <div className="flex items-center gap-2">
-        <button type="button" onClick={() => scroll(-1)} aria-label="Previous avatars" className="text-gray-400 hover:text-gray-600">
+        <button type="button" onClick={() => scroll(-1)} aria-label="Previous avatars" className="text-muted hover:text-foreground">
           <Icon icon="mdi:chevron-left" />
         </button>
 
@@ -45,7 +45,7 @@ export default function AvatarPicker({
           ))}
         </div>
 
-        <button type="button" onClick={() => scroll(1)} aria-label="More avatars" className="text-gray-400 hover:text-gray-600">
+        <button type="button" onClick={() => scroll(1)} aria-label="More avatars" className="text-muted hover:text-foreground">
           <Icon icon="mdi:chevron-right" />
         </button>
       </div>

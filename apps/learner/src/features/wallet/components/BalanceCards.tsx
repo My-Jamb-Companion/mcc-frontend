@@ -33,7 +33,7 @@ export default function BalanceCards({balance}: {balance?: ApiWalletBalance}) {
       <Card icon="solar:medal-star-bold" label="Points" value={b.points} accent="bg-amber-50 text-amber-600">
         <p className="text-[11px] text-subtle">Earned from quizzes, lessons and goals</p>
       </Card>
-      <Card icon="solar:cup-star-bold" label="Silver" value={b.silver} accent="bg-slate-100 text-slate-600">
+      <Card icon="solar:cup-star-bold" label="Silver" value={b.silver} accent="bg-muted/10 text-subtle">
         <p className="text-[11px] text-subtle">From streak milestones</p>
       </Card>
     </div>

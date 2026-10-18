@@ -13,7 +13,7 @@ export default function LiveClassCard({
   const {h, m, s} = useCountdown(scheduledAt);
 
   return (
-    <div className="relative w-full rounded-2xl bg-[#ECEEF1] overflow-hidden">
+    <div className="relative w-full rounded-2xl bg-[#ECEEF1] dark:bg-white/5 overflow-hidden">
       <div className="absolute right-0 top-0 h-full w-56 pointer-events-none">
         <img
           src={instructorImage}
@@ -34,7 +34,7 @@ export default function LiveClassCard({
             alt="course thumbnail"
             className="w-12 h-12 rounded-xl border border-muted/50 bg-amber-200 object-cover shrink-0"
           />
-          <p className="text-sm font-semibold text-[#1a2332] leading-snug pt-0.5">
+          <p className="text-sm font-semibold text-foreground leading-snug pt-0.5">
             {title}
           </p>
         </div>
@@ -75,7 +75,7 @@ export default function LiveClassCard({
 
           <button
             onClick={onJoin}
-            className="rounded-2xl p-5 bg-white flex items-center justify-center shrink-0 hover:scale-105 transition-transform cursor-pointer active:scale-95 focus:outline-primary"
+            className="rounded-2xl p-5 bg-background flex items-center justify-center shrink-0 hover:scale-105 transition-transform cursor-pointer active:scale-95 focus:outline-primary"
           >
             <Icon icon="octicon:play-24" size={16} />
           </button>

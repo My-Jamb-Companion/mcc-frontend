@@ -37,6 +37,20 @@
 .dark {
   --background: #0a0a0a;
   --foreground: #ededed;
+  /* The light values of these are dark greys and a deep purple, which vanish on the dark background. */
+  --subtle: #b6b6c0;
+  --muted: #8d8d99;
+  --hint: rgba(228, 228, 231, 0.35);
+  --primary: #8b5dff;
+}
+
+/* iOS Safari zooms the page in when an input under 16px takes focus, and leaves it zoomed. */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
 }
 
 @layer utilities {

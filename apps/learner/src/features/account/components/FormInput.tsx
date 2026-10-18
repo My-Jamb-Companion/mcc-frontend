@@ -30,7 +30,7 @@ const FormInputs = ({
           type={
             inputType == "password" ? (show ? "text" : "password") : inputType
           }
-          className={`flex h-9 w-full px-3 py-1 bg-transparent text-sm font-normal text-black ${inputStyle}`}
+          className={`flex h-9 w-full px-3 py-1 bg-transparent text-sm font-normal text-foreground ${inputStyle}`}
           placeholder={placeholder}
           onChange={(e) => setValue(e.target.value)}
           value={value}

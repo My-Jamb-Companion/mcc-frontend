@@ -20,15 +20,15 @@ export default function BrainyFeatureCard({
       transition={{type: "spring", stiffness: 400, damping: 28}}
       className={[
         "relative flex flex-1 flex-col items-start gap-3 rounded-2xl border bg-white dark:bg-subtle/10 shadow-md p-4 text-left",
-        "border-gray-200 shadow-sm",
+        "border-muted/20 shadow-sm",
         isDisabled
           ? "cursor-default opacity-90"
-          : "cursor-pointer hover:border-gray-300 hover:shadow-md",
+          : "cursor-pointer hover:border-muted/30 hover:shadow-md",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2",
       ].join(" ")}
     >
       <div className="flex w-full items-start justify-between">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-100 bg-gray-50">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-muted/20 bg-muted/10">
           <Icon icon={feature.icon} className="h-4.5 w-4.5 text-purple-600" />
         </span>
 
@@ -41,8 +41,8 @@ export default function BrainyFeatureCard({
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold text-gray-900">{feature.title}</h3>
-        <p className="mt-1 text-sm leading-snug text-gray-500">
+        <h3 className="text-sm font-semibold text-foreground">{feature.title}</h3>
+        <p className="mt-1 text-sm leading-snug text-subtle">
           {feature.description}
         </p>
       </div>

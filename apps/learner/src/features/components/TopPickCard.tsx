@@ -45,14 +45,14 @@ export default function TopPickCard({
 
       <div className="flex flex-col justify-center gap-6 flex-1 min-w-0  w-full max-w-145">
         <div className="flex flex-col gap-1">
-          <h3 className="text-lg font-bold text-[#1a2332]">{title}</h3>
-          <p className="text-sm text-gray-500 leading-snug line-clamp-2">
+          <h3 className="text-lg font-bold text-foreground">{title}</h3>
+          <p className="text-sm text-subtle leading-snug line-clamp-2">
             {description}
           </p>
         </div>
 
         <div className="flex items-stretch gap-3">
-          <div className="flex items-center gap-4 border border-gray-200 rounded-xl flex-1">
+          <div className="flex items-center gap-4 border border-muted/20 rounded-xl flex-1">
             {isPremium && (
               <div className="flex flex-col items-center justify-center gap-1 bg-primary text-white rounded-tl-xl rounded-bl-xl px-6 py-3.5 shrink-0">
                 <Icon icon="bitcoin-icons:verify-outline" size={23} />
@@ -79,7 +79,7 @@ export default function TopPickCard({
               <span className="text-xs text-subtle">{ratingCount} ratings</span>
             </div>
 
-            <div className="w-px h-full bg-gray-200 shrink-0" />
+            <div className="w-px h-full bg-muted/20 shrink-0" />
 
             <div className="flex flex-col gap-0.5">
               <div className="flex items-center gap-1">
@@ -96,11 +96,11 @@ export default function TopPickCard({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-[#1a2332]">
+          <span className="text-lg font-bold text-foreground">
             {currency}
             {price.toLocaleString()}
           </span>
-          <span className="text-sm text-gray-400 line-through">
+          <span className="text-sm text-muted line-through">
             {currency}
             {originalPrice.toLocaleString()}
           </span>

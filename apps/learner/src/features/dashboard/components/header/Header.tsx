@@ -38,9 +38,9 @@ export default function Header({
 
   return (
     <div
-      className={`w-full flex items-center justify-between py-6.5 px-8 max-sm:px-4 max-sm:py-3 dark:border-b border-b-muted/40  dark:shadow-muted/20 ${isMobile && isBrainy && "hidden!"}`}
+      className={`w-full min-w-0 flex items-center justify-between gap-2 py-6.5 px-8 max-sm:px-4 max-sm:py-3 dark:border-b border-b-muted/40  dark:shadow-muted/20 ${isMobile && isBrainy && "hidden!"}`}
     >
-      <div className="flex items-center gap-4 max-sm:gap-2">
+      <div className="flex min-w-0 items-center gap-4 max-sm:gap-2">
         <button
           onClick={() => setOpen(!open)}
           className="rounded-full border border-muted/30 p-2 sm:hidden shadow-md dark:shadow-muted/20"
@@ -49,10 +49,11 @@ export default function Header({
         </button>
         <Link href="/dashboard" className="text-xl max-sm:text-lg whitespace-nowrap cursor-pointer">
           <span className="text-primary font-bagel">MC. </span>
-          Companion
+          {/* Phones are too narrow for the whole name beside the wallet, bell, theme and log-out buttons. */}
+          <span className="max-[430px]:hidden">Companion</span>
         </Link>
       </div>
-      <div className="flex items-center gap-5 max-sm:gap-3">
+      <div className="flex shrink-0 items-center gap-5 max-sm:gap-1.5">
         <Link
           href="/wallet"
           aria-label={`Wallet: ${balance?.total_points ?? 0} points, ${balance?.total_gems ?? 0} gems`}

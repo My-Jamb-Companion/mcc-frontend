@@ -189,8 +189,8 @@ export default function FlashcardGenerator({source, onBack}: FlashcardGeneratorP
         Back
       </button>
 
-      <h1 className="text-2xl font-bold text-gray-900 sm:text-[28px]">{heading.title}</h1>
-      <p className="mt-2 text-sm text-gray-400">{heading.blurb}</p>
+      <h1 className="text-2xl font-bold text-foreground sm:text-[28px]">{heading.title}</h1>
+      <p className="mt-2 text-sm text-muted">{heading.blurb}</p>
 
       {source === "upload" && <MaterialUpload onExtracted={handleExtracted} />}
       {source === "record" && <LectureRecorder recorder={recorder} />}
@@ -212,7 +212,7 @@ export default function FlashcardGenerator({source, onBack}: FlashcardGeneratorP
             rows={8}
             className="mt-4 w-full resize-y rounded-2xl border-2 border-muted/20 p-4 text-sm outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
           />
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-muted">
             {material.length.toLocaleString()} characters
             {source === "record" && readShots.length > 0
               ? ` · plus ${readShots.length} screenshot${readShots.length === 1 ? "" : "s"}`
@@ -242,7 +242,7 @@ export default function FlashcardGenerator({source, onBack}: FlashcardGeneratorP
                   className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                     index === safePartIndex
                       ? "border-purple-600 bg-purple-600 text-white"
-                      : "border-purple-200 bg-white text-purple-700 hover:border-purple-400"
+                      : "border-purple-200 bg-background text-purple-700 hover:border-purple-400"
                   }`}
                 >
                   {done && <Icon icon="ph:check" size={12} />}
@@ -255,12 +255,12 @@ export default function FlashcardGenerator({source, onBack}: FlashcardGeneratorP
       )}
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <label className="flex flex-col gap-1 text-xs font-medium text-gray-600">
+        <label className="flex flex-col gap-1 text-xs font-medium text-subtle">
           How many cards
           <select
             value={count ?? ""}
             onChange={(e) => setCount(e.target.value ? Number(e.target.value) : undefined)}
-            className="rounded-md border border-muted/20 bg-white p-2 text-sm font-normal text-gray-900 outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+            className="rounded-md border border-muted/20 bg-background p-2 text-sm font-normal text-foreground outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
           >
             {COUNT_OPTIONS.map((option) => (
               <option key={option.label} value={option.value ?? ""}>
@@ -270,7 +270,7 @@ export default function FlashcardGenerator({source, onBack}: FlashcardGeneratorP
           </select>
         </label>
 
-        <fieldset className="flex flex-col gap-1 text-xs font-medium text-gray-600">
+        <fieldset className="flex flex-col gap-1 text-xs font-medium text-subtle">
           <legend className="mb-1">Difficulty</legend>
           <div className="flex gap-1.5">
             {DIFFICULTY_OPTIONS.map((option) => (
@@ -282,7 +282,7 @@ export default function FlashcardGenerator({source, onBack}: FlashcardGeneratorP
                 className={`flex-1 rounded-md border p-2 text-sm font-normal transition-colors ${
                   difficulty === option.value
                     ? "border-purple-600 bg-purple-600 text-white"
-                    : "border-muted/20 bg-white text-gray-700 hover:border-purple-300"
+                    : "border-muted/20 bg-background text-foreground hover:border-purple-300"
                 }`}
               >
                 {option.label}
@@ -316,7 +316,7 @@ export default function FlashcardGenerator({source, onBack}: FlashcardGeneratorP
       {deck.length > 0 && (
         <div className="mt-8">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-900">
+            <h2 className="text-sm font-semibold text-foreground">
               {`${deck.length} flashcard${deck.length === 1 ? "" : "s"}`}
             </h2>
             <button
@@ -327,7 +327,7 @@ export default function FlashcardGenerator({source, onBack}: FlashcardGeneratorP
                 setSavedSetId(null);
                 setNotice(null);
               }}
-              className="text-xs font-medium text-gray-500 hover:text-red-500"
+              className="text-xs font-medium text-subtle hover:text-red-500"
             >
               Clear all
             </button>
@@ -354,7 +354,7 @@ export default function FlashcardGenerator({source, onBack}: FlashcardGeneratorP
             </p>
           ) : (
             <div className="mt-6 space-y-3 rounded-2xl border-2 border-muted/20 p-4">
-              <p className="text-sm font-semibold text-gray-900">Save as a study set</p>
+              <p className="text-sm font-semibold text-foreground">Save as a study set</p>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}

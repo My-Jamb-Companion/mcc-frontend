@@ -136,7 +136,7 @@ export default function WalletHistory() {
             type="button"
             aria-pressed={view === key}
             onClick={() => setView(key)}
-            className={`rounded-full px-4 py-1.5 text-xs font-medium ${view === key ? "border border-muted/30 text-foreground" : "text-gray-400 hover:text-gray-600"}`}
+            className={`rounded-full px-4 py-1.5 text-xs font-medium ${view === key ? "border border-muted/30 text-foreground" : "text-muted hover:text-foreground"}`}
           >
             {label}
           </button>

@@ -78,14 +78,14 @@ export default function MaterialUpload({onExtracted}: MaterialUploadProps) {
           size={28}
           className="text-purple-600"
         />
-        <span className="text-sm font-medium text-gray-900">
+        <span className="text-sm font-medium text-foreground">
           {reading === "photo"
             ? "Reading your photo…"
             : reading === "file"
               ? "Reading your file…"
               : "Drop a file here, or click to choose"}
         </span>
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-subtle">
           PDF, Word (.docx), PowerPoint (.pptx), text, or a photo of your notes
         </span>
         <input
@@ -98,7 +98,7 @@ export default function MaterialUpload({onExtracted}: MaterialUploadProps) {
         />
       </label>
 
-      <p className="mt-2 text-xs text-gray-500">
+      <p className="mt-2 text-xs text-subtle">
         Audio and video files aren&apos;t supported yet. To use a lecture, try{" "}
         <span className="font-medium">Record</span> or paste a transcript. Photos use a little of
         your Brainy allowance; documents are free.

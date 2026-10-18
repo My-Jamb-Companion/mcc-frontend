@@ -106,7 +106,7 @@ export function AssignmentSubjectSelector({
         {eyebrow}
       </span>
 
-      <h1 className="mt-3 text-2xl font-bold text-gray-900 sm:text-[28px]">
+      <h1 className="mt-3 text-2xl font-bold text-foreground sm:text-[28px]">
         {heading}
       </h1>
 
@@ -115,7 +115,7 @@ export function AssignmentSubjectSelector({
           type="button"
           onClick={() => scrollByPill("left")}
           aria-label="Scroll subjects left"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-muted/10 hover:text-foreground"
         >
           <Icon icon="ph:caret-left" className="h-4 w-4" />
         </button>
@@ -141,12 +141,12 @@ export function AssignmentSubjectSelector({
                   "relative flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border px-3.5 py-1.5 text-sm font-medium transition-colors",
                   isActive
                     ? "border-blue-300 bg-blue-50 text-blue-600"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50",
+                    : "border-muted/20 bg-background text-subtle hover:border-muted/30 hover:bg-muted/10",
                 ].join(" ")}
               >
                 <Icon
                   icon={subject.icon}
-                  className={`h-3.5 w-3.5 ${isActive ? "text-blue-500" : "text-gray-400"}`}
+                  className={`h-3.5 w-3.5 ${isActive ? "text-blue-500" : "text-muted"}`}
                 />
                 {subject.label}
               </button>
@@ -158,7 +158,7 @@ export function AssignmentSubjectSelector({
           type="button"
           onClick={() => scrollByPill("right")}
           aria-label="Scroll subjects right"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-muted/10 hover:text-foreground"
         >
           <Icon icon="ph:caret-right" className="h-4 w-4" />
         </button>

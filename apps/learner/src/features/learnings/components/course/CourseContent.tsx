@@ -29,7 +29,8 @@ interface CourseContentProps {
   modules: Module[];
 }
 
-const TABS = ["content", "ai", "overview", "community", "notes", "facilitator"];
+// The order the tabs appear in. Course Content and AI Assistant only show below the lg breakpoint, where the side panel is hidden.
+const TABS = ["overview", "content", "ai", "community", "notes", "facilitator"];
 
 export default function CourseContent({
   courseId,
@@ -304,14 +305,14 @@ export default function CourseContent({
             </div>
           )}
 
-          <div className="flex items-center justify-between my-8">
-            <div className="flex items-center gap-6 p-4 max-lg:overflow-x-auto">
+          <div className="flex min-w-0 items-center justify-between my-8">
+            <div className="flex min-w-0 max-w-full items-center gap-6 p-4 max-lg:overflow-x-auto scrollbar-hide">
               {TABS.map((tab) => (
                 <Button
                   key={tab}
                   variant={activeTab === tab ? "outline" : "ghost"}
                   size="sm"
-                  className={`capitalize text-nowrap  ${activeTab === tab ? "font-bold text-black" : "text-muted"} ${
+                  className={`capitalize text-nowrap  ${activeTab === tab ? "font-bold text-foreground" : "text-muted"} ${
                     tab === "content" || tab === "ai" ? "lg:hidden" : ""
                   }`}
                   width="fit"

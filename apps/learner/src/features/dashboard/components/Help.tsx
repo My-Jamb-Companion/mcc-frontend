@@ -166,7 +166,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
         </div>
 
         <div className="flex items-center gap-5 pl-4">
-          <div className="flex items-center gap-2 text-neutral-600">
+          <div className="flex items-center gap-2 text-subtle">
             <motion.div
               animate={{
                 rotate: open ? 360 : 0,
@@ -196,7 +196,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
               duration: 0.3,
               ease: "easeOut",
             }}
-            className="cursor-pointer text-neutral-500"
+            className="cursor-pointer text-subtle"
             onClick={() => setOpen(!open)}
           >
             <Icon icon="lucide:chevron-down" size={22} />
@@ -277,10 +277,10 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
                             duration: 2,
                             repeat: Infinity,
                           }}
-                          className="h-10 w-10 rounded-full border border-neutral-200 bg-white shadow-sm"
+                          className="h-10 w-10 rounded-full border border-muted/20 bg-background shadow-sm"
                         >
                           <div className="flex h-full w-full items-center justify-center">
-                            <div className="h-5 w-5 rounded-full border border-neutral-300" />
+                            <div className="h-5 w-5 rounded-full border border-muted/30" />
                           </div>
                         </motion.div>
                       ) : step.status === "loading" ? (
@@ -293,12 +293,12 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
                             repeat: Infinity,
                             ease: "linear",
                           }}
-                          className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-sm"
+                          className="flex h-10 w-10 items-center justify-center rounded-full border border-muted/20 bg-background shadow-sm"
                         >
                           <Icon
                             icon="tabler:loader"
                             size={16}
-                            className="text-neutral-500"
+                            className="text-subtle"
                           />
                         </motion.div>
                       ) : (
@@ -389,7 +389,7 @@ export function CompleteProfileCard({onResume}: {onResume: () => void}) {
                         delay: 0.35,
                         type: "spring",
                       }}
-                      className="absolute h-10 w-10 overflow-hidden rounded-full bg-white"
+                      className="absolute h-10 w-10 overflow-hidden rounded-full bg-background"
                     >
                       <div>
                         <Image

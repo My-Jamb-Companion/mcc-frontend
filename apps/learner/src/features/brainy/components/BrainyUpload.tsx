@@ -57,7 +57,7 @@ export default function UploadZone({
           "flex min-h-[88px] w-[95%] mx-auto mt-15 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-t-2xl border border-dashed border-b-0 px-6 py-6 text-center transition-colors",
           isDragging
             ? "border-purple-400 bg-purple-50/60"
-            : "border-gray-200 bg-gray-50/50 hover:bg-gray-50",
+            : "border-muted/20 bg-gray-50/50 hover:bg-muted/10",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400",
         ].join(" ")}
       >
@@ -84,7 +84,7 @@ export default function UploadZone({
                   <li
                     key={`${file.name}-${i}`}
                     onClick={(e) => e.stopPropagation()}
-                    className="flex items-center gap-1.5 rounded-lg border-2 border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 z-20"
+                    className="flex items-center gap-1.5 rounded-lg border-2 border-muted/20 bg-background px-3 py-1 text-xs text-subtle z-20"
                   >
                     <Icon icon={fileIcon()} size={24} />
                     <span className="max-w-[140px] text-sm font-medium truncate">
@@ -96,10 +96,10 @@ export default function UploadZone({
                         e.stopPropagation();
                         onRemoveFile(i);
                       }}
-                      className="ml-0.5 rounded-full p-0.5 hover:bg-gray-100"
+                      className="ml-0.5 rounded-full p-0.5 hover:bg-muted/10"
                       aria-label={`Remove ${file.name}`}
                     >
-                      <Icon icon="ph:x" className="h-3 w-3 text-gray-400" />
+                      <Icon icon="ph:x" className="h-3 w-3 text-muted" />
                     </button>
                   </li>
                 );
@@ -108,12 +108,12 @@ export default function UploadZone({
           ) : (
             <Icon
               icon="hugeicons:image-download-02"
-              className="h-5 w-5 text-gray-400"
+              className="h-5 w-5 text-muted"
             />
           )}
         </AnimatePresence>
 
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-subtle">
           {files.length > 0
             ? "Click to replace or drag and drop a new file"
             : "Drag & drop or click to add your materials"}

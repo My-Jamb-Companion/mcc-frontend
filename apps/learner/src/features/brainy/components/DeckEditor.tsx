@@ -22,12 +22,12 @@ export default function DeckEditor({deck, onChange}: DeckEditorProps) {
       {deck.map((card, index) => (
         <div key={index} className="rounded-2xl border-2 border-muted/20 p-3">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-medium text-gray-500">Card {index + 1}</span>
+            <span className="text-xs font-medium text-subtle">Card {index + 1}</span>
             <button
               type="button"
               onClick={() => remove(index)}
               aria-label={`Delete card ${index + 1}`}
-              className="rounded-md p-1 text-gray-400 hover:bg-red-50 hover:text-red-500"
+              className="rounded-md p-1 text-muted hover:bg-red-50 hover:text-red-500"
             >
               <Icon icon="ph:trash" size={16} />
             </button>
@@ -38,7 +38,7 @@ export default function DeckEditor({deck, onChange}: DeckEditorProps) {
             aria-label={`Card ${index + 1} question`}
             placeholder="Question or term"
             rows={2}
-            className={`${fieldClass} font-semibold text-gray-900`}
+            className={`${fieldClass} font-semibold text-foreground`}
           />
           <textarea
             value={card.back}
@@ -46,7 +46,7 @@ export default function DeckEditor({deck, onChange}: DeckEditorProps) {
             aria-label={`Card ${index + 1} answer`}
             placeholder="Answer or definition"
             rows={2}
-            className={`${fieldClass} mt-2 text-gray-600`}
+            className={`${fieldClass} mt-2 text-subtle`}
           />
         </div>
       ))}
@@ -54,7 +54,7 @@ export default function DeckEditor({deck, onChange}: DeckEditorProps) {
       <button
         type="button"
         onClick={() => onChange([...deck, {front: "", back: ""}])}
-        className="flex items-center gap-1.5 rounded-full border border-dashed border-muted/40 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:border-purple-400 hover:text-purple-600"
+        className="flex items-center gap-1.5 rounded-full border border-dashed border-muted/40 px-4 py-2 text-sm font-medium text-subtle transition-colors hover:border-purple-400 hover:text-purple-600"
       >
         <Icon icon="ph:plus" size={14} />
         Add a card

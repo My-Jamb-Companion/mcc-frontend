@@ -10,6 +10,7 @@ import {ApiExamProgram} from "@/src/features/exams/services/exam.service";
 import {TierPicker} from "@/src/features/components/TierPicker";
 import {FormatPicker} from "@/src/features/components/FormatPicker";
 import {defaultFormat, tierAfterFormatChange, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
+import {coverFallback} from "@/src/features/components/coverFallback";
 
 const FALLBACK_IMAGE = "/assets/images/tower.jpg";
 
@@ -87,6 +88,7 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
             <img
               src={program.cover_image_url || FALLBACK_IMAGE}
               alt={title}
+              onError={coverFallback}
               className="w-full h-full object-cover"
             />
           </div>

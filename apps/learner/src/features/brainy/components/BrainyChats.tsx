@@ -217,7 +217,7 @@ export default function BrainyChats() {
                   <li
                     key={`${file.name}-${i}`}
                     onClick={(e) => e.stopPropagation()}
-                    className="flex items-center self-end gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 z-10 w-fit"
+                    className="flex items-center self-end gap-1.5 rounded-lg border border-muted/20 bg-background px-3 py-1 text-xs text-subtle z-10 w-fit"
                   >
                     <Icon icon={fileIcon()} size={24} />
                     <span className="max-w-[140px] text-sm font-medium truncate">
@@ -324,7 +324,7 @@ export default function BrainyChats() {
                       <li
                         key={`${file.name}-${i}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="flex items-center gap-1.5 rounded-lg border-2 border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 z-10"
+                        className="flex items-center gap-1.5 rounded-lg border-2 border-muted/20 bg-background px-3 py-1 text-xs text-subtle z-10"
                       >
                         <Icon icon={fileIcon()} size={24} />
                         <span className="max-w-[140px] text-sm font-medium truncate">
@@ -336,10 +336,10 @@ export default function BrainyChats() {
                             e.stopPropagation();
                             handleRemoveFile(i);
                           }}
-                          className="ml-0.5 rounded-full p-0.5 hover:bg-gray-100"
+                          className="ml-0.5 rounded-full p-0.5 hover:bg-muted/10"
                           aria-label={`Remove ${file.name}`}
                         >
-                          <Icon icon="ph:x" className="h-3 w-3 text-gray-400" />
+                          <Icon icon="ph:x" className="h-3 w-3 text-muted" />
                         </button>
                       </li>
                     );
@@ -348,7 +348,7 @@ export default function BrainyChats() {
               </motion.div>
             )}
 
-            <div className="flex flex-col items-center gap-2 w-full rounded-full bg-[#F9F9F9] border border-muted/20 shadow-md p-1.5 mx-auto">
+            <div className="flex flex-col items-center gap-2 w-full rounded-full bg-[#F9F9F9] dark:bg-white/5 border border-muted/20 shadow-md p-1.5 mx-auto">
               <div className="flex items-center gap-2 w-full">
                 <motion.button
                   type="button"

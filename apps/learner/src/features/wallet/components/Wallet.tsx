@@ -58,7 +58,7 @@ export default function Wallet() {
               aria-selected={tab === key}
               onClick={() => setTab(key)}
               className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-1.5 text-xs md:text-sm font-medium transition-colors ${
-                tab === key ? "border border-muted/30" : "text-gray-400 hover:text-gray-600"
+                tab === key ? "border border-muted/30" : "text-muted hover:text-foreground"
               }`}
             >
               <Icon icon={icon} size={14} />

@@ -32,7 +32,7 @@ export default function CourseHero({
       {/* Play Button — top right */}
       <button
         onClick={onPlay}
-        className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:scale-105 transition-transform duration-200"
+        className="absolute top-3 right-3 w-10 h-10 bg-background rounded-full flex items-center justify-center shadow-sm hover:scale-105 transition-transform duration-200"
       >
         <Icon icon="solar:play-bold" size={16} color="#000" />
       </button>

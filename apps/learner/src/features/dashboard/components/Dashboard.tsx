@@ -57,7 +57,7 @@ export default function Dashboard() {
           </p>
           <p
             onClick={() => router.push("/account")}
-            className="flex items-center cursor-pointer text-btn-primary text-xs font-medium"
+            className="flex items-center cursor-pointer text-btn-primary dark:text-primary text-xs font-medium"
           >
             <span>Personalize your experience</span>
             <Icon icon="ci:caret-right-sm" size={24} />
@@ -89,7 +89,7 @@ export default function Dashboard() {
           {nextSession.series_id && (
             <button
               onClick={() => router.push(`/messages/series/${nextSession.series_id}`)}
-              className="mt-2 flex items-center gap-1 text-xs font-medium text-btn-primary hover:underline"
+              className="mt-2 flex items-center gap-1 text-xs font-medium text-btn-primary dark:text-primary hover:underline"
             >
               <Icon icon="ph:chat-circle-text" size={14} />
               Message {nextSession.teacher_name || "your teacher"}
@@ -97,7 +97,7 @@ export default function Dashboard() {
           )}
           <button
             onClick={() => setReschedulingSessionId(nextSession.session_id)}
-            className="mt-2 flex items-center gap-1 text-xs font-medium text-btn-primary hover:underline"
+            className="mt-2 flex items-center gap-1 text-xs font-medium text-btn-primary dark:text-primary hover:underline"
           >
             <Icon icon="ph:calendar-blank" size={14} />
             Reschedule

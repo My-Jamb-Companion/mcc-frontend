@@ -44,8 +44,8 @@ export function CustomSelect({
           type="button"
           onClick={() => setOpen((o) => !o)}
           className={`w-full flex items-center justify-between px-3.5 py-2.5 text-sm border rounded-lg bg-white dark:bg-hint dark:border-0 dark:text-white outline-none
-          ${open ? " border-zinc-300 shadow-md" : " border-zinc-200"}
-          ${selected ? "text-zinc-900" : "text-zinc-400"}`}
+          ${open ? " border-muted/30 shadow-md" : " border-muted/20"}
+          ${selected ? "text-foreground" : "text-muted"}`}
         >
           {selected ? (
             <span className="flex items-center gap-2.5">{selected.label}</span>
@@ -55,7 +55,7 @@ export function CustomSelect({
           <Icon
             icon="line-md:chevron-up"
             size={15}
-            className={`text-zinc-400 transition-transform duration-200 ${open ? "" : "rotate-180"}`}
+            className={`text-muted transition-transform duration-200 ${open ? "" : "rotate-180"}`}
           />
         </button>
       </div>

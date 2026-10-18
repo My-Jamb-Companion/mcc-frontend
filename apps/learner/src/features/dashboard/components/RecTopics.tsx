@@ -48,7 +48,7 @@ export default function RecTopics({
     <Link
       href={`/learnings/topic/${topic.replace(/ /g, "-").toLowerCase()}`}
       onClick={() => onSelect?.(topic)}
-      className="flex items-center gap-2 border border-muted/40 shadow-sm rounded-xl px-4 py-3 text-sm font-medium  hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap w-full"
+      className="flex items-center gap-2 border border-muted/40 shadow-sm rounded-xl px-4 py-3 text-sm font-medium  hover:bg-muted/10 transition-colors cursor-pointer whitespace-nowrap w-full"
     >
       <Icon icon="ri:instance-fill" size={16} />
       {topic}
@@ -63,13 +63,13 @@ export default function RecTopics({
         <div className="hidden sm:flex items-center gap-2">
           <button
             onClick={() => scroll("left")}
-            className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full border border-muted/20 flex items-center justify-center hover:bg-muted/10 transition-colors cursor-pointer"
           >
             <Icon icon="basil:caret-left-solid" size={16} />
           </button>
           <button
             onClick={() => scroll("right")}
-            className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full border border-muted/20 flex items-center justify-center hover:bg-muted/10 transition-colors cursor-pointer"
           >
             <Icon icon="basil:caret-right-solid" size={16} />
           </button>

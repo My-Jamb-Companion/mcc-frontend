@@ -171,7 +171,7 @@ export default function BrainySideNav() {
         transition={{duration: 0.25, ease: "easeInOut"}}
         className={`flex flex-col gap-4 bg-muted/10 border-r border-muted/30 overflow-hidden backdrop-blur-2xl
         max-sm:fixed max-sm:top-0 max-sm:right-0 max-sm:h-screen max-sm:w-full max-sm:z-20 max-sm:border-l max-sm:border-r-0
-        ${isMobile ? "z-20 bg-white" : "z-10"}`}
+        ${isMobile ? "z-20 bg-background" : "z-10"}`}
       >
         <div className="flex items-center justify-between w-full py-4 px-3">
           <AnimatePresence mode="popLayout">

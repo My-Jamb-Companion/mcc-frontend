@@ -13,8 +13,8 @@ export default function LectureRecorder({recorder}: {recorder: Recorder}) {
 
   if (!supported) {
     return (
-      <div className="mt-4 rounded-2xl border-2 border-muted/20 p-4 text-sm text-gray-600">
-        <p className="font-medium text-gray-900">Recording isn&apos;t available in this browser</p>
+      <div className="mt-4 rounded-2xl border-2 border-muted/20 p-4 text-sm text-subtle">
+        <p className="font-medium text-foreground">Recording isn&apos;t available in this browser</p>
         <p className="mt-1">
           Live recording needs Chrome, Edge or Safari. You can still paste a transcript below and
           make flashcards from it.
@@ -38,10 +38,10 @@ export default function LectureRecorder({recorder}: {recorder: Recorder}) {
         </button>
 
         <div>
-          <p className="text-sm font-semibold text-gray-900">
+          <p className="text-sm font-semibold text-foreground">
             {recording ? "Recording…" : status === "paused" ? "Paused" : "Ready to record"}
           </p>
-          <p className="text-xs tabular-nums text-gray-500" aria-live="off">
+          <p className="text-xs tabular-nums text-subtle" aria-live="off">
             {formatDuration(elapsed)}
           </p>
         </div>
@@ -50,7 +50,7 @@ export default function LectureRecorder({recorder}: {recorder: Recorder}) {
           <button
             type="button"
             onClick={reset}
-            className="ml-auto text-xs font-medium text-gray-500 hover:text-red-500"
+            className="ml-auto text-xs font-medium text-subtle hover:text-red-500"
           >
             Clear
           </button>
@@ -63,7 +63,7 @@ export default function LectureRecorder({recorder}: {recorder: Recorder}) {
         </p>
       )}
 
-      <p className="mt-3 text-xs text-gray-500">
+      <p className="mt-3 text-xs text-subtle">
         Brainy listens through this device&apos;s microphone only, so place it near the speaker and
         keep this tab open. Speech recognition isn&apos;t perfect — fix any mistakes in the text
         below before making flashcards.

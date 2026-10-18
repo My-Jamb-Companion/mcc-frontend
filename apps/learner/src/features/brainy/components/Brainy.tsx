@@ -170,7 +170,7 @@ export default function Brainy() {
                   <div className="mb-2 flex justify-end">
                     <Link
                       href="/learnings/study-sets"
-                      className="text-sm font-medium text-btn-primary hover:underline"
+                      className="text-sm font-medium text-btn-primary dark:text-primary hover:underline"
                     >
                       My study sets
                     </Link>
@@ -228,7 +228,7 @@ export function HeadUnit() {
   const chatIndex = pathNameArray.indexOf("chat");
   const isChatPage = chatIndex !== -1 && pathNameArray[chatIndex + 1];
   return (
-    <header className="sm:hidden absolute left-0 top-5 w-full flex items-center justify-between py-2 z-10 bg-white backdrop-blur-md">
+    <header className="sm:hidden absolute left-0 top-5 w-full flex items-center justify-between py-2 z-10 bg-background backdrop-blur-md">
       <div className="flex items-center gap-3">
         {isChatPage && (
           <Link

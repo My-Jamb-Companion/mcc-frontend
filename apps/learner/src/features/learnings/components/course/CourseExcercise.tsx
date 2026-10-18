@@ -210,9 +210,9 @@ export default function CourseExercise({
   return (
     <div className="w-full rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-[#222225]">
       {/* HEADER */}
-      <div className="flex items-start justify-between max-sm:flex-col-reverse max-sm:gap-4 border-b border-gray-100 px-8 py-6 max-sm:px-4">
+      <div className="flex items-start justify-between max-sm:flex-col-reverse max-sm:gap-4 border-b border-muted/20 px-8 py-6 max-sm:px-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
             Exercise {questions.length}
           </p>
 
@@ -222,7 +222,7 @@ export default function CourseExercise({
         </div>
 
         <div className="flex items-center justify-center max-sm:flex-col gap-3 sm:max-w-[60%] max-sm:w-full max-sm:max-w-full ">
-          <span className="text-sm font-medium text-gray-500 text-nowrap">
+          <span className="text-sm font-medium text-subtle text-nowrap">
             Complete your {questions.length} Exercises
           </span>
 
@@ -338,7 +338,7 @@ export default function CourseExercise({
         </div>
 
         {isReviewMode && currentSubmittedAnswer && (
-          <p className="mt-4 text-xs font-semibold text-gray-400">
+          <p className="mt-4 text-xs font-semibold text-muted">
             Tries: {currentSubmittedAnswer.tries}/{MAX_TRIES}
           </p>
         )}

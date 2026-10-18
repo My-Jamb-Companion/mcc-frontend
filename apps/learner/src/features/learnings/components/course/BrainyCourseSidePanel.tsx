@@ -85,12 +85,12 @@ export default function BrainyCourseSidePanel({
     <div className={`flex flex-col w-full font-sans border border-muted/30 rounded-2xl ${className}`}>
       {/* Scroll hint */}
       <motion.div
-        className="flex justify-center py-3 border-b border-gray-100"
+        className="flex justify-center py-3 border-b border-muted/20"
         initial={{opacity: 0, y: -10}}
         animate={{opacity: 1, y: 0}}
         transition={{duration: 0.3}}
       >
-        <span className="flex items-center gap-1.5 text-xs text-gray-400">
+        <span className="flex items-center gap-1.5 text-xs text-muted">
           <ArrowUp className="w-3 h-3" />
           Scroll up for past messages
         </span>
@@ -114,7 +114,7 @@ export default function BrainyCourseSidePanel({
             >
               <div className="flex-1 flex items-center justify-center">
                 <motion.p
-                  className="text-center text-base font-semibold text-gray-800 leading-snug px-8"
+                  className="text-center text-base font-semibold text-foreground leading-snug px-8"
                   initial={{opacity: 0, y: 10}}
                   animate={{opacity: 1, y: 0}}
                   transition={{delay: 0.1, duration: 0.4}}
@@ -158,7 +158,7 @@ export default function BrainyCourseSidePanel({
                     exit={{opacity: 0, scale: 0.9}}
                     transition={{duration: 0.15}}
                   >
-                    <div className="bg-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 flex gap-1 items-center">
+                    <div className="bg-muted/10 rounded-2xl rounded-bl-sm px-4 py-3 flex gap-1 items-center">
                       <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:0ms]" />
                       <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:150ms]" />
                       <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:300ms]" />
@@ -173,13 +173,13 @@ export default function BrainyCourseSidePanel({
 
       {/* Input bar */}
       <motion.div
-        className="border-t border-gray-100 px-3 py-2"
+        className="border-t border-muted/20 px-3 py-2"
         initial={{opacity: 0, y: 20}}
         animate={{opacity: 1, y: 0}}
         transition={{delay: 0.2, duration: 0.35}}
       >
-        <div className="flex items-end gap-2 border border-gray-200 rounded-2xl px-3 py-2  focus-within:border-gray-300 transition-colors">
-          <button className="shrink-0 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors mb-0.5">
+        <div className="flex items-end gap-2 border border-muted/20 rounded-2xl px-3 py-2  focus-within:border-muted/30 transition-colors">
+          <button className="shrink-0 w-6 h-6 flex items-center justify-center text-muted hover:text-foreground transition-colors mb-0.5">
             <Plus className="w-5 h-5" />
           </button>
           <textarea
@@ -189,7 +189,7 @@ export default function BrainyCourseSidePanel({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             rows={1}
-            className="flex-1 text-sm text-gray-700 placeholder:text-gray-400 resize-none outline-none leading-relaxed max-h-32 bg-transparent"
+            className="flex-1 text-sm text-foreground placeholder:text-muted resize-none outline-none leading-relaxed max-h-32 bg-transparent"
           />
           <motion.button
             onClick={() => handleSend(input)}
@@ -200,7 +200,7 @@ export default function BrainyCourseSidePanel({
             <Send className="w-3.5 h-3.5" />
           </motion.button>
         </div>
-        <p className="text-center text-[11px] text-gray-400 mt-2 px-2">
+        <p className="text-center text-[11px] text-muted mt-2 px-2">
           Our AI assistant may make mistakes. Verify for accuracy.
         </p>
       </motion.div>
@@ -220,7 +220,7 @@ function SuggestionChip({
   return (
     <motion.button
       onClick={onClick}
-      className="w-full text-left px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+      className="w-full text-left px-4 py-3 rounded-xl border border-muted/20 text-sm text-subtle hover:bg-muted/10 hover:border-muted/30 transition-colors"
       initial={{opacity: 0, y: 8}}
       animate={{opacity: 1, y: 0}}
       transition={{delay: 0.2 + index * 0.06, duration: 0.25}}
@@ -245,7 +245,7 @@ function MessageBubble({message}: {message: Message}) {
         className={`max-w-[80%] text-sm px-4 py-2.5 leading-relaxed  hover:shadow-md transition-all duration-150 ease-in-out hover:scale-105 ${
           isUser
             ? "bg-blue-500 text-white rounded-2xl rounded-br-sm"
-            : "bg-gray-100 text-gray-800 rounded-2xl rounded-bl-sm"
+            : "bg-muted/10 text-foreground rounded-2xl rounded-bl-sm"
         }`}
       >
         {message.body}

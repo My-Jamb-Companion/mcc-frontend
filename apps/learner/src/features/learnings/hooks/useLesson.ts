@@ -26,6 +26,15 @@ export const formatDuration = (seconds: number) => {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 };
 
+/** "1hr 5min", "12min", "37s", or "0min" when there is no video time at all. */
+export function formatTotalDuration(totalSeconds: number): string {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  if (hours > 0) return `${hours}hr ${minutes}min`;
+  if (minutes > 0) return `${minutes}min`;
+  return totalSeconds > 0 ? `${Math.floor(totalSeconds)}s` : "0min";
+}
+
 export function useLessonsDuration(lessons: Lesson[]) {
   return useMemo(() => {
     const totalSeconds = lessons.reduce((acc, lesson) => acc + (lesson.duration ?? 0), 0);
@@ -37,7 +46,7 @@ export function useLessonsDuration(lessons: Lesson[]) {
       hours,
       minutes,
       seconds,
-      formatted: hours > 0 ? `${hours}hr ${minutes}min` : `${minutes}min`,
+      formatted: formatTotalDuration(totalSeconds),
     };
   }, [lessons]);
 }

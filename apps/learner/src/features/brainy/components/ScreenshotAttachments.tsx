@@ -22,10 +22,10 @@ export default function ScreenshotAttachments({attached}: {attached: Attached}) 
     <section aria-label="Lecture screenshots" className="mt-4 rounded-2xl border-2 border-muted/20 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="text-sm font-semibold text-gray-900">
-            Slides &amp; screenshots <span className="font-normal text-gray-400">(optional)</span>
+          <h2 className="text-sm font-semibold text-foreground">
+            Slides &amp; screenshots <span className="font-normal text-muted">(optional)</span>
           </h2>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-subtle">
             Add up to {MAX_SCREENSHOTS} pictures from the lecture. Brainy reads them and uses them
             with what you recorded. Each one uses a little of your Brainy allowance.
           </p>
@@ -43,7 +43,7 @@ export default function ScreenshotAttachments({attached}: {attached: Attached}) 
           }}
           className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
             full
-              ? "pointer-events-none border-muted/20 text-gray-400"
+              ? "pointer-events-none border-muted/20 text-muted"
               : dragging
                 ? "border-purple-400 bg-purple-50 text-purple-700"
                 : "border-purple-300 text-purple-700 hover:bg-purple-50"
@@ -76,9 +76,9 @@ export default function ScreenshotAttachments({attached}: {attached: Attached}) 
               <div className="flex items-center gap-3">
                 <img src={shot.previewUrl} alt="" className="h-12 w-16 shrink-0 rounded-md object-cover" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900">{shot.name}</p>
+                  <p className="truncate text-sm font-medium text-foreground">{shot.name}</p>
                   {shot.status === "reading" && (
-                    <p className="flex items-center gap-1 text-xs text-gray-500">
+                    <p className="flex items-center gap-1 text-xs text-subtle">
                       <Icon icon="svg-spinners:180-ring-with-bg" size={12} />
                       Reading…
                     </p>
@@ -99,7 +99,7 @@ export default function ScreenshotAttachments({attached}: {attached: Attached}) 
                   type="button"
                   onClick={() => remove(shot.id)}
                   aria-label={`Remove ${shot.name}`}
-                  className="p-1 text-gray-400 hover:text-red-500"
+                  className="p-1 text-muted hover:text-red-500"
                 >
                   <Icon icon="ph:x" size={16} />
                 </button>

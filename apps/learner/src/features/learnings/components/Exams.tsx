@@ -52,7 +52,7 @@ export default function Exams() {
       <div className="mb-4 flex justify-end">
         <Link
           href="/learnings/exams/history"
-          className="flex items-center gap-1 text-sm font-medium text-btn-primary hover:underline"
+          className="flex items-center gap-1 text-sm font-medium text-btn-primary dark:text-primary hover:underline"
         >
           <Icon icon="lucide:history" size={16} />
           View your testing history

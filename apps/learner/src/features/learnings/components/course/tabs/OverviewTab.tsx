@@ -36,7 +36,7 @@ export default function OverviewTab({
 
           <div>
             <p className="text-sm flex items-center gap-1 font-semibold">{totalDurationLabel}</p>
-            <p className="text-xs">Total</p>
+            <p className="text-xs">Total video length</p>
           </div>
         </div>
 

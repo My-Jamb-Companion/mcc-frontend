@@ -29,7 +29,7 @@ function GoalsProgressCard() {
     <div className="relative flex justify-center pt-6">
       {/* Bottom Card */}
       <div className="relative w-full rounded-[32px] border-2 border-muted/30 pt-14 pb-4.5">
-        <h2 className="text-center font-semibold text-gray-900 pt-5">
+        <h2 className="text-center font-semibold text-foreground pt-5">
           Goals &amp; Progress
         </h2>
       </div>
@@ -65,18 +65,18 @@ function GoalsSummary() {
 
   return (
     <section className="space-y-5">
-      <h2 className="md:text-xl font-semibold text-gray-900">
+      <h2 className="md:text-xl font-semibold text-foreground">
         Daily & Weekly Goals Summary
       </h2>
 
       <div className="rounded-[28px] border border-muted/40  p-8 shadow-lg shadow-gray-200/60 max-md:px-4 max-md:py-6">
         {/* Weekly Goal */}
         <div>
-          <h3 className="md:text-xl font-semibold text-gray-900">
+          <h3 className="md:text-xl font-semibold text-foreground">
             Weekly Goal
           </h3>
 
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-subtle">
             {summary?.weekly.description ?? (isError ? "Couldn't load your goals." : "Loading your weekly goal…")}
           </p>
 
@@ -85,7 +85,7 @@ function GoalsSummary() {
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted/40" role="progressbar" aria-valuemin={0} aria-valuemax={summary.weekly.target} aria-valuenow={summary.weekly.earned} aria-label="Weekly goal">
                 <div className="h-full rounded-full bg-primary" style={{width: `${Math.min(100, summary.weekly.completion_percent)}%`}} />
               </div>
-              <p className="mt-1 text-xs font-medium text-gray-500">
+              <p className="mt-1 text-xs font-medium text-subtle">
                 {summary.weekly.earned}/{summary.weekly.target} this week
                 {summary.weekly.status === "achieved" && " · achieved"}
               </p>
@@ -111,11 +111,11 @@ function GoalsSummary() {
 
         {/* Daily Goal */}
         <div className="mt-10 flex items-center justify-between">
-          <h3 className="md:text-lg font-bold text-gray-900">Daily Goal</h3>
+          <h3 className="md:text-lg font-bold text-foreground">Daily Goal</h3>
 
           <p className="text-lg">
             <span className="font-bold">{summary?.daily.earned ?? 0}</span>
-            <span className="text-gray-500 text-xs">/{summary?.daily.target ?? 0} practice</span>
+            <span className="text-subtle text-xs">/{summary?.daily.target ?? 0} practice</span>
           </p>
         </div>
 
@@ -127,22 +127,22 @@ function GoalsSummary() {
         )}
 
         {/* Activity */}
-        <div className="mt-8 overflow-hidden rounded-3xl border border-gray-200">
+        <div className="mt-8 overflow-hidden rounded-3xl border border-muted/20">
           {isLoading && (
-            <p className="px-3 py-6 text-center text-sm text-gray-400">Loading…</p>
+            <p className="px-3 py-6 text-center text-sm text-muted">Loading…</p>
           )}
           {!isLoading && isError && (
             <p className="px-3 py-6 text-center text-sm text-red-500">Couldn&apos;t load your activity. Please refresh.</p>
           )}
           {!isLoading && !isError && (stats?.rewards.length ?? 0) === 0 && (
-            <p className="px-3 py-6 text-center text-sm text-gray-400">
+            <p className="px-3 py-6 text-center text-sm text-muted">
               No activity yet.
             </p>
           )}
           {stats?.rewards.map((activity) => (
             <div
               key={activity.id}
-              className="flex items-center justify-between border-b border-gray-100 px-3 py-2.5 last:border-b-0"
+              className="flex items-center justify-between border-b border-muted/20 px-3 py-2.5 last:border-b-0"
             >
               <div className="flex items-center gap-4">
                 <div className="flex h-10 w-[48px] items-center justify-center rounded-xl bg-violet-600 text-white">
@@ -150,11 +150,11 @@ function GoalsSummary() {
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-900">
+                  <h4 className="text-sm font-semibold text-foreground">
                     {activity.title}
                   </h4>
 
-                  <p className="text-xs font-medium text-gray-500">
+                  <p className="text-xs font-medium text-subtle">
                     {new Date(activity.claimed_at).toLocaleString("en-US", {
                       day: "2-digit",
                       month: "short",
@@ -166,7 +166,7 @@ function GoalsSummary() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1 text-xs text-gray-600">
+              <div className="flex items-center gap-1 text-xs text-subtle">
                 <Coins size={14} className="text-yellow-400" />
                 <span className="font-semibold">{activity.amount}</span>
                 {activity.reward_type}
@@ -195,7 +195,7 @@ function WeeklyGoalCalendar({
                 ? "bg-primary"
                 : day.status === "current"
                   ? "bg-primary/10"
-                  : "bg-white border-transparent"
+                  : "bg-background border-transparent"
             }`}
           >
             <div
@@ -203,8 +203,8 @@ function WeeklyGoalCalendar({
                 day.status === "completed"
                   ? "text-white"
                   : day.status === "current"
-                    ? "text-black"
-                    : "text-gray-500"
+                    ? "text-foreground"
+                    : "text-subtle"
               }`}
             >
               {day.day}
@@ -213,10 +213,10 @@ function WeeklyGoalCalendar({
             <div
               className={`flex w-10 items-center justify-center text-sm font-bold m-1 rounded-lg ${
                 day.status === "completed"
-                  ? "bg-white"
+                  ? "bg-background"
                   : day.status === "current"
                     ? "bg-violet-600 text-white"
-                    : "bg-white"
+                    : "bg-background"
               }`}
             >
               {day.date}
@@ -238,12 +238,12 @@ function MonthlyGoalCardPreview() {
   return (
     <div className="mx-auto max-w-5xl">
       <div className="flex items-center justify-between">
-        <h3 className="md:text-lg font-bold text-gray-900">Goal Progress</h3>
+        <h3 className="md:text-lg font-bold text-foreground">Goal Progress</h3>
       </div>
 
       <div className="mt-3 rounded-2xl border border-muted/30 shadow-sm p-6">
         <div className="flex items-center justify-between gap-6">
-          <h4 className="md:text-xl font-bold text-gray-900">
+          <h4 className="md:text-xl font-bold text-foreground">
             {monthly?.month ?? "Monthly Goal"}
           </h4>
           <div className="h-1.5 w-48 shrink-0 overflow-hidden rounded-full bg-muted">
@@ -259,13 +259,13 @@ function MonthlyGoalCardPreview() {
         </p>
 
         <div className="mt-5 flex items-end justify-between">
-          <p className="text-2xl font-bold text-gray-900">
+          <p className="text-2xl font-bold text-foreground">
             {current.toLocaleString()}
             <span className="text-sm font-medium text-subtle">
               /{target ? target.toLocaleString() : "—"} points
             </span>
           </p>
-          <p className="text-sm font-bold text-gray-700">{percent}%</p>
+          <p className="text-sm font-bold text-foreground">{percent}%</p>
         </div>
       </div>
     </div>
