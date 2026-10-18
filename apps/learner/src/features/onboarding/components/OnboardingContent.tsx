@@ -20,7 +20,7 @@ export function OnboardingContent({step}: {step: number}) {
             currentStep?.question
           )}
         </p>
-        <p className="text-sm text-muted">Help us customize MCC for you</p>
+        <p className="text-sm text-muted">Help us customize SmartLearnersHQ for you</p>
       </div>
 
       <OnboardingForm step={step} data={formSteps} />

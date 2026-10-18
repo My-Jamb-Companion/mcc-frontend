@@ -49,7 +49,7 @@ export default function ContinueWithAccount({
     >
       <motion.div layoutId="auth-card">
         <div className="mt-8 mb-6">
-          <h4 className="text-xl font-semibold">Welcome to MC. Companion</h4>
+          <h4 className="text-xl font-semibold">Welcome to SmartLearnersHQ</h4>
           <p className="text-muted text-sm">
             Login or sign up to continue your learning journey
           </p>

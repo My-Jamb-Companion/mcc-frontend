@@ -45,7 +45,7 @@ export function Exams({ data, blockId }: { data: FieldData; blockId: string }) {
         {shown.map((e, i) => (
           <A key={`${str(e, "code")}-${i}`} href={str(e, "href")} className="mcc-card mcc-exam" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 24, minHeight: 156, padding: 20, borderRadius: 24, background: "#fff", border: "1.5px solid #E7E2F3", textDecoration: "none", color: "#171717" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
-              <span style={{ fontFamily: DISPLAY, fontSize: "clamp(26px,2.8cqw,36px)", lineHeight: 1, letterSpacing: "-0.01em" }}>{str(e, "code")}</span>
+              <span style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: "clamp(26px,2.8cqw,36px)", lineHeight: 1, letterSpacing: "-0.01em" }}>{str(e, "code")}</span>
               <span style={{ width: 36, height: 36, flex: "none", borderRadius: "50%", background: "#F4EFFF", color: "#6717DE", display: "grid", placeItems: "center" }}><Arrow size={16} width={2.4} /></span>
             </div>
             <div>

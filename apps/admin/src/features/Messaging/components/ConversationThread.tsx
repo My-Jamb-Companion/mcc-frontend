@@ -15,7 +15,7 @@ function Bubble({message}: {message: ApiThreadMessage}) {
     <div className={`flex ${fromTeam ? "justify-end" : "justify-start"}`}>
       <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${fromTeam ? "bg-neutral-900 text-white" : "bg-neutral-100 text-neutral-900"}`}>
         <p className={`mb-0.5 text-[11px] font-medium ${fromTeam ? "text-white/70" : "text-neutral-500"}`}>
-          {fromTeam ? message.sender_name || "MCC team" : "Reply"} · {messageTime(message.created_at)}
+          {fromTeam ? message.sender_name || "SmartLearnersHQ team" : "Reply"} · {messageTime(message.created_at)}
         </p>
         {message.subject && <p className="mb-1 text-sm font-semibold">{message.subject}</p>}
         <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{message.body}</p>

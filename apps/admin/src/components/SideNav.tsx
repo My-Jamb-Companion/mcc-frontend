@@ -1,6 +1,6 @@
 "use client";
 
-import {AnimatePresence, Icon, motion} from "@mcc/ui";
+import {AnimatePresence, BrandLogo, Icon, motion} from "@mcc/ui";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useEffect, useRef, useState} from "react";
@@ -318,7 +318,7 @@ export default function SideNav() {
         className="w-full flex flex-col items-center border-r border-muted/20 px-2 pb-5"
       >
         <div className="w-full flex flex-col items-center justify-center mb-2 py-4.5">
-          <h2 className="text-lg font-bagel text-primary">MCC</h2>
+          <BrandLogo variant="mark" height={32} alt="SmartLearnersHQ admin" />
         </div>
 
         <div className="flex flex-col justify-between gap-4 h-full w-full items-center">

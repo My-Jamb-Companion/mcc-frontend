@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { NotificationLink, SupportLink, useAuth } from "@mcc/features";
-import { Button, Icon } from "@mcc/ui";
+import { BrandLogo, Button, Icon } from "@mcc/ui";
 import { useThemeStore } from "@mcc/store";
 
 const LINKS = [
@@ -11,7 +11,7 @@ const LINKS = [
   { href: "/dashboard", label: "Sessions" },
   { href: "/availability", label: "Availability" },
   { href: "/messages", label: "Messages" },
-  { href: "/support", label: "MCC team" },
+  { href: "/support", label: "SmartLearnersHQ team" },
   { href: "/earnings", label: "Earnings" },
   { href: "/notifications", label: "Notifications" },
   { href: "/account", label: "Account" },
@@ -32,7 +32,10 @@ export const Header = () => {
   return (
     <header className="border-b border-muted/20 px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-8">
-        <span className="font-semibold text-primary">MCC Teacher</span>
+        <span className="flex items-center gap-2">
+          <BrandLogo height={26} />
+          <span className="text-sm font-semibold text-muted">Teacher</span>
+        </span>
         <nav className="flex items-center gap-5 overflow-x-auto">
           {LINKS.map((link) => (
             <Link

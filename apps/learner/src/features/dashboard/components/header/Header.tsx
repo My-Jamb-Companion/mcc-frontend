@@ -1,4 +1,4 @@
-import {Icon} from "@mcc/ui";
+import {BrandLogo, Icon} from "@mcc/ui";
 import Notifications from "./Notification";
 import ThemeButton from "./ThemeButton";
 import Link from "next/link";
@@ -47,10 +47,10 @@ export default function Header({
         >
           <Icon icon={open ? "line-md:close" : "tabler:menu-3"} size={24} />
         </button>
-        <Link href="/dashboard" className="text-xl max-sm:text-lg whitespace-nowrap cursor-pointer">
-          <span className="text-primary font-bagel">MC. </span>
-          {/* Phones are too narrow for the whole name beside the wallet, bell, theme and log-out buttons. */}
-          <span className="max-[430px]:hidden">Companion</span>
+        <Link href="/dashboard" aria-label="SmartLearnersHQ home" className="flex items-center cursor-pointer">
+          {/* Phones are too narrow for the whole logo beside the wallet, bell, theme and log-out buttons, so they get the mark alone. */}
+          <span className="max-[430px]:hidden"><BrandLogo height={28} /></span>
+          <span className="min-[431px]:hidden"><BrandLogo variant="mark" height={30} /></span>
         </Link>
       </div>
       <div className="flex shrink-0 items-center gap-5 max-sm:gap-1.5">

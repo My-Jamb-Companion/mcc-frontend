@@ -20,7 +20,7 @@ function formatWhen(iso: string): string {
   });
 }
 
-/** A message from the MCC team opens the conversation, where it can be answered. */
+/** A message from the SmartLearnersHQ team opens the conversation, where it can be answered. */
 const OPENS_MESSAGES = new Set(["admin_message"]);
 
 function NotificationRow({
@@ -120,7 +120,7 @@ export default function Notifications() {
               }}
               className="w-full border-t border-muted/10 px-4 py-3 text-left text-sm font-medium text-primary hover:bg-muted/10"
             >
-              <SupportLink label="Messages from MCC" />
+              <SupportLink label="Messages from SmartLearnersHQ" />
             </button>
           </div>
         </>

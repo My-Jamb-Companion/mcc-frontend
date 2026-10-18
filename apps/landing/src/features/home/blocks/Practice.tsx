@@ -54,7 +54,7 @@ export function Practice({ data, blockId }: { data: FieldData; blockId: string }
           <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 12, width: "100%", maxWidth: 520 }}>
             {features.map((f, i) => (
               <li key={i} style={{ display: "flex", gap: 16, padding: 18, borderRadius: 20, background: "#FAF8FF", border: "1px solid #EEE8FB" }}>
-                <span style={{ width: 44, height: 44, flex: "none", borderRadius: 14, background: "#fff", color: "#6717DE", display: "grid", placeItems: "center", fontFamily: DISPLAY, fontSize: 20, boxShadow: "0 1px 0 #E7E2F3" }}>{i + 1}</span>
+                <span style={{ width: 44, height: 44, flex: "none", borderRadius: 14, background: "#fff", color: "#6717DE", display: "grid", placeItems: "center", fontFamily: DISPLAY, fontWeight: 700, fontSize: 20, boxShadow: "0 1px 0 #E7E2F3" }}>{i + 1}</span>
                 <span><span style={{ display: "block", fontSize: 17, fontWeight: 700 }}>{str(f, "title")}</span><span style={{ display: "block", fontSize: 15, lineHeight: 1.55, color: "#4A4A4A", marginTop: 2 }}>{str(f, "body")}</span></span>
               </li>
             ))}

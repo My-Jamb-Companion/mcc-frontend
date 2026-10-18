@@ -26,8 +26,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Admin Console — My Course Companion",
-    template: "MCC Admin | %s",
+    default: "Admin Console — SmartLearnersHQ",
+    template: "SmartLearnersHQ Admin | %s",
   },
   description: "Manage courses, students, teachers, and platform operations.",
 };

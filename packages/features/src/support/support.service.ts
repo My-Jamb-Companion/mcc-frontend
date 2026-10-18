@@ -2,7 +2,7 @@ import {apiClient} from "@mcc/api";
 
 export interface ApiSupportMessage {
   message_id: string;
-  /** outbound = from the MCC team to the caller, inbound = from the caller to the team. */
+  /** outbound = from the SmartLearnersHQ team to the caller, inbound = from the caller to the team. */
   direction: "outbound" | "inbound";
   subject?: string | null;
   body: string;
@@ -17,11 +17,11 @@ export interface ApiSupportThread {
   unread: number;
 }
 
-/** Endpoint: GET /support/messages -- the caller's conversation with the MCC team. Opening it marks the team's messages read. */
+/** Endpoint: GET /support/messages -- the caller's conversation with the SmartLearnersHQ team. Opening it marks the team's messages read. */
 export const getSupportThread = async (): Promise<ApiSupportThread> =>
   (await apiClient.get<{data: ApiSupportThread}>("/support/messages")).data.data;
 
-/** Endpoint: POST /support/messages -- write to the MCC team. */
+/** Endpoint: POST /support/messages -- write to the SmartLearnersHQ team. */
 export const sendSupportMessage = async (body: string): Promise<{message_id: string}> =>
   (await apiClient.post<{data: {message_id: string}}>("/support/messages", {body})).data.data;
 

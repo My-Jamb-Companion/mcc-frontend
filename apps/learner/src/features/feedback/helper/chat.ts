@@ -7,6 +7,6 @@ export function chatLink(baseUrl: string | null | undefined, who: {name?: string
   if (!baseUrl) return null;
   const name = who.name?.trim();
   const email = who.email?.trim();
-  const intro = name ? `Hi MCC, I'm ${name}${email ? ` (${email})` : ""}.` : "Hi MCC,";
+  const intro = name ? `Hi SmartLearnersHQ, I'm ${name}${email ? ` (${email})` : ""}.` : "Hi SmartLearnersHQ,";
   return `${baseUrl}?text=${encodeURIComponent(`${intro} I need some help with `)}`;
 }

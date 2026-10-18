@@ -63,7 +63,7 @@ export const LoginForm = ({
         >
           <motion.div layoutId="auth-card">
             <div className="mt-8 mb-6">
-              <h4 className="text-xl font-semibold">Log in to MC. Companion</h4>
+              <h4 className="text-xl font-semibold">Log in to SmartLearnersHQ</h4>
               <p className="text-muted text-sm">Sign in to continue learning</p>
             </div>
 

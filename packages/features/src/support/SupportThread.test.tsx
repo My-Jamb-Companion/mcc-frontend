@@ -50,10 +50,10 @@ describe("SupportThread", () => {
     const send = screen.getByRole("button", {name: "Send"});
     expect(send).toBeDisabled();
     const u = userEvent.setup();
-    await u.type(screen.getByLabelText("Message to the MCC team"), "  Can I change my class time?  ");
+    await u.type(screen.getByLabelText("Message to the SmartLearnersHQ team"), "  Can I change my class time?  ");
     await u.click(send);
     await waitFor(() => expect(vi.mocked(service.sendSupportMessage).mock.calls[0][0]).toBe("Can I change my class time?"));
-    await waitFor(() => expect(screen.getByLabelText("Message to the MCC team")).toHaveValue(""));
+    await waitFor(() => expect(screen.getByLabelText("Message to the SmartLearnersHQ team")).toHaveValue(""));
   });
 
   it("does not claim there are no messages while a failed load is being retried", async () => {

@@ -9,7 +9,7 @@ export function Cta({ data, blockId }: { data: FieldData; blockId: string }) {
         <div style={{ position: "relative", overflow: "hidden", borderRadius: "clamp(28px,4cqw,44px)", background: "linear-gradient(120deg,#6B26FF 0%,#8A1BD6 55%,#B40D9B 100%)", padding: "clamp(40px,7cqw,88px) clamp(24px,6cqw,80px)", display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 24 }}>
           <span aria-hidden="true" style={{ position: "absolute", right: -80, bottom: -120, width: 380, height: 380, borderRadius: "50%", background: "rgba(255,255,255,.08)" }} />
           <span aria-hidden="true" style={{ position: "absolute", right: 120, top: -90, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,.06)" }} />
-          <h2 style={{ position: "relative", margin: 0, fontFamily: DISPLAY, fontWeight: 400, fontSize: "clamp(38px,6cqw,76px)", lineHeight: 1, letterSpacing: "-0.01em", maxWidth: 780, textWrap: "balance" }}>{str(data, "headline")}</h2>
+          <h2 style={{ position: "relative", margin: 0, fontFamily: DISPLAY, fontWeight: 700, fontSize: "clamp(38px,6cqw,76px)", lineHeight: 1, letterSpacing: "-0.01em", maxWidth: 780, textWrap: "balance" }}>{str(data, "headline")}</h2>
           {str(data, "body") && <p style={{ position: "relative", margin: 0, fontSize: "clamp(17px,1.6cqw,20px)", lineHeight: 1.55, maxWidth: 560 }}>{str(data, "body")}</p>}
           <div style={{ position: "relative", display: "flex", flexWrap: "wrap", gap: 12 }}>
             <A href={str(data, "cta_href")} className="mcc-btn mcc-btn-white" style={{ display: "inline-flex", alignItems: "center", gap: 10, minHeight: 56, padding: "0 26px", borderRadius: 999, background: "#fff", color: "#4F0FB0", fontSize: 17, fontWeight: 700 }}>

@@ -37,7 +37,7 @@ export default function ProfileComplete({
 
         <p className="text-subtle">
           You profile is complete, you can now enjoy a personalized version of
-          MCC.
+          SmartLearnersHQ.
         </p>
         <Button onClick={click}>Awesome!</Button>
       </div>

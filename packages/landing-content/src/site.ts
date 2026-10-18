@@ -9,10 +9,8 @@ const LINK_FIELDS: Field[] = [text("label", "Text", undefined, 60), url("href", 
 
 /** Page-wide settings: the header, the footer and the search listing. */
 export const SITE_FIELDS: Field[] = [
-  text("brand_name", "Brand name", "Shown next to the logo. It's a placeholder for now, so it lives in one place."),
-  text("brand_short", "Short brand name", "Used in the header on small screens.", 12),
-  image("logo_url", "Logo image (optional)", "Leave empty to use the round purple letter."),
-  text("logo_letter", "Logo letter", "The letter shown when there is no logo image.", 2),
+  text("brand_name", "Brand name", "Used in the logo's description for screen readers and in the page title."),
+  image("logo_url", "Logo image (optional)", "Leave empty to use the SmartLearnersHQ logo. A wide, transparent PNG about 3000 px across works best."),
   {
     kind: "list", key: "nav_links", label: "Header menu", itemLabel: "Menu item", titleKey: "label", max: 7,
     fields: LINK_FIELDS,
@@ -24,7 +22,8 @@ export const SITE_FIELDS: Field[] = [
   url("cta_href", "Sign-up button link"),
   text("parent_label", "Parent link label (small-screen menu)"),
   url("parent_href", "Parent link"),
-  area("footer_tagline", "Footer sentence"),
+  text("footer_tagline", "Footer tagline", "The large line under the logo.", 80),
+  area("footer_about", "Footer sentence", "A short description under the tagline."),
   text("teach_label", "Teacher box: title"),
   text("teach_body", "Teacher box: description"),
   url("teach_href", "Teacher box link", "/go/teacher/signup opens the teacher app."),
@@ -45,10 +44,8 @@ export const SITE_FIELDS: Field[] = [
 ];
 
 export const SITE_DEFAULTS: FieldData = {
-  brand_name: "My Course Companion",
-  brand_short: "MCC",
+  brand_name: "SmartLearnersHQ",
   logo_url: "",
-  logo_letter: "m",
   nav_links: [
     { label: "Exam prep", href: "#exams" },
     { label: "Courses", href: "#courses" },
@@ -63,8 +60,9 @@ export const SITE_DEFAULTS: FieldData = {
   cta_href: "/signup",
   parent_label: "I'm a parent",
   parent_href: "#parents",
-  footer_tagline: "Exam prep, new skills, an AI study companion and real teachers, all in one place. Made in Nigeria for students everywhere.",
-  teach_label: "Teach on MCC",
+  footer_tagline: "Learn smart, pass with confidence.",
+  footer_about: "Exam prep, new skills, an AI study companion and real teachers, all in one place. Made in Nigeria for students everywhere.",
+  teach_label: "Teach on SmartLearnersHQ",
   teach_body: "Are you a teacher? Apply to join us.",
   teach_href: "/go/teacher/signup",
   footer_columns: [
@@ -75,7 +73,7 @@ export const SITE_DEFAULTS: FieldData = {
       { label: "Parent app", href: "#parents" }, { label: "Safety", href: "#parents" }, { label: "Pricing", href: "#faq" } ] },
     { title: "COMPANY", links: [
       { label: "About", href: "/about" }, { label: "Contact", href: "/contact" },
-      { label: "Teach on MCC", href: "/go/teacher/signup" }, { label: "Help centre", href: "" } ] },
+      { label: "Teach on SmartLearnersHQ", href: "/go/teacher/signup" }, { label: "Help centre", href: "" } ] },
     { title: "LEGAL", links: [
       { label: "Terms", href: "/terms" }, { label: "Privacy", href: "/privacy" }, { label: "Refund policy", href: "/refund" } ] },
   ],
@@ -83,9 +81,9 @@ export const SITE_DEFAULTS: FieldData = {
     { label: "Instagram", href: "" }, { label: "TikTok", href: "" }, { label: "X", href: "" },
     { label: "YouTube", href: "" }, { label: "WhatsApp", href: "" },
   ],
-  copyright: "© 2026 My Course Companion",
+  copyright: "© 2026 SmartLearnersHQ",
   currency_note: "",
-  seo_title: "My Course Companion: exam prep, courses and an AI study buddy",
+  seo_title: "SmartLearnersHQ · Learn smart, pass with confidence.",
   seo_description: "Prep for JAMB, WAEC, NECO, IGCSE and more with lessons, practice tests, live classes and Brainy, your AI study buddy.",
   og_image_url: "",
 };

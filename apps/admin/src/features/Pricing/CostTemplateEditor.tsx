@@ -337,7 +337,7 @@ function DirectCostsEditor({lines, onChange, errors}: {
               <th className="pb-2 pr-2 font-medium">Description</th>
               <th className="pb-2 pr-2 font-medium">Per enrolment</th>
               <th className="pb-2 pr-2 font-medium">In</th>
-              <th className="pb-2 pr-2 font-medium" title="Whether MCC pays VAT on this cost">VAT paid</th>
+              <th className="pb-2 pr-2 font-medium" title="Whether SmartLearnersHQ pays VAT on this cost">VAT paid</th>
               <th className="pb-2" />
             </tr>
           </thead>

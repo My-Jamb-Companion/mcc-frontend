@@ -37,7 +37,7 @@ const button = (primary: boolean, disabled: boolean): React.CSSProperties => ({
 });
 
 const RESULT_TEXT: Record<string, string> = {
-  granted: "Thank you. You approved this account, and they can now use the whole of My Course Companion.",
+  granted: "Thank you. You approved this account, and they can now use the whole of SmartLearnersHQ.",
   declined: "Thank you. You did not approve this account, so it stays limited to free learning.",
   expired: "This link has expired. Ask your child to send you a new one from their account.",
   revoked: "This approval is no longer valid.",
@@ -95,7 +95,7 @@ export function ConsentRequest() {
               {load.info.child_name ?? "A student"} needs your approval
             </h1>
             <p style={{ margin: "0 0 16px", color: "#404040", lineHeight: 1.6 }}>
-              {load.info.child_name ?? "A student"} signed up to My Course Companion, an online platform for exam preparation, and named you as
+              {load.info.child_name ?? "A student"} signed up to SmartLearnersHQ, an online platform for exam preparation, and named you as
               their parent or guardian. Because they are under 18, we need your approval before they can use all of it.
             </p>
             <p style={{ margin: "0 0 8px", fontWeight: 600 }}>If you approve, they can:</p>

@@ -20,8 +20,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "CRA Portal — My Course Companion",
-    template: "MCC CRA | %s",
+    default: "CRA Portal — SmartLearnersHQ",
+    template: "SmartLearnersHQ CRA | %s",
   },
   description: "Run onboarding calls and manage your availability.",
 };

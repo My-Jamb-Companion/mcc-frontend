@@ -16,14 +16,14 @@ export const LEGAL_UPDATED = "8 October 2026";
 export const TERMS: LegalDocument = {
   slug: "terms",
   title: "Terms of Use",
-  summary: "The rules for using My Course Companion: your account, what you can and can't do, paying, and what we are responsible for.",
+  summary: "The rules for using SmartLearnersHQ: your account, what you can and can't do, paying, and what we are responsible for.",
   updated: LEGAL_UPDATED,
   sections: [
     {
       heading: "1. Who we are and what this covers",
       paragraphs: [
-        "My Course Companion (\"MCC\", \"we\", \"us\") runs a learning platform: exam preparation, courses, live classes with teachers, an AI study assistant called Brainy, flashcards and rewards. These terms cover your use of our websites and apps, including the student, parent and teacher apps.",
-        "By creating an account or continuing to use MCC you agree to these terms and to our Privacy Policy and Refund Policy. If you do not agree, please do not use MCC.",
+        "SmartLearnersHQ (\"we\", \"us\") runs a learning platform: exam preparation, courses, live classes with teachers, an AI study assistant called Brainy, flashcards and rewards. These terms cover your use of our websites and apps, including the student, parent and teacher apps.",
+        "By creating an account or continuing to use SmartLearnersHQ you agree to these terms and to our Privacy Policy and Refund Policy. If you do not agree, please do not use SmartLearnersHQ.",
         "TO CONFIRM: the registered company name, registration number and address that these terms are made in the name of.",
       ],
     },
@@ -32,7 +32,7 @@ export const TERMS: LegalDocument = {
       bullets: [
         "You must give accurate details and keep them up to date.",
         "Keep your password and any codes we send you private. You are responsible for what happens on your account.",
-        "You must be at least 18 to hold your own account. If you are younger, a parent or guardian must create the account for you or give their permission, and they are responsible for your use of MCC.",
+        "You must be at least 18 to hold your own account. If you are younger, a parent or guardian must create the account for you or give their permission, and they are responsible for your use of SmartLearnersHQ.",
         "One person, one account. Do not share your account or sell access to it.",
         "Tell us straight away if you think someone else has used your account.",
       ],
@@ -46,12 +46,12 @@ export const TERMS: LegalDocument = {
     {
       heading: "4. Teachers",
       paragraphs: [
-        "Teachers apply to teach on MCC. We may ask for proof of identity (for example a national ID number, an ID document and a selfie) and for teaching qualifications, and we may approve, reject or suspend a teacher at our discretion. Teachers are paid for the sessions they deliver according to the arrangements shown to them in the teacher app. Teachers must behave professionally, keep student information confidential and use it only to teach.",
+        "Teachers apply to teach on SmartLearnersHQ. We may ask for proof of identity (for example a national ID number, an ID document and a selfie) and for teaching qualifications, and we may approve, reject or suspend a teacher at our discretion. Teachers are paid for the sessions they deliver according to the arrangements shown to them in the teacher app. Teachers must behave professionally, keep student information confidential and use it only to teach.",
       ],
     },
     {
       heading: "5. What you may and may not do",
-      paragraphs: ["You agree to use MCC only for learning and not to:"],
+      paragraphs: ["You agree to use SmartLearnersHQ only for learning and not to:"],
       bullets: [
         "break the law or help anyone else to;",
         "copy, record, resell or share courses, lessons, questions or other content without our written permission;",
@@ -76,7 +76,7 @@ export const TERMS: LegalDocument = {
     {
       heading: "8. Points, gems, silver, levels and badges",
       bullets: [
-        "Points, gems, silver, XP, levels and badges are rewards inside MCC. They have no cash value and cannot be exchanged for money, except that gems you buy can be used as described below.",
+        "Points, gems, silver, XP, levels and badges are rewards inside SmartLearnersHQ. They have no cash value and cannot be exchanged for money, except that gems you buy can be used as described below.",
         "Gems you buy with money (\"bought gems\") can be used to unlock courses and to pay for Brainy. Gems you earn can be used for Brainy and extras but not to unlock courses.",
         "We set how rewards are earned and may change the rules, limits and prices. A change applies from when we make it and does not take away rewards already given.",
         "If we find rewards were earned by cheating or by mistake we may remove them.",
@@ -91,8 +91,8 @@ export const TERMS: LegalDocument = {
     {
       heading: "10. Our content and your content",
       paragraphs: [
-        "MCC and its teachers own the lessons, questions and other material on the platform. We give you a personal, non-transferable licence to use it for your own learning while your account is open.",
-        "You keep ownership of what you create (notes, study sets, messages). You allow us to store and process it to run MCC and to show it to the people it is meant for, such as your teacher or, for a child's account, their parent.",
+        "SmartLearnersHQ and its teachers own the lessons, questions and other material on the platform. We give you a personal, non-transferable licence to use it for your own learning while your account is open.",
+        "You keep ownership of what you create (notes, study sets, messages). You allow us to store and process it to run SmartLearnersHQ and to show it to the people it is meant for, such as your teacher or, for a child's account, their parent.",
       ],
     },
     {
@@ -104,13 +104,13 @@ export const TERMS: LegalDocument = {
     {
       heading: "12. Availability and our responsibility",
       paragraphs: [
-        "We work hard to keep MCC running but cannot promise it will always be available or error-free. To the extent the law allows, we are not responsible for losses that were not reasonably foreseeable, for loss caused by things outside our control (such as network or provider outages), or for your reliance on AI answers. Nothing in these terms limits liability that cannot lawfully be limited, including for fraud or death or personal injury caused by negligence.",
+        "We work hard to keep SmartLearnersHQ running but cannot promise it will always be available or error-free. To the extent the law allows, we are not responsible for losses that were not reasonably foreseeable, for loss caused by things outside our control (such as network or provider outages), or for your reliance on AI answers. Nothing in these terms limits liability that cannot lawfully be limited, including for fraud or death or personal injury caused by negligence.",
       ],
     },
     {
       heading: "13. Changes, law and contact",
       paragraphs: [
-        "We may update these terms. If a change matters to you we will tell you in the app or by email before it applies; continuing to use MCC afterwards means you accept it.",
+        "We may update these terms. If a change matters to you we will tell you in the app or by email before it applies; continuing to use SmartLearnersHQ afterwards means you accept it.",
         "These terms are governed by the laws of the Federal Republic of Nigeria, and the Nigerian courts have jurisdiction unless the law says otherwise. TO CONFIRM: any dispute-resolution steps (for example mediation first).",
         "Questions? Use the contact details at the bottom of this page or the help chat inside the app.",
       ],
@@ -127,7 +127,7 @@ export const PRIVACY: LegalDocument = {
     {
       heading: "1. Who is responsible for your data",
       paragraphs: [
-        "My Course Companion (\"MCC\") decides why and how your personal data is used, which makes us the data controller under the Nigeria Data Protection Act 2023 (NDPA). TO CONFIRM: the registered company name and address, and the name and contact details of our data protection officer.",
+        "SmartLearnersHQ decides why and how your personal data is used, which makes us the data controller under the Nigeria Data Protection Act 2023 (NDPA). TO CONFIRM: the registered company name and address, and the name and contact details of our data protection officer.",
       ],
     },
     {
@@ -149,22 +149,22 @@ export const PRIVACY: LegalDocument = {
       bullets: [
         "To run your account and give you the lessons, classes, rewards and tools you signed up for (contract).",
         "To take payments, issue receipts, handle refunds and keep financial records (contract and legal obligation).",
-        "To keep MCC safe: preventing fraud, cheating on rewards, brute-force sign-in attempts and misuse (legitimate interests).",
+        "To keep SmartLearnersHQ safe: preventing fraud, cheating on rewards, brute-force sign-in attempts and misuse (legitimate interests).",
         "To verify teachers' identity and pay them (contract and legitimate interests).",
         "To send you service messages: confirmations, receipts, reminders for classes, password codes and notices about your account (contract). We do not send marketing unless you ask for it or agree to it.",
-        "To improve MCC with summaries of how it is used, for example which programs are popular or how students heard about us (legitimate interests).",
+        "To improve SmartLearnersHQ with summaries of how it is used, for example which programs are popular or how students heard about us (legitimate interests).",
         "Where the law requires us to, or to respond to lawful requests (legal obligation).",
       ],
     },
     {
       heading: "4. Children",
       paragraphs: [
-        "MCC is used by students under 18. A parent or guardian creates or approves a child's account and can see the child's progress, classes, level and badges. We use a child's data only to provide the service. If you think a child has an account without a parent's permission, tell us and we will deal with it.",
+        "SmartLearnersHQ is used by students under 18. A parent or guardian creates or approves a child's account and can see the child's progress, classes, level and badges. We use a child's data only to provide the service. If you think a child has an account without a parent's permission, tell us and we will deal with it.",
       ],
     },
     {
       heading: "5. Who we share it with",
-      paragraphs: ["We do not sell your personal data. We share it only with companies that help us run MCC, under agreements that limit what they may do with it:"],
+      paragraphs: ["We do not sell your personal data. We share it only with companies that help us run SmartLearnersHQ, under agreements that limit what they may do with it:"],
       bullets: [
         "Flutterwave: payment processing.",
         "Our email provider (Resend) and WhatsApp (Meta): sending you codes, receipts and notices.",
@@ -209,7 +209,7 @@ export const PRIVACY: LegalDocument = {
     {
       heading: "10. Cookies and similar storage",
       paragraphs: [
-        "We use cookies and browser storage that are needed to keep you signed in, remember your theme and keep the app working. We do not use them to sell advertising. You can clear them in your browser, but parts of MCC will not work while signed out.",
+        "We use cookies and browser storage that are needed to keep you signed in, remember your theme and keep the app working. We do not use them to sell advertising. You can clear them in your browser, but parts of SmartLearnersHQ will not work while signed out.",
       ],
     },
     {
@@ -251,13 +251,13 @@ export const REFUND: LegalDocument = {
         "You have already completed most of the course or used a large part of what you bought.",
         "Your account was suspended for breaking the Terms of Use.",
         "The request is for gems that have already been spent.",
-        "The request comes a long time after the purchase. TO CONFIRM: whether MCC will state a fixed request window (for example a number of days), and the exact rules for partly used courses.",
+        "The request comes a long time after the purchase. TO CONFIRM: whether SmartLearnersHQ will state a fixed request window (for example a number of days), and the exact rules for partly used courses.",
       ],
     },
     {
       heading: "4. How to ask",
       paragraphs: [
-        "Contact us from the help chat in the app or using the contact details on this page, and include the receipt number (it starts with MCC- and is under Wallet, then History, in the student app, and in your confirmation email). Tell us what went wrong. We may ask you a few questions.",
+        "Contact us from the help chat in the app or using the contact details on this page, and include the receipt number (it starts with SLHQ-, or MCC- on older receipts and is under Wallet, then History, in the student app, and in your confirmation email). Tell us what went wrong. We may ask you a few questions.",
       ],
     },
     {
@@ -279,7 +279,7 @@ export const REFUND: LegalDocument = {
     {
       heading: "7. Failed or pending payments",
       paragraphs: [
-        "If your bank took money but MCC shows the payment as pending or failed, do not pay again straight away. We check pending payments with Flutterwave automatically every few minutes, and a payment that really went through is applied to your account. If it did not go through, the money normally returns to you from your bank. If it has not after a few days, contact us with your reference.",
+        "If your bank took money but SmartLearnersHQ shows the payment as pending or failed, do not pay again straight away. We check pending payments with Flutterwave automatically every few minutes, and a payment that really went through is applied to your account. If it did not go through, the money normally returns to you from your bank. If it has not after a few days, contact us with your reference.",
       ],
     },
     {

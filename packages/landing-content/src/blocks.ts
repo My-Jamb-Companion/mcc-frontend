@@ -34,8 +34,8 @@ export const BLOCKS: BlockDefinition[] = [
     ],
     defaults: {
       eyebrow: "Meet Brainy, your AI study buddy",
-      headline_lead: "Walk into your exam",
-      headline_emph: "ready.",
+      headline_lead: "Learn smart,",
+      headline_emph: "pass with confidence.",
       body: "Prep for JAMB, WAEC, NECO, IGCSE and more with lessons, practice tests and Brainy, your AI study buddy. Then a real person calls you, free, to help you pick the right path.",
       cta_label: "Get started free",
       cta_href: "/signup",
@@ -215,7 +215,7 @@ export const BLOCKS: BlockDefinition[] = [
       class_title: "Live classes with your own teacher",
       class_body: "You're assigned a vetted teacher. Join them weekly to ask questions, go over tough topics and stay on track.",
       class_image_url: "",
-      trust: ["Every teacher is vetted", "A weekly class with your own teacher", "A real person to help you start"],
+      trust: ["Every teacher is vetted", "Classes run inside SmartLearnersHQ", "Small, focused groups"],
     },
   },
   {
@@ -278,7 +278,7 @@ export const BLOCKS: BlockDefinition[] = [
       body: "The parent app shows what your child studied and how their quizzes went. No guessing, no chasing.",
       pillars: [
         { title: "Progress you can see", body: "Study time, quiz and test results and live class attendance, in one place." },
-        { title: "Safe and supervised", body: "Every teacher is vetted, and live classes are booked and joined from your child's MCC account." },
+        { title: "Safe and supervised", body: "Every teacher is vetted. Live classes happen inside SmartLearnersHQ, and you can see who teaches your child." },
         { title: "Value for money", body: "Prices in Naira, paid by card through Flutterwave. Lots of courses are free." },
       ],
       cta_label: "I'm a parent",
@@ -343,7 +343,7 @@ export const BLOCKS: BlockDefinition[] = [
         { q: "How much does it cost?", a: "Creating an account is free, the onboarding call is free, and many courses are free. Paid programmes are priced in Naira and you pay by card through Flutterwave." },
         { q: "Which exams and subjects do you cover?", a: "JAMB, WAEC, NECO, IGCSE, A-Levels, SAT, PMP, DELF and DALF, with one programme per exam and subject. We also offer courses in skills like coding, languages and personal finance." },
         { q: "How does the free call work?", a: "Right after you sign up, you pick a time. A Customer Relations Associate calls you, asks about your goals and helps you choose the right programme. It's free and there's no obligation to buy." },
-        { q: "Will it work on my phone and data?", a: "Yes. MCC works in your phone's browser and is built to keep data use low." },
+        { q: "Will it work on my phone and data?", a: "Yes. SmartLearnersHQ is built for phones first and keeps data use low: no autoplay video, and lessons load light." },
         { q: "How do parents follow progress?", a: "Parents use the parent app, linked to their child's account, to see study time, quiz results and live class attendance." },
       ],
     },

@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
     // per environment (e.g. the deployed Student Platform's real URL).
     NEXT_PUBLIC_LEARNER_URL:
       process.env.NEXT_PUBLIC_LEARNER_URL || "http://localhost:3000",
-    // Where "I'm a parent" / "Teach on MCC" links go (as /go/parent/..., /go/teacher/...), and
+    // Where "I'm a parent" / "Teach on SmartLearnersHQ" links go (as /go/parent/..., /go/teacher/...), and
     // which origin may drive the live preview. See src/config.ts.
     NEXT_PUBLIC_PARENT_URL:
       process.env.NEXT_PUBLIC_PARENT_URL || "http://localhost:3003",

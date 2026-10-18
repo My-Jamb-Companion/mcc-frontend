@@ -5,13 +5,13 @@
 export type CompanySection = { heading: string; paragraphs?: string[]; bullets?: string[] };
 
 export const ABOUT = {
-  title: "About My Course Companion",
+  title: "About SmartLearnersHQ",
   summary: "A learning platform made in Nigeria: exam preparation, courses, live classes with real teachers, and an AI study companion, in one place.",
   sections: [
     {
       heading: "What we do",
       paragraphs: [
-        "My Course Companion (MCC) helps students prepare for the exams that decide their next step, and pick up new skills along the way. Everything a student needs sits in one account: lessons to learn from, practice to test themselves, teachers to ask, and a study companion that is there when they are stuck.",
+        "SmartLearnersHQ helps students prepare for the exams that decide their next step, and pick up new skills along the way. Everything a student needs sits in one account: lessons to learn from, practice to test themselves, teachers to ask, and a study companion that is there when they are stuck.",
       ],
     },
     {
@@ -33,7 +33,7 @@ export const ABOUT = {
     {
       heading: "For teachers",
       paragraphs: [
-        "Teachers apply to join MCC, are verified before they start, and are paid for the sessions they teach. If you would like to teach with us, you can apply from the teacher app.",
+        "Teachers apply to join SmartLearnersHQ, are verified before they start, and are paid for the sessions they teach. If you would like to teach with us, you can apply from the teacher app.",
       ],
     },
     {

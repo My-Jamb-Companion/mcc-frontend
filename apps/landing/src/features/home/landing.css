@@ -1,8 +1,8 @@
 /* The landing page's own styles: what inline styles can't do (hover, focus, container queries). */
 
 .mcc-root {
-  --mcc-display: var(--font-bagel), "Bagel Fat One", system-ui, sans-serif;
-  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  --mcc-display: var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
+  font-family: var(--font-atkinson), "Atkinson Hyperlegible", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 .mcc-root a { color: inherit; }

@@ -21,7 +21,7 @@ const row = (title: string) => screen.getByText(title).closest("li")!;
 describe("BlockList", () => {
   it("shows each section with its headline, and marks a hidden one", () => {
     setup();
-    expect(within(row("Hero")).getByText("Walk into your exam ready.")).toBeTruthy();
+    expect(within(row("Hero")).getByText("Learn smart, pass with confidence.")).toBeTruthy();
     expect(within(row("Closing banner")).getByText(/Hidden/)).toBeTruthy();
   });
 

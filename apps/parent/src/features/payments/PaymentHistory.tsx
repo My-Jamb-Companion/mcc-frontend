@@ -32,7 +32,7 @@ function ReceiptModal({ txRef, onClose }: { txRef: string | null; onClose: () =>
       {isError && <p className="text-sm text-danger">This receipt couldn&apos;t be loaded.</p>}
       {data && (
         <div className="receipt-print">
-          <p className="text-xs uppercase tracking-wide text-muted">My Course Companion</p>
+          <p className="text-xs uppercase tracking-wide text-muted">SmartLearnersHQ</p>
           <p className="mb-3 text-lg font-bold">{data.receipt_number ?? "Receipt"}</p>
           <dl>
             <Row label="Item" value={data.item} />

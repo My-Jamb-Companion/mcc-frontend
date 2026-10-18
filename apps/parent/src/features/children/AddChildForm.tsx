@@ -77,7 +77,7 @@ export const AddChildForm = () => {
           {...register("guardian_consent", { validate: (v) => v === true || "You need to give your consent to continue" })}
         />
         <span>
-          I am this child&apos;s parent or legal guardian. I consent to them using My Course Companion and to their
+          I am this child&apos;s parent or legal guardian. I consent to them using SmartLearnersHQ and to their
           information being used as described in the <LegalLink doc="privacy">Privacy Policy</LegalLink>.
         </span>
       </label>
@@ -87,7 +87,7 @@ export const AddChildForm = () => {
 
       <p className="text-xs text-muted">
         This creates a new account for your child, ready to use straight away. The email must not already be
-        registered with My Course Companion.
+        registered with SmartLearnersHQ.
       </p>
 
       {addChild.isError && (

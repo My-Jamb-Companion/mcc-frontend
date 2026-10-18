@@ -25,7 +25,7 @@ describe("block labels", () => {
   it("names a block by its type and shows its headline underneath", () => {
     const hero = createBlock("hero");
     expect(blockTitle(hero)).toBe("Hero");
-    expect(blockSubtitle(hero)).toBe("Walk into your exam ready.");
+    expect(blockSubtitle(hero)).toBe("Learn smart, pass with confidence.");
     expect(blockSubtitle(createBlock("faq"))).toBe("Questions? We've got you.");
     expect(blockTitle({id: "x", type: "from_the_future", visible: true, data: {}})).toBe("from_the_future");
   });

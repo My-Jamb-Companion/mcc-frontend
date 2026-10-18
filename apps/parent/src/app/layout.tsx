@@ -20,8 +20,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Parent Portal — My Course Companion",
-    template: "MCC Parent | %s",
+    default: "Parent Portal — SmartLearnersHQ",
+    template: "SmartLearnersHQ Parent | %s",
   },
   description: "Keep track of your child's learning, progress, and sessions.",
 };

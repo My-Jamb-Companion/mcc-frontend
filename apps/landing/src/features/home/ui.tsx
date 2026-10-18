@@ -93,7 +93,7 @@ export function Eyebrow({ children, color = "#6717DE" }: { children: ReactNode; 
 
 export function H2({ children, size = "clamp(34px,4.6cqw,56px)", lineHeight = 1.04 }: { children: ReactNode; size?: string; lineHeight?: number }) {
   return (
-    <h2 style={{ margin: 0, fontFamily: DISPLAY, fontWeight: 400, fontSize: size, lineHeight, letterSpacing: "-0.01em", textWrap: "balance" }}>
+    <h2 style={{ margin: 0, fontFamily: DISPLAY, fontWeight: 700, fontSize: size, lineHeight, letterSpacing: "-0.01em", textWrap: "balance" }}>
       {children}
     </h2>
   );
@@ -127,13 +127,11 @@ export const Pill = ({ children, style }: { children: ReactNode; style?: CSSProp
   <span style={{ display: "inline-flex", alignItems: "center", padding: "5px 12px", borderRadius: 999, fontSize: 12, fontWeight: 700, letterSpacing: ".04em", ...style }}>{children}</span>
 );
 
-export function BrandMark({ letter, logoUrl, size = 40, radius = 12 }: { letter: string; logoUrl?: string; size?: number; radius?: number }) {
-  if (logoUrl) {
-    return <img src={logoUrl} alt="" width={size} height={size} style={{ width: size, height: size, borderRadius: radius, objectFit: "cover", flex: "none" }} />;
-  }
-  return (
-    <span style={{ width: size, height: size, flex: "none", borderRadius: radius, background: "#6B26FF", display: "grid", placeItems: "center", color: "#fff", fontFamily: DISPLAY, fontSize: 22, lineHeight: 1 }}>
-      {letter}
-    </span>
-  );
+/**
+ * The SmartLearnersHQ logo (mark, wordmark and HQ tag). `reverse` is the white-wordmark version for the
+ * near-black footer. A logo image set in the site settings replaces it.
+ */
+export function Logo({ name, logoUrl, reverse = false, height = 32, maxWidth }: { name: string; logoUrl?: string; reverse?: boolean; height?: number; maxWidth?: string }) {
+  const src = logoUrl || (reverse ? "/brand/logo-horizontal-reverse-transparent.png" : "/brand/logo-horizontal.png");
+  return <img src={src} alt={name} style={{ display: "block", height, width: "auto", maxWidth, flex: "none" }} />;
 }

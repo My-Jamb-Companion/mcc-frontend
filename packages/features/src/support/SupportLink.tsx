@@ -3,7 +3,7 @@
 import {useSupportUnread} from "./useSupport";
 
 /** The nav label for the team conversation, with the number of unread messages beside it when there are any. */
-export const SupportLink = ({label = "MCC team"}: {label?: string}) => {
+export const SupportLink = ({label = "SmartLearnersHQ team"}: {label?: string}) => {
   const {data: unread = 0} = useSupportUnread();
   return (
     <span className="inline-flex items-center gap-1.5">

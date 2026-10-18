@@ -83,7 +83,7 @@ export default function FinancialOverview() {
           </Card>
 
           <Card title="Where it came from">
-            <Headline label="Left for MCC after teachers' share" value={cards?.income.leftForMcc ?? "—"} />
+            <Headline label="Left for SmartLearnersHQ after teachers' share" value={cards?.income.leftForMcc ?? "—"} />
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gray-50 mt-4">
               <Pair label="Courses" value={cards?.income.course ?? "—"} accent="border-indigo-600" />
               <Pair label="Exam prep" value={cards?.income.exam ?? "—"} accent="border-blue-500" />
