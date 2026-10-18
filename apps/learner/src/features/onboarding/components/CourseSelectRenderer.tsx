@@ -5,6 +5,7 @@ import {Icon} from "@mcc/ui";
 import {useCourses} from "@/src/features/courses/hooks/useCourses";
 import {usePrograms} from "@/src/features/exams/hooks/useExams";
 import {CourseSelectStep, SelectedOnboardingItem} from "../types/formTypes";
+import {coverFallback} from "@/src/features/components/coverFallback";
 
 const FALLBACK_IMAGE = "/assets/images/tower.jpg";
 const MAX_ITEMS = 15;
@@ -106,6 +107,7 @@ export function CourseSelectRenderer({step}: {step: CourseSelectStep}) {
                   <img
                     src={item.image}
                     alt={item.title}
+                    onError={coverFallback}
                     className="h-full w-full object-cover"
                   />
                 </div>

@@ -109,14 +109,14 @@ export function DragImageOverlay({
                 initial={{scale: 0.85}}
                 animate={{scale: 1}}
                 transition={{duration: 0.2, ease: "easeOut", delay: 0.06}}
-                className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl bg-white shadow-xl"
+                className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl bg-background shadow-xl"
               >
-                <Icon icon="ph:image" className="h-7 w-7 text-gray-900" />
+                <Icon icon="ph:image" className="h-7 w-7 text-foreground" />
               </motion.div>
             </div>
 
             <h2 className="text-3xl font-semibold text-white">{title}</h2>
-            <p className="mt-2 text-sm text-gray-300">{subtitle}</p>
+            <p className="mt-2 text-sm text-muted">{subtitle}</p>
           </div>
         </motion.div>
       )}

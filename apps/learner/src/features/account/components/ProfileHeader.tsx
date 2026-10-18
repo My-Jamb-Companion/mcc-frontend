@@ -30,7 +30,7 @@ export default function ProfileHeader({
             <button
               onClick={() => document.getElementById("file-input")?.click()}
               aria-label="Change profile photo"
-              className="relative block h-28 w-28 md:h-36 md:w-36 overflow-hidden rounded-[32px] border-2 border-purple-300 bg-white shadow-lg cursor-pointer group"
+              className="relative block h-28 w-28 md:h-36 md:w-36 overflow-hidden rounded-[32px] border-2 border-purple-300 bg-background shadow-lg cursor-pointer group"
             >
               <ProfileAvatar
                 src={avatarSrc}
@@ -49,7 +49,7 @@ export default function ProfileHeader({
 
             <button
               onClick={() => document.getElementById("file-input")?.click()}
-              className="md:hidden absolute bottom-0 right-0 bg-white border border-muted/40 rounded-md p-1"
+              className="md:hidden absolute bottom-0 right-0 bg-background border border-muted/40 rounded-md p-1"
             >
               <Icon icon="stash:image-plus" />
               <input
@@ -89,7 +89,7 @@ export default function ProfileHeader({
 
             <button
               onClick={() => document.getElementById("file-input")?.click()}
-              className="max-md:hidden mt-5 flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium hover:bg-gray-50 "
+              className="max-md:hidden mt-5 flex items-center gap-2 rounded-lg border border-muted/20 px-4 py-2 text-sm font-medium hover:bg-muted/10 "
             >
               <Icon icon="stash:image-plus" />
               Upload New profile Photo
@@ -104,7 +104,7 @@ export default function ProfileHeader({
               <p className="font-semibold">{user.username}</p>
             </div>
 
-            <div className="h-10 w-px bg-gray-200" />
+            <div className="h-10 w-px bg-muted/20" />
 
             <div>
               <p className="text-sm text-subtle font-medium">Lessons</p>
@@ -112,7 +112,7 @@ export default function ProfileHeader({
               <p className="text-center font-semibold">{user.lessons}</p>
             </div>
 
-            <div className="h-10 w-px bg-gray-200 max-sm:hidden" />
+            <div className="h-10 w-px bg-muted/20 max-sm:hidden" />
 
             <div className="rounded-full bg-orange-50 border border-orange-300 p-2 text-sm max-sm:hidden">
               🟠
@@ -121,7 +121,7 @@ export default function ProfileHeader({
               </span>
             </div>
 
-            <div className="h-10 w-px bg-gray-200" />
+            <div className="h-10 w-px bg-muted/20" />
 
             <div className="flex gap-5 text-sm text-nowrap text-subtle font-semibold">
               <span>💎 {user.diamonds}</span>

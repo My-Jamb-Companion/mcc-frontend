@@ -52,7 +52,7 @@ function TopNav({
             className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs md:text-sm font-medium transition-colors text-nowrap ${
               isActive
                 ? "border border-muted/30"
-                : "text-gray-400 hover:text-gray-600"
+                : "text-muted hover:text-foreground"
             }`}
           >
             <Icon icon={icon} size={14} />

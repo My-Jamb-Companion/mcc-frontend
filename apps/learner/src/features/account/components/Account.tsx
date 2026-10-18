@@ -92,7 +92,7 @@ export default function AccountSettingsPage() {
   return (
     <div className="pb-10">
       <div className="">
-        <div className="relative h-36 overflow-hidden bg-linear-to-r from-[#ede9fe] via-[#f4f1ff] to-[#fafafa]">
+        <div className="relative h-36 overflow-hidden bg-linear-to-r from-[#ede9fe] via-[#f4f1ff] to-[#fafafa] dark:from-primary/25 dark:via-primary/10 dark:to-background">
           <div className="absolute left-40 top-0 h-40 w-40 rounded-full bg-purple-300/20 blur-3xl" />
           <div className="absolute right-20 top-0 h-40 w-40 rounded-full bg-blue-200/20 blur-3xl" />
 
@@ -125,7 +125,7 @@ export default function AccountSettingsPage() {
                   onSave={handleFieldChange}
                 />
               ) : (
-                <div className="flex-1 text-sm text-gray-400">
+                <div className="flex-1 text-sm text-muted">
                   <UpdatePasswordForm
                     onSave={(values) =>
                       updatePassword.mutate({
@@ -150,7 +150,7 @@ export default function AccountSettingsPage() {
               <Bookmarks />
             </div>
           ) : (
-            <div className="mt-6 text-sm text-gray-400 md:max-w-[80%]">
+            <div className="mt-6 text-sm text-muted md:max-w-[80%]">
               <AccountConfigurations />
             </div>
           )}

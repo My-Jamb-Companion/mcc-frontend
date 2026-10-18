@@ -51,7 +51,7 @@ export default function NotesTab({
     <section className="w-full md:max-w-[75%] mx-auto font-sans">
       <div className="mb-5">
         {composing ? (
-          <div className="border border-gray-200 rounded-xl px-4 py-3 bg-white shadow-sm">
+          <div className="border border-muted/20 rounded-xl px-4 py-3 bg-background shadow-sm">
             <p className="text-xs text-violet-600 font-medium mb-2">Note at {formattedTime}</p>
             <textarea
               autoFocus
@@ -59,7 +59,7 @@ export default function NotesTab({
               onChange={(e) => setNewNoteText(e.target.value)}
               placeholder="Write your note..."
               rows={3}
-              className="w-full text-sm text-gray-700 resize-none outline-none leading-relaxed placeholder:text-gray-400"
+              className="w-full text-sm text-foreground resize-none outline-none leading-relaxed placeholder:text-muted"
             />
             <div className="flex justify-end gap-2 mt-2">
               <button
@@ -67,7 +67,7 @@ export default function NotesTab({
                   setComposing(false);
                   setNewNoteText("");
                 }}
-                className="px-3 py-1 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                className="px-3 py-1 text-xs text-subtle hover:text-foreground transition-colors"
               >
                 Cancel
               </button>
@@ -84,19 +84,19 @@ export default function NotesTab({
           <button
             onClick={() => setComposing(true)}
             disabled={!activeLessonId}
-            className="w-full flex items-center justify-between border border-gray-200 rounded-xl px-4 py-3.5 text-sm text-gray-400 bg-white hover:border-gray-300 hover:bg-gray-50 transition-colors shadow-sm text-left disabled:opacity-50"
+            className="w-full flex items-center justify-between border border-muted/20 rounded-xl px-4 py-3.5 text-sm text-muted bg-background hover:border-muted/30 hover:bg-muted/10 transition-colors shadow-sm text-left disabled:opacity-50"
           >
             <span>Create a new note at {formattedTime}</span>
-            <Plus className="w-5 h-5 text-gray-400" />
+            <Plus className="w-5 h-5 text-muted" />
           </button>
         )}
       </div>
 
       <div>
         {isLoading ? (
-          <p className="text-sm text-gray-400 py-8 text-center">Loading notes…</p>
+          <p className="text-sm text-muted py-8 text-center">Loading notes…</p>
         ) : notes.length === 0 ? (
-          <p className="text-sm text-gray-400 py-8 text-center">
+          <p className="text-sm text-muted py-8 text-center">
             No notes yet. Create one above!
           </p>
         ) : (
@@ -139,23 +139,23 @@ function NoteCard({
   };
 
   return (
-    <section className="py-4 border-b border-gray-100 last:border-none">
+    <section className="py-4 border-b border-muted/20 last:border-none">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={() => onTimestampClick?.(note.timestamp_seconds)}
-            className="shrink-0 min-w-[48px] px-2 py-0.5 rounded-full border border-violet-300 text-violet-600 text-xs font-semibold bg-white hover:bg-violet-50 transition-colors"
+            className="shrink-0 min-w-[48px] px-2 py-0.5 rounded-full border border-violet-300 text-violet-600 text-xs font-semibold bg-background hover:bg-violet-50 transition-colors"
           >
             {formatDuration(note.timestamp_seconds)}
           </button>
-          <span className="text-sm font-semibold text-gray-900 truncate">{note.lecture_title}</span>
-          <span className="text-sm text-gray-400 truncate">{note.module_title}</span>
+          <span className="text-sm font-semibold text-foreground truncate">{note.lecture_title}</span>
+          <span className="text-sm text-muted truncate">{note.module_title}</span>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setEditing(true)}
-            className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors rounded"
+            className="p-1.5 text-muted hover:text-foreground transition-colors rounded"
             aria-label="Edit note"
           >
             <Pencil className="w-4 h-4" />
@@ -163,7 +163,7 @@ function NoteCard({
           <button
             onClick={() => deleteNote.mutate(note.note_id)}
             disabled={deleteNote.isPending}
-            className="p-1.5 text-gray-400 hover:text-red-500 transition-colors rounded disabled:opacity-40"
+            className="p-1.5 text-muted hover:text-red-500 transition-colors rounded disabled:opacity-40"
             aria-label="Delete note"
           >
             <Trash2 className="w-4 h-4" />
@@ -177,7 +177,7 @@ function NoteCard({
             autoFocus
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            className="w-full text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 resize-none outline-none focus:ring-2 focus:ring-violet-300 leading-relaxed"
+            className="w-full text-sm text-foreground bg-muted/10 border border-muted/20 rounded-lg px-3 py-2 resize-none outline-none focus:ring-2 focus:ring-violet-300 leading-relaxed"
             rows={3}
           />
           <div className="flex gap-2 mt-2">
@@ -190,14 +190,14 @@ function NoteCard({
             </button>
             <button
               onClick={handleCancel}
-              className="px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
+              className="px-3 py-1 text-xs font-medium text-subtle hover:text-foreground transition-colors"
             >
               Cancel
             </button>
           </div>
         </div>
       ) : (
-        <p className="ml-[60px] text-sm text-gray-500 leading-relaxed bg-gray-50 rounded-lg px-3 py-2">
+        <p className="ml-[60px] text-sm text-subtle leading-relaxed bg-muted/10 rounded-lg px-3 py-2">
           {note.body}
         </p>
       )}

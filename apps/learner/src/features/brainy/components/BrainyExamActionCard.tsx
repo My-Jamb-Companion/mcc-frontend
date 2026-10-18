@@ -40,21 +40,21 @@ function ActionCard({
       whileTap={!isDisabled ? {scale: 0.99} : undefined}
       transition={{type: "spring", stiffness: 400, damping: 28}}
       className={[
-        "flex w-full items-start gap-3 rounded-2xl border-2 bg-white p-4 text-left",
+        "flex w-full items-start gap-3 rounded-2xl border-2 bg-background p-4 text-left",
         "border-muted/20 shadow-sm",
         isDisabled
           ? "cursor-default opacity-90"
-          : "cursor-pointer hover:border-gray-300 hover:shadow-md",
+          : "cursor-pointer hover:border-muted/30 hover:shadow-md",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2",
       ].join(" ")}
     >
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-muted/20 bg-gray-50">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-muted/20 bg-muted/10">
         <Icon icon={action.icon} className="h-4.5 w-4.5 text-purple-600" />
       </span>
 
       <div className="flex-1">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold text-gray-900">
+          <h3 className="text-sm font-semibold text-foreground">
             {action.title}
           </h3>
           {action.badge && (
@@ -64,7 +64,7 @@ function ActionCard({
             </span>
           )}
         </div>
-        <p className="mt-0.5 text-sm leading-snug text-gray-500">
+        <p className="mt-0.5 text-sm leading-snug text-subtle">
           {action.description}
         </p>
       </div>
@@ -86,16 +86,16 @@ export function BrainyExamActionCardGrid({
   return (
     <div className={`mx-auto w-full max-w-[660px] ${className}`}>
       {eyebrow && (
-        <span className="inline-flex rounded-full bg-gray-50 px-3 py-1 text-xs font-medium text-gray-600 mx-auto text-center">
+        <span className="inline-flex rounded-full bg-muted/10 px-3 py-1 text-xs font-medium text-subtle mx-auto text-center">
           {eyebrow}
         </span>
       )}
 
-      <h1 className="mt-3 text-2xl font-bold text-gray-900 sm:text-[28px]">
+      <h1 className="mt-3 text-2xl font-bold text-foreground sm:text-[28px]">
         {heading}
       </h1>
 
-      {subtext && <p className="mt-2 text-sm text-gray-400">{subtext}</p>}
+      {subtext && <p className="mt-2 text-sm text-muted">{subtext}</p>}
 
       <div className={`mt-6 grid grid-cols-2 gap-3 ${gridColsClass}`}>
         {actions.map((action) => (

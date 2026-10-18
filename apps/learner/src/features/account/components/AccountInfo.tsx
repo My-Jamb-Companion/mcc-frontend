@@ -70,16 +70,16 @@ export function AccountPersonalInformationForm({
 
   return (
     <form className="flex-1" onSubmit={submit}>
-      <h3 className="text-base font-bold text-gray-900">
+      <h3 className="text-base font-bold text-foreground">
         Personal Information
       </h3>
 
       {linkedParent?.linked && (
-        <div className="mt-3 flex items-center gap-2 rounded-xl border border-muted/20 bg-muted/5 px-3 py-2 text-sm text-gray-600">
+        <div className="mt-3 flex items-center gap-2 rounded-xl border border-muted/20 bg-muted/5 px-3 py-2 text-sm text-subtle">
           <Icon icon="lucide:link" size={14} className="shrink-0 text-primary" />
           <span>
             Linked to parent account{" "}
-            <span className="font-medium text-gray-900">
+            <span className="font-medium text-foreground">
               {linkedParent.parent_name ?? linkedParent.parent_email}
             </span>
           </span>
@@ -157,7 +157,7 @@ export function AccountPersonalInformationForm({
         />
       </div>
 
-      <h3 className="mt-6 text-base font-bold text-gray-900">
+      <h3 className="mt-6 text-base font-bold text-foreground">
         Manage Location
       </h3>
 
@@ -196,7 +196,7 @@ export function AccountPersonalInformationForm({
           registration={register("street")}
           errors={errors.street}
         />
-        <p className="mt-1 text-[11px] text-gray-400">Optional</p>
+        <p className="mt-1 text-[11px] text-muted">Optional</p>
       </div>
 
       <button

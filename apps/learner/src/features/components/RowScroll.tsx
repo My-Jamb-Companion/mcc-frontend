@@ -59,7 +59,7 @@ export default function ScrollRow({
             {title}
           </p>
           {isCard && subTitle && (
-            <p className="text-sm text-gray-400">{subTitle}</p>
+            <p className="text-sm text-muted">{subTitle}</p>
           )}
           {!isCard && showSeeAll && (
             <button

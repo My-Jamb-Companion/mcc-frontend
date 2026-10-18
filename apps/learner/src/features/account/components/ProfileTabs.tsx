@@ -13,7 +13,7 @@ export function ProfileTabs({active, onChange}: ProfileTabsProps) {
   ];
 
   return (
-    <div className="mt-6 inline-flex rounded-full bg-gray-100 p-1">
+    <div className="mt-6 inline-flex rounded-full bg-muted/10 p-1">
       {tabs.map((t) => (
         <button
           key={t.key}
@@ -21,8 +21,8 @@ export function ProfileTabs({active, onChange}: ProfileTabsProps) {
           onClick={() => onChange(t.key)}
           className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
             active === t.key
-              ? "bg-white text-gray-900 shadow-sm"
-              : "text-gray-400 hover:text-gray-600"
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted hover:text-foreground"
           }`}
         >
           {t.label}

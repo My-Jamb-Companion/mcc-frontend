@@ -11,10 +11,10 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function InviteRow({invite}: {invite: ApiReferralInvite}) {
   const signedUp = invite.status === "signed_up";
   return (
-    <div className="flex items-center justify-between rounded-2xl bg-gray-50 p-4">
+    <div className="flex items-center justify-between rounded-2xl bg-muted/10 p-4">
       <div>
-        <p className="text-sm font-medium text-gray-800">{invite.email}</p>
-        <p className="text-xs text-gray-400">
+        <p className="text-sm font-medium text-foreground">{invite.email}</p>
+        <p className="text-xs text-muted">
           Invited{" "}
           {invite.invited_at
             ? new Date(invite.invited_at).toLocaleDateString("en-US", {
@@ -74,7 +74,7 @@ export default function Referrals() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="friend@example.com"
-            className="w-full flex-1 rounded-full border-none bg-white/95 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-white"
+            className="w-full flex-1 rounded-full border-none bg-white/95 px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-white"
           />
           <button
             type="submit"
@@ -87,29 +87,29 @@ export default function Referrals() {
       </div>
 
       <div className="mt-6 grid grid-cols-3 gap-3 text-center max-sm:grid-cols-1">
-        <div className="rounded-2xl bg-gray-50 p-4">
-          <p className="text-2xl font-bold text-gray-900">{status?.total_invited ?? 0}</p>
-          <p className="text-xs text-gray-400">Invited</p>
+        <div className="rounded-2xl bg-muted/10 p-4">
+          <p className="text-2xl font-bold text-foreground">{status?.total_invited ?? 0}</p>
+          <p className="text-xs text-muted">Invited</p>
         </div>
-        <div className="rounded-2xl bg-gray-50 p-4">
-          <p className="text-2xl font-bold text-gray-900">{status?.successful ?? 0}</p>
-          <p className="text-xs text-gray-400">Joined</p>
+        <div className="rounded-2xl bg-muted/10 p-4">
+          <p className="text-2xl font-bold text-foreground">{status?.successful ?? 0}</p>
+          <p className="text-xs text-muted">Joined</p>
         </div>
-        <div className="rounded-2xl bg-gray-50 p-4">
-          <p className="flex items-center justify-center gap-1 text-2xl font-bold text-gray-900">
+        <div className="rounded-2xl bg-muted/10 p-4">
+          <p className="flex items-center justify-center gap-1 text-2xl font-bold text-foreground">
             <Icon icon="solar:cup-star-bold" size={20} />
             {status?.rewards_earned.gems ?? 0}
           </p>
-          <p className="text-xs text-gray-400">Gems earned</p>
+          <p className="text-xs text-muted">Gems earned</p>
         </div>
       </div>
 
       <div className="mt-6">
-        <p className="mb-3 text-sm font-bold text-gray-900">Your invites</p>
+        <p className="mb-3 text-sm font-bold text-foreground">Your invites</p>
         <div className="flex flex-col gap-2">
-          {isLoading && <p className="py-8 text-center text-sm text-gray-400">Loading…</p>}
+          {isLoading && <p className="py-8 text-center text-sm text-muted">Loading…</p>}
           {!isLoading && (status?.invites.length ?? 0) === 0 && (
-            <p className="py-8 text-center text-sm text-gray-400">
+            <p className="py-8 text-center text-sm text-muted">
               No invites sent yet. Invite a friend above to get started.
             </p>
           )}

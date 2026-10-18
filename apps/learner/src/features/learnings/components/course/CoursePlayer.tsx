@@ -39,6 +39,8 @@ export default function CoursePlayer({
   const [showVolume, setShowVolume] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [looping, setLooping] = useState(false);
+  // The file failed to load (a missing file, or the storage host being down): say so instead of a black frame that never plays.
+  const [loadFailed, setLoadFailed] = useState(false);
   const [seeking, setSeeking] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [showSkipIndicator, setShowSkipIndicator] = useState<
@@ -46,6 +48,9 @@ export default function CoursePlayer({
   >(null);
 
   // Get active media element ref dynamically
+  // A different lesson's file gets a fresh chance.
+  useEffect(() => setLoadFailed(false), [src]);
+
   const getActiveMedia = () => (isAudio ? audioRef.current : videoRef.current);
 
   const showControls = isAudio || !playing || controlsVisible;
@@ -230,10 +235,31 @@ export default function CoursePlayer({
           loop={looping}
           className="w-full aspect-video object-cover"
           onTimeUpdate={onTimeUpdate}
-          onLoadedMetadata={onLoadedMetadata}
+          onLoadedMetadata={() => {
+            setLoadFailed(false);
+            onLoadedMetadata();
+          }}
+          onError={() => setLoadFailed(true)}
           onEnded={handleEnded}
           onClick={togglePlay}
         />
+      )}
+
+      {!isAudio && loadFailed && (
+        <div role="alert" className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-neutral-900/95 px-6 text-center text-white">
+          <Icon icon="ph:warning-circle" size={28} />
+          <p className="text-sm font-medium">This video can&apos;t be loaded right now.</p>
+          <button
+            type="button"
+            onClick={() => {
+              setLoadFailed(false);
+              videoRef.current?.load();
+            }}
+            className="rounded-full border border-white/30 px-4 py-1.5 text-xs font-semibold hover:bg-white/10"
+          >
+            Try again
+          </button>
+        </div>
       )}
 
       {/* ── Audio Player ── */}
@@ -326,9 +352,9 @@ export default function CoursePlayer({
           </div>
 
           {/* Buttons & Time Row */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             {/* Left Controls */}
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 items-center gap-3 max-sm:gap-2">
               <button
                 type="button"
                 onClick={togglePlay}
@@ -370,7 +396,7 @@ export default function CoursePlayer({
                 type="button"
                 onClick={() => setLooping((l) => !l)}
                 aria-label="Toggle loop"
-                className={`hover:scale-110 transition-all ${
+                className={`max-sm:hidden hover:scale-110 transition-all ${
                   looping ? "text-violet-400" : "text-neutral-400"
                 }`}
               >
@@ -379,7 +405,7 @@ export default function CoursePlayer({
             </div>
 
             {/* Right Controls */}
-            <div className="flex items-center gap-3">
+            <div className="flex shrink-0 items-center gap-3 max-sm:gap-2">
               <div className="relative flex items-center">
                 <button
                   type="button"
@@ -439,7 +465,7 @@ export default function CoursePlayer({
                       videoRef.current?.requestPictureInPicture?.()
                     }
                     aria-label="Picture in picture"
-                    className="text-neutral-300 hover:text-white hover:scale-110 transition-all"
+                    className="max-sm:hidden text-neutral-300 hover:text-white hover:scale-110 transition-all"
                   >
                     <Icon icon="ph:picture-in-picture" size={18} />
                   </button>

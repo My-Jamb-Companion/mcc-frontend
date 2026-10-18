@@ -8,12 +8,12 @@ function PendingRewardRow({reward}: {reward: ApiPendingReward}) {
   const claimMutation = useClaimReward();
 
   return (
-    <div className="relative rounded-2xl bg-gray-50 p-4 pr-5">
+    <div className="relative rounded-2xl bg-muted/10 p-4 pr-5">
       <span className="absolute -top-1 right-3 rounded-b-md bg-violet-600 px-2 py-1 text-[10px] font-bold text-white capitalize">
         {reward.source}
       </span>
 
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-muted">
         {new Date(reward.created_at).toLocaleString("en-US", {
           day: "2-digit",
           month: "short",
@@ -23,12 +23,12 @@ function PendingRewardRow({reward}: {reward: ApiPendingReward}) {
         })}
       </p>
 
-      <p className="mt-1 text-sm font-medium text-gray-800">
+      <p className="mt-1 text-sm font-medium text-foreground">
         {reward.title || `A ${reward.reward_type} reward from ${reward.source}`}
       </p>
 
       <div className="mt-3 flex items-center justify-between">
-        <span className="flex items-center gap-1 text-xs font-semibold text-gray-600">
+        <span className="flex items-center gap-1 text-xs font-semibold text-subtle">
           🪙 {reward.amount} {reward.reward_type}
         </span>
 
@@ -98,19 +98,19 @@ export default function RewardsPage() {
       </div>
 
       <div className="mt-5 flex items-center justify-between">
-        <p className="text-sm font-bold text-gray-900">Rewards to claim</p>
+        <p className="text-sm font-bold text-foreground">Rewards to claim</p>
 
-        <span className="flex items-center gap-1 text-xs font-medium text-gray-400">
+        <span className="flex items-center gap-1 text-xs font-medium text-muted">
           {pendingRewards.length} pending
         </span>
       </div>
 
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {isLoading && (
-          <p className="col-span-2 text-center text-sm text-gray-400 py-8">Loading…</p>
+          <p className="col-span-2 text-center text-sm text-muted py-8">Loading…</p>
         )}
         {!isLoading && pendingRewards.length === 0 && (
-          <p className="col-span-2 text-center text-sm text-gray-400 py-8">
+          <p className="col-span-2 text-center text-sm text-muted py-8">
             No rewards waiting to be claimed.
           </p>
         )}

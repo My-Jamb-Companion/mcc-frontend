@@ -8,18 +8,18 @@ export default function ExamCard({exam}: ExamsProps) {
   const isEnrolled = exam.completePercent !== undefined;
 
   return (
-    <div className="relative shrink-0 w-48 rounded-2xl bg-white p-4 flex flex-col gap-3 overflow-hidden">
+    <div className="relative shrink-0 w-48 rounded-2xl bg-background p-4 flex flex-col gap-3 overflow-hidden">
       <div className="flex items-center gap-2 z-10">
-        <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+        <div className="w-9 h-9 rounded-full bg-muted/10 flex items-center justify-center shrink-0">
           <Icon icon={exam.icon ?? "solar:document-bold"} size={20} />
         </div>
-        <p className="font-bold text-[#1a2332] text-base">{exam.name}</p>
+        <p className="font-bold text-foreground text-base">{exam.name}</p>
       </div>
 
       {exam.rating !== undefined && (
         <div className="flex items-center gap-1 z-10">
           <Icon icon="solar:star-bold" size={13} color="#f59e0b" />
-          <span className="text-xs text-gray-600">
+          <span className="text-xs text-subtle">
             {exam.rating} ({exam.reviewCount})
           </span>
         </div>
@@ -34,19 +34,19 @@ export default function ExamCard({exam}: ExamsProps) {
         exam.price !== undefined && (
           <div className="flex flex-col gap-0.5 z-10">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-[#1a2332]">
+              <span className="text-sm font-bold text-foreground">
                 {exam.currency}
                 {exam.price.toLocaleString()}
               </span>
               {exam.originalPrice !== undefined && (
-                <span className="text-xs text-gray-400 line-through">
+                <span className="text-xs text-muted line-through">
                   {exam.currency}
                   {exam.originalPrice.toLocaleString()}
                 </span>
               )}
             </div>
             {exam.priceLabel && (
-              <span className="text-xs text-gray-400">({exam.priceLabel})</span>
+              <span className="text-xs text-muted">({exam.priceLabel})</span>
             )}
           </div>
         )
@@ -54,7 +54,7 @@ export default function ExamCard({exam}: ExamsProps) {
 
       <Link
         href={`/learnings/exams/${exam.id}`}
-        className="flex justify-center items-center z-10 w-full rounded-xl border border-gray-200 py-2 text-xs font-semibold text-[#1a2332] hover:bg-gray-50 transition-colors cursor-pointer"
+        className="flex justify-center items-center z-10 w-full rounded-xl border border-muted/20 py-2 text-xs font-semibold text-foreground hover:bg-muted/10 transition-colors cursor-pointer"
       >
         {isEnrolled ? "Continue" : "Enroll Now"}
       </Link>

@@ -51,7 +51,7 @@ export default function CommunityTab({courseId}: {courseId: string}) {
 
   return (
     <section className="mx-auto w-full md:w-[75%]">
-      <div className="w-full rounded-2xl border border-gray-200 bg-white px-4 pt-3 pb-3 shadow-sm">
+      <div className="w-full rounded-2xl border border-muted/20 bg-background px-4 pt-3 pb-3 shadow-sm">
         <textarea
           ref={textareaRef}
           value={value}
@@ -59,7 +59,7 @@ export default function CommunityTab({courseId}: {courseId: string}) {
           onKeyDown={handleKeyDown}
           placeholder="What do you want to talk about?"
           rows={3}
-          className="w-full resize-none bg-transparent text-sm text-gray-800 placeholder:text-gray-400 outline-none leading-relaxed"
+          className="w-full resize-none bg-transparent text-sm text-foreground placeholder:text-muted outline-none leading-relaxed"
         />
         <div className="flex justify-end pt-1">
           <Button
@@ -75,9 +75,9 @@ export default function CommunityTab({courseId}: {courseId: string}) {
 
       <div className="w-full py-8">
         {isLoading ? (
-          <p className="text-sm text-gray-400 py-8 text-center">Loading discussion…</p>
+          <p className="text-sm text-muted py-8 text-center">Loading discussion…</p>
         ) : posts.length === 0 ? (
-          <p className="text-sm text-gray-400 py-8 text-center">
+          <p className="text-sm text-muted py-8 text-center">
             No posts yet. Start the discussion!
           </p>
         ) : (
@@ -117,20 +117,20 @@ function PostCard({post, courseId}: {post: ApiPost; courseId: string}) {
   const name = post.author.full_name || "A student";
 
   return (
-    <div className="flex gap-3 py-5 border-b border-gray-100 last:border-none">
+    <div className="flex gap-3 py-5 border-b border-muted/20 last:border-none">
       <Avatar name={name} src={post.author.profile_photo_url} />
 
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2 mb-1">
-          <span className="font-semibold text-gray-900 text-sm">{name}</span>
-          <span className="text-xs text-gray-400">{timeAgo(post.created_at)}</span>
+          <span className="font-semibold text-foreground text-sm">{name}</span>
+          <span className="text-xs text-muted">{timeAgo(post.created_at)}</span>
         </div>
 
-        <p className="text-sm text-gray-700 leading-relaxed mb-3">{post.body}</p>
+        <p className="text-sm text-foreground leading-relaxed mb-3">{post.body}</p>
 
         <div className="flex items-center gap-4 text-sm flex-wrap">
           {post.reply_count > 0 && (
-            <span className="text-gray-400 text-xs">
+            <span className="text-muted text-xs">
               {post.reply_count} {post.reply_count === 1 ? "reply" : "replies"}
             </span>
           )}
@@ -144,7 +144,7 @@ function PostCard({post, courseId}: {post: ApiPost; courseId: string}) {
                 {onSuccess: () => setReported(true)},
               )
             }
-            className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-40"
+            className="flex items-center gap-1.5 text-subtle hover:text-foreground transition-colors disabled:opacity-40"
           >
             <Flag className="w-4 h-4" />
             <span>{reported ? "Reported" : "Flag"}</span>

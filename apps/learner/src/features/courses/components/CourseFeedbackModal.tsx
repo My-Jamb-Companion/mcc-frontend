@@ -39,7 +39,7 @@ export default function CourseFeedbackModal({
             <Icon
               icon={n <= rating ? "solar:star-bold" : "solar:star-linear"}
               size={28}
-              className={n <= rating ? "text-amber-400" : "text-gray-300"}
+              className={n <= rating ? "text-amber-400" : "text-muted"}
             />
           </button>
         ))}
@@ -50,7 +50,7 @@ export default function CourseFeedbackModal({
         onChange={(e) => setComments(e.target.value)}
         placeholder="Tell us more about your experience (optional)"
         rows={4}
-        className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-violet-400 resize-none"
+        className="mt-2 w-full rounded-xl border border-muted/20 px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted focus:border-violet-400 resize-none"
       />
 
       {feedbackMutation.isError && (
@@ -68,7 +68,7 @@ export default function CourseFeedbackModal({
         <button
           type="button"
           onClick={reset}
-          className="flex-1 py-3 rounded-full border border-gray-200 text-gray-800 font-semibold hover:bg-gray-50 transition-colors"
+          className="flex-1 py-3 rounded-full border border-muted/20 text-foreground font-semibold hover:bg-muted/10 transition-colors"
         >
           Close
         </button>
@@ -78,7 +78,7 @@ export default function CourseFeedbackModal({
           onClick={() =>
             feedbackMutation.mutate({courseId, rating, comments: comments.trim() || undefined})
           }
-          className="flex-1 py-3 rounded-full font-semibold transition-colors bg-violet-600 text-white hover:bg-violet-700 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+          className="flex-1 py-3 rounded-full font-semibold transition-colors bg-violet-600 text-white hover:bg-violet-700 disabled:bg-muted/10 disabled:text-muted disabled:cursor-not-allowed"
         >
           {feedbackMutation.isPending ? "Submitting…" : "Submit"}
         </button>

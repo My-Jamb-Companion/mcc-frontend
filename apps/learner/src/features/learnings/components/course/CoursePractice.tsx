@@ -187,7 +187,7 @@ export function CoursePractice({
           initial={{opacity: 0, y: 8}}
           animate={{opacity: 1, y: 0}}
           transition={{duration: 0.25}}
-          className="text-[11px] font-semibold tracking-widest text-gray-400 uppercase mb-0.5"
+          className="text-[11px] font-semibold tracking-widest text-muted uppercase mb-0.5"
         >
           {label} - Question {currentIndex + 1} of {questions.length}
         </motion.p>
@@ -196,7 +196,7 @@ export function CoursePractice({
             role="timer"
             aria-label="Time left"
             className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold tabular-nums ${
-              isCountdownLow(remaining) ? "bg-red-100 text-red-600" : "bg-gray-200 text-gray-700"
+              isCountdownLow(remaining) ? "bg-red-100 text-red-600" : "bg-muted/20 text-foreground"
             }`}
           >
             <Icon icon="ph:timer" className="h-3.5 w-3.5" />
@@ -211,14 +211,14 @@ export function CoursePractice({
         {timedOut && !result ? (
           <motion.div key="timed-out" initial={{opacity: 0}} animate={{opacity: 1}} className="flex flex-col items-center gap-4 p-10 text-center">
             <div className="text-5xl">⏰</div>
-            <h2 className="text-2xl font-bold text-gray-900">Time&apos;s up</h2>
-            <p className="max-w-md text-sm text-gray-500">You hadn&apos;t answered any questions before the time ran out.</p>
+            <h2 className="text-2xl font-bold text-foreground">Time&apos;s up</h2>
+            <p className="max-w-md text-sm text-subtle">You hadn&apos;t answered any questions before the time ran out.</p>
             <div className="flex gap-3">
               <button type="button" onClick={retry} className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white">
                 Try again
               </button>
               {onDone && (
-                <button type="button" onClick={onDone} className="rounded-full border px-5 py-2.5 text-sm font-semibold text-gray-700">
+                <button type="button" onClick={onDone} className="rounded-full border px-5 py-2.5 text-sm font-semibold text-foreground">
                   Done
                 </button>
               )}
@@ -259,7 +259,7 @@ export function CoursePractice({
                 {currentQuestion.question_text}
               </motion.h3>
               {currentQuestion.description && (
-                <motion.p layout variants={fadeUp} className="mt-1 text-sm text-gray-500">
+                <motion.p layout variants={fadeUp} className="mt-1 text-sm text-subtle">
                   {currentQuestion.description}
                 </motion.p>
               )}
@@ -280,7 +280,7 @@ export function CoursePractice({
                     className="w-full rounded-2xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-transparent p-4 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-blue-500 disabled:opacity-70"
                   />
                   {reviewMode && (
-                    <p className="mt-2 text-sm text-gray-500">
+                    <p className="mt-2 text-sm text-subtle">
                       {resultByQuestionId.get(currentQuestion.question_id)?.is_correct === null
                         ? "Not auto-graded -- there's no recorded answer to check this against."
                         : resultByQuestionId.get(currentQuestion.question_id)?.is_correct
@@ -597,10 +597,10 @@ function QuizResults({
         >
           {emoji}
         </motion.div>
-        <motion.h2 initial={{opacity: 0, y: 12}} animate={{opacity: 1, y: 0}} transition={{delay: 0.25}} className="text-3xl font-bold text-gray-900">
+        <motion.h2 initial={{opacity: 0, y: 12}} animate={{opacity: 1, y: 0}} transition={{delay: 0.25}} className="text-3xl font-bold text-foreground">
           {title}
         </motion.h2>
-        <motion.p initial={{opacity: 0}} animate={{opacity: 1}} transition={{delay: 0.35}} className="mt-2 max-w-md text-[15px] text-gray-600">
+        <motion.p initial={{opacity: 0}} animate={{opacity: 1}} transition={{delay: 0.35}} className="mt-2 max-w-md text-[15px] text-subtle">
           {message}
         </motion.p>
         {result.passed !== null && result.passed !== undefined && (
@@ -620,12 +620,12 @@ function QuizResults({
       </motion.div>
 
       {result.graded_count > 0 && (
-        <motion.div variants={itemVariants} className="text-2xl font-bold text-gray-500 mb-2">
+        <motion.div variants={itemVariants} className="text-2xl font-bold text-subtle mb-2">
           <motion.span
             initial={{scale: 0.5, opacity: 0}}
             animate={{scale: 1, opacity: 1}}
             transition={{type: "spring", stiffness: 300, damping: 18}}
-            className="inline-block text-5xl font-extrabold text-gray-900 tracking-tight"
+            className="inline-block text-5xl font-extrabold text-foreground tracking-tight"
           >
             {correctCount}
           </motion.span>
@@ -633,7 +633,7 @@ function QuizResults({
         </motion.div>
       )}
       {notAutoGraded > 0 && (
-        <motion.p variants={itemVariants} className="text-sm text-gray-500 mb-6">
+        <motion.p variants={itemVariants} className="text-sm text-subtle mb-6">
           {notAutoGraded} {notAutoGraded === 1 ? "answer wasn't" : "answers weren't"} auto-graded.
         </motion.p>
       )}
@@ -651,7 +651,7 @@ function QuizResults({
                 ? "bg-[#ebf7ed] text-[#2e7d32]"
                 : r.is_correct === false
                   ? "bg-[#fdf2f2] text-[#d32f2f]"
-                  : "bg-gray-100 text-gray-400"
+                  : "bg-muted/10 text-muted"
             }`}
           >
             {r.is_correct === true ? (
@@ -704,7 +704,7 @@ function QuizResults({
           whileHover={{scale: 1.04, y: -2}}
           whileTap={{scale: 0.96}}
           onClick={onRetry}
-          className="flex items-center justify-center gap-2 px-7 py-3 text-sm font-semibold text-gray-800 bg-white border border-gray-300 rounded-full hover:bg-gray-50 active:bg-gray-100 transition-colors duration-200 cursor-pointer"
+          className="flex items-center justify-center gap-2 px-7 py-3 text-sm font-semibold text-foreground bg-background border border-muted/30 rounded-full hover:bg-muted/10 active:bg-muted/10 transition-colors duration-200 cursor-pointer"
         >
           <Icon icon="stash:arrow-retry" />
           Try Again
@@ -716,7 +716,7 @@ function QuizResults({
           whileHover={{scale: 1.04, y: -2}}
           whileTap={{scale: 0.96}}
           onClick={onReview}
-          className="flex items-center justify-center gap-2 px-7 py-3 text-sm font-semibold text-gray-800 bg-white border border-gray-300 rounded-full hover:bg-gray-50 active:bg-gray-100 transition-colors duration-200 cursor-pointer"
+          className="flex items-center justify-center gap-2 px-7 py-3 text-sm font-semibold text-foreground bg-background border border-muted/30 rounded-full hover:bg-muted/10 active:bg-muted/10 transition-colors duration-200 cursor-pointer"
         >
           Review
         </motion.button>

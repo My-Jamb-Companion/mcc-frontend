@@ -39,7 +39,7 @@ export default function AskAICard({onSubmit, onSurprise}: AskAICardProps) {
   };
 
   return (
-    <div className="w-full rounded-xl bg-[#F0F0F8] p-8 max-sm:p-5 max-sm:gap-8 flex flex-col gap-25 overflow-hidden">
+    <div className="w-full rounded-xl bg-[#F0F0F8] dark:bg-white/5 p-8 max-sm:p-5 max-sm:gap-8 flex flex-col gap-25 overflow-hidden">
       <div className="flex flex-col gap-5">
         <button
           type="button"
@@ -47,7 +47,7 @@ export default function AskAICard({onSubmit, onSurprise}: AskAICardProps) {
           className="flex items-center gap-1.5 w-fit cursor-pointer hover:opacity-80 transition-opacity"
         >
           <Icon icon="solar:stars-bold" size={18} color="#7C3AED" />
-          <span className="text-sm font-medium text-[#1a2332]">
+          <span className="text-sm font-medium text-foreground">
             Surprise me!
           </span>
         </button>
@@ -84,7 +84,7 @@ export default function AskAICard({onSubmit, onSurprise}: AskAICardProps) {
           className={`w-14 h-14 rounded-full flex items-center justify-center shadow-sm transition-transform ${
             speech.listening
               ? "bg-red-500 text-white animate-pulse"
-              : "bg-white text-[#1a2332] hover:scale-105"
+              : "bg-background text-foreground hover:scale-105"
           } ${speech.supported ? "cursor-pointer" : "cursor-not-allowed opacity-40"}`}
         >
           <Icon icon={speech.listening ? "ph:stop-fill" : "ph:microphone"} size={22} />

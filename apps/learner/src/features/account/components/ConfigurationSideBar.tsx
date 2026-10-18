@@ -7,13 +7,13 @@ export function ConfigurationsSidebar() {
         <Icon
           icon="mdi:bell-outline"
           size={18}
-          className="mt-0.5 text-gray-900"
+          className="mt-0.5 text-foreground"
         />
         <div>
-          <p className="text-sm font-bold text-gray-900">
+          <p className="text-sm font-bold text-foreground">
             Notifications &amp; Alerts
           </p>
-          <p className="mt-0.5 text-xs text-gray-400">
+          <p className="mt-0.5 text-xs text-muted">
             Manage notifications you see while using the app.
           </p>
         </div>

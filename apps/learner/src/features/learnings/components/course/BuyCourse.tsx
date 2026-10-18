@@ -12,6 +12,7 @@ import {FormatPicker} from "@/src/features/components/FormatPicker";
 import {defaultFormat, gemsApply, tierAfterFormatChange, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
 import {useGemPacks, useUnlockCourseWithGems, useWalletBalance} from "@/src/features/wallet/hooks/useWallet";
 import {courseGemCost} from "@/src/features/wallet/helper/wallet";
+import {coverFallback} from "@/src/features/components/coverFallback";
 
 const FALLBACK_IMAGE = "/assets/images/tower.jpg";
 
@@ -107,6 +108,7 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
             <img
               src={course.cover_image_url || FALLBACK_IMAGE}
               alt={course.title}
+              onError={coverFallback}
               className="w-full h-full object-cover"
             />
           </div>

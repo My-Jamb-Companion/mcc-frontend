@@ -54,7 +54,7 @@ export function BrainyChatBox({
               key={suggestion}
               type="button"
               onClick={() => setQuestion(suggestion)}
-              className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-50"
+              className="rounded-full border border-muted/20 bg-background px-3 py-1.5 text-xs text-subtle hover:bg-muted/10"
             >
               {suggestion}
             </button>
@@ -70,7 +70,7 @@ export function BrainyChatBox({
         accept={accept}
         maxFiles={maxFiles}
       />
-      <div className="rounded-3xl border border-gray-200 bg-white p-2 shadow-sm">
+      <div className="rounded-3xl border border-muted/20 bg-background p-2 shadow-sm">
         <div className="mt-2 rounded-xl">
           <textarea
             ref={textareaRef}
@@ -89,7 +89,7 @@ export function BrainyChatBox({
             }}
             placeholder="Type your question here..."
             rows={3}
-            className="w-full resize-none rounded-xl border-none bg-white p-3 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none"
+            className="w-full resize-none rounded-xl border-none bg-background p-3 text-sm text-foreground placeholder:text-muted focus:outline-none"
           />
 
           <div className="flex items-center justify-between px-3 pb-2">
@@ -99,13 +99,13 @@ export function BrainyChatBox({
                 onClick={() => setIsThinking(!isThinking)}
               >
                 <motion.div
-                  className="h-4 w-4 rounded-full bg-white shadow-md"
+                  className="h-4 w-4 rounded-full bg-background shadow-md"
                   animate={{x: isThinking ? 17 : 3}}
                   transition={{type: "spring", stiffness: 500, damping: 30}}
                 />
               </div>
               <p
-                className={`text-sm transition-colors duration-200 ${isThinking ? "text-gray-700" : "text-gray-400"}`}
+                className={`text-sm transition-colors duration-200 ${isThinking ? "text-foreground" : "text-muted"}`}
               >
                 Thinking
               </p>
@@ -124,7 +124,7 @@ export function BrainyChatBox({
         </div>
       </div>
 
-      <div className="mt-4 flex max-sm:flex-col max-sm:gap-2 items-center justify-center gap-5 text-xs text-gray-400">
+      <div className="mt-4 flex max-sm:flex-col max-sm:gap-2 items-center justify-center gap-5 text-xs text-muted">
         <span className="flex items-center gap-1.5">
           <Icon icon="ph:shield-check" className="h-3.5 w-3.5" />
           Encrypted

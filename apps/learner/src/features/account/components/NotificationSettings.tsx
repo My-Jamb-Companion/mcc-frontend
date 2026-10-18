@@ -13,8 +13,8 @@ export function NotificationSettingRow({
   return (
     <div className="flex items-start justify-between gap-6">
       <div>
-        <p className="text-sm font-bold text-gray-900">{setting.title}</p>
-        <p className="mt-0.5 text-xs text-gray-400">{setting.description}</p>
+        <p className="text-sm font-bold text-foreground">{setting.title}</p>
+        <p className="mt-0.5 text-xs text-muted">{setting.description}</p>
       </div>
       <Toggle
         checked={setting.enabled}

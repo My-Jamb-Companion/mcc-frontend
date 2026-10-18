@@ -26,7 +26,7 @@ export default function StudentOverview({
           </div>
           <div>
             <p className="text-sm font-semibold">{totalDurationLabel}</p>
-            <p className="text-xs">Total</p>
+            <p className="text-xs">Total video length</p>
           </div>
         </div>
 

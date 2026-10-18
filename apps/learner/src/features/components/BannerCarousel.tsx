@@ -14,9 +14,9 @@ const BannerCard = ({banner}: {banner: (typeof banners)[0]}) => (
       >
         {banner.title}
       </p>
-      <button className="flex items-center gap-2 w-fit pl-4 pr-1 py-1.5 rounded-full bg-white text-xs font-semibold text-[#1a2332] shadow-sm text-nowrap">
+      <button className="flex items-center gap-2 w-fit pl-4 pr-1 py-1.5 rounded-full bg-background text-xs font-semibold text-foreground shadow-sm text-nowrap">
         {banner.cta}
-        <span className="w-5 h-5 rounded-full bg-[#1a2332] text-white flex items-center justify-center">
+        <span className="w-5 h-5 rounded-full bg-foreground text-background flex items-center justify-center">
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
             <path
               d="M2 5h6M5.5 2.5L8 5l-2.5 2.5"
@@ -85,7 +85,7 @@ export default function BannerCarousel() {
             className={`rounded-full transition-all duration-300 ${
               i === current
                 ? "w-5 h-1.5 bg-gray-700"
-                : "w-1.5 h-1.5 bg-gray-300"
+                : "w-1.5 h-1.5 bg-muted/30"
             }`}
           />
         ))}

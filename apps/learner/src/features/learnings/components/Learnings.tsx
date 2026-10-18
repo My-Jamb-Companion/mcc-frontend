@@ -77,7 +77,7 @@ export default function Learnings() {
                 <button
                   type="button"
                   onClick={() => setFeedbackCourse(course)}
-                  className="text-xs font-semibold text-btn-primary hover:underline w-fit"
+                  className="text-xs font-semibold text-btn-primary dark:text-primary hover:underline w-fit"
                 >
                   Leave feedback
                 </button>
