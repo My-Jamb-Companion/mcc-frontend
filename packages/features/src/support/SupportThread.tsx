@@ -15,7 +15,7 @@ function Bubble({message}: {message: ApiSupportMessage}) {
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
       <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${mine ? "bg-primary text-white" : "bg-muted/10 text-foreground"}`}>
         <p className={`mb-0.5 text-[11px] font-medium ${mine ? "text-white/80" : "text-muted"}`}>
-          {mine ? "You" : message.sender_name || "MCC team"} · {formatWhen(message.created_at)}
+          {mine ? "You" : message.sender_name || "SmartLearnersHQ team"} · {formatWhen(message.created_at)}
         </p>
         {!mine && message.subject && <p className="mb-1 text-sm font-semibold">{message.subject}</p>}
         <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{message.body}</p>
@@ -25,7 +25,7 @@ function Bubble({message}: {message: ApiSupportMessage}) {
 }
 
 /**
- * The conversation between a student or teacher and the MCC team: what the team has sent, and a box to
+ * The conversation between a student or teacher and the SmartLearnersHQ team: what the team has sent, and a box to
  * write back. Messages are plain text.
  */
 export function SupportThread() {
@@ -57,7 +57,7 @@ export function SupportThread() {
           </p>
         ) : messages.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted">
-            No messages yet. Write to the MCC team below and they&apos;ll reply here.
+            No messages yet. Write to the SmartLearnersHQ team below and they&apos;ll reply here.
           </p>
         ) : (
           messages.map((m) => <Bubble key={m.message_id} message={m} />)
@@ -72,8 +72,8 @@ export function SupportThread() {
           onKeyDown={(e) => {
             if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSend();
           }}
-          placeholder="Write to the MCC team…"
-          aria-label="Message to the MCC team"
+          placeholder="Write to the SmartLearnersHQ team…"
+          aria-label="Message to the SmartLearnersHQ team"
           rows={3}
           className="w-full resize-none bg-transparent text-sm leading-relaxed outline-none placeholder:text-muted"
         />

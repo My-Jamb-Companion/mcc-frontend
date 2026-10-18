@@ -73,7 +73,7 @@ export default function ProgressSurvey() {
   if (sent || survey.data?.submitted) {
     return (
       <Centered title={sent ? "Thank you! 🎉" : "You've already answered"}>
-        <p className="mt-2 text-sm text-subtle">{sent ? "Your answers help us make MCC better for every student." : "Thanks again, your answers are with us."}</p>
+        <p className="mt-2 text-sm text-subtle">{sent ? "Your answers help us make SmartLearnersHQ better for every student." : "Thanks again, your answers are with us."}</p>
         <Link href="/dashboard" className="mt-6">
           <Button type="button">Back to dashboard</Button>
         </Link>

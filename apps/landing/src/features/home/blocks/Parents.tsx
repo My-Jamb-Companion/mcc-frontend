@@ -10,7 +10,7 @@ function ParentPhone() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".08em", color: "#6717DE" }}>PARENT APP</span><span style={{ fontSize: 11, color: "#5C5C5C" }}>This week</span></div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{ width: 44, height: 44, borderRadius: "50%", background: "#EADFFF", color: "#4F0FB0", display: "grid", placeItems: "center", fontWeight: 700 }}>T</span>
-          <div><div style={{ fontFamily: DISPLAY, fontSize: 20, lineHeight: 1.1 }}>Tolu&apos;s week</div><div style={{ fontSize: 12, color: "#5C5C5C" }}>JAMB · SS3</div></div>
+          <div><div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 20, lineHeight: 1.1 }}>Tolu&apos;s week</div><div style={{ fontSize: 12, color: "#5C5C5C" }}>JAMB · SS3</div></div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           {[["Study streak", "5 days"], ["Quizzes done", "8"]].map(([l, v]) => (

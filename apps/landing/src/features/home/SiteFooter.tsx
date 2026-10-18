@@ -1,12 +1,11 @@
 import { list, str } from "@mcc/landing-content";
 import type { FieldData } from "@mcc/landing-content";
-import { A, Arrow, BrandMark } from "./ui";
+import { A, Arrow, DISPLAY, Logo } from "./ui";
 import { legalFallbackHref } from "../legal/documents";
 
 export function SiteFooter({ site }: { site: FieldData }) {
   const columns = list(site, "footer_columns");
   const socials = list(site, "socials").filter((s) => str(s, "href").trim() !== "");
-  const letter = str(site, "logo_letter") || str(site, "brand_name").charAt(0).toLowerCase() || "m";
 
   // A link with no address (a page that doesn't exist yet) shows as plain text rather than a dead link.
   // The legal links are the exception: published content may still hold them blank from before the
@@ -27,11 +26,11 @@ export function SiteFooter({ site }: { site: FieldData }) {
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "clamp(56px,7cqw,88px) clamp(20px,5cqw,56px) 32px", display: "flex", flexDirection: "column", gap: 48 }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 40, justifyContent: "space-between" }}>
           <div style={{ flex: "1 1 280px", maxWidth: 380, display: "flex", flexDirection: "column", gap: 18 }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <BrandMark letter={letter} logoUrl={str(site, "logo_url")} />
-              <span style={{ fontWeight: 700, fontSize: 17, color: "#fff" }}>{str(site, "brand_name")}</span>
-            </span>
-            <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: "#BDBDBD" }}>{str(site, "footer_tagline")}</p>
+            <span style={{ alignSelf: "flex-start" }}><Logo name={str(site, "brand_name")} logoUrl={str(site, "logo_url")} reverse={!str(site, "logo_url")} height={34} /></span>
+            {str(site, "footer_tagline") && (
+              <p style={{ margin: 0, fontFamily: DISPLAY, fontWeight: 800, fontSize: 26, lineHeight: 1.1, color: "#fff", textWrap: "balance" }}>{str(site, "footer_tagline")}</p>
+            )}
+            {str(site, "footer_about") && <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: "#BDBDBD" }}>{str(site, "footer_about")}</p>}
             {str(site, "teach_label") && (
               <A id="teach" href={str(site, "teach_href")} className="mcc-teach" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "16px 18px", borderRadius: 20, background: "#17151C", border: "1px solid #2A2633", color: "#fff", textDecoration: "none" }}>
                 <span>

@@ -55,7 +55,7 @@ export function Courses({ data, blockId }: { data: FieldData; blockId: string })
                 ) : (
                   <>
                     <span style={{ position: "absolute", right: -20, top: -30, width: 150, height: 150, borderRadius: "50%", background: "#EADFFF" }} />
-                    <span style={{ position: "relative", fontFamily: DISPLAY, fontSize: 30, lineHeight: 1, color: "#4F0FB0" }}>{str(c, "glyph")}</span>
+                    <span style={{ position: "relative", fontFamily: DISPLAY, fontWeight: 700, fontSize: 30, lineHeight: 1, color: "#4F0FB0" }}>{str(c, "glyph")}</span>
                   </>
                 )}
                 <span style={{ position: "absolute", left: 16, top: 16, padding: "5px 12px", borderRadius: 999, background: free ? "#E9F8EF" : "#6717DE", color: free ? "#13703D" : "#fff", fontSize: 12, fontWeight: 700, letterSpacing: ".04em" }}>

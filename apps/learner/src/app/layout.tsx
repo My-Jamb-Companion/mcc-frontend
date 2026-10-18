@@ -26,8 +26,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Learner Platform — My Course Companion",
-    template: "MCC Learner | %s",
+    default: "Learner Platform — SmartLearnersHQ",
+    template: "SmartLearnersHQ Learner | %s",
   },
   description: "Courses, exam prep, and an AI tutor that knows where you're stuck.",
 };

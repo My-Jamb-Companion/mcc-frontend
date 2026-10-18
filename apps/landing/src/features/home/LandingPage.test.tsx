@@ -10,7 +10,7 @@ describe("LandingPage", () => {
     const { container } = render(<LandingPage content={defaultContent()} />);
     const ids = Array.from(container.querySelectorAll("main > section")).map((s) => s.id);
     expect(ids).toEqual(["top", "exams", "how", "brainy", "practice", "teachers", "parents", "faq", "start"]);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Walk into your exam");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Learn smart,");
   });
 
   it("follows the content: a hidden block is skipped, an unknown one is ignored, order is kept", () => {
@@ -26,7 +26,7 @@ describe("LandingPage", () => {
     const { container } = render(<LandingPage content={page} />);
     expect(Array.from(container.querySelectorAll("main > section")).map((s) => s.id)).toEqual(["faq", "start"]);
     expect(screen.queryByText("Hidden hero")).toBeNull();
-    expect(screen.getAllByText("Learnly").length).toBeGreaterThan(0);
+    expect(screen.getAllByAltText("Learnly").length).toBeGreaterThan(0);
     expect(container.querySelector('[data-block-id="b1"]')).not.toBeNull();
   });
 

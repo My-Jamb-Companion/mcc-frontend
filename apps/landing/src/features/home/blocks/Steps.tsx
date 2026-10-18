@@ -12,7 +12,7 @@ export function Steps({ data, blockId }: { data: FieldData; blockId: string }) {
           const hi = bool(s, "highlight");
           return (
             <li key={i} style={{ display: "flex", flexDirection: "column", gap: 16, padding: "28px 24px", borderRadius: 28, background: hi ? "#6717DE" : "#F6F1FF", color: hi ? "#fff" : undefined }}>
-              <span style={{ width: 56, height: 56, borderRadius: 18, background: "#fff", color: "#6717DE", display: "grid", placeItems: "center", fontFamily: DISPLAY, fontSize: 28 }}>{i + 1}</span>
+              <span style={{ width: 56, height: 56, borderRadius: 18, background: "#fff", color: "#6717DE", display: "grid", placeItems: "center", fontFamily: DISPLAY, fontWeight: 700, fontSize: 28 }}>{i + 1}</span>
               {hi && <span style={{ display: "inline-flex", alignSelf: "flex-start", padding: "4px 10px", borderRadius: 999, background: "rgba(255,255,255,.18)", fontSize: 12, fontWeight: 700, letterSpacing: ".04em" }}>FREE · A REAL PERSON</span>}
               <h3 style={{ margin: 0, fontSize: 20, lineHeight: 1.25, fontWeight: 700 }}>{str(s, "title")}</h3>
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: hi ? "#F1EBFF" : "#4A4A4A" }}>{str(s, "body")}</p>

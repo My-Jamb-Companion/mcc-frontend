@@ -24,7 +24,7 @@ const call = async (token: string, init?: RequestInit): Promise<ConsentRequestIn
       cache: "no-store",
     });
   } catch {
-    throw new ConsentError("We couldn't reach MCC. Check your connection and try again.");
+    throw new ConsentError("We couldn't reach SmartLearnersHQ. Check your connection and try again.");
   }
   const body = (await response.json().catch(() => null)) as
     | { data?: ConsentRequestInfo; error?: { message?: string; code?: string }; message?: string }

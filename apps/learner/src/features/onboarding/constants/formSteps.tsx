@@ -128,7 +128,7 @@ export const formSteps: FormSteps = [
     inputType: "tile-multi",
     fieldId: "purpose",
     otherFieldId: "purposeOther",
-    question: "What wold you like to use MCC for?",
+    question: "What wold you like to use SmartLearnersHQ for?",
     options: [
       {
         value: "brainy",

@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { Bagel_Fat_One, Geist, Geist_Mono, Inter } from "next/font/google";
+import { Atkinson_Hyperlegible, Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
 import { SITE_URL } from "@/src/config";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+// The brand fonts: Bricolage Grotesque for headlines (800 for the main heading, 700 for the rest), Atkinson Hyperlegible for text.
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
+  weight: ["700", "800"],
   subsets: ["latin"],
 });
 
-const bagel = Bagel_Fat_One({
-  variable: "--font-bagel",
-  weight: "400",
+const atkinson = Atkinson_Hyperlegible({
+  variable: "--font-atkinson",
+  weight: ["400", "700"],
   subsets: ["latin"],
 });
 
@@ -27,11 +29,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "My Course Companion",
-    template: "MCC | %s",
+    default: "SmartLearnersHQ · Learn smart, pass with confidence.",
+    template: "SmartLearnersHQ | %s",
   },
   description:
-    "Learn, prep for JAMB/WAEC, and get tutored — courses and exam prep with My Course Companion.",
+    "Prep for JAMB, WAEC and more with lessons, practice tests, live classes and Brainy, your AI study buddy. SmartLearnersHQ: learn smart, pass with confidence.",
 };
 
 export default function RootLayout({
@@ -42,7 +44,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${bagel.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${atkinson.variable} ${bricolage.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="h-full flex flex-col">
         {children}

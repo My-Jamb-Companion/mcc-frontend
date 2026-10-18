@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: { canonical: "/" },
     openGraph: {
       type: "website",
-      siteName: str(site, "brand_name") || "My Course Companion",
+      siteName: str(site, "brand_name") || "SmartLearnersHQ",
       url: "/",
       title: title || undefined,
       description: description || undefined,

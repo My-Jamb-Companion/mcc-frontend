@@ -7,7 +7,7 @@ import {coverFallback} from "@/src/features/components/coverFallback";
 
 /** Share the achievement: the phone's share sheet where there is one, otherwise copy the message. */
 async function shareCertificate(certificate: ApiCertificate) {
-  const text = `I completed "${certificate.course_title}" on My Course Companion! 🎓`;
+  const text = `I completed "${certificate.course_title}" on SmartLearnersHQ! 🎓`;
   const url = window.location.origin;
   try {
     if (navigator.share) {

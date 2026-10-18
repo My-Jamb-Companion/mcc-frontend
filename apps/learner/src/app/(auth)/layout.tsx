@@ -1,4 +1,4 @@
-import {LegalLink} from "@mcc/ui";
+import {BrandLogo, LegalLink} from "@mcc/ui";
 
 // import SignUpSlider from "@/src/features/signup/components/SideSlider";
 
@@ -7,9 +7,8 @@ export default function Layout({children}: {children: React.ReactNode}) {
     <div className="flex justify-center gap-4 m-2 h-full">
       <div className="w-full flex flex-col">
         <div className="my-auto text-center w-full max-w-[320px] mx-auto">
-          <h4 className="text-xl">
-            <span className="text-primary font-bagel">MC. </span>
-            Companion
+          <h4 className="flex justify-center">
+            <BrandLogo height={36} />
           </h4>
           {children}
         </div>

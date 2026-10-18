@@ -22,7 +22,7 @@ export async function LegalPage({ slug }: { slug: LegalSlug }) {
             role="note"
             style={{ margin: "0 0 28px", padding: "14px 18px", borderRadius: 14, background: "#FFF7E0", border: "1px solid #F2D98A", color: "#5C4300", fontSize: 15, lineHeight: 1.5 }}
           >
-            <strong>Draft, pending legal review.</strong> This page describes how My Course Companion works today. It has not yet been reviewed by a
+            <strong>Draft, pending legal review.</strong> This page describes how SmartLearnersHQ works today. It has not yet been reviewed by a
             lawyer and may change. Items marked TO CONFIRM still need company details or decisions.
           </p>
         )}

@@ -31,7 +31,7 @@ describe("PreviewClient", () => {
   it("ignores messages from any other origin", () => {
     render(<PreviewClient />);
     send("https://evil.example.com", { type: PREVIEW_CONTENT, content: page("Injected") });
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Walk into your exam");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Learn smart,");
   });
 
   it("works when the browser refuses storage, as it can inside the admin console's frame", () => {

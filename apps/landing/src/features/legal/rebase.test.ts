@@ -15,7 +15,7 @@ describe("rebaseSite", () => {
   });
 
   it("copes with a site that has no menus", () => {
-    expect(rebaseSite({ brand_name: "MCC" })).toMatchObject({ brand_name: "MCC", nav_links: [], footer_columns: [] });
+    expect(rebaseSite({ brand_name: "SmartLearnersHQ" })).toMatchObject({ brand_name: "SmartLearnersHQ", nav_links: [], footer_columns: [] });
   });
 });
 

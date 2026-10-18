@@ -75,7 +75,7 @@ export const newLine = (): OverheadLineForm => ({
  * A first version starts with only the statutory figures from the approved
  * spec filled in. Business figures -- overheads, enrolments, margin, fees --
  * are left blank on purpose: the spec's worked example is illustrative, and
- * prefilling it would make it far too easy to save made-up numbers as MCC's.
+ * prefilling it would make it far too easy to save made-up numbers as SmartLearnersHQ's.
  * VAT treatment and tax status are also left for an explicit choice, since
  * both are pending the accountant's confirmation (D4, D5).
  */

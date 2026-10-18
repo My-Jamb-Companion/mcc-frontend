@@ -15,9 +15,9 @@ function HeroPhone() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 18px 6px" }}>
           <div>
             <div style={{ fontSize: 12, color: "#5C5C5C" }}>Good evening</div>
-            <div style={{ fontFamily: DISPLAY, fontSize: 24, lineHeight: 1.1 }}>Hi, Tolu</div>
+            <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 24, lineHeight: 1.1 }}>Hi, Tolu</div>
           </div>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 10px", borderRadius: 999, background: "#FFF1D1", color: "#7A4A00", fontWeight: 700, fontSize: 12 }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 10px", borderRadius: 999, background: "#F4EFFF", color: "#4F0FB0", fontWeight: 700, fontSize: 12 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" /></svg>
             5-day streak
           </span>
@@ -77,7 +77,7 @@ export function Hero({ data, blockId }: { data: FieldData; blockId: string }) {
               {str(data, "eyebrow")}
             </a>
           )}
-          <h1 style={{ margin: 0, fontFamily: DISPLAY, fontWeight: 400, fontSize: "clamp(46px,7.2cqw,88px)", lineHeight: 0.98, letterSpacing: "-0.01em", textWrap: "balance" }}>
+          <h1 style={{ margin: 0, fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(46px,7.2cqw,88px)", lineHeight: 0.98, letterSpacing: "-0.01em", textWrap: "balance" }}>
             {str(data, "headline_lead")}{" "}
             <span style={{ background: GRADIENT, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>{str(data, "headline_emph")}</span>
           </h1>

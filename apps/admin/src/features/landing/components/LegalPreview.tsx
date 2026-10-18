@@ -22,7 +22,7 @@ export default function LegalPreview({content, focusBlockId, slug}: {content: La
         <article className="mx-auto max-w-[780px] rounded-xl bg-white px-6 py-8 text-neutral-900">
           {page.site.show_draft_notice !== false && (
             <p role="note" className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-              <strong>Draft, pending legal review.</strong> This page describes how My Course Companion works today. It has not yet been
+              <strong>Draft, pending legal review.</strong> This page describes how SmartLearnersHQ works today. It has not yet been
               reviewed by a lawyer and may change.
             </p>
           )}

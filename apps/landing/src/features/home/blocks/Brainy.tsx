@@ -45,7 +45,7 @@ function BrainyMockup() {
       </div>
       <div style={{ position: "absolute", right: 0, bottom: 0, width: "min(240px,72%)", padding: 18, borderRadius: 24, background: "#fff", color: "#171717", boxShadow: "0 30px 60px -20px rgba(0,0,0,.8)", display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, fontWeight: 700, letterSpacing: ".06em", color: "#6717DE" }}><span>BIOLOGY · CELLS</span><span style={{ color: "#737373" }}>3 / 12</span></div>
-        <div style={{ fontFamily: DISPLAY, fontSize: 22, lineHeight: 1.15 }}>What does mitosis produce?</div>
+        <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 22, lineHeight: 1.15 }}>What does mitosis produce?</div>
         <div style={{ padding: "10px 12px", borderRadius: 14, border: "1.5px dashed #D9CCF5", fontSize: 13, color: "#525252" }}>Tap to flip</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 6, fontSize: 12, fontWeight: 700, textAlign: "center" }}>
           {[["Again", "1 min", "#FDECEC", "#9B1C1C"], ["Good", "1 day", "#F4EFFF", "#4F0FB0"], ["Easy", "4 days", "#E9F8EF", "#13703D"]].map(([t, w, bg, fg]) => (
@@ -68,7 +68,7 @@ export function Brainy({ data, blockId }: { data: FieldData; blockId: string }) 
             <span style={{ width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg,#6B26FF,#B40D9B)" }} />
             {str(data, "eyebrow")}
           </span>
-          <h2 style={{ margin: 0, fontFamily: DISPLAY, fontWeight: 400, fontSize: "clamp(38px,5.4cqw,64px)", lineHeight: 1.02, letterSpacing: "-0.01em", textWrap: "balance" }}>{str(data, "headline")}</h2>
+          <h2 style={{ margin: 0, fontFamily: DISPLAY, fontWeight: 700, fontSize: "clamp(38px,5.4cqw,64px)", lineHeight: 1.02, letterSpacing: "-0.01em", textWrap: "balance" }}>{str(data, "headline")}</h2>
           <p style={{ margin: 0, fontSize: "clamp(16px,1.5cqw,18px)", lineHeight: 1.6, color: "#C7C7C7", maxWidth: 520, textWrap: "pretty" }}>{str(data, "body")}</p>
           {inputs.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>

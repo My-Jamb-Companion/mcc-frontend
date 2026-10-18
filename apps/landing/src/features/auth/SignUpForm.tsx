@@ -42,7 +42,7 @@ export const SignUpForm = () => {
     <div>
       <div className="mb-6">
         <h2 className="text-xl font-semibold">Create your account</h2>
-        <p className="text-muted text-sm">Get started with My Course Companion.</p>
+        <p className="text-muted text-sm">Get started with SmartLearnersHQ.</p>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormInputs

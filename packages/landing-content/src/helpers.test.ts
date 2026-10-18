@@ -65,7 +65,7 @@ describe("reading stored content", () => {
 
   it("normalises whatever the API returned", () => {
     expect(normalizeContent(null).blocks).toEqual([]);
-    expect(normalizeContent(null).site.brand_name).toBe("My Course Companion");
+    expect(normalizeContent(null).site.brand_name).toBe("SmartLearnersHQ");
     const page = normalizeContent({
       site: { brand_name: "Learnly" },
       blocks: [{ id: "a", type: "hero", data: { x: 1 } }, { id: 5 }, "junk", { id: "b", type: "faq", visible: false }],

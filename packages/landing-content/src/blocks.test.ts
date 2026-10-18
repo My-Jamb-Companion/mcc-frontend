@@ -79,6 +79,6 @@ describe("the default page", () => {
 
   it("does not share objects between calls", () => {
     const a = defaultContent(); a.blocks[0].data.headline_lead = "changed";
-    expect(defaultContent().blocks[0].data.headline_lead).toBe("Walk into your exam");
+    expect(defaultContent().blocks[0].data.headline_lead).toBe("Learn smart,");
   });
 });

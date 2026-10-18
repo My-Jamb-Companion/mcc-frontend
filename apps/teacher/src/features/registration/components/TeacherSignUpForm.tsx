@@ -34,7 +34,7 @@ export function TeacherSignUpForm() {
     <div>
       <div className="mt-2 mb-6">
         <h4 className="text-xl font-semibold">Create your teacher account</h4>
-        <p className="text-muted text-sm">Join MCC and start teaching</p>
+        <p className="text-muted text-sm">Join SmartLearnersHQ and start teaching</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

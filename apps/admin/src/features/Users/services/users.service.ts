@@ -120,7 +120,7 @@ export interface PurposeBreakdown {
 
 /**
  * Same shape as getReferralSourceBreakdown, for the "What would you like
- * to use MCC for?" onboarding answer.
+ * to use SmartLearnersHQ for?" onboarding answer.
  * Endpoint: GET /admin/users/purpose-breakdown
  */
 export const getPurposeBreakdown = async (role?: string): Promise<PurposeBreakdown> => {

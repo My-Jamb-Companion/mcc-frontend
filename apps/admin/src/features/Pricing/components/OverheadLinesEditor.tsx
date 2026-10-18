@@ -39,7 +39,7 @@ export default function OverheadLinesEditor({
               <th className="pb-2 pr-2 font-medium">Description</th>
               <th className="pb-2 pr-2 font-medium">Annual amount</th>
               <th className="pb-2 pr-2 font-medium">Billed in</th>
-              <th className="pb-2 pr-2 font-medium" title="Whether MCC pays VAT on this cost">
+              <th className="pb-2 pr-2 font-medium" title="Whether SmartLearnersHQ pays VAT on this cost">
                 VAT paid on it
               </th>
               <th className="pb-2 pr-2 text-right font-medium">Per year in ₦</th>

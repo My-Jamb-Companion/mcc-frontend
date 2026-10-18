@@ -160,7 +160,7 @@ export default function Dashboard() {
       </div>
 
       <div className="flex items-center justify-between px-16 py-8 text-sm font-medium max-sm:flex-col w-full max-sm:px-3">
-        <p className="text-muted">© 2026 MC companion</p>
+        <p className="text-muted">© 2026 SmartLearnersHQ</p>
         <div className="flex items-center gap-5 max-sm:justify-between">
           <LegalLink doc="terms" className="underline text-muted hover:text-primary">
             Terms and Conditions

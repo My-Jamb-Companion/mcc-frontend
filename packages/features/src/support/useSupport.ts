@@ -8,7 +8,7 @@ import {getSupportThread, getSupportUnread, sendSupportMessage} from "./support.
 const THREAD_KEY = ["support", "thread"];
 const UNREAD_KEY = ["support", "unread"];
 
-/** The conversation with the MCC team. Reading it marks the team's messages as read, so the badge is refreshed too. */
+/** The conversation with the SmartLearnersHQ team. Reading it marks the team's messages as read, so the badge is refreshed too. */
 export const useSupportThread = () => {
   const queryClient = useQueryClient();
   const query = useQuery({

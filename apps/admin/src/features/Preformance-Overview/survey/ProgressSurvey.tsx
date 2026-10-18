@@ -155,7 +155,7 @@ function Question({q}: {q: QuestionSummary}) {
     case "results": {
       const {overall, bands} = q.data;
       return (
-        <Card title="Score changes" help="Each answer is one subject and exam, with the score band before and after MCC." answered={q.answered}>
+        <Card title="Score changes" help="Each answer is one subject and exam, with the score band before and after SmartLearnersHQ." answered={q.answered}>
           {overall ? (
             <>
               <div className="mb-5 grid gap-3 sm:grid-cols-4">

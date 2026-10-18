@@ -12,7 +12,7 @@ export function pageMetadata({ title, description, path, image }: { title: strin
     alternates: { canonical: path },
     openGraph: {
       type: "website",
-      siteName: "My Course Companion",
+      siteName: "SmartLearnersHQ",
       title,
       description,
       url: path,

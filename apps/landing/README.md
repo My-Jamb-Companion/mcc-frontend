@@ -1,4 +1,4 @@
-# MCC Landing Page
+# SmartLearnersHQ Landing Page
 
 Public marketing site and the entry point to sign-up/login. No authenticated
 dashboard lives here: after signing in, the user is handed off to the Student

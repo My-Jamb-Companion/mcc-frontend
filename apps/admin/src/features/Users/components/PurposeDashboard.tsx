@@ -24,7 +24,7 @@ export default function PurposeDashboard() {
   return (
     <div className="flex flex-col gap-6">
       <TagBreakdownChart
-        title="What would you like to use MCC for?"
+        title="What would you like to use SmartLearnersHQ for?"
         items={purposes.map((p) => ({key: p.purpose, count: p.count}))}
         labelFor={labelFor}
         totalRespondents={totalRespondents}

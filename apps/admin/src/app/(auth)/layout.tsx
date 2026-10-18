@@ -1,4 +1,4 @@
-import {LegalLink} from "@mcc/ui";
+import {BrandLogo, LegalLink} from "@mcc/ui";
 
 export default function layout({
   children,
@@ -7,9 +7,8 @@ export default function layout({
     <div className="flex justify-center gap-4 h-screen p-10">
       <div className="w-full flex flex-col">
         <div className="my-auto text-center w-full max-w-[320px] mx-auto h-full">
-          <h4 className="text-xl mb-auto">
-            <span className="text-primary font-bagel">MC. </span>
-            Companion
+          <h4 className="mb-auto flex justify-center">
+            <BrandLogo height={36} />
           </h4>
           {children}
         </div>
