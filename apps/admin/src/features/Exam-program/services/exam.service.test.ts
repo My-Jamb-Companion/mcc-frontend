@@ -141,7 +141,7 @@ describe("getExamProgram", () => {
                     usage_type: "practice",
                   },
                 ],
-                quizzes: [
+                exercises: [
                   {
                     correct_answers: ["101"],
                     created_at: "Sat, 09 May 2026 08:29:17 GMT",
@@ -292,7 +292,7 @@ describe("updateExamProgramContent", () => {
           {
             title: "Conversion between Bases",
             description: "Learn how to convert from Base 10 to Base 2.",
-            test_exercises: [
+            unit_exercises: [
               {
                 question_text: "What is 10 in Binary?",
                 question_type: "single_choice" as const,
@@ -312,7 +312,7 @@ describe("updateExamProgramContent", () => {
                     file_size_bytes: 52428800,
                   },
                 ],
-                quizzes: [
+                exercises: [
                   {
                     question_text: "Convert 5 to Base 2.",
                     question_type: "single_choice" as const,

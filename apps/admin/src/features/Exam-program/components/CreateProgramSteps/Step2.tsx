@@ -21,7 +21,7 @@ import {
 type Leaf = {
   id: string;
   label: string;
-  type: "lectures" | "practice" | "quiz" | "test";
+  type: "lectures" | "practice" | "exercise";
   count?: number;
   lessons?: FileRow[];
   questions?: CreatPracticeQuestionType[];
@@ -32,7 +32,7 @@ export type MakeModule = {
   label: string;
   description?: string;
   leaves: Leaf[];
-  /** The module Quiz's timer / pass mark. Carried through load and save; the editor has no module Quiz yet. */
+  /** The module Exercise's timer / pass mark (named for what the Exercise was before: a Quiz). */
   quizSettings?: QuizSettings;
 };
 
@@ -41,10 +41,11 @@ export type SubTopic = {
   label: string;
   description?: string;
   modules: MakeModule[];
+  /** Whether the sub-topic has its own (unit) Exercise. (Named for what it was before: a Quiz.) */
   hasQuiz?: boolean;
-  /** Test exercise questions for this sub-topic's quiz (only meaningful when `hasQuiz` is true). */
+  /** The unit Exercise's questions (only meaningful when `hasQuiz` is true). */
   quizQuestions?: CreatPracticeQuestionType[];
-  /** The Test's timer and passing score. */
+  /** The unit Exercise's timer and passing score. */
   testSettings?: QuizSettings;
 };
 
@@ -120,12 +121,12 @@ export function hasCompleteContent(topics: Topic[]) {
 function getActiveContext(topics: Topic[], leafId: string) {
   for (const topic of topics) {
     for (const sub of topic.subTopics) {
-      if (leafId === `${sub.id}-quiz`) {
+      if (leafId === `${sub.id}-unit-exercise`) {
         return {
           topic,
           subTopic: sub,
-          type: "quiz" as const,
-          label: "Quiz exercises",
+          type: "unit-exercise" as const,
+          label: "Unit exercise",
         };
       }
       for (const mod of sub.modules) {
@@ -327,8 +328,27 @@ export default function ContentStep({
     }
   }
 
+  function setModuleExerciseSettings(settings: QuizSettings) {
+    if (!activeContext?.module || activeContext.type !== "exercise") return;
+    const {topic, subTopic, module} = activeContext;
+    setTopics(
+      topics.map((t) =>
+        t.id === topic.id
+          ? {
+              ...t,
+              subTopics: t.subTopics.map((s) =>
+                s.id === subTopic.id
+                  ? {...s, modules: s.modules.map((m) => (m.id === module.id ? {...m, quizSettings: settings} : m))}
+                  : s,
+              ),
+            }
+          : t,
+      ),
+    );
+  }
+
   function setSubTopicTestSettings(settings: QuizSettings) {
-    if (!activeContext || activeContext.type !== "quiz") return;
+    if (!activeContext || activeContext.type !== "unit-exercise") return;
     const {topic, subTopic} = activeContext;
     setTopics(
       topics.map((t) =>
@@ -345,7 +365,7 @@ export default function ContentStep({
   }
 
   function setSubTopicQuizQuestions(newQuestions: CreatPracticeQuestionType[]) {
-    if (!activeContext || activeContext.type !== "quiz") return;
+    if (!activeContext || activeContext.type !== "unit-exercise") return;
     const {topic, subTopic} = activeContext;
     setTopics(
       topics.map((t) =>
@@ -558,14 +578,32 @@ export default function ContentStep({
                 />
               )}
 
-              {activeContext?.type === "quiz" && (
+              {activeContext?.leaf?.type === "exercise" && (
                 <>
                   <QuizSettingsFields
-                    noun="test"
+                    noun="exercise"
+                    value={activeContext.module?.quizSettings ?? {}}
+                    onChange={setModuleExerciseSettings}
+                  />
+                  <PracticeQuestions
+                    withResponses
+                    responsesShown="review"
+                    questions={activeQuestions}
+                    onChange={setLeafQuestions}
+                  />
+                </>
+              )}
+
+              {activeContext?.type === "unit-exercise" && (
+                <>
+                  <QuizSettingsFields
+                    noun="exercise"
                     value={activeContext.subTopic?.testSettings ?? {}}
                     onChange={setSubTopicTestSettings}
                   />
                   <PracticeQuestions
+                    withResponses
+                    responsesShown="review"
                     questions={activeQuizQuestions}
                     onChange={setSubTopicQuizQuestions}
                   />

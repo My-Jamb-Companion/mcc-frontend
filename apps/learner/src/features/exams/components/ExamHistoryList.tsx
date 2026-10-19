@@ -5,9 +5,12 @@ import {Icon} from "@mcc/ui";
 import {useExamHistory} from "../hooks/useExamHistory";
 
 const ACTIVITY_LABEL: Record<string, string> = {
-  quiz: "Quiz",
+  // A module's old Quiz and a sub-topic's old Test are Exercises now; older rows keep their old names.
+  quiz: "Exercise",
+  exercise: "Exercise",
+  exam: "Exercise",
   practice: "Practice",
-  exam: "Mock exam",
+  mock: "Mock exam",
 };
 
 function formatWhen(iso: string): string {

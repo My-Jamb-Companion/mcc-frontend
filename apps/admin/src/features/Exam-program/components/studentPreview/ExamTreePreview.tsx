@@ -10,8 +10,8 @@ import type {
 
 export type ActiveNode =
   | {kind: "lecture"; lectureId: string}
-  | {kind: "quiz" | "practice"; moduleId: string}
-  | {kind: "test"; subTopicId: string};
+  | {kind: "practice" | "exercise"; moduleId: string}
+  | {kind: "unit-exercise"; subTopicId: string};
 
 interface Props {
   topics: StudentExamTopic[];
@@ -22,7 +22,7 @@ interface Props {
 
 /**
  * The student's exam-program content list: topic > sub-topic > module >
- * lectures, with Quiz / Practice per module and Test per sub-topic. A port of
+ * lectures, with Practice / Exercise per module and a unit Exercise per sub-topic. A port of
  * the learner app's ExamContentTree; download / bookmark icons are inert.
  */
 export default function ExamTreePreview({topics, active, completedLectureIds, onSelect}: Props) {
@@ -75,7 +75,7 @@ function SubTopicAccordion({
   onSelect,
 }: Omit<Props, "topics"> & {subTopic: StudentExamSubTopic}) {
   const [open, setOpen] = useState(false);
-  const isTestActive = active?.kind === "test" && active.subTopicId === subTopic.id;
+  const isUnitExerciseActive = active?.kind === "unit-exercise" && active.subTopicId === subTopic.id;
 
   return (
     <div className="rounded-xl bg-muted/5">
@@ -103,16 +103,16 @@ function SubTopicAccordion({
               onSelect={onSelect}
             />
           ))}
-          {subTopic.test.length > 0 && (
+          {subTopic.unitExercise.length > 0 && (
             <button
               type="button"
-              onClick={() => onSelect({kind: "test", subTopicId: subTopic.id})}
+              onClick={() => onSelect({kind: "unit-exercise", subTopicId: subTopic.id})}
               className={`flex items-center gap-2 px-2 py-2 text-left rounded-lg transition-colors ${
-                isTestActive ? "bg-primary/10 text-primary" : "hover:bg-muted/10 text-subtle"
+                isUnitExerciseActive ? "bg-primary/10 text-primary" : "hover:bg-muted/10 text-subtle"
               }`}
             >
               <Icon icon="material-symbols:fact-check-outline" size={16} className="text-orange-500" />
-              <span className="text-sm">Test ({subTopic.test.length})</span>
+              <span className="text-sm">Exercise ({subTopic.unitExercise.length})</span>
             </button>
           )}
         </div>
@@ -129,7 +129,7 @@ function ModuleAccordion({
 }: Omit<Props, "topics"> & {module: StudentExamModule}) {
   const [open, setOpen] = useState(false);
   const allWatched = mod.lectures.length > 0 && mod.lectures.every((l) => completedLectureIds.has(l.id));
-  const isQuizActive = active?.kind === "quiz" && active.moduleId === mod.id;
+  const isExerciseActive = active?.kind === "exercise" && active.moduleId === mod.id;
   const isPracticeActive = active?.kind === "practice" && active.moduleId === mod.id;
 
   return (
@@ -189,20 +189,6 @@ function ModuleAccordion({
             );
           })}
 
-          {mod.quiz.length > 0 && (
-            <button
-              type="button"
-              onClick={() => onSelect({kind: "quiz", moduleId: mod.id})}
-              className={`flex items-center gap-2 pl-1 pr-2 py-1.5 text-left rounded-lg transition-colors ${
-                isQuizActive ? "border-l-primary border-l-3 bg-primary/5" : "border-l-0 hover:bg-muted/5"
-              }`}
-            >
-              <Icon icon="material-symbols:quiz-outline" size={15} className="text-orange-500" />
-              <span className={`text-sm ${isQuizActive ? "text-primary" : "text-subtle"}`}>
-                Quiz ({mod.quiz.length})
-              </span>
-            </button>
-          )}
           {mod.practice.length > 0 && (
             <button
               type="button"
@@ -214,6 +200,20 @@ function ModuleAccordion({
               <Icon icon="material-symbols:edit-note-rounded" size={15} className="text-orange-500" />
               <span className={`text-sm ${isPracticeActive ? "text-primary" : "text-subtle"}`}>
                 Practice ({mod.practice.length})
+              </span>
+            </button>
+          )}
+          {mod.exercise.length > 0 && (
+            <button
+              type="button"
+              onClick={() => onSelect({kind: "exercise", moduleId: mod.id})}
+              className={`flex items-center gap-2 pl-1 pr-2 py-1.5 text-left rounded-lg transition-colors ${
+                isExerciseActive ? "border-l-primary border-l-3 bg-primary/5" : "border-l-0 hover:bg-muted/5"
+              }`}
+            >
+              <Icon icon="material-symbols:quiz-outline" size={15} className="text-orange-500" />
+              <span className={`text-sm ${isExerciseActive ? "text-primary" : "text-subtle"}`}>
+                Exercise ({mod.exercise.length})
               </span>
             </button>
           )}

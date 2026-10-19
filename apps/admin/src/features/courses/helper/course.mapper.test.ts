@@ -173,7 +173,7 @@ describe("quiz timer and passing score", () => {
   });
 });
 
-describe("practice option responses", () => {
+describe("option responses", () => {
   const answered = (): CreatPracticeQuestionType => ({
     ...question("r"),
     options: [
@@ -200,7 +200,7 @@ describe("practice option responses", () => {
     },
   ];
 
-  it("saves a trimmed response per option for Practice and loads it back", () => {
+  it("saves a trimmed response per option and loads it back", () => {
     const payload = serializeModulesPayload(tree("practice"));
     expect(payload[0].quizzes[0].option_feedback).toEqual(["Well done", "Not quite"]);
     const [loaded] = deserializeModulesPayload(payload);
@@ -209,9 +209,9 @@ describe("practice option responses", () => {
     expect(options.map((o) => o.response)).toEqual(["Well done", "Not quite"]);
   });
 
-  it("never saves responses for Exercise or Quiz sets", () => {
+  it("saves them for Exercise and Test (quiz) sets too, for the student's review", () => {
     for (const kind of ["exercise", "quiz"] as const) {
-      expect(serializeModulesPayload(tree(kind))[0].quizzes[0]).not.toHaveProperty("option_feedback");
+      expect(serializeModulesPayload(tree(kind))[0].quizzes[0].option_feedback).toEqual(["Well done", "Not quite"]);
     }
   });
 });

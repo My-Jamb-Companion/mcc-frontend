@@ -109,7 +109,7 @@ export interface ApiExamQuestion {
   order_index: number;
   parent_id: string;
   parent_type: string;
-  usage_type: "practice" | "quiz" | "test";
+  usage_type: "practice" | "exercise" | "mock";
   created_at: string;
 }
 
@@ -130,9 +130,11 @@ export interface ApiExamModule {
   title: string;
   order_index: number;
   lectures: ApiExamLecture[];
-  quizzes: ApiExamQuestion[];
+  /** The module's Exercise. `quizzes` is the same list under the name it had before Quizzes became Exercises. */
+  exercises?: ApiExamQuestion[];
+  quizzes?: ApiExamQuestion[];
   practices: ApiExamQuestion[];
-  /** The module Quiz's timer (minutes) and passing score (percent); null = unset. */
+  /** The module Exercise's timer (minutes) and passing score (percent); null = unset. */
   quiz_timer_minutes?: number | null;
   quiz_passing_score?: number | null;
   created_at: string;
@@ -145,8 +147,10 @@ export interface ApiExamSubTopic {
   description: string | null;
   order_index: number;
   modules: ApiExamModule[];
-  test_exercises: ApiExamQuestion[];
-  /** The Test's timer (minutes) and passing score (percent); null = unset. */
+  /** The sub-topic's own (unit) Exercise. `test_exercises` is the same list under its old name. */
+  unit_exercises?: ApiExamQuestion[];
+  test_exercises?: ApiExamQuestion[];
+  /** The unit Exercise's timer (minutes) and passing score (percent); null = unset. */
   test_timer_minutes?: number | null;
   test_passing_score?: number | null;
   created_at: string;

@@ -23,6 +23,8 @@ export interface ApiModuleGradedAnswer {
    * to match against -- not auto-gradable, excluded from score_percent. */
   is_correct: boolean | null;
   explanation?: string | null;
+  /** The author's response to each option, aligned to the question's own option order: for review after submitting. */
+  option_feedback?: (string | null)[] | null;
 }
 
 export interface ApiModuleQuizResult {

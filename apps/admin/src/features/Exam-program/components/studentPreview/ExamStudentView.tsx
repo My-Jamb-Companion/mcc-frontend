@@ -27,7 +27,7 @@ interface Session {
 /**
  * "View as a student" for an exam program, mirroring the learner app's
  * ExamProgramContent: breadcrumb, lecture player with "Mark as complete", and
- * the content tree with Quiz / Practice / Test sessions. Built from the form
+ * the content tree with Practice / Exercise sessions. Built from the form
  * as it would be saved. "Before enrolling" shows the page a student sees
  * before registering. Nothing here is sent anywhere.
  */
@@ -62,24 +62,30 @@ export default function ExamStudentView({
   const handleSelect = (node: ActiveNode) => {
     setActive(node);
     setSession(null);
-    if (node.kind === "quiz" || node.kind === "practice") {
+    if (node.kind === "exercise" || node.kind === "practice") {
       const mod = tree
         .flatMap((t) => t.subTopics.flatMap((s) => s.modules))
         .find((m) => m.id === node.moduleId);
       if (mod) {
-        setSession({
-          label: node.kind === "quiz" ? "Quiz" : "Practice",
-          questions: node.kind === "quiz" ? mod.quiz : mod.practice,
-        });
+        setSession(
+          node.kind === "practice"
+            ? {label: "Practice", questions: mod.practice}
+            : {
+                label: "Exercise",
+                questions: mod.exercise,
+                timerMinutes: mod.exerciseTimerMinutes,
+                passingScore: mod.exercisePassingScore,
+              },
+        );
       }
-    } else if (node.kind === "test") {
+    } else if (node.kind === "unit-exercise") {
       const sub = tree.flatMap((t) => t.subTopics).find((s) => s.id === node.subTopicId);
       if (sub) {
         setSession({
-          label: "Test",
-          questions: sub.test,
-          timerMinutes: sub.testTimerMinutes,
-          passingScore: sub.testPassingScore,
+          label: "Exercise",
+          questions: sub.unitExercise,
+          timerMinutes: sub.unitTimerMinutes,
+          passingScore: sub.unitPassingScore,
         });
       }
     }
@@ -140,7 +146,7 @@ export default function ExamStudentView({
                 <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
                   {lectures.length === 0
                     ? "This program has no content yet."
-                    : "Pick a lecture, quiz, practice or test from the content list."}
+                    : "Pick a lecture, practice or exercise from the content list."}
                 </div>
               ) : activeLecture.kind === "html" ? (
                 <InteractiveLesson
