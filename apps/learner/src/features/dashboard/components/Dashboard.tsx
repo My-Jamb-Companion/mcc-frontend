@@ -15,6 +15,7 @@ import ExamCardSkeleton from "@/src/features/components/ExamCardSkeleton";
 import {useEnrolledCourses} from "@/src/features/courses/hooks/useCourses";
 import {fromApiEnrolledCourse} from "@/src/features/courses/helper/course.mapper";
 import {useEnrolledPrograms} from "@/src/features/exams/hooks/useExams";
+import ReadinessCard from "@/src/features/exams/components/ReadinessCard";
 import {fromApiEnrolledProgram} from "@/src/features/exams/helper/exam.mapper";
 import {useUpcomingSessions} from "@/src/features/sessions/hooks/useSessions";
 import {RescheduleModal} from "@/src/features/sessions/RescheduleModal";
@@ -116,6 +117,8 @@ export default function Dashboard() {
           onSurprise={() => router.push(brainyChatUrl(pickSurprisePrompt(suggestions)))}
         />
       </div>
+
+      <ReadinessCard />
 
       <div className="flex flex-col gap-10 mt-8">
         <ScrollRow

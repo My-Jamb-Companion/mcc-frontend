@@ -41,6 +41,18 @@ export interface ChildBadge {
   earned_at: string;
 }
 
+/** How ready the child is for one exam they are preparing for. */
+export interface ChildExamReadiness {
+  program_id: string;
+  exam_name: string | null;
+  subject_name: string | null;
+  /** Percent: how much of the program they have mastered. */
+  readiness_percent: number;
+  answered: number;
+  /** A percentage range the practice so far suggests; `available` is false until enough has been answered. */
+  predicted: {available: boolean; low: number | null; high: number | null; confidence: string | null; message: string | null};
+}
+
 export interface ChildDetail {
   child_id: string;
   email: string;
@@ -55,6 +67,8 @@ export interface ChildDetail {
   level_name?: string | null;
   upcoming_sessions: UpcomingSession[];
   program_teachers: ProgramTeacher[];
+  /** Absent from older servers. */
+  exam_readiness?: ChildExamReadiness[];
 }
 
 export const getChildren = async (): Promise<ChildSummary[]> => {

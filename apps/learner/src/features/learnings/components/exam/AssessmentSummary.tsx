@@ -5,6 +5,7 @@ import {extractApiError} from "@mcc/api";
 import {useAnalysis, useQuestionHelp} from "@/src/features/brainy/hooks/useAiFeedback";
 import PointsEarnedCard from "@/src/features/rewards/components/PointsEarnedCard";
 import type {ApiAssessmentQuestion, ApiExamSubmissionResult} from "@/src/features/exams/services/exam.service";
+import {leveledUpText} from "@/src/features/learnings/helper/readiness";
 import StarRating from "./StarRating";
 
 interface AssessmentSummaryProps {
@@ -54,6 +55,8 @@ export default function AssessmentSummary({result, questions, mode, onRetry, onD
         <span className="text-2xl font-bold text-subtle"> / {total}</span>
       </div>
       <p className="text-xs text-subtle">right first time</p>
+
+      {result.readiness && <ReadinessChange readiness={result.readiness} />}
 
       {result.gamification && <PointsEarnedCard gamification={result.gamification} scorePercent={result.score_percent} />}
 
@@ -111,6 +114,31 @@ export default function AssessmentSummary({result, questions, mode, onRetry, onD
 
       {reviewing && <ReviewList result={result} questions={questions} />}
       <FeedbackButton result={result} right={right} />
+    </div>
+  );
+}
+
+/** "Leveled up on 2 topics" and how Exam Readiness moved. */
+function ReadinessChange({readiness}: {readiness: NonNullable<ApiExamSubmissionResult["readiness"]>}) {
+  const up = leveledUpText(readiness.leveled_up.length);
+  const moved = readiness.readiness_percent - readiness.readiness_before;
+  return (
+    <div className="mt-6 w-full max-w-md rounded-2xl border border-primary/30 bg-primary/5 p-4 text-left" aria-label="Exam readiness">
+      {up && (
+        <p className="flex items-center gap-2 text-sm font-semibold text-primary">
+          <Icon icon="solar:cup-star-bold" size={18} />
+          {up}
+        </p>
+      )}
+      {up && (
+        <ul className="mt-1 ml-7 list-disc text-xs text-subtle">
+          {readiness.leveled_up.map((l) => <li key={l.node_id}>{l.title}</li>)}
+        </ul>
+      )}
+      <p className={`text-sm ${up ? "mt-2" : ""}`}>
+        Exam readiness <span className="font-bold">{readiness.readiness_percent}%</span>
+        {moved > 0 && <span className="text-success"> (up {moved} point{moved === 1 ? "" : "s"})</span>}
+      </p>
     </div>
   );
 }

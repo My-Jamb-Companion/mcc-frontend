@@ -215,6 +215,20 @@ export interface ApiRecommendedLesson {
   lecture_title: string;
 }
 
+export interface ApiLevelUp {
+  node_id: string;
+  title: string;
+  from: ReadinessLevel;
+  to: ReadinessLevel;
+}
+
+/** What a played session did to the program's readiness. */
+export interface ApiSessionReadiness {
+  readiness_percent: number;
+  readiness_before: number;
+  leveled_up: ApiLevelUp[];
+}
+
 export interface ApiExamSubmissionResult {
   score_percent: number;
   /** What this submission earned: points, daily goal, streak. Absent from older servers. */
@@ -225,6 +239,7 @@ export interface ApiExamSubmissionResult {
   results: ApiGradedAnswer[];
   topic_breakdown?: ApiTopicResult[];
   recommended_lessons?: ApiRecommendedLesson[];
+  readiness?: ApiSessionReadiness | null;
 }
 
 /** Endpoint: POST /exams/assessments/start -- Practice (module) or Exercise (module or sub-topic). */
@@ -312,4 +327,81 @@ export const registerForProgram = async (
     live_format: liveFormat,
   });
   return res.data.data;
+};
+
+// --- Mastery and readiness ---------------------------------------------------
+
+export type ReadinessLevel = "not_started" | "attempted" | "familiar" | "proficient" | "ready";
+
+export interface ApiReadinessTile {
+  node_type: "module" | "sub_topic";
+  node_id: string;
+  title: string;
+  level: ReadinessLevel;
+  /** 0 to 1: share of the topic's questions played x share of those right first time. */
+  score: number;
+  answered: number;
+  total: number;
+}
+
+export interface ApiReadinessUnit {
+  sub_topic_id: string;
+  title: string;
+  topic_title: string;
+  tiles: ApiReadinessTile[];
+}
+
+export interface ApiPredictedScore {
+  available: boolean;
+  /** Percent. */
+  low: number | null;
+  high: number | null;
+  confidence: "low" | "medium" | "high" | null;
+  answered: number;
+  /** Questions that must be answered before a range is shown. */
+  needed: number;
+  /** Why there is no range yet. */
+  message: string | null;
+}
+
+export interface ApiWeakTopic {
+  node_type: "module" | "sub_topic";
+  node_id: string;
+  title: string;
+  level: ReadinessLevel;
+  score: number;
+  /** A lecture to revisit. */
+  lecture_id: string | null;
+}
+
+export interface ApiProgramReadiness {
+  program_id: string;
+  readiness_percent: number;
+  answered: number;
+  total: number;
+  units: ApiReadinessUnit[];
+  predicted: ApiPredictedScore;
+  weakest: ApiWeakTopic[];
+  levels: Partial<Record<ReadinessLevel, number>>;
+}
+
+export interface ApiReadinessSummary {
+  program_id: string;
+  exam_name?: string | null;
+  subject_name?: string | null;
+  readiness_percent: number;
+  answered: number;
+  predicted: ApiPredictedScore;
+}
+
+/** Endpoint: GET /exams/<program_id>/readiness */
+export const getProgramReadiness = async (programId: string): Promise<ApiProgramReadiness> => {
+  const res = await apiClient.get<{data: ApiProgramReadiness}>(`/exams/${programId}/readiness`);
+  return res.data.data;
+};
+
+/** Endpoint: GET /exams/readiness -- readiness for each registered program, for the dashboard. */
+export const getReadinessOverview = async (): Promise<ApiReadinessSummary[]> => {
+  const res = await apiClient.get<{data: {programs: ApiReadinessSummary[]}}>("/exams/readiness");
+  return res.data.data.programs;
 };
