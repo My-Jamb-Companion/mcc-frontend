@@ -83,6 +83,12 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
   const [mockResult, setMockResult] = useState<ApiMockResult | null>(null);
   const startMock = useStartMockExam();
 
+  // The attempt and its result open at the top, not wherever the panel that started them was scrolled to.
+  const mockScreen = mock?.session_id ?? mockResult?.session_id ?? null;
+  useEffect(() => {
+    if (mockScreen) window.scrollTo({top: 0});
+  }, [mockScreen, mockResult]);
+
   // The lectures already finished, as the server recorded them: a reload keeps its ticks.
   useEffect(() => {
     if (!savedProgress?.completed_lecture_ids.length) return;
