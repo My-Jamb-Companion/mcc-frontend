@@ -25,7 +25,7 @@ function toUiQuestionType(
   return questionType === "multi_choice" ? "multiple" : "single";
 }
 
-function toUiQuestion(q: ApiExamQuestion): CreatPracticeQuestionType {
+export function toUiQuestion(q: ApiExamQuestion): CreatPracticeQuestionType {
   const correctSet = new Set(q.correct_answers ?? []);
 
   return {

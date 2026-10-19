@@ -71,7 +71,7 @@ export function toApiQuestionType(type: string): ApiQuestionType {
   return type === "multiple" ? "multi_choice" : "single_choice";
 }
 
-function toApiQuestion(q: CreatPracticeQuestionType, practice = false): ApiQuestionPayload {
+export function toApiQuestion(q: CreatPracticeQuestionType, practice = false): ApiQuestionPayload {
   return {
     question_id: q.id,
     question_text: q.question,

@@ -10,6 +10,9 @@ import InteractiveLessonContent from "../InteractiveLessonContent";
 import ExamContentTree, {ActiveNode} from "./ExamContentTree";
 import AssessmentPlayer from "./AssessmentPlayer";
 import ReadinessPanel from "./ReadinessPanel";
+import MockExamsPanel from "./MockExamsPanel";
+import MockExamPlayer from "./MockExamPlayer";
+import MockExamResult from "./MockExamResult";
 import {BookingSection} from "@/src/features/booking/components/BookingSection";
 import {
   useProgramContent,
@@ -17,8 +20,9 @@ import {
   useStartAssessment,
   useCompleteProgramLecture,
   useProgramProgress,
+  useStartMockExam,
 } from "@/src/features/exams/hooks/useExams";
-import {ApiAssessmentSession, ApiExamLecture, ApiExamTopic} from "@/src/features/exams/services/exam.service";
+import {ApiAssessmentSession, ApiExamLecture, ApiExamTopic, ApiMockResult, ApiMockSession} from "@/src/features/exams/services/exam.service";
 import {ApiEnrolledProgram} from "@/src/features/exams/services/exam.service";
 
 interface ExamProgramContentProps {
@@ -74,6 +78,10 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
   const [active, setActive] = useState<ActiveNode | null>(null);
   const [session, setSession] = useState<ApiAssessmentSession | null>(null);
   const [sessionError, setSessionError] = useState<string | null>(null);
+  // A mock exam takes the whole page while it is on: the attempt, then its result.
+  const [mock, setMock] = useState<ApiMockSession | null>(null);
+  const [mockResult, setMockResult] = useState<ApiMockResult | null>(null);
+  const startMock = useStartMockExam();
 
   // The lectures already finished, as the server recorded them: a reload keeps its ticks.
   useEffect(() => {
@@ -145,6 +153,43 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
     setActive({kind: "lecture", lectureId});
   };
 
+  const leaveMock = () => {
+    setMock(null);
+    setMockResult(null);
+  };
+
+  const againMock = () => {
+    if (!mockResult) return;
+    startMock.mutate(mockResult.paper.paper_id, {
+      onSuccess: (next) => {
+        setMockResult(null);
+        setMock(next);
+      },
+      onError: (error) => showError(extractApiError(error, "Couldn't start another attempt.")),
+    });
+  };
+
+  if (mock || mockResult) {
+    return (
+      <section className="flex flex-col px-4 py-8">
+        {mockResult ? (
+          <MockExamResult result={mockResult} onAgain={againMock} onDone={leaveMock} />
+        ) : (
+          mock && (
+            <MockExamPlayer
+              key={mock.session_id}
+              session={mock}
+              onFinished={(finished) => {
+                setMock(null);
+                setMockResult(finished);
+              }}
+            />
+          )
+        )}
+      </section>
+    );
+  }
+
   const activeLecture = active?.kind === "lecture" ? findLecture(topics, active.lectureId) : null;
   const startingSession = startAssessment.isPending;
 
@@ -159,6 +204,8 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
       </nav>
 
       <BookingSection purpose="exam" targetId={programId} />
+
+      <MockExamsPanel programId={programId} onStart={setMock} onReview={setMockResult} />
 
       {readiness && <ReadinessPanel readiness={readiness} onPractise={practiseNode} onOpenLecture={openLecture} />}
 
