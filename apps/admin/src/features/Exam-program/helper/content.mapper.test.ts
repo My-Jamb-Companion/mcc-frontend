@@ -96,13 +96,16 @@ describe("serializeTopicsPayload", () => {
 
     expect(payload).toEqual([
       {
+        topic_id: "t1",
         title: "Number Bases",
         sub_topics: [
           {
+            sub_topic_id: "s1",
             title: "Conversion between Bases",
             description: "Learn how to convert from Base 10 to Base 2.",
             unit_exercises: [
               {
+                question_id: "q1",
                 question_text: "What is 10 in Binary?",
                 question_type: "single_choice",
                 options: ["1010", "1100", "1001"],
@@ -113,6 +116,7 @@ describe("serializeTopicsPayload", () => {
             ],
             modules: [
               {
+                module_id: "m1",
                 title: "Module 1: Basic Conversions",
                 lectures: [
                   {
@@ -125,6 +129,7 @@ describe("serializeTopicsPayload", () => {
                 exercises: [],
                 practices: [
                   {
+                    question_id: "q2",
                     question_text: "Practice: Convert 7 to Binary.",
                     question_type: "single_choice",
                     options: ["111", "110", "101"],
@@ -388,5 +393,22 @@ describe("a module's Exercise", () => {
     expect(module.exercises[0].option_feedback?.[0]).toBe("Right.");
     expect(topic.sub_topics[0].unit_exercises).toHaveLength(1);
     expect(module).not.toHaveProperty("quizzes");
+  });
+});
+
+describe("ids kept across saves", () => {
+  it("sends each topic, sub-topic, module and question id back so a save keeps them", () => {
+    const [topic] = serializeTopicsPayload([{
+      id: "topic_1", label: "T",
+      subTopics: [{
+        id: "st_1", label: "S", hasQuiz: true, quizQuestions: [makeQuestion({id: "q_unit"})],
+        modules: [{id: "mod_1", label: "M", leaves: [{id: "l", label: "Exercise", type: "exercise", questions: [makeQuestion({id: "q_ex"})]}]}],
+      }],
+    }]);
+    expect(topic.topic_id).toBe("topic_1");
+    expect(topic.sub_topics[0].sub_topic_id).toBe("st_1");
+    expect(topic.sub_topics[0].unit_exercises[0].question_id).toBe("q_unit");
+    expect(topic.sub_topics[0].modules[0].module_id).toBe("mod_1");
+    expect(topic.sub_topics[0].modules[0].exercises[0].question_id).toBe("q_ex");
   });
 });

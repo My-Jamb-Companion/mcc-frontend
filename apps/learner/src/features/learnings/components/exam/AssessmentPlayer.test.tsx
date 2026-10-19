@@ -50,6 +50,7 @@ const graded: ApiExamSubmissionResult = {
   ],
   topic_breakdown: [{node_type: "module", node_id: "m1", title: "Algebra basics", correct: 1, total: 2, percent: 50, stars: 2.5}],
   recommended_lessons: [{module_id: "m1", module_title: "Algebra basics", lecture_id: "l1", lecture_title: "Variables"}],
+  readiness: {readiness_percent: 43, readiness_before: 20, leveled_up: [{node_id: "m1", title: "Algebra basics", from: "not_started", to: "familiar"}]},
 };
 
 const props = {onDone: vi.fn(), onRestart: vi.fn(), onOpenLecture: vi.fn()};
@@ -130,6 +131,8 @@ describe("AssessmentPlayer: Practice", () => {
     fireEvent.click(await screen.findByRole("button", {name: "Show summary"}));
     await waitFor(() => expect(calls.submit).toHaveBeenCalledWith("s1", expect.anything()));
     expect(await screen.findByText("right first time")).toBeInTheDocument();
+    expect(screen.getByText("Leveled up on 1 topic")).toBeInTheDocument();
+    expect(screen.getByText("(up 23 points)")).toBeInTheDocument();
     expect(screen.getByRole("img", {name: "2.5 out of 5 stars"})).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", {name: /Variables/}));
     expect(props.onOpenLecture).toHaveBeenCalledWith("l1");

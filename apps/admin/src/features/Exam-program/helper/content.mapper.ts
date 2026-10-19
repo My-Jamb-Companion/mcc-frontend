@@ -10,12 +10,15 @@ import {MakeModule, SubTopic, Topic} from "../components/CreateProgramSteps/Step
 export type ApiQuestionType = "single_choice" | "multi_choice";
 
 export interface ApiQuestionPayload {
+  /** The question's id, sent back on save so the same question is kept (students' answers follow it);
+   * an id that is not one of this program's own is ignored. */
+  question_id?: string;
   question_text: string;
   question_type: ApiQuestionType;
   options: string[];
   correct_answers: string[];
   explanation?: string;
-  /** Practice only: the response for each option, aligned to `options` (null where none). */
+  /** Practice and Exercise: the response for each option, aligned to `options` (null where none). */
   option_feedback?: (string | null)[];
 }
 
@@ -30,6 +33,8 @@ export interface ApiLecturePayload {
 }
 
 export interface ApiModulePayload {
+  /** The module's id, sent back on save so it keeps what students have achieved in it. */
+  module_id?: string;
   title: string;
   lectures: ApiLecturePayload[];
   /** The module's Exercise (named `quizzes` before Quizzes became Exercises). */
@@ -41,6 +46,7 @@ export interface ApiModulePayload {
 }
 
 export interface ApiSubTopicPayload {
+  sub_topic_id?: string;
   title: string;
   description?: string;
   /** The sub-topic's own (unit) Exercise (named `test_exercises` before Tests became unit Exercises). */
@@ -52,6 +58,7 @@ export interface ApiSubTopicPayload {
 }
 
 export interface ApiTopicPayload {
+  topic_id?: string;
   title: string;
   sub_topics: ApiSubTopicPayload[];
 }
@@ -66,12 +73,13 @@ export function toApiQuestionType(type: string): ApiQuestionType {
 
 function toApiQuestion(q: CreatPracticeQuestionType, practice = false): ApiQuestionPayload {
   return {
+    question_id: q.id,
     question_text: q.question,
     question_type: toApiQuestionType(q.type),
     options: q.options.map((opt) => opt.text),
     correct_answers: q.options.filter((opt) => opt.isCorrect).map((opt) => opt.text),
     explanation: q.explanation || undefined,
-    // Responses belong to Practice only.
+    // Responses are kept for Practice and Exercise questions.
     ...(practice && hasResponses(q) ? {option_feedback: optionResponses(q)} : {}),
   };
 }
@@ -124,6 +132,7 @@ function toApiModule(module: MakeModule): ApiModulePayload {
   const exercises = module.leaves.filter((l) => l.type === "exercise");
 
   return {
+    module_id: module.id,
     title: module.label || "Untitled Module",
     // A lecture whose upload hasn't finished (or failed) has nothing to save yet.
     lectures: lectures
@@ -140,6 +149,7 @@ function toApiModule(module: MakeModule): ApiModulePayload {
 
 function toApiSubTopic(subTopic: SubTopic): ApiSubTopicPayload {
   return {
+    sub_topic_id: subTopic.id,
     title: subTopic.label || "Untitled sub-topic",
     description: subTopic.description || undefined,
     unit_exercises: subTopic.hasQuiz
@@ -159,6 +169,7 @@ function toApiSubTopic(subTopic: SubTopic): ApiSubTopicPayload {
  */
 export function serializeTopicsPayload(topics: Topic[]): ApiTopicPayload[] {
   return topics.map((topic) => ({
+    topic_id: topic.id,
     title: topic.label || "Untitled topic",
     sub_topics: topic.subTopics.map(toApiSubTopic),
   }));
