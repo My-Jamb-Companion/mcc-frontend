@@ -430,6 +430,8 @@ function QuizManager({
             Questions in {selectedQuiz.title || "this test"}
           </p>
           <PracticeQuestions
+            withResponses
+            responsesShown="review"
             questions={selectedQuiz.questions}
             onChange={(questions) =>
               setQuizQuestions(selectedQuiz.id, questions)
@@ -574,6 +576,8 @@ function ExerciseManager({
             Questions in {selectedExercise.name || "this exercise"}
           </p>
           <PracticeQuestions
+            withResponses
+            responsesShown="review"
             questions={selectedExercise.questions}
             onChange={(qs) => setExerciseQuestions(selectedExercise.id, qs)}
           />

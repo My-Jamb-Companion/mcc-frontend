@@ -18,11 +18,11 @@ const topic = (subExtra: Record<string, unknown> = {}, moduleExtra: Record<strin
         description: null,
         order_index: 0,
         created_at: "",
-        test_exercises: [
+        unit_exercises: [
           {question_id: "q", question_text: "Q", question_type: "single_choice", options: ["a", "b"], correct_answers: ["a"], explanation: "", description: null},
         ],
         modules: [
-          {module_id: "m", sub_topic_id: "s", title: "M", order_index: 0, created_at: "", lectures: [], quizzes: [], practices: [], ...moduleExtra},
+          {module_id: "m", sub_topic_id: "s", title: "M", order_index: 0, created_at: "", lectures: [], exercises: [], practices: [], ...moduleExtra},
         ],
         ...subExtra,
       },
@@ -30,7 +30,7 @@ const topic = (subExtra: Record<string, unknown> = {}, moduleExtra: Record<strin
   }) as unknown as ApiExamTopic;
 
 describe("loading an exam program's timers and pass marks", () => {
-  it("restores the Test's and the module Quiz's settings", () => {
+  it("restores the unit Exercise's and the module Exercise's settings", () => {
     const [t] = deserializeExamTopics([
       topic(
         {test_timer_minutes: 45, test_passing_score: 75},
@@ -86,5 +86,24 @@ describe("loading lecture files", () => {
     expect(pdf.format).toBe("PDF");
     expect(pdf.fileSizeBytes).toBe(4096);
     expect(video.format).toBe("MP4");
+  });
+});
+
+describe("loading a module's Exercise", () => {
+  const q = {question_id: "q", question_text: "Q", question_type: "single_choice", options: ["a", "b"], correct_answers: ["a"], explanation: "", description: null};
+
+  it("gives every module an Exercise to author, empty or not", () => {
+    const [t] = deserializeExamTopics([topic()]);
+    const leaves = t.subTopics[0].modules[0].leaves;
+    expect(leaves.map((l) => l.type)).toEqual(["lectures", "practice", "exercise"]);
+    expect(leaves[2]).toMatchObject({label: "Exercise", count: 0});
+  });
+
+  it("reads the module and unit Exercise from an older server's quizzes and test_exercises", () => {
+    const old = topic({unit_exercises: undefined, test_exercises: [q]}, {exercises: undefined, quizzes: [q, q]});
+    const [t] = deserializeExamTopics([old]);
+    expect(t.subTopics[0].modules[0].leaves[2].questions).toHaveLength(2);
+    expect(t.subTopics[0].hasQuiz).toBe(true);
+    expect(t.subTopics[0].quizQuestions).toHaveLength(1);
   });
 });

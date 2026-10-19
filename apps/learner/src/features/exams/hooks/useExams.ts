@@ -10,10 +10,13 @@ import {
   getPrograms,
   getProgramContent,
   ProgramListFilters,
+  AssessmentMode,
+  checkAssessmentAnswer,
+  getAssessmentHint,
   registerForProgram,
-  startMockExam,
-  startModuleSession,
-  submitExamSession,
+  revealAssessmentAnswer,
+  startAssessment,
+  submitAssessment,
   updateProgramProgress,
 } from "../services/exam.service";
 
@@ -99,33 +102,38 @@ export const useCompleteProgramLecture = () => {
   });
 };
 
-/** Starts a module-scoped (or subject-wide, if moduleId is omitted) quiz or practice session. */
-export const useStartModuleSession = () =>
+/** Starts a Practice (module) or Exercise (module or sub-topic) for the assessment player. */
+export const useStartAssessment = () =>
   useMutation({
-    mutationFn: ({kind, subject, moduleId}: {kind: "quiz" | "practice"; subject: string; moduleId?: string}) =>
-      startModuleSession(kind, subject, moduleId),
+    mutationFn: ({mode, moduleId, subTopicId}: {mode: AssessmentMode; moduleId?: string; subTopicId?: string}) =>
+      startAssessment(mode, {moduleId, subTopicId}),
   });
 
-/** Starts a sub-topic-scoped (or subject-wide, if subTopicId is omitted) mock-exam session. */
-export const useStartMockExam = () =>
+/** Checks one answer; the server says whether it is right and nothing more until it is. */
+export const useCheckAnswer = () =>
   useMutation({
-    mutationFn: ({subject, subTopicId, limit}: {subject: string; subTopicId?: string; limit?: number}) =>
-      startMockExam(subject, subTopicId, limit),
+    mutationFn: ({sessionId, questionId, answer}: {sessionId: string; questionId: string; answer: string}) =>
+      checkAssessmentAnswer(sessionId, questionId, answer),
   });
 
-export const useSubmitExamSession = () => {
+/** The next hint step for a question. */
+export const useAssessmentHint = () =>
+  useMutation({
+    mutationFn: ({sessionId, questionId}: {sessionId: string; questionId: string}) => getAssessmentHint(sessionId, questionId),
+  });
+
+/** Skip: shows a question's answer. */
+export const useRevealAnswer = () =>
+  useMutation({
+    mutationFn: ({sessionId, questionId}: {sessionId: string; questionId: string}) => revealAssessmentAnswer(sessionId, questionId),
+  });
+
+/** Finishes a played session: graded from what happened in it. */
+export const useSubmitAssessment = () => {
   const refreshGamification = useGamificationRefresh();
 
   return useMutation({
-    mutationFn: ({
-      sessionId,
-      answers,
-      type,
-    }: {
-      sessionId: string;
-      answers: Record<string, string>;
-      type?: "quiz" | "practice" | "exam";
-    }) => submitExamSession(sessionId, answers, type),
+    mutationFn: (sessionId: string) => submitAssessment(sessionId),
     // A graded session may have earned points, moved a goal or extended the streak.
     onSuccess: () => refreshGamification(),
   });

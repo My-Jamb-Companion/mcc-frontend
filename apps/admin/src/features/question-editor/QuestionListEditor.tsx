@@ -309,21 +309,25 @@ function QuestionCard({
 
 /**
  * The question list editor shared by every Practice, Exercise, Quiz and Test in
- * both Courses and Exam Programs. `withResponses` (Practice sets only) adds a
- * response box under every option: what the student reads after choosing it,
- * right or wrong. The Question Bank tools (add from the bank, save to it) sit
+ * both Courses and Exam Programs. `withResponses` adds a response box under
+ * every option, right or wrong: a Practice student reads it as they answer
+ * (`responsesShown="answering"`), an Exercise or Test student when they review
+ * after submitting (`"review"`). The Question Bank tools (add from the bank, save to it) sit
  * above the list; `toolbar` adds more beside them.
  */
 export default function QuestionListEditor({
   questions,
   onChange,
   withResponses = false,
+  responsesShown = "answering",
   toolbar,
   single = false,
 }: {
   questions: CreatPracticeQuestionType[];
   onChange: (questions: CreatPracticeQuestionType[]) => void;
   withResponses?: boolean;
+  /** When the student reads the responses: as they answer (Practice) or in the review after submitting. */
+  responsesShown?: "answering" | "review";
   /** Extra set-level tools, shown beside the Question Bank ones. */
   toolbar?: ReactNode;
   /** Edit exactly one question (no list tools): used by the Question Bank's own editor. */
@@ -348,8 +352,9 @@ export default function QuestionListEditor({
     <section className="mt-4">
       {withResponses && (
         <p className="mb-4 rounded-xl bg-violet-50 px-4 py-3 text-sm text-violet-800">
-          Practice is for learning, not scoring. Write a response under each option: students read it after choosing
-          that option, whether it is right or wrong.
+          {responsesShown === "review"
+            ? "Write a response under each option. Students read these when they review their answers after submitting, whether the option is right or wrong."
+            : "Practice is for learning, not scoring. Write a response under each option: students read it after choosing that option, whether it is right or wrong."}
         </p>
       )}
 

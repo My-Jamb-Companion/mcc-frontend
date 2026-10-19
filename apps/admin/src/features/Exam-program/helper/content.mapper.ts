@@ -32,9 +32,10 @@ export interface ApiLecturePayload {
 export interface ApiModulePayload {
   title: string;
   lectures: ApiLecturePayload[];
-  quizzes: ApiQuestionPayload[];
+  /** The module's Exercise (named `quizzes` before Quizzes became Exercises). */
+  exercises: ApiQuestionPayload[];
   practices: ApiQuestionPayload[];
-  /** The module Quiz's timer (minutes) and passing score (percent). */
+  /** The module Exercise's timer (minutes) and passing score (percent). */
   quiz_timer_minutes?: number;
   quiz_passing_score?: number;
 }
@@ -42,9 +43,10 @@ export interface ApiModulePayload {
 export interface ApiSubTopicPayload {
   title: string;
   description?: string;
-  test_exercises: ApiQuestionPayload[];
+  /** The sub-topic's own (unit) Exercise (named `test_exercises` before Tests became unit Exercises). */
+  unit_exercises: ApiQuestionPayload[];
   modules: ApiModulePayload[];
-  /** The Test's timer (minutes) and passing score (percent). */
+  /** The unit Exercise's timer (minutes) and passing score (percent). */
   test_timer_minutes?: number;
   test_passing_score?: number;
 }
@@ -119,7 +121,7 @@ function toApiLecture(file: FileRow): ApiLecturePayload {
 function toApiModule(module: MakeModule): ApiModulePayload {
   const lectures = module.leaves.filter((l) => l.type === "lectures");
   const practices = module.leaves.filter((l) => l.type === "practice");
-  const quizzes = module.leaves.filter((l) => l.type === "quiz");
+  const exercises = module.leaves.filter((l) => l.type === "exercise");
 
   return {
     title: module.label || "Untitled Module",
@@ -128,7 +130,8 @@ function toApiModule(module: MakeModule): ApiModulePayload {
       .flatMap((l) => l.lessons ?? [])
       .filter((file) => file.content || lectureUrl(file))
       .map(toApiLecture),
-    quizzes: quizzes.flatMap((l) => l.questions ?? []).map((q) => toApiQuestion(q)),
+    // An Exercise keeps each option's response, shown to the student when they review.
+    exercises: exercises.flatMap((l) => l.questions ?? []).map((q) => toApiQuestion(q, true)),
     practices: practices.flatMap((l) => l.questions ?? []).map((q) => toApiQuestion(q, true)),
     ...(module.quizSettings?.timer ? {quiz_timer_minutes: module.quizSettings.timer} : {}),
     ...(module.quizSettings?.passingScore !== undefined ? {quiz_passing_score: module.quizSettings.passingScore} : {}),
@@ -139,8 +142,8 @@ function toApiSubTopic(subTopic: SubTopic): ApiSubTopicPayload {
   return {
     title: subTopic.label || "Untitled sub-topic",
     description: subTopic.description || undefined,
-    test_exercises: subTopic.hasQuiz
-      ? (subTopic.quizQuestions ?? []).map((q) => toApiQuestion(q))
+    unit_exercises: subTopic.hasQuiz
+      ? (subTopic.quizQuestions ?? []).map((q) => toApiQuestion(q, true))
       : [],
     modules: subTopic.modules.map(toApiModule),
     ...(subTopic.hasQuiz && subTopic.testSettings?.timer ? {test_timer_minutes: subTopic.testSettings.timer} : {}),

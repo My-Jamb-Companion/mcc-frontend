@@ -212,6 +212,7 @@ export default function CourseContent({
                   label={testLabel(activeQuizSet.name)}
                   timerMinutes={activeQuizSetInfo?.timerMinutes}
                   passingScore={activeQuizSetInfo?.passingScore}
+                  showIntro
                   onDone={() => setActiveQuizSet(null)}
                 />
               )

@@ -37,7 +37,7 @@ function toUiQuestion(q: ApiExamQuestion): CreatPracticeQuestionType {
       id: uid(),
       text,
       isCorrect: correctSet.has(text),
-      // The API sends responses for Practice questions only.
+      // The API sends each option's response for Practice and Exercise questions.
       ...(q.option_feedback?.[i] ? {response: q.option_feedback[i] as string} : {}),
     })),
     explanation: q.explanation ?? undefined,
@@ -78,18 +78,15 @@ function toUiModule(apiModule: ApiExamModule): MakeModule {
     },
   ];
 
-  // Module-level quizzes aren't created by the sidebar's default "add
-  // module" flow (only a sub-topic-level quiz is), but the backend allows
-  // them — surface one only when the module actually has quiz questions.
-  if (apiModule.quizzes && apiModule.quizzes.length > 0) {
-    leaves.push({
-      id: uid(),
-      label: "Quiz",
-      type: "quiz",
-      count: apiModule.quizzes.length,
-      questions: apiModule.quizzes.map(toUiQuestion),
-    });
-  }
+  // Every module can have an Exercise (the API still calls it `quizzes` on an older server).
+  const exercises = apiModule.exercises ?? apiModule.quizzes ?? [];
+  leaves.push({
+    id: uid(),
+    label: "Exercise",
+    type: "exercise",
+    count: exercises.length,
+    questions: exercises.map(toUiQuestion),
+  });
 
   return {
     id: apiModule.module_id ?? uid(),
@@ -106,7 +103,9 @@ function toSettings(timer?: number | null, passingScore?: number | null) {
 }
 
 function toUiSubTopic(apiSubTopic: ApiExamSubTopic): SubTopic {
-  const hasQuiz = (apiSubTopic.test_exercises?.length ?? 0) > 0;
+  // The sub-topic's own (unit) Exercise; an older server calls it `test_exercises`.
+  const unitExercises = apiSubTopic.unit_exercises ?? apiSubTopic.test_exercises ?? [];
+  const hasQuiz = unitExercises.length > 0;
 
   return {
     id: apiSubTopic.sub_topic_id ?? uid(),
@@ -114,9 +113,7 @@ function toUiSubTopic(apiSubTopic: ApiExamSubTopic): SubTopic {
     description: apiSubTopic.description ?? undefined,
     modules: (apiSubTopic.modules ?? []).map(toUiModule),
     hasQuiz,
-    quizQuestions: hasQuiz
-      ? apiSubTopic.test_exercises.map(toUiQuestion)
-      : undefined,
+    quizQuestions: hasQuiz ? unitExercises.map(toUiQuestion) : undefined,
     testSettings: toSettings(apiSubTopic.test_timer_minutes, apiSubTopic.test_passing_score),
   };
 }

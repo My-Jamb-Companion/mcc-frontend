@@ -42,7 +42,7 @@ const topics: Topic[] = [
                 ],
               },
               {id: "p", label: "Practice", type: "practice", questions: [q("p1")]},
-              {id: "z", label: "Quiz", type: "quiz", questions: [q("z1")]},
+              {id: "z", label: "Exercise", type: "exercise", questions: [q("z1")]},
             ],
           },
           {id: "m2", label: "", leaves: []},
@@ -71,20 +71,20 @@ describe("toStudentExamTree", () => {
     expect(lectures[2].url).toBeNull();
   });
 
-  it("separates quiz, practice and the sub-topic test", () => {
+  it("separates the module's exercise and practice from the sub-topic's unit exercise", () => {
     const m = tree[0].subTopics[0].modules[0];
-    expect(m.quiz.map((x) => x.id)).toEqual(["z1"]);
+    expect(m.exercise.map((x) => x.id)).toEqual(["z1"]);
     expect(m.practice.map((x) => x.id)).toEqual(["p1"]);
-    expect(tree[0].subTopics[0].test.map((x) => x.id)).toEqual(["t1", "t2"]);
+    expect(tree[0].subTopics[0].unitExercise.map((x) => x.id)).toEqual(["t1", "t2"]);
   });
 
-  it("only offers a test when the sub-topic's test is switched on", () => {
-    expect(tree[0].subTopics[1].test).toEqual([]);
+  it("only offers a unit exercise when the sub-topic's is switched on", () => {
+    expect(tree[0].subTopics[1].unitExercise).toEqual([]);
   });
 
-  it("gives the Test its timer and passing score, and none without a Test", () => {
-    expect(tree[0].subTopics[0]).toMatchObject({testTimerMinutes: 30, testPassingScore: 65});
-    expect(tree[0].subTopics[1]).toMatchObject({testTimerMinutes: null, testPassingScore: null});
+  it("gives the unit exercise its timer and passing score, and none without one", () => {
+    expect(tree[0].subTopics[0]).toMatchObject({unitTimerMinutes: 30, unitPassingScore: 65});
+    expect(tree[0].subTopics[1]).toMatchObject({unitTimerMinutes: null, unitPassingScore: null});
   });
 
   it("carries options, correct answers and explanations", () => {
@@ -101,11 +101,11 @@ describe("toStudentExamTree", () => {
     const saved = serializeTopicsPayload(topics);
     saved.forEach((t, ti) =>
       t.sub_topics.forEach((s, si) => {
-        expect(tree[ti].subTopics[si].test).toHaveLength(s.test_exercises.length);
+        expect(tree[ti].subTopics[si].unitExercise).toHaveLength(s.unit_exercises.length);
         s.modules.forEach((m, mi) => {
           const mod = tree[ti].subTopics[si].modules[mi];
           expect(mod.lectures).toHaveLength(m.lectures.length);
-          expect(mod.quiz).toHaveLength(m.quizzes.length);
+          expect(mod.exercise).toHaveLength(m.exercises.length);
           expect(mod.practice).toHaveLength(m.practices.length);
         });
       }),
@@ -136,7 +136,7 @@ describe("practice responses in the student preview", () => {
       {id: "b", text: "B", isCorrect: false, response: "Not B."},
     ],
   };
-  const make = (type: "practice" | "quiz"): Topic[] => [
+  const make = (type: "practice" | "exercise"): Topic[] => [
     {
       id: "t",
       label: "T",
@@ -146,12 +146,12 @@ describe("practice responses in the student preview", () => {
     },
   ];
 
-  it("carries the responses on Practice questions only", () => {
+  it("carries the responses on Practice and Exercise questions", () => {
     const [practiceTree] = toStudentExamTree(make("practice"));
     expect(practiceTree.subTopics[0].modules[0].practice[0].optionFeedback).toEqual(["Correct!", "Not B."]);
-    const [quizTree] = toStudentExamTree(make("quiz"));
-    expect(quizTree.subTopics[0].modules[0].quiz[0]).not.toHaveProperty("optionFeedback");
-    expect(quizTree.subTopics[0].test[0]).not.toHaveProperty("optionFeedback");
+    const [exerciseTree] = toStudentExamTree(make("exercise"));
+    expect(exerciseTree.subTopics[0].modules[0].exercise[0].optionFeedback).toEqual(["Correct!", "Not B."]);
+    expect(exerciseTree.subTopics[0].unitExercise[0].optionFeedback).toEqual(["Correct!", "Not B."]);
   });
 });
 

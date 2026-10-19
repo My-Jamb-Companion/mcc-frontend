@@ -3,20 +3,20 @@ import {useEffect, useMemo, useState} from "react";
 import Link from "next/link";
 import {useSearchParams} from "next/navigation";
 import {Icon, showError} from "@mcc/ui";
+import {extractApiError} from "@mcc/api";
 import {isPdfUrl, youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import CoursePlayer from "../course/CoursePlayer";
 import InteractiveLessonContent from "../InteractiveLessonContent";
 import ExamContentTree, {ActiveNode} from "./ExamContentTree";
-import ExamQuiz from "./ExamQuiz";
+import AssessmentPlayer from "./AssessmentPlayer";
 import {BookingSection} from "@/src/features/booking/components/BookingSection";
 import {
   useProgramContent,
-  useStartMockExam,
-  useStartModuleSession,
+  useStartAssessment,
   useCompleteProgramLecture,
   useProgramProgress,
 } from "@/src/features/exams/hooks/useExams";
-import {ApiExamLecture, ApiExamSession, ApiExamTopic} from "@/src/features/exams/services/exam.service";
+import {ApiAssessmentSession, ApiExamLecture, ApiExamTopic} from "@/src/features/exams/services/exam.service";
 import {ApiEnrolledProgram} from "@/src/features/exams/services/exam.service";
 
 interface ExamProgramContentProps {
@@ -52,26 +52,24 @@ function findLecture(topics: ApiExamTopic[], lectureId: string): ApiExamLecture 
  * The exam-prep equivalent of ../course/CourseContent.tsx, one level deeper
  * (topic -> sub-topic -> module -> lecture) and without the course version's
  * AI side panel / community / notes / facilitator tabs -- content browsing,
- * lecture playback, and quiz/practice/test sessions, all against the real
- * GET /exams/<id>/content and session endpoints.
+ * lecture playback, and Practice and Exercise played one question at a time,
+ * all against the real GET /exams/<id>/content and assessment endpoints.
  */
 export default function ExamProgramContent({programId, program}: ExamProgramContentProps) {
   const searchParams = useSearchParams();
   const {topics, isLoading} = useProgramContent(programId);
   const completeLecture = useCompleteProgramLecture();
   const {data: savedProgress} = useProgramProgress(programId);
-  const startModuleSession = useStartModuleSession();
-  const startMockExam = useStartMockExam();
+  const startAssessment = useStartAssessment();
 
   const title = [program.exam_name, program.subject_name].filter(Boolean).join(" — ") ||
     "Exam prep program";
-  const subject = program.subject_name ?? "";
 
   const allLectures = useMemo(() => flattenLectures(topics), [topics]);
 
   const [completedLectureIds, setCompletedLectureIds] = useState<Set<string>>(new Set());
   const [active, setActive] = useState<ActiveNode | null>(null);
-  const [session, setSession] = useState<{kind: "quiz" | "practice" | "exam"; label: string; data: ApiExamSession} | null>(null);
+  const [session, setSession] = useState<ApiAssessmentSession | null>(null);
   const [sessionError, setSessionError] = useState<string | null>(null);
 
   // The lectures already finished, as the server recorded them: a reload keeps its ticks.
@@ -115,27 +113,28 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
     setSession(null);
     setSessionError(null);
 
-    if (node.kind === "quiz" || node.kind === "practice") {
-      startModuleSession.mutate(
-        {kind: node.kind, subject, moduleId: node.moduleId},
-        {
-          onSuccess: (data) => setSession({kind: node.kind, label: node.kind === "quiz" ? "Quiz" : "Practice", data}),
-          onError: () => setSessionError("Couldn't start this session. Please try again."),
-        },
-      );
-    } else if (node.kind === "test") {
-      startMockExam.mutate(
-        {subject, subTopicId: node.subTopicId},
-        {
-          onSuccess: (data) => setSession({kind: "exam", label: "Test", data}),
-          onError: () => setSessionError("Couldn't start this test. Please try again."),
-        },
-      );
-    }
+    if (node.kind === "lecture") return;
+    startAssessment.mutate(
+      node.kind === "unit-exercise"
+        ? {mode: "exercise", subTopicId: node.subTopicId}
+        : {mode: node.kind, moduleId: node.moduleId},
+      {
+        onSuccess: (data) => setSession(data),
+        onError: (error) =>
+          setSessionError(extractApiError(error, "Couldn't start this. Please try again.")),
+      },
+    );
+  };
+
+  // From a recommended lesson in the summary: leave the session and open the lecture.
+  const openLecture = (lectureId: string) => {
+    setSession(null);
+    setSessionError(null);
+    setActive({kind: "lecture", lectureId});
   };
 
   const activeLecture = active?.kind === "lecture" ? findLecture(topics, active.lectureId) : null;
-  const startingSession = startModuleSession.isPending || startMockExam.isPending;
+  const startingSession = startAssessment.isPending;
 
   return (
     <section className="flex flex-col">
@@ -156,20 +155,15 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
               Loading…
             </div>
           ) : session ? (
-            sessionError ? (
-              <p className="text-sm text-danger">{sessionError}</p>
-            ) : (
-              <ExamQuiz
-                key={session.data.session_id}
-                sessionId={session.data.session_id}
-                questions={session.data.questions}
-                type={session.kind}
-                label={session.label}
-                timeLimitMinutes={session.data.time_limit_minutes}
-                passingScore={session.data.passing_score}
-                onDone={() => setSession(null)}
-              />
-            )
+            <AssessmentPlayer
+              key={session.session_id}
+              session={session}
+              onDone={() => setSession(null)}
+              onRestart={() => active && handleSelect(active)}
+              onOpenLecture={openLecture}
+            />
+          ) : sessionError ? (
+            <p className="rounded-2xl bg-muted/10 p-6 text-sm text-danger">{sessionError}</p>
           ) : startingSession ? (
             <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
               Starting…
@@ -178,7 +172,7 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
             <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
               {allLectures.length === 0
                 ? "This program has no content yet."
-                : "Pick a lecture, quiz, practice or test from the content list."}
+                : "Pick a lecture, practice or exercise from the content list."}
             </div>
           ) : activeLecture.content ? (
             <InteractiveLessonContent

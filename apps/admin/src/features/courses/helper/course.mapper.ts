@@ -122,8 +122,8 @@ export function serializeModulesPayload(topics: Topic[]): ApiModulePayload[] {
         explanation: q.explanation || undefined,
         usage_type: c.type as QuestionUsage,
         set_name: setName?.trim() || undefined,
-        // Responses belong to Practice only.
-        ...(c.type === "practice" && hasResponses(q) ? {option_feedback: optionResponses(q)} : {}),
+        // Each option's response: Practice shows it as the student answers, an Exercise or Test after they submit.
+        ...(hasResponses(q) ? {option_feedback: optionResponses(q)} : {}),
       }));
     });
 
@@ -202,7 +202,7 @@ export function deserializeModulesPayload(
         id: uid(),
         text: optText,
         isCorrect: correctSet.has(optText),
-        ...(usage === "practice" && q.option_feedback?.[i] ? {response: q.option_feedback[i] as string} : {}),
+        ...(q.option_feedback?.[i] ? {response: q.option_feedback[i] as string} : {}),
       }));
       const question: CreatPracticeQuestionType = {
         id: uid(),

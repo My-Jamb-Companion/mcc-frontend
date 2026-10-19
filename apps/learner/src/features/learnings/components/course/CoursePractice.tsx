@@ -12,6 +12,7 @@ import {formatCountdown, isCountdownLow} from "@/src/features/learnings/helper/c
 import {isChosenCorrect, responsesForChosen} from "@/src/features/learnings/helper/practiceFeedback";
 import PointsEarnedCard from "@/src/features/rewards/components/PointsEarnedCard";
 import PracticeFeedbackCard from "@/src/features/learnings/components/PracticeFeedbackCard";
+import CourseTestIntro from "./CourseTestIntro";
 
 interface PracticeCardProps {
   courseId: string;
@@ -28,6 +29,8 @@ interface PracticeCardProps {
    * for the option you chose, right or wrong. The point is to learn, not to score.
    */
   showFeedback?: boolean;
+  /** A Test opens with an intro card ("Time for a Course test?") before the first question. */
+  showIntro?: boolean;
   onDone?: () => void;
 }
 
@@ -39,6 +42,7 @@ export function CoursePractice({
   timerMinutes,
   passingScore,
   showFeedback = false,
+  showIntro = false,
   onDone,
 }: PracticeCardProps) {
   const submit = useSubmitModuleAnswers(courseId, moduleId);
@@ -56,6 +60,7 @@ export function CoursePractice({
   const [aiHelp, setAiHelp] = useState<Record<string, string>>({});
   const [timedOut, setTimedOut] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const [started, setStarted] = useState(!showIntro);
   // Practice mode: question ids the student has checked (their answer is then locked).
   const [checked, setChecked] = useState<Record<string, boolean>>({});
 
@@ -172,6 +177,17 @@ export function CoursePractice({
 
   // The question list can be refreshed underneath a running session; render nothing rather than crash.
   if (!currentQuestion) return null;
+
+  if (!started) {
+    return (
+      <CourseTestIntro
+        questionCount={questions.length}
+        timerMinutes={timerMinutes}
+        passingScore={passingScore}
+        onStart={() => setStarted(true)}
+      />
+    );
+  }
 
   return (
     <motion.div
@@ -343,8 +359,17 @@ export function CoursePractice({
                         >
                           {String.fromCharCode(65 + index)}
                         </motion.span>
-                        <motion.span layout className="text-sm font-semibold">
-                          {option}
+                        <motion.span layout className="flex flex-col gap-1">
+                          <span className="text-sm font-semibold">{option}</span>
+                          {reviewMode && (
+                            <ReviewResponse
+                              response={
+                                graded?.option_feedback?.[
+                                  (originalQuestion?.options ?? []).findIndex((o) => o === option)
+                                ]
+                              }
+                            />
+                          )}
                         </motion.span>
                       </motion.button>
                     );
@@ -796,3 +821,8 @@ const explanationVariants: Variants = {
   visible: {opacity: 1, height: "auto", y: 0, transition: {duration: 0.35}},
   exit: {opacity: 0, height: 0, y: -10, transition: {duration: 0.25}},
 };
+
+/** The author's response to one option, shown under it in the review of a Test. */
+function ReviewResponse({response}: {response?: string | null}) {
+  return response ? <span className="text-xs font-normal leading-relaxed opacity-80">{response}</span> : null;
+}

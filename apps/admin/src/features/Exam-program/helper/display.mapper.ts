@@ -23,7 +23,7 @@ function countLectures(api: ApiExamProgramDetail): number {
   );
 }
 
-/** Real practice/quiz/test question count across the whole tree. */
+/** Real practice and exercise question count across the whole tree. */
 function countPracticeTests(api: ApiExamProgramDetail): number {
   return (api.topics ?? []).reduce(
     (total, topic) =>
@@ -31,10 +31,10 @@ function countPracticeTests(api: ApiExamProgramDetail): number {
       (topic.sub_topics ?? []).reduce((subTotal, subTopic) => {
         const moduleQuestions = (subTopic.modules ?? []).reduce(
           (modTotal, mod) =>
-            modTotal + (mod.quizzes?.length ?? 0) + (mod.practices?.length ?? 0),
+            modTotal + ((mod.exercises ?? mod.quizzes)?.length ?? 0) + (mod.practices?.length ?? 0),
           0,
         );
-        return subTotal + moduleQuestions + (subTopic.test_exercises?.length ?? 0);
+        return subTotal + moduleQuestions + ((subTopic.unit_exercises ?? subTopic.test_exercises)?.length ?? 0);
       }, 0),
     0,
   );

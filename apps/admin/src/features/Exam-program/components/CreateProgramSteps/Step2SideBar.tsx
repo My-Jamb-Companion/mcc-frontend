@@ -392,7 +392,7 @@ export default function Step2Sidebar({
                             {!sub.hasQuiz && (
                               <MenuItem
                                 icon="lucide:list-checks"
-                                label="Add quiz"
+                                label="Add unit exercise"
                                 onClick={() => addQuiz(topic.id, sub.id)}
                               />
                             )}
@@ -507,7 +507,7 @@ export default function Step2Sidebar({
                         );
                       })}
 
-                      {/* Quiz row (if added) */}
+                      {/* Unit exercise row (if added) */}
                       {sub.hasQuiz && (
                         <div key={`${sub.id}-quiz`}>
                           <div
@@ -527,7 +527,7 @@ export default function Step2Sidebar({
                             </button>
                             <div className="min-w-0 flex-1">
                               <span className="truncate text-sm font-medium text-gray-700">
-                                Quiz
+                                Unit exercise
                               </span>
                             </div>
                             <button
@@ -541,15 +541,15 @@ export default function Step2Sidebar({
                           {!collapsedQuizzes[sub.id] && (
                             <button
                               type="button"
-                              onClick={() => onSelectLeaf(`${sub.id}-quiz`)}
+                              onClick={() => onSelectLeaf(`${sub.id}-unit-exercise`)}
                               style={{paddingLeft: "48px"}}
                               className={`flex w-full items-center justify-between py-1.5 pr-2 text-left text-sm transition-colors ${
-                                selectedLeaf === `${sub.id}-quiz`
+                                selectedLeaf === `${sub.id}-unit-exercise`
                                   ? "bg-gray-100 text-gray-900"
                                   : "text-gray-500 hover:bg-gray-50"
                               }`}
                             >
-                              <span>Quiz exercises</span>
+                              <span>Questions</span>
                             </button>
                           )}
                         </div>
@@ -609,6 +609,7 @@ function makeModule(): MakeModule {
     leaves: [
       {id: uid(), label: "Lectures", type: "lectures", count: 0},
       {id: uid(), label: "Practice", type: "practice", count: 0},
+      {id: uid(), label: "Exercise", type: "exercise", count: 0},
     ],
   };
 }

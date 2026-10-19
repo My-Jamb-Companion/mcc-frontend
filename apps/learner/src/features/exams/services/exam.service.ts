@@ -68,6 +68,8 @@ export interface ApiExamModule {
   title: string;
   order_index: number;
   lectures: ApiExamLecture[];
+  /** How many Exercise questions the module has. `quiz_count` is the same number under its old name. */
+  exercise_count?: number;
   quiz_count: number;
   practice_count: number;
 }
@@ -78,6 +80,8 @@ export interface ApiExamSubTopic {
   description: string | null;
   order_index: number;
   modules: ApiExamModule[];
+  /** How many questions the sub-topic's own (unit) Exercise has. `test_count` is the same number under its old name. */
+  exercise_count?: number;
   test_count: number;
 }
 
@@ -119,35 +123,96 @@ export const updateProgramProgress = async (
   return res.data.data;
 };
 
-// --- Quiz / practice / mock-exam sessions -----------------------------------
+// --- Practice and Exercise, played one question at a time ------------------
+// The questions carry no answers: the server checks each answer, gives hints and shows the answer.
 
-export interface ApiExamQuestion {
-  /** Practice only: the teacher's response for each option, aligned to `options`. */
-  option_feedback?: (string | null)[] | null;
+export type AssessmentMode = "practice" | "exercise";
+
+export interface ApiAssessmentQuestion {
   question_id: string;
   question_text: string;
+  description?: string | null;
+  question_type: string;
   options: string[];
-  explanation: string | null;
-  correct_option: string | null;
 }
 
-export interface ApiExamSession {
+export interface ApiAssessmentSession {
   session_id: string;
-  subject: string;
-  questions: ApiExamQuestion[];
-  /** Quiz and test sessions: minutes allowed (auto-submit at zero); null/absent = untimed. */
-  time_limit_minutes?: number | null;
-  /** Quiz and test sessions: percent needed to pass; null/absent = no pass/fail. */
-  passing_score?: number | null;
+  mode: AssessmentMode;
+  /** The module's or sub-topic's title. */
+  title: string;
+  node_type: "module" | "sub_topic";
+  node_id: string;
+  question_count: number;
+  questions: ApiAssessmentQuestion[];
+  /** Exercise only: minutes allowed (auto-submitted at zero); null = untimed. */
+  time_limit_minutes: number | null;
+  /** Exercise only: percent needed to pass; null = no pass/fail. */
+  passing_score: number | null;
+  estimated_minutes: {min: number; max: number};
+}
+
+export interface ApiCheckResult {
+  is_correct: boolean;
+  attempt_no: number;
+  /** Right on the first answer with no hint taken: what counts as mastery. */
+  first_try: boolean;
+  hints_used: number;
+  /** Only once the question is answered correctly. */
+  correct_answer: string | null;
+  explanation: string | null;
+  /** Practice: the author's response to the option picked. */
+  option_feedback: string | null;
+  already_solved: boolean;
+}
+
+export interface ApiHint {
+  step: number;
+  total: number;
+  text: string;
+  /** The final step works the answer through. */
+  last: boolean;
+  /** Every step shown so far, oldest first. */
+  steps: string[];
+}
+
+export interface ApiReveal {
+  correct_answer: string;
+  explanation: string | null;
 }
 
 export interface ApiGradedAnswer {
   question_id: string;
   your_answer: string | null;
   correct_answer: string | null;
+  /** Right first time, with no hint before it and no reveal. */
   is_correct: boolean;
   explanation: string | null;
   feedback: string | null;
+  /** The author's response to each option, for review. */
+  option_feedback?: (string | null)[] | null;
+  attempts?: number | null;
+  hints_used?: number | null;
+  revealed?: boolean | null;
+  solved_eventually?: boolean | null;
+}
+
+export interface ApiTopicResult {
+  node_type: "module" | "sub_topic";
+  node_id: string;
+  title: string;
+  correct: number;
+  total: number;
+  percent: number;
+  /** 0 to 5 in half steps. */
+  stars: number;
+}
+
+export interface ApiRecommendedLesson {
+  module_id: string;
+  module_title: string;
+  lecture_id: string;
+  lecture_title: string;
 }
 
 export interface ApiExamSubmissionResult {
@@ -158,55 +223,51 @@ export interface ApiExamSubmissionResult {
   /** score_percent >= passing_score; null/absent without a pass mark. */
   passed?: boolean | null;
   results: ApiGradedAnswer[];
+  topic_breakdown?: ApiTopicResult[];
+  recommended_lessons?: ApiRecommendedLesson[];
 }
 
-/**
- * Starts a quiz or practice session. moduleId scopes it to that module's own
- * curated questions; omit it for a random pull across the whole subject.
- */
-export const startModuleSession = async (
-  kind: "quiz" | "practice",
-  subject: string,
-  moduleId?: string,
-): Promise<ApiExamSession> => {
-  const res = await apiClient.post<{data: ApiExamSession}>(`/exams/${kind === "quiz" ? "quiz" : "mock/practice"}`, {
-    subject,
-    module_id: moduleId,
+/** Endpoint: POST /exams/assessments/start -- Practice (module) or Exercise (module or sub-topic). */
+export const startAssessment = async (
+  mode: AssessmentMode,
+  node: {moduleId?: string; subTopicId?: string},
+): Promise<ApiAssessmentSession> => {
+  const res = await apiClient.post<{data: ApiAssessmentSession}>("/exams/assessments/start", {
+    mode,
+    module_id: node.moduleId,
+    sub_topic_id: node.subTopicId,
   });
   return res.data.data;
 };
 
-/**
- * Starts a full mock-exam (test) session. subTopicId scopes it to that
- * sub-topic's own curated test questions; omit it for a random pull.
- */
-export const startMockExam = async (
-  subject: string,
-  subTopicId?: string,
-  limit?: number,
-): Promise<ApiExamSession> => {
-  const res = await apiClient.post<{data: ApiExamSession}>("/exams/mock/start", {
-    subject,
-    sub_topic_id: subTopicId,
-    limit,
-  });
-  return res.data.data;
-};
-
-/**
- * Endpoint: PATCH /exams/submit/<session_id>?type=quiz|practice|exam --
- * `type` selects which activity_type the result is recorded under.
- */
-export const submitExamSession = async (
+/** Endpoint: POST /exams/assessments/<session_id>/check */
+export const checkAssessmentAnswer = async (
   sessionId: string,
-  answers: Record<string, string>,
-  type: "quiz" | "practice" | "exam" = "exam",
-): Promise<ApiExamSubmissionResult> => {
-  const res = await apiClient.patch<{data: ApiExamSubmissionResult}>(
-    `/exams/submit/${sessionId}`,
-    {answers},
-    {params: {type}},
-  );
+  questionId: string,
+  answer: string,
+): Promise<ApiCheckResult> => {
+  const res = await apiClient.post<{data: ApiCheckResult}>(`/exams/assessments/${sessionId}/check`, {
+    question_id: questionId,
+    answer,
+  });
+  return res.data.data;
+};
+
+/** Endpoint: POST /exams/assessments/<session_id>/hint -- the next hint step. */
+export const getAssessmentHint = async (sessionId: string, questionId: string): Promise<ApiHint> => {
+  const res = await apiClient.post<{data: ApiHint}>(`/exams/assessments/${sessionId}/hint`, {question_id: questionId});
+  return res.data.data;
+};
+
+/** Endpoint: POST /exams/assessments/<session_id>/reveal -- skip: show the answer. */
+export const revealAssessmentAnswer = async (sessionId: string, questionId: string): Promise<ApiReveal> => {
+  const res = await apiClient.post<{data: ApiReveal}>(`/exams/assessments/${sessionId}/reveal`, {question_id: questionId});
+  return res.data.data;
+};
+
+/** Endpoint: PATCH /exams/submit/<session_id> -- a played session is graded from what happened in it. */
+export const submitAssessment = async (sessionId: string): Promise<ApiExamSubmissionResult> => {
+  const res = await apiClient.patch<{data: ApiExamSubmissionResult}>(`/exams/submit/${sessionId}`, {});
   return res.data.data;
 };
 

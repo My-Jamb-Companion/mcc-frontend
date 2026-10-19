@@ -7,11 +7,11 @@ import {hasResponses, optionResponses} from "@/src/features/question-editor/type
  * What a student actually gets from an exam program, built from the
  * authoring form the way `serializeTopicsPayload` (content.mapper.ts) saves
  * it, so the "View as a student" preview only shows what is persisted:
- * topic -> sub-topic -> module -> lectures, a module's "Quiz" and "Practice"
- * question sets, and a "Test" per sub-topic (its test exercises).
+ * topic -> sub-topic -> module -> lectures, a module's "Practice" and
+ * "Exercise" question sets, and a unit "Exercise" per sub-topic.
  *
  * Mirrors the learner app's ExamContentTree / ExamProgramContent, including
- * hiding a Quiz / Practice / Test row when it has no questions.
+ * hiding a Practice / Exercise row when it has no questions.
  */
 export type StudentLectureKind = "video" | "youtube" | "pdf" | "html";
 
@@ -21,7 +21,7 @@ export interface StudentExamQuestion {
   options: string[];
   correctAnswers: string[];
   explanation: string | null;
-  /** Practice only: the teacher's response for each option, aligned to `options`. */
+  /** Practice and Exercise: the teacher's response for each option, aligned to `options`. */
   optionFeedback?: (string | null)[];
 }
 
@@ -37,18 +37,22 @@ export interface StudentExamModule {
   id: string;
   title: string;
   lectures: StudentExamLecture[];
-  quiz: StudentExamQuestion[];
+  exercise: StudentExamQuestion[];
   practice: StudentExamQuestion[];
+  /** The module Exercise's timer (minutes) and passing score (percent); null = unset. */
+  exerciseTimerMinutes: number | null;
+  exercisePassingScore: number | null;
 }
 
 export interface StudentExamSubTopic {
   id: string;
   title: string;
   modules: StudentExamModule[];
-  test: StudentExamQuestion[];
-  /** The Test's timer (minutes) and passing score (percent); null = unset. */
-  testTimerMinutes: number | null;
-  testPassingScore: number | null;
+  /** The sub-topic's own (unit) Exercise. */
+  unitExercise: StudentExamQuestion[];
+  /** The unit Exercise's timer (minutes) and passing score (percent); null = unset. */
+  unitTimerMinutes: number | null;
+  unitPassingScore: number | null;
 }
 
 export interface StudentExamTopic {
@@ -75,9 +79,9 @@ export function toStudentExamTree(topics: Topic[] = []): StudentExamTopic[] {
     subTopics: (topic.subTopics ?? []).map((sub) => ({
       id: sub.id,
       title: sub.label || "Untitled sub-topic",
-      test: sub.hasQuiz ? (sub.quizQuestions ?? []).map((q) => toQuestion(q)) : [],
-      testTimerMinutes: sub.hasQuiz ? (sub.testSettings?.timer ?? null) : null,
-      testPassingScore: sub.hasQuiz ? (sub.testSettings?.passingScore ?? null) : null,
+      unitExercise: sub.hasQuiz ? (sub.quizQuestions ?? []).map((q) => toQuestion(q, true)) : [],
+      unitTimerMinutes: sub.hasQuiz ? (sub.testSettings?.timer ?? null) : null,
+      unitPassingScore: sub.hasQuiz ? (sub.testSettings?.passingScore ?? null) : null,
       modules: (sub.modules ?? []).map((module) => {
         const leaves = module.leaves ?? [];
         return {
@@ -97,7 +101,9 @@ export function toStudentExamTree(topics: Topic[] = []): StudentExamTopic[] {
                 kind: html ? "html" : youTubeEmbedUrl(url) ? "youtube" : isPdfUrl(url) ? "pdf" : "video",
               };
             }),
-          quiz: leaves.filter((l) => l.type === "quiz").flatMap((l) => l.questions ?? []).map((q) => toQuestion(q)),
+          exercise: leaves.filter((l) => l.type === "exercise").flatMap((l) => l.questions ?? []).map((q) => toQuestion(q, true)),
+          exerciseTimerMinutes: module.quizSettings?.timer ?? null,
+          exercisePassingScore: module.quizSettings?.passingScore ?? null,
           practice: leaves.filter((l) => l.type === "practice").flatMap((l) => l.questions ?? []).map((q) => toQuestion(q, true)),
         };
       }),
@@ -114,8 +120,8 @@ export function hasPreviewableExamContent(topics: Topic[] = []): boolean {
   return toStudentExamTree(topics).some((t) =>
     t.subTopics.some(
       (s) =>
-        s.test.length > 0 ||
-        s.modules.some((m) => m.lectures.length > 0 || m.quiz.length > 0 || m.practice.length > 0),
+        s.unitExercise.length > 0 ||
+        s.modules.some((m) => m.lectures.length > 0 || m.exercise.length > 0 || m.practice.length > 0),
     ),
   );
 }

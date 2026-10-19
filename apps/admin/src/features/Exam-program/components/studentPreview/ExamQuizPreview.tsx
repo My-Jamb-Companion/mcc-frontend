@@ -21,8 +21,8 @@ interface Props {
 }
 
 /**
- * A quiz / practice / test session as a student takes it (a port of the
- * learner app's ExamQuiz): one question at a time, single choice, optional
+ * A practice / exercise session as a student takes it (a rough port of the
+ * learner app's assessment player): one question at a time, single choice, optional
  * explanation, a results screen and a review pass. Graded here instead of by
  * the server, and the AI buttons are shown but inert.
  */

@@ -101,7 +101,7 @@ describe("serializeTopicsPayload", () => {
           {
             title: "Conversion between Bases",
             description: "Learn how to convert from Base 10 to Base 2.",
-            test_exercises: [
+            unit_exercises: [
               {
                 question_text: "What is 10 in Binary?",
                 question_type: "single_choice",
@@ -122,7 +122,7 @@ describe("serializeTopicsPayload", () => {
                     file_size_bytes: 52428800,
                   },
                 ],
-                quizzes: [],
+                exercises: [],
                 practices: [
                   {
                     question_text: "Practice: Convert 7 to Binary.",
@@ -140,7 +140,7 @@ describe("serializeTopicsPayload", () => {
     ]);
   });
 
-  it("omits test_exercises when the sub-topic has no quiz enabled", () => {
+  it("omits unit_exercises when the sub-topic has no unit exercise enabled", () => {
     const topics: Topic[] = [
       {
         id: "t1",
@@ -158,7 +158,7 @@ describe("serializeTopicsPayload", () => {
     ];
 
     const [topic] = serializeTopicsPayload(topics);
-    expect(topic.sub_topics[0].test_exercises).toEqual([]);
+    expect(topic.sub_topics[0].unit_exercises).toEqual([]);
   });
 
   it("falls back to 'Untitled' labels, and a saved preview URL, when data is missing", () => {
@@ -329,7 +329,7 @@ describe("practice option responses", () => {
       {id: "c", text: "1001", isCorrect: false},
     ],
   });
-  const tree = (leafType: "practice" | "quiz"): Topic[] => [
+  const tree = (leafType: "practice" | "exercise"): Topic[] => [
     {
       id: "t",
       label: "T",
@@ -350,10 +350,10 @@ describe("practice option responses", () => {
     expect(topic.sub_topics[0].modules[0].practices[0].option_feedback).toEqual(["Yes, well done", "That is 12.", null]);
   });
 
-  it("never sends responses for a Quiz or the sub-topic Test", () => {
-    const [topic] = serializeTopicsPayload(tree("quiz"));
-    expect(topic.sub_topics[0].modules[0].quizzes[0]).not.toHaveProperty("option_feedback");
-    expect(topic.sub_topics[0].test_exercises?.[0]).not.toHaveProperty("option_feedback");
+  it("sends them for an Exercise and the unit Exercise too, for the student's review", () => {
+    const [topic] = serializeTopicsPayload(tree("exercise"));
+    expect(topic.sub_topics[0].modules[0].exercises[0].option_feedback).toEqual(["Yes, well done", "That is 12.", null]);
+    expect(topic.sub_topics[0].unit_exercises[0].option_feedback).toEqual(["Yes, well done", "That is 12.", null]);
   });
 
   it("omits the field when no option has a response", () => {
@@ -368,5 +368,25 @@ describe("practice option responses", () => {
       },
     ]);
     expect(topic.sub_topics[0].modules[0].practices[0]).not.toHaveProperty("option_feedback");
+  });
+});
+
+describe("a module's Exercise", () => {
+  it("is saved as `exercises`, with responses, and the unit Exercise as `unit_exercises`", () => {
+    const withResponse = makeQuestion();
+    withResponse.options[0].response = "Right.";
+    const topics: Topic[] = [{
+      id: "t", label: "T",
+      subTopics: [{
+        id: "s", label: "S", hasQuiz: true, quizQuestions: [withResponse],
+        modules: [{id: "m", label: "M", leaves: [{id: "e", label: "Exercise", type: "exercise", questions: [withResponse]}]}],
+      }],
+    }];
+    const [topic] = serializeTopicsPayload(topics);
+    const module = topic.sub_topics[0].modules[0];
+    expect(module.exercises).toHaveLength(1);
+    expect(module.exercises[0].option_feedback?.[0]).toBe("Right.");
+    expect(topic.sub_topics[0].unit_exercises).toHaveLength(1);
+    expect(module).not.toHaveProperty("quizzes");
   });
 });
