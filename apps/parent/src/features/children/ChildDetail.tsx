@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useChildDetail } from "./useChildren";
 import { ChildCheckout } from "../payments/ChildCheckout";
 import { ChildAdvisor } from "../advisor/ChildAdvisor";
+import { ExamReadinessList } from "./ExamReadinessList";
 
 const formatWhen = (iso: string) => new Date(iso).toLocaleString();
 
@@ -89,6 +90,15 @@ export const ChildDetail = () => {
                   </ul>
                 )}
               </section>
+
+              {(child.exam_readiness ?? []).length > 0 && (
+                <section>
+                  <h2 className="text-sm font-medium text-muted uppercase tracking-wide mb-3">
+                    Exam readiness
+                  </h2>
+                  <ExamReadinessList programs={child.exam_readiness ?? []} childName={child.full_name || "Your child"} />
+                </section>
+              )}
 
               <section>
                 <h2 className="text-sm font-medium text-muted uppercase tracking-wide mb-3">

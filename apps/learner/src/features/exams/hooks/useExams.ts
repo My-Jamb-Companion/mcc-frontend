@@ -13,6 +13,8 @@ import {
   AssessmentMode,
   checkAssessmentAnswer,
   getAssessmentHint,
+  getProgramReadiness,
+  getReadinessOverview,
   registerForProgram,
   revealAssessmentAnswer,
   startAssessment,
@@ -131,10 +133,26 @@ export const useRevealAnswer = () =>
 /** Finishes a played session: graded from what happened in it. */
 export const useSubmitAssessment = () => {
   const refreshGamification = useGamificationRefresh();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (sessionId: string) => submitAssessment(sessionId),
-    // A graded session may have earned points, moved a goal or extended the streak.
-    onSuccess: () => refreshGamification(),
+    // A graded session may have earned points, moved a goal or extended the streak, and moved readiness.
+    onSuccess: () => {
+      refreshGamification();
+      queryClient.invalidateQueries({queryKey: ["exam-readiness"]});
+    },
   });
 };
+
+/** How ready the student is in one program: topic levels, Exam Readiness and the predicted range. */
+export const useProgramReadiness = (programId: string | null | undefined) =>
+  useQuery({
+    queryKey: ["exam-readiness", programId],
+    queryFn: () => getProgramReadiness(programId as string),
+    enabled: !!programId,
+  });
+
+/** Readiness at a glance for each program the student is registered in. */
+export const useReadinessOverview = () =>
+  useQuery({queryKey: ["exam-readiness", "overview"], queryFn: getReadinessOverview});

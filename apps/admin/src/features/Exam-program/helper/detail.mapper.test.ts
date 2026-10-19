@@ -107,3 +107,13 @@ describe("loading a module's Exercise", () => {
     expect(t.subTopics[0].quizQuestions).toHaveLength(1);
   });
 });
+
+describe("ids when loading", () => {
+  it("keeps the ids the server gave, so a save sends them back", () => {
+    const [t] = deserializeExamTopics([topic()]);
+    expect(t.id).toBe("t");
+    expect(t.subTopics[0].id).toBe("s");
+    expect(t.subTopics[0].modules[0].id).toBe("m");
+    expect(t.subTopics[0].quizQuestions?.[0].id).toBe("q");
+  });
+});

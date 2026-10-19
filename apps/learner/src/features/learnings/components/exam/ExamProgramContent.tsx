@@ -9,9 +9,11 @@ import CoursePlayer from "../course/CoursePlayer";
 import InteractiveLessonContent from "../InteractiveLessonContent";
 import ExamContentTree, {ActiveNode} from "./ExamContentTree";
 import AssessmentPlayer from "./AssessmentPlayer";
+import ReadinessPanel from "./ReadinessPanel";
 import {BookingSection} from "@/src/features/booking/components/BookingSection";
 import {
   useProgramContent,
+  useProgramReadiness,
   useStartAssessment,
   useCompleteProgramLecture,
   useProgramProgress,
@@ -61,6 +63,7 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
   const completeLecture = useCompleteProgramLecture();
   const {data: savedProgress} = useProgramProgress(programId);
   const startAssessment = useStartAssessment();
+  const {data: readiness} = useProgramReadiness(programId);
 
   const title = [program.exam_name, program.subject_name].filter(Boolean).join(" — ") ||
     "Exam prep program";
@@ -126,6 +129,15 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
     );
   };
 
+  // A tile or a weak topic from the readiness panel: the practice or exercise that is there for it.
+  const practiseNode = (node: {node_type: "module" | "sub_topic"; node_id: string}) => {
+    if (node.node_type === "sub_topic") return handleSelect({kind: "unit-exercise", subTopicId: node.node_id});
+    const mod = topics.flatMap((t) => t.sub_topics.flatMap((s) => s.modules)).find((m) => m.module_id === node.node_id);
+    if (!mod) return;
+    if (mod.practice_count > 0) handleSelect({kind: "practice", moduleId: mod.module_id});
+    else handleSelect({kind: "exercise", moduleId: mod.module_id});
+  };
+
   // From a recommended lesson in the summary: leave the session and open the lecture.
   const openLecture = (lectureId: string) => {
     setSession(null);
@@ -147,6 +159,8 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
       </nav>
 
       <BookingSection purpose="exam" targetId={programId} />
+
+      {readiness && <ReadinessPanel readiness={readiness} onPractise={practiseNode} onOpenLecture={openLecture} />}
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_22rem] gap-6 px-4 pb-8">
         <div className="min-w-0">
