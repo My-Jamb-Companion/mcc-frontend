@@ -2,6 +2,7 @@
 
 import {useState} from "react";
 import {AnimatePresence, Icon, motion} from "@mcc/ui";
+import {testLabel} from "@/src/features/courses/helper/studentView";
 import {describeDuration} from "@/src/features/courses/helper/countdown";
 import {
   formatTotalDuration,
@@ -205,7 +206,7 @@ function ModuleAccordion({
                       <Icon icon="mdi:certificate-outline" size={16} />
                     </div>
                     <div className="min-w-0">
-                      <p className={`text-sm truncate ${isActive ? "text-primary" : "text-subtle"}`}>Quiz: {set.name}</p>
+                      <p className={`text-sm truncate ${isActive ? "text-primary" : "text-subtle"}`}>{testLabel(set.name)}</p>
                       <p className="text-sm mt-0.5 text-muted">{meta.join(" · ")}</p>
                     </div>
                   </button>

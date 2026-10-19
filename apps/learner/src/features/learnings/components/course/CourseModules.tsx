@@ -3,6 +3,7 @@ import {Icon, motion, AnimatePresence} from "@mcc/ui";
 import {useLessonsDuration, useModuleProgress} from "@/src/features/learnings/hooks/useLesson";
 import {Lesson, LessonKind, Module, lessonKind} from "@/src/features/learnings/helper/content.mapper";
 import {describeDuration} from "@/src/features/learnings/helper/countdown";
+import {testLabel} from "@/src/features/learnings/helper/testLabel";
 import BookmarkButton from "@/src/features/bookmarks/BookmarkButton";
 import DownloadButton from "../DownloadButton";
 
@@ -226,7 +227,7 @@ function ModuleAccordion({
                       <Icon icon="mdi:certificate-outline" size={16} />
                     </div>
                     <div className="min-w-0">
-                      <p className={`text-sm truncate ${isActive ? "text-primary" : "text-subtle"}`}>Quiz: {set.name}</p>
+                      <p className={`text-sm truncate ${isActive ? "text-primary" : "text-subtle"}`}>{testLabel(set.name)}</p>
                       <p className="text-sm mt-0.5 text-muted">{meta.join(" · ")}</p>
                     </div>
                   </motion.button>

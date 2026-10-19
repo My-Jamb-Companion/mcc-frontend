@@ -216,3 +216,11 @@ describe("toPracticeCardQuestions responses", () => {
     expect(toPracticeCardQuestions([answered])[0]).not.toHaveProperty("optionFeedback");
   });
 });
+
+describe("testLabel", () => {
+  it("shows an unnamed quiz set as just Test, and a named one as Test: <name>", async () => {
+    const {testLabel} = await import("./studentView");
+    expect(testLabel("Quiz")).toBe("Test");
+    expect(testLabel("Final")).toBe("Test: Final");
+  });
+});

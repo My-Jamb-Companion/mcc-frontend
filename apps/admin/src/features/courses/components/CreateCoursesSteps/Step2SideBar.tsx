@@ -306,7 +306,7 @@ export default function Step2Sidebar({
                           <div className="absolute right-0 top-8 z-30 w-52 rounded-xl border border-gray-100 bg-white p-1.5 shadow-lg">
                             <MenuItem
                               icon="lucide:plus-circle"
-                              label="Add Quiz"
+                              label="Add Test"
                               onClick={() => {
                                 setMenuOpenFor(null);
                                 setQuizModules((prev) => ({
@@ -446,7 +446,7 @@ export default function Step2Sidebar({
                                   </span>
                                   <div className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5">
                                     <span className="truncate text-sm text-gray-500">
-                                      Quiz
+                                      Test
                                     </span>
                                     <span className="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
                                       {quizCount}
