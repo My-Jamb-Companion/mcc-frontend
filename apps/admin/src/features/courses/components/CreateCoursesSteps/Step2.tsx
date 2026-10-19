@@ -285,7 +285,7 @@ function QuizManager({
   return (
     <div className="mt-6 flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold text-gray-900">Quizzes</p>
+        <p className="text-sm font-semibold text-gray-900">Tests</p>
         <Button
           type="button"
           variant="outline"
@@ -313,7 +313,7 @@ function QuizManager({
                 <div key={quiz.id} className="w-40">
                   <InlineRename
                     value={quiz.title}
-                    placeholder="Quiz title"
+                    placeholder="Test title"
                     onCommit={(value) => renameQuiz(quiz.id, value)}
                     onCancel={() => setRenamingId(null)}
                   />
@@ -374,10 +374,10 @@ function QuizManager({
         <div className="mt-2 border-t border-gray-100 pt-4">
           <div className="mb-4 grid gap-4 md:grid-cols-2">
             <FormInputs
-              label="Quizzz title"
+              label="Test title"
               value={selectedQuiz.title}
               onChange={(value) => updateQuizTitle(selectedQuiz.id, value)}
-              placeholder="Enter quiz title"
+              placeholder="Enter test title"
             />
 
             <label className="flex flex-col gap-1">
@@ -427,7 +427,7 @@ function QuizManager({
           </div>
 
           <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">
-            Questions in {selectedQuiz.title || "this quiz"}
+            Questions in {selectedQuiz.title || "this test"}
           </p>
           <PracticeQuestions
             questions={selectedQuiz.questions}
@@ -666,7 +666,7 @@ function getActiveContext(topics: Topic[], selection: string) {
           topic,
           module: mod,
           type: "quiz" as const,
-          label: "Quiz",
+          label: "Test",
           quizzes: mod.content.filter(
             (c): c is QuizModuleContent => c.type === "quiz",
           ),

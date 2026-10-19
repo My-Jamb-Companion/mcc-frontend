@@ -9,7 +9,7 @@ export interface QuizSettings {
 
 const toNumber = (raw: string): number | undefined => (raw === "" ? undefined : Number(raw));
 
-/** The timer and passing-score fields shared by a course Quiz and an exam Test. */
+/** The timer and passing-score fields shared by a course Test and an exam Exercise. */
 export default function QuizSettingsFields({
   value,
   onChange,

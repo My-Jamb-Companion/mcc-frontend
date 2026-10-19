@@ -19,6 +19,7 @@ import {youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import {useAllLessons, useLessonsDuration, formatDuration} from "@/src/features/learnings/hooks/useLesson";
 import {useCertificates, useCompleteLecture, useCourseProgress} from "@/src/features/courses/hooks/useCourses";
 import {useModuleQuestions} from "@/src/features/learnings/hooks/useModuleQuiz";
+import {testLabel} from "@/src/features/learnings/helper/testLabel";
 import {chatReplyText, sendChatMessage} from "@/src/features/brainy/services/brainy.service";
 
 interface CourseContentProps {
@@ -196,11 +197,11 @@ export default function CourseContent({
             {activeQuizSet ? (
               quizSetQuestions.isLoading ? (
                 <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
-                  Loading quiz…
+                  Loading test…
                 </div>
               ) : quizSetQuestions.questions.length === 0 ? (
                 <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl bg-muted/10 px-8 text-center text-sm text-muted">
-                  No questions in this quiz yet.
+                  No questions in this test yet.
                 </div>
               ) : (
                 <CoursePractice
@@ -208,7 +209,7 @@ export default function CourseContent({
                   courseId={courseId}
                   moduleId={activeQuizSet.moduleId}
                   questions={quizSetQuestions.questions}
-                  label={`Quiz: ${activeQuizSet.name}`}
+                  label={testLabel(activeQuizSet.name)}
                   timerMinutes={activeQuizSetInfo?.timerMinutes}
                   passingScore={activeQuizSetInfo?.passingScore}
                   onDone={() => setActiveQuizSet(null)}

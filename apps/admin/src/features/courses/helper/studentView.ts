@@ -64,8 +64,12 @@ export interface StudentModule {
   exerciseSets: StudentExerciseSet[];
 }
 
-/** An unnamed quiz is saved (and shown) as "Quiz". */
+/** An unnamed quiz is saved as "Quiz" (the name the API keeps), though students see it as a Test. */
 export const DEFAULT_QUIZ_NAME = "Quiz";
+
+/** What a student sees for a quiz set: "Test", or "Test: <name>" when the author named it. */
+export const testLabel = (setName: string): string =>
+  !setName || setName === DEFAULT_QUIZ_NAME ? "Test" : `Test: ${setName}`;
 
 /** An exercise with no name is saved (and shown) as "Exercise". */
 export const DEFAULT_EXERCISE_NAME = "Exercise";

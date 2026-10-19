@@ -17,6 +17,7 @@ import InteractiveLesson from "./InteractiveLesson";
 import PurchasePreview from "./PurchasePreview";
 import StudentModules from "./StudentModules";
 import StudentOverview from "./StudentOverview";
+import {testLabel} from "@/src/features/courses/helper/studentView";
 
 export interface CourseStudentViewProps {
   course: CoursesFormValues & Partial<AdditionalCourseTypes>;
@@ -182,7 +183,7 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
                   <CoursePractice
                     key={`quiz-${activeQuizSet?.moduleId}-${activeQuizSetInfo.name}`}
                     questions={toPracticeCardQuestions(activeQuizSetInfo.questions)}
-                    label={`Quiz: ${activeQuizSetInfo.name}`}
+                    label={testLabel(activeQuizSetInfo.name)}
                     timerMinutes={activeQuizSetInfo.timerMinutes}
                     passingScore={activeQuizSetInfo.passingScore}
                     onDone={() => setActiveQuizSet(null)}
