@@ -23,7 +23,7 @@ import {useCatalogOptions} from "@/src/features/exam-catalog/hooks/useCatalog";
 import CatalogItemModal from "@/src/features/exam-catalog/components/CatalogItemModal";
 import type {CatalogKind} from "@/src/features/exam-catalog/helper/catalog";
 
-export default function CreateDetails({onNext}: {onNext: () => void}) {
+export default function CreateDetails({onNext, live = false}: {onNext: () => void; /** The program is published: saving the details changes what students see. */ live?: boolean}) {
   const {
     register,
     control,
@@ -140,7 +140,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
 
     try {
       await persistDetails();
-      showSuccess("Exam program draft saved successfully!");
+      showSuccess(live ? "Details saved. Students can see them now." : "Exam program draft saved successfully!");
     } catch (error) {
       const msg = getApiErrorMessage(
         error,
@@ -426,7 +426,7 @@ export default function CreateDetails({onNext}: {onNext: () => void}) {
             loadingText="Saving..."
             disabled={isSavingDraft || isSubmitting}
           >
-            Save as draft
+            {live ? "Save details" : "Save as draft"}
           </Button>
           <Button
             type="button"
