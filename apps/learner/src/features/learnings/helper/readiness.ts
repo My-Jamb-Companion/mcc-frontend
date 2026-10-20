@@ -35,8 +35,12 @@ const CONFIDENCE: Record<string, string> = {
   high: "A solid estimate: you've covered a lot of the program.",
 };
 
-export const confidenceNote = (predicted: ApiPredictedScore): string | null =>
-  predicted.confidence ? CONFIDENCE[predicted.confidence] ?? null : null;
+export const confidenceNote = (predicted: ApiPredictedScore): string | null => {
+  const base = predicted.confidence ? CONFIDENCE[predicted.confidence] ?? null : null;
+  const mocks = predicted.mocks ?? 0;
+  if (!base || !mocks) return base;
+  return `${base} Leans on your latest ${mocks === 1 ? "mock exam" : `${mocks} mock exams`}.`;
+};
 
 /** "3 of 7 played" for a tile's tooltip. */
 export const tileSummary = (tile: ApiReadinessTile): string =>

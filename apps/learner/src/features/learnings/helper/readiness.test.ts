@@ -18,6 +18,12 @@ describe("predictedRange", () => {
 });
 
 describe("confidenceNote", () => {
+  it("says when mock exams are behind the estimate", () => {
+    expect(confidenceNote({...predicted, mocks: 1})).toMatch(/Leans on your latest mock exam\./);
+    expect(confidenceNote({...predicted, mocks: 3})).toMatch(/Leans on your latest 3 mock exams\./);
+    expect(confidenceNote({...predicted, mocks: 0})).not.toMatch(/mock/);
+  });
+
   it("explains how much to trust it, and says nothing without one", () => {
     expect(confidenceNote({...predicted, confidence: "low"})).toMatch(/Early estimate/);
     expect(confidenceNote({...predicted, confidence: "high"})).toMatch(/solid/);
