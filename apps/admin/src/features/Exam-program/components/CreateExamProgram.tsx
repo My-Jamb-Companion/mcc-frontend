@@ -74,8 +74,8 @@ export type ExamProgramFormValues = Step1Values & {
 
 // STEP 1
 
-function Step1({onNext}: {onNext: () => void}) {
-  return <CreateDetails onNext={onNext} />;
+function Step1({onNext, live}: {onNext: () => void; live: boolean}) {
+  return <CreateDetails onNext={onNext} live={live} />;
 }
 
 // STEP 2
@@ -186,9 +186,10 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
     }
   }, [existing, editId, methods]);
 
-  // The backend refuses to edit a live program, so the form is read-only
-  // until it is unpublished.
+  // A live program can be edited in place, like a course: what is saved is
+  // what students see, so the header offers "Save changes" instead of "Publish".
   const isLive = existing?.status === "published";
+  const [isSavingLive, setIsSavingLive] = useState(false);
 
   const examOptions = useCatalogOptions("types", methods.watch("exam")).options;
   const subjectOptions = useCatalogOptions("subjects", methods.watch("subject")).options;
@@ -215,7 +216,7 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
     setIsUnpublishing(true);
     try {
       await unpublishExamProgram(programId);
-      showSuccess("Moved back to drafts. You can edit it now.");
+      showSuccess("Moved back to drafts. Students can no longer see it.");
       queryClient.invalidateQueries({queryKey: ["exam-programs"]});
       await refetchExisting();
     } catch (error) {
@@ -227,44 +228,51 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
     }
   }
 
+  /** Saves the content, cover image and promo video the form holds (what Publish and Save changes both need). */
+  async function saveContentAndMedia(programId: string) {
+    const values = methods.getValues();
+    // Patch the cover image / promo video (and re-send content, in case
+    // Step2 was left with unsaved edits).
+    await updateExamProgramContent(programId, {
+      topics: serializeTopicsPayload(values.content.topics),
+      cover_image_url:
+        values.upload.coverImageUrl ||
+        values.upload.coverImage?.remoteUrl ||
+        values.upload.coverImage?.previewUrl,
+      promo_video_url:
+        values.upload.promoVideoUrl ||
+        values.upload.promoVideo?.remoteUrl ||
+        values.upload.promoVideo?.previewUrl,
+    });
+  }
+
+  /** The reasons the form cannot be saved as it is, or null. */
+  function blockingProblem(): string | null {
+    if (!methods.getValues("id")) {
+      return "Missing exam program id — go back and complete Details first.";
+    }
+    const unfinished = unfinishedLectureCount(methods.getValues("content.topics"));
+    if (unfinished > 0) {
+      return `Wait for ${unfinished === 1 ? "a lecture" : `${unfinished} lectures`} to finish uploading before ${isLive ? "saving" : "publishing"}.`;
+    }
+    return null;
+  }
+
   async function handlePublish() {
     if (!canPublish) return;
 
-    const programId = methods.getValues("id");
-    if (!programId) {
-      setPublishError(
-        "Missing exam program id — go back and complete Details first.",
-      );
+    const problem = blockingProblem();
+    if (problem) {
+      setPublishError(problem);
       return;
     }
-
-    const unfinished = unfinishedLectureCount(methods.getValues("content.topics"));
-    if (unfinished > 0) {
-      setPublishError(
-        `Wait for ${unfinished === 1 ? "a lecture" : `${unfinished} lectures`} to finish uploading before publishing.`,
-      );
-      return;
-    }
+    const programId = methods.getValues("id") as string;
 
     setPublishError(null);
     setIsPublishing(true);
 
     try {
-      const values = methods.getValues();
-
-      // Patch the cover image / promo video (and re-send content, in case
-      // Step2 was left with unsaved edits) before flipping the program live.
-      await updateExamProgramContent(programId, {
-        topics: serializeTopicsPayload(values.content.topics),
-        cover_image_url:
-          values.upload.coverImageUrl ||
-          values.upload.coverImage?.remoteUrl ||
-          values.upload.coverImage?.previewUrl,
-        promo_video_url:
-          values.upload.promoVideoUrl ||
-          values.upload.promoVideo?.remoteUrl ||
-          values.upload.promoVideo?.previewUrl,
-      });
+      await saveContentAndMedia(programId);
 
       await publishExamProgram(programId);
       queryClient.invalidateQueries({queryKey: ["exam-programs"]});
@@ -281,6 +289,34 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
       );
     } finally {
       setIsPublishing(false);
+    }
+  }
+
+  /** A live program: save what is on screen. It stays published. */
+  async function handleSaveLive() {
+    if (!canPublish) return;
+
+    const problem = blockingProblem();
+    if (problem) {
+      setPublishError(problem);
+      return;
+    }
+    const programId = methods.getValues("id") as string;
+
+    setPublishError(null);
+    setIsSavingLive(true);
+    try {
+      await saveContentAndMedia(programId);
+      queryClient.invalidateQueries({queryKey: ["exam-programs"]});
+      queryClient.invalidateQueries({queryKey: ["exam-program"]});
+      await refetchExisting();
+      showSuccess("Changes saved. Students can see them now.");
+    } catch (error) {
+      setPublishError(
+        getApiErrorMessage(error, "Failed to save your changes. Please try again."),
+      );
+    } finally {
+      setIsSavingLive(false);
     }
   }
 
@@ -428,17 +464,35 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
               View as a student
             </Button>
             {isLive ? (
-              <Button
-                type="button"
-                variant="outline"
-                size={"sm"}
-                disabled={isUnpublishing}
-                loading={isUnpublishing}
-                loadingText="Unpublishing..."
-                onClick={handleUnpublish}
-              >
-                Unpublish to edit
-              </Button>
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size={"sm"}
+                  disabled={isUnpublishing || isSavingLive}
+                  loading={isUnpublishing}
+                  loadingText="Unpublishing..."
+                  onClick={handleUnpublish}
+                >
+                  Unpublish
+                </Button>
+                <Button
+                  type="button"
+                  variant={canPublish ? "primary" : "secondary"}
+                  size={"sm"}
+                  disabled={!canPublish || isSavingLive || isUnpublishing}
+                  loading={isSavingLive}
+                  loadingText="Saving..."
+                  title={
+                    canPublish
+                      ? undefined
+                      : "A live program needs its details, content, cover image and promo video complete"
+                  }
+                  onClick={handleSaveLive}
+                >
+                  Save changes
+                </Button>
+              </>
             ) : (
               <Button
                 type="button"
@@ -457,10 +511,10 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
 
         {isLive && (
           <div className="mt-4 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-            <Icon icon="lucide:lock" size={18} className="shrink-0" />
+            <Icon icon="lucide:info" size={18} className="shrink-0" />
             <span>
-              This program is live, and live programs can&apos;t be edited.
-              Unpublish it to make changes, then publish it again.
+              This program is live. Changes you save here are seen by students
+              straight away. Use Save changes in the header when you are done.
             </span>
           </div>
         )}
@@ -485,12 +539,8 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
           </div>
         )}
 
-        {/* Steps. A disabled fieldset turns every control inside it off. */}
-        <fieldset
-          disabled={isLive}
-          className={`min-w-0 flex-1 border-0 p-0 ${isLive ? "opacity-60" : ""}`}
-        >
-          {activeStep === "details" && <Step1 onNext={goNext} />}
+        <fieldset className="min-w-0 flex-1 border-0 p-0">
+          {activeStep === "details" && <Step1 onNext={goNext} live={isLive} />}
           {activeStep === "content" && (
             <Step2
               onNext={goNext}
