@@ -149,6 +149,13 @@ export default function OpenProgram() {
         <div className="flex items-center gap-3 max-w-95 ml-auto">
           <Button
             variant="outline"
+            leftIcon={<Icon icon="solar:clipboard-check-linear" size={18} />}
+            onClick={() => router.push(`/dashboard/exam-program/mocks?id=${id}`)}
+          >
+            Mock exams
+          </Button>
+          <Button
+            variant="outline"
             leftIcon={<Icon icon="ri:edit-circle-line" size={18} />}
             onClick={() =>
               router.push(`/dashboard/exam-program/edit-program?id=${id}`)

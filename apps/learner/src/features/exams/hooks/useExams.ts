@@ -13,6 +13,12 @@ import {
   AssessmentMode,
   checkAssessmentAnswer,
   getAssessmentHint,
+  getMockAttempts,
+  getMockPapers,
+  getMockSession,
+  startMockExam,
+  submitMockExam,
+  ApiMockStateUpdate,
   getProgramReadiness,
   getReadinessOverview,
   registerForProgram,
@@ -156,3 +162,52 @@ export const useProgramReadiness = (programId: string | null | undefined) =>
 /** Readiness at a glance for each program the student is registered in. */
 export const useReadinessOverview = () =>
   useQuery({queryKey: ["exam-readiness", "overview"], queryFn: getReadinessOverview});
+
+
+// --- Mock exams ---
+
+/** The program's mock exams with the student's history on each. */
+export const useMockPapers = (programId: string | null | undefined) =>
+  useQuery({
+    queryKey: ["exam-mocks", programId],
+    queryFn: () => getMockPapers(programId as string),
+    enabled: !!programId,
+    staleTime: 0,
+  });
+
+/** Begins a mock exam attempt, or resumes the one in progress. */
+export const useStartMockExam = () =>
+  useMutation({mutationFn: (paperId: string) => startMockExam(paperId)});
+
+/** An attempt, or its result once finished (also how a past attempt is reviewed). */
+export const useMockSession = (sessionId: string | null | undefined) =>
+  useQuery({
+    queryKey: ["exam-mock-session", sessionId],
+    queryFn: () => getMockSession(sessionId as string),
+    enabled: !!sessionId,
+    staleTime: Infinity,
+  });
+
+/** Finishes an attempt. Points, goals, readiness and the paper list all move. */
+export const useSubmitMockExam = () => {
+  const queryClient = useQueryClient();
+  const refreshGamification = useGamificationRefresh();
+
+  return useMutation({
+    mutationFn: ({sessionId, update}: {sessionId: string; update?: ApiMockStateUpdate}) => submitMockExam(sessionId, update),
+    onSuccess: () => {
+      refreshGamification();
+      queryClient.invalidateQueries({queryKey: ["exam-readiness"]});
+      queryClient.invalidateQueries({queryKey: ["exam-mocks"]});
+    },
+  });
+};
+
+/** A paper's finished attempts, newest first. */
+export const useMockAttempts = (paperId: string | null | undefined, enabled = true) =>
+  useQuery({
+    queryKey: ["exam-mock-attempts", paperId],
+    queryFn: () => getMockAttempts(paperId as string),
+    enabled: !!paperId && enabled,
+    staleTime: 0,
+  });

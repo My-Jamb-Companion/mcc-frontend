@@ -360,6 +360,8 @@ export interface ApiPredictedScore {
   answered: number;
   /** Questions that must be answered before a range is shown. */
   needed: number;
+  /** How many of the latest mock exams the estimate leans on; they count for more than practice. */
+  mocks?: number;
   /** Why there is no range yet. */
   message: string | null;
 }
@@ -404,4 +406,157 @@ export const getProgramReadiness = async (programId: string): Promise<ApiProgram
 export const getReadinessOverview = async (): Promise<ApiReadinessSummary[]> => {
   const res = await apiClient.get<{data: {programs: ApiReadinessSummary[]}}>("/exams/readiness");
   return res.data.data.programs;
+};
+
+
+// --- Mock exams --------------------------------------------------------------
+
+export interface ApiMockPaper {
+  paper_id: string;
+  title: string;
+  description: string | null;
+  mode: "auto" | "fixed";
+  duration_minutes: number;
+  question_count: number;
+  passing_score: number | null;
+  /** A paper for paid students only, and the registration is free. */
+  locked: boolean;
+  attempts: number;
+  best_percent: number | null;
+  last_percent: number | null;
+  /** An attempt that can still be resumed. */
+  in_progress: {session_id: string; remaining_seconds: number} | null;
+}
+
+export interface ApiMockPaperInfo {
+  paper_id: string;
+  title: string;
+  description?: string | null;
+  duration_minutes: number;
+  passing_score: number | null;
+}
+
+export interface ApiMockQuestion {
+  question_id: string;
+  question_text: string;
+  description: string | null;
+  question_type: string;
+  options: string[];
+}
+
+/** What is autosaved as the student goes. An answer is the option picked (a list for multiple choice). */
+export interface ApiMockState {
+  answers: Record<string, string | string[]>;
+  flagged: string[];
+  spent: Record<string, number>;
+  current: number;
+}
+
+export interface ApiMockSession {
+  session_id: string;
+  paper: ApiMockPaperInfo;
+  questions: ApiMockQuestion[];
+  /** By the server's clock: count down from this, not from the device's. */
+  remaining_seconds: number;
+  deadline_at: string | null;
+  state: ApiMockState;
+}
+
+export interface ApiMockReviewRow {
+  question_id: string;
+  question_text: string;
+  question_type: string;
+  options: string[];
+  your_answer: string | string[] | null;
+  correct_answer: string;
+  is_correct: boolean;
+  explanation: string | null;
+  option_feedback?: (string | null)[] | null;
+  seconds: number;
+  flagged: boolean;
+}
+
+export interface ApiMockTopicResult {
+  node_type: "module" | "sub_topic" | "general";
+  node_id: string;
+  title: string;
+  correct: number;
+  total: number;
+  percent: number;
+  stars: number;
+}
+
+export interface ApiMockResult {
+  session_id: string;
+  finished: true;
+  paper: ApiMockPaperInfo;
+  score_percent: number;
+  correct: number;
+  total: number;
+  passed: boolean | null;
+  seconds_used: number;
+  topic_breakdown: ApiMockTopicResult[];
+  results: ApiMockReviewRow[];
+  gamification?: ApiGamificationUpdate | null;
+  readiness?: ApiSessionReadiness | null;
+}
+
+export interface ApiMockAttempt {
+  session_id: string;
+  total: number;
+  correct: number;
+  percent: number;
+  passed: boolean | null;
+  seconds_used: number;
+  finished_at: string;
+}
+
+/** Changes since the last save; every part is optional. */
+export interface ApiMockStateUpdate {
+  answers?: Record<string, string | string[] | null>;
+  flagged?: string[];
+  spent?: Record<string, number>;
+  current?: number;
+}
+
+/** Endpoint: GET /exams/<program_id>/mocks */
+export const getMockPapers = async (programId: string): Promise<ApiMockPaper[]> => {
+  const res = await apiClient.get<{data: {papers: ApiMockPaper[]}}>(`/exams/${programId}/mocks`);
+  return res.data.data.papers;
+};
+
+/** Endpoint: POST /exams/mocks/<paper_id>/start -- begins an attempt, or resumes the one in progress. */
+export const startMockExam = async (paperId: string): Promise<ApiMockSession> => {
+  const res = await apiClient.post<{data: ApiMockSession}>(`/exams/mocks/${paperId}/start`);
+  return res.data.data;
+};
+
+/** Endpoint: GET /exams/mocks/sessions/<session_id> -- an attempt in progress, or its result once finished. */
+export const getMockSession = async (sessionId: string): Promise<ApiMockSession | ApiMockResult> => {
+  const res = await apiClient.get<{data: ApiMockSession | ApiMockResult}>(`/exams/mocks/sessions/${sessionId}`);
+  return res.data.data;
+};
+
+/** Endpoint: PUT /exams/mocks/sessions/<session_id>/state -- autosave. */
+export const saveMockState = async (
+  sessionId: string,
+  update: ApiMockStateUpdate,
+): Promise<{saved: boolean; remaining_seconds: number}> => {
+  const res = await apiClient.put<{data: {saved: boolean; remaining_seconds: number}}>(
+    `/exams/mocks/sessions/${sessionId}/state`,
+    update,
+  );
+  return res.data.data;
+};
+
+/** Endpoint: POST /exams/mocks/sessions/<session_id>/submit */
+export const submitMockExam = async (sessionId: string, update?: ApiMockStateUpdate): Promise<ApiMockResult> => {
+  const res = await apiClient.post<{data: ApiMockResult}>(`/exams/mocks/sessions/${sessionId}/submit`, update ?? {});
+  return res.data.data;
+};
+
+/** Endpoint: GET /exams/mocks/<paper_id>/attempts */
+export const getMockAttempts = async (paperId: string): Promise<ApiMockAttempt[]> => {
+  const res = await apiClient.get<{data: {attempts: ApiMockAttempt[]}}>(`/exams/mocks/${paperId}/attempts`);
+  return res.data.data.attempts;
 };
