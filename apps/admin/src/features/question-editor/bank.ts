@@ -37,6 +37,10 @@ export interface ParsedQuestion extends Omit<BankQuestionPayload, "description" 
   subject_name: string | null;
   topic: string | null;
   difficulty: "easy" | "medium" | "hard" | null;
+  /** Long-text papers: rows with the same group share a passage and instruction (already filled in on each row). */
+  group?: string | null;
+  instruction?: string | null;
+  passage?: string | null;
 }
 
 export interface ParseError {
@@ -56,6 +60,8 @@ export type CopyableQuestion = Pick<BankQuestionPayload, "question_text" | "ques
   description?: string | null;
   explanation?: string | null;
   option_feedback?: (string | null)[] | null;
+  instruction?: string | null;
+  passage?: string | null;
 };
 
 const norm = (s: string) => s.trim().replace(/\s+/g, " ").toLowerCase();
@@ -93,10 +99,12 @@ export function toBankQuestion(q: CreatPracticeQuestionType): BankQuestionPayloa
  * A bank question as a copy for a set: fresh ids, so editing the copy never
  * touches the bank. Responses only come across into a Practice set.
  */
-export function fromBankQuestion(b: CopyableQuestion, withResponses: boolean): CreatPracticeQuestionType {
+export function fromBankQuestion(b: CopyableQuestion, withResponses: boolean, withPassages = false): CreatPracticeQuestionType {
   const correct = new Set(b.correct_answers.map(norm));
   return {
     id: uid(),
+    ...(withPassages && b.passage?.trim() ? {passage: b.passage} : {}),
+    ...(withPassages && b.instruction?.trim() ? {instruction: b.instruction} : {}),
     type: b.question_type === "multi_choice" ? "multiple" : "single",
     question: b.question_text,
     description: b.description ?? undefined,
@@ -182,3 +190,31 @@ export function parsedToBankPayload(p: ParsedQuestion): BankQuestionPayload & {
 /** How many uploaded questions carry Practice responses (they only come into a Practice set). */
 export const countWithResponses = (questions: ParsedQuestion[]): number =>
   questions.filter((q) => q.option_feedback?.some(Boolean)).length;
+
+
+/** How many of the questions carry a passage or instruction (for telling the admin when a set will not keep them). */
+export const countWithPassages = (questions: {passage?: string | null; instruction?: string | null}[]): number =>
+  questions.filter((q) => q.passage?.trim() || q.instruction?.trim()).length;
+
+/**
+ * Questions that carry the same passage (or instruction) text share it. This is how many OTHER questions in the list
+ * have exactly the same non-empty text, so the editor can say so and change them together.
+ */
+export function sharedWith(questions: CreatPracticeQuestionType[], field: "passage" | "instruction", text: string | undefined): number {
+  const t = (text ?? "").trim();
+  if (!t) return 0;
+  return questions.filter((q) => (q[field] ?? "").trim() === t).length - 1;
+}
+
+/** Sets a passage or instruction on one question, and on every question that shared its old text. */
+export function setSharedText(
+  questions: CreatPracticeQuestionType[],
+  index: number,
+  field: "passage" | "instruction",
+  value: string,
+): CreatPracticeQuestionType[] {
+  const old = (questions[index]?.[field] ?? "").trim();
+  return questions.map((q, i) =>
+    i === index || (old && (q[field] ?? "").trim() === old) ? {...q, [field]: value} : q,
+  );
+}

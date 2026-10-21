@@ -20,6 +20,9 @@ export interface ApiQuestionPayload {
   explanation?: string;
   /** Practice and Exercise: the response for each option, aligned to `options` (null where none). */
   option_feedback?: (string | null)[];
+  /** A mock exam's own questions: directions and a reading passage. */
+  instruction?: string;
+  passage?: string;
 }
 
 export interface ApiLecturePayload {
@@ -81,6 +84,8 @@ export function toApiQuestion(q: CreatPracticeQuestionType, practice = false): A
     explanation: q.explanation || undefined,
     // Responses are kept for Practice and Exercise questions.
     ...(practice && hasResponses(q) ? {option_feedback: optionResponses(q)} : {}),
+    ...(q.instruction?.trim() ? {instruction: q.instruction.trim()} : {}),
+    ...(q.passage?.trim() ? {passage: q.passage.trim()} : {}),
   };
 }
 

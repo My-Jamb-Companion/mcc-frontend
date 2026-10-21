@@ -102,6 +102,9 @@ export interface ApiExamQuestion {
   question_id: string;
   question_text: string;
   description: string | null;
+  /** A mock exam's own questions: directions and a reading passage. */
+  instruction?: string | null;
+  passage?: string | null;
   question_type: string;
   options: string[];
   correct_answers: string[];

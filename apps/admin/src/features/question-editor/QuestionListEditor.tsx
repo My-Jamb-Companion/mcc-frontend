@@ -5,12 +5,17 @@ import {FormInputs} from "@mcc/features";
 import {Button, Icon} from "@mcc/ui";
 import BankTools from "@/src/features/question-bank/components/BankTools";
 import SaveToBankModal from "@/src/features/question-bank/components/SaveToBankModal";
+import {setSharedText, sharedWith} from "./bank";
 import {blankQuestion, CreatPracticeQuestionType, isMultiple, uid} from "./types";
 
 function QuestionCard({
   question,
   index,
   withResponses,
+  withPassages,
+  sharedPassage,
+  sharedInstruction,
+  onSharedText,
   onChange,
   onDelete,
   onCopy,
@@ -23,6 +28,13 @@ function QuestionCard({
   question: CreatPracticeQuestionType;
   index: number;
   withResponses: boolean;
+  /** A mock exam's questions: shows boxes for directions and a reading passage. */
+  withPassages: boolean;
+  /** How many other questions carry exactly the same passage / instruction text. */
+  sharedPassage: number;
+  sharedInstruction: number;
+  /** Change a passage or instruction on this question and on every question that shares its text. */
+  onSharedText: (field: "passage" | "instruction", value: string) => void;
   onChange: (q: CreatPracticeQuestionType) => void;
   onDelete?: () => void;
   onCopy?: () => void;
@@ -177,6 +189,42 @@ function QuestionCard({
         </div>
 
         <div className="flex flex-col gap-5 w-[97%] ml-auto cursor-auto">
+          {withPassages && (
+            <div className="flex flex-col gap-3 rounded-xl border border-dashed border-violet-200 bg-violet-50/30 p-4">
+              <label className="flex flex-col gap-1.5 text-sm font-medium text-gray-700">
+                Instruction (optional)
+                <textarea
+                  value={question.instruction ?? ""}
+                  onChange={(e) => onSharedText("instruction", e.target.value)}
+                  rows={2}
+                  placeholder="Directions shown above the question, e.g. Choose the option that best conveys the meaning of the underlined portion."
+                  className="w-full resize-y rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-normal outline-none focus:border-violet-400"
+                />
+                {sharedInstruction > 0 && (
+                  <span className="text-xs font-normal text-violet-700">
+                    Shared with {sharedInstruction} other {sharedInstruction === 1 ? "question" : "questions"}: a change here applies to all of them.
+                  </span>
+                )}
+              </label>
+              <label className="flex flex-col gap-1.5 text-sm font-medium text-gray-700">
+                Passage (optional)
+                <textarea
+                  value={question.passage ?? ""}
+                  onChange={(e) => onSharedText("passage", e.target.value)}
+                  rows={6}
+                  placeholder="A reading passage this question refers to. Paste it on each question of the passage; questions with the same text are kept together."
+                  className="min-h-40 w-full resize-y rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-normal leading-relaxed outline-none focus:border-violet-400"
+                />
+                <span className="text-xs font-normal text-gray-500">
+                  {sharedPassage > 0
+                    ? `Shared with ${sharedPassage} other ${sharedPassage === 1 ? "question" : "questions"}: a change here applies to all of them. `
+                    : ""}
+                  Wrap an underlined word or phrase in double underscores, like __this__, here or in the question.
+                </span>
+              </label>
+            </div>
+          )}
+
           <FormInputs
             type="text"
             inputProps={{
@@ -319,6 +367,7 @@ export default function QuestionListEditor({
   questions,
   onChange,
   withResponses = false,
+  withPassages = false,
   responsesShown = "answering",
   toolbar,
   single = false,
@@ -326,6 +375,8 @@ export default function QuestionListEditor({
   questions: CreatPracticeQuestionType[];
   onChange: (questions: CreatPracticeQuestionType[]) => void;
   withResponses?: boolean;
+  /** A mock exam's questions: each can carry directions and a reading passage, and uploads may include them. */
+  withPassages?: boolean;
   /** When the student reads the responses: as they answer (Practice) or in the review after submitting. */
   responsesShown?: "answering" | "review";
   /** Extra set-level tools, shown beside the Question Bank ones. */
@@ -360,7 +411,7 @@ export default function QuestionListEditor({
 
       {!single && (
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <BankTools questions={questions} onChange={onChange} withResponses={withResponses} />
+          <BankTools questions={questions} onChange={onChange} withResponses={withResponses} withPassages={withPassages} />
           {toolbar}
         </div>
       )}
@@ -372,6 +423,10 @@ export default function QuestionListEditor({
             question={q}
             index={idx}
             withResponses={withResponses}
+            withPassages={withPassages}
+            sharedPassage={sharedWith(questions, "passage", q.passage)}
+            sharedInstruction={sharedWith(questions, "instruction", q.instruction)}
+            onSharedText={(field, value) => onChange(setSharedText(questions, idx, field, value))}
             onChange={(nq) => onChange(questions.map((existing, i) => (i === idx ? nq : existing)))}
             onDelete={single ? undefined : () => onChange(questions.filter((_, i) => i !== idx))}
             onCopy={single ? undefined : () => navigator.clipboard.writeText(JSON.stringify(q, null, 2))}

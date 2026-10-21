@@ -7,6 +7,7 @@ import PointsEarnedCard from "@/src/features/rewards/components/PointsEarnedCard
 import type {ApiMockResult} from "@/src/features/exams/services/exam.service";
 import {leveledUpText} from "@/src/features/learnings/helper/readiness";
 import {filterReview, isRightOption, isYourOption, ReviewFilter, timeUsedLabel} from "@/src/features/learnings/helper/mockExam";
+import MarkedText from "./MarkedText";
 import StarRating from "./StarRating";
 
 interface MockExamResultProps {
@@ -118,8 +119,8 @@ export default function MockExamResult({result, onAgain, onDone}: MockExamResult
           </p>
         ) : (
           <ol className="flex flex-col gap-4">
-            {rows.map((r) => (
-              <ReviewItem key={r.question_id} row={r} number={result.results.indexOf(r) + 1} />
+            {rows.map((r, i) => (
+              <ReviewItem key={r.question_id} row={r} number={result.results.indexOf(r) + 1} samePassageAsAbove={!!r.passage && rows[i - 1]?.passage === r.passage} />
             ))}
           </ol>
         )}
@@ -128,7 +129,7 @@ export default function MockExamResult({result, onAgain, onDone}: MockExamResult
   );
 }
 
-function ReviewItem({row, number}: {row: ApiMockResult["results"][number]; number: number}) {
+function ReviewItem({row, number, samePassageAsAbove}: {row: ApiMockResult["results"][number]; number: number; samePassageAsAbove: boolean}) {
   const help = useQuestionHelp();
   const [explained, setExplained] = useState<string | null>(null);
   const blank = row.your_answer === null || (Array.isArray(row.your_answer) && row.your_answer.length === 0);
@@ -141,13 +142,25 @@ function ReviewItem({row, number}: {row: ApiMockResult["results"][number]; numbe
 
   return (
     <li className="rounded-2xl border border-muted/20 bg-background p-5">
+      {row.instruction?.trim() && (
+        <p className="mb-2 text-xs font-medium leading-relaxed text-primary"><MarkedText text={row.instruction} /></p>
+      )}
+      {row.passage?.trim() &&
+        (samePassageAsAbove ? (
+          <p className="mb-2 text-xs italic text-subtle">Same passage as the question above.</p>
+        ) : (
+          <details className="mb-3 rounded-xl border border-muted/20 bg-muted/5">
+            <summary className="cursor-pointer px-4 py-2 text-xs font-semibold text-primary">Show the passage</summary>
+            <div className="max-h-60 overflow-y-auto px-4 pb-3 text-sm leading-relaxed"><MarkedText text={row.passage} /></div>
+          </details>
+        ))}
       <p className="flex items-start gap-2 text-sm font-semibold">
         <Icon
           icon={row.is_correct ? "material-symbols:check-circle-rounded" : "material-symbols:cancel-rounded"}
           size={18}
           className={row.is_correct ? "text-success" : "text-danger"}
         />
-        <span>{number}. {row.question_text}</span>
+        <span>{number}. <MarkedText text={row.question_text} /></span>
         {row.flagged && <Icon icon="ph:flag-fill" size={14} className="mt-0.5 shrink-0 text-amber-500" />}
       </p>
       <ul className="mt-3 flex flex-col gap-2">
@@ -160,7 +173,7 @@ function ReviewItem({row, number}: {row: ApiMockResult["results"][number]; numbe
               right ? "border-success bg-success/10" : yours ? "border-danger bg-danger/10" : "border-muted/20"
             }`}>
               <p className="flex flex-wrap items-center gap-2">
-                <span className="font-medium">{option}</span>
+                <span className="font-medium"><MarkedText text={option} /></span>
                 {right && <span className="text-xs font-semibold text-success">Right answer</span>}
                 {yours && !right && <span className="text-xs font-semibold text-danger">Your answer</span>}
                 {yours && right && <span className="text-xs font-semibold text-success">You picked this</span>}

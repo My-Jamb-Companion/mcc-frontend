@@ -4,6 +4,7 @@ import {useRef, useState} from "react";
 import {Icon, Modal, showError, showSuccess} from "@mcc/ui";
 import {downloadBlob} from "@/src/features/Exam-program/helper/export";
 import {
+  countWithPassages,
   countWithResponses,
   fromBankQuestion,
   ParseResult,
@@ -15,7 +16,7 @@ import {downloadQuestionTemplate, getApiErrorMessage} from "../services/question
 
 export type UploadTarget =
   /** Into a Practice / Exercise / Quiz / Test set; `withResponses` is true for Practice. */
-  | {kind: "set"; withResponses: boolean; onAdd: (questions: CreatPracticeQuestionType[]) => void}
+  | {kind: "set"; withResponses: boolean; withPassages?: boolean; onAdd: (questions: CreatPracticeQuestionType[]) => void}
   /** Straight into the Question Bank (the bank page). */
   | {kind: "bank"};
 
@@ -49,10 +50,12 @@ export default function UploadQuestionsModal({
 
   const inBank = target.kind === "bank";
   const withResponses = target.kind === "set" && target.withResponses;
+  const withPassages = target.kind === "set" && !!target.withPassages;
   const questions = result?.questions ?? [];
   const errors = result?.errors ?? [];
   const failedRows = new Set(errors.map((e) => e.row)).size;
   const responses = countWithResponses(questions);
+  const longText = countWithPassages(questions);
 
   function reset() {
     setResult(null);
@@ -109,7 +112,7 @@ export default function UploadQuestionsModal({
       return;
     }
 
-    target.onAdd(questions.map((q) => fromBankQuestion(q, target.withResponses)));
+    target.onAdd(questions.map((q) => fromBankQuestion(q, target.withResponses, target.withPassages)));
     showSuccess(`${questions.length} ${questions.length === 1 ? "question" : "questions"} added to this set.`);
     if (alsoSave) toBank();
     close();
@@ -212,6 +215,14 @@ export default function UploadQuestionsModal({
                         </span>
                       ))}
                     </p>
+                    {(q.passage || q.instruction) && (
+                      <p className="mt-0.5 text-xs text-violet-700">
+                        {q.group ? `Group ${q.group}: ` : ""}
+                        {q.instruction ? "directions" : ""}
+                        {q.instruction && q.passage ? " and " : ""}
+                        {q.passage ? `a passage (${q.passage.length.toLocaleString()} characters)` : ""}
+                      </p>
+                    )}
                     {(q.subject_name || q.topic || q.difficulty) && (
                       <p className="mt-0.5 text-xs text-gray-400">
                         {[q.subject_name, q.topic, q.difficulty].filter(Boolean).join(" · ")}
@@ -226,6 +237,13 @@ export default function UploadQuestionsModal({
               <p className="rounded-xl bg-gray-50 px-4 py-2.5 text-xs text-gray-600">
                 {responses} {responses === 1 ? "question has" : "questions have"} Practice responses. They are used only
                 in a Practice set, so they are not added to this one{alsoSave ? ", but they are kept in the bank" : ""}.
+              </p>
+            )}
+
+            {longText > 0 && !withPassages && (
+              <p className="rounded-xl bg-amber-50 px-4 py-2.5 text-xs text-amber-900">
+                {longText} {longText === 1 ? "question has" : "questions have"} a passage or directions. Only a mock exam keeps
+                them, so {inBank ? "the Question Bank" : "this set"} will not. Upload this file from the mock exam to keep them.
               </p>
             )}
 

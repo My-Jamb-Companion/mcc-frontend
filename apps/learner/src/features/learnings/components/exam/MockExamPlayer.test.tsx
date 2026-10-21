@@ -203,4 +203,43 @@ describe("MockExamPlayer", () => {
       expect(screen.queryByRole("dialog")).toBeNull();
     });
   });
+
+  describe("long-text questions", () => {
+    const PASSAGE = "The lighthouse stood on the northern rock for two hundred years.";
+    const withPassage = () =>
+      session({
+        questions: [
+          {question_id: "q1", question_text: "The word __reef__ most nearly means", description: null, instruction: "Read the passage and answer.",
+            passage: PASSAGE, question_type: "single_choice", options: ["a line of __rocks__", "a sail", "a harbour"]},
+          {question_id: "q2", question_text: "Plain question", description: null, question_type: "single_choice", options: ["x", "y"]},
+        ],
+      });
+
+    it("shows the directions and the passage above the question", () => {
+      render(<MockExamPlayer session={withPassage()} onFinished={vi.fn()} />);
+      expect(screen.getByText("Read the passage and answer.")).toBeInTheDocument();
+      const passage = screen.getByRole("region", {name: "Passage"});
+      expect(passage).toHaveTextContent(PASSAGE);
+    });
+
+    it("underlines what the author marked, in the question and the options", () => {
+      const {container} = render(<MockExamPlayer session={withPassage()} onFinished={vi.fn()} />);
+      const underlined = Array.from(container.querySelectorAll("u")).map((u) => u.textContent);
+      expect(underlined).toEqual(expect.arrayContaining(["reef", "rocks"]));
+      expect(screen.queryByText(/__/)).toBeNull();
+    });
+
+    it("shows no passage box for a question without one", () => {
+      render(<MockExamPlayer session={withPassage()} onFinished={vi.fn()} />);
+      fireEvent.click(screen.getByRole("button", {name: "Next"}));
+      expect(screen.queryByRole("region", {name: "Passage"})).toBeNull();
+      expect(screen.getByText("Plain question")).toBeInTheDocument();
+    });
+
+    it("keeps the keyboard controls working with a passage on screen", () => {
+      render(<MockExamPlayer session={withPassage()} onFinished={vi.fn()} />);
+      fireEvent.keyDown(document, {key: "b"});
+      expect(screen.getByRole("button", {name: /^B\s*a sail$/})).toHaveAttribute("aria-pressed", "true");
+    });
+  });
 });

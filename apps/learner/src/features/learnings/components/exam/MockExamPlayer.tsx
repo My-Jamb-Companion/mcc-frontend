@@ -10,6 +10,8 @@ import {
   saveMockState,
 } from "@/src/features/exams/services/exam.service";
 import {formatCountdown, secondsLeft} from "@/src/features/learnings/helper/countdown";
+import MarkedText from "./MarkedText";
+import QuestionContext from "./QuestionContext";
 import {interpretKey} from "@/src/features/learnings/helper/mockKeys";
 import {
   addSpent,
@@ -272,7 +274,8 @@ export default function MockExamPlayer({session, onFinished}: MockExamPlayerProp
 
           {paletteOpen && <div className="mb-4 rounded-2xl border border-muted/20 p-3 lg:hidden">{paletteGrid}</div>}
 
-          <h3 className="text-base font-bold">{question.question_text}</h3>
+          <QuestionContext instruction={question.instruction} passage={question.passage} />
+          <h3 className="text-base font-bold"><MarkedText text={question.question_text} /></h3>
           {question.description && <p className="mt-1 text-sm text-subtle">{question.description}</p>}
           {multiple && <p className="mt-2 text-xs font-semibold text-subtle">Choose all that apply.</p>}
 
@@ -297,7 +300,7 @@ export default function MockExamPlayer({session, onFinished}: MockExamPlayerProp
                   } ${selected ? "border-primary bg-primary text-white" : "border-muted/30"}`}>
                     {String.fromCharCode(65 + i)}
                   </span>
-                  <span className="text-sm font-medium">{option}</span>
+                  <span className="text-sm font-medium"><MarkedText text={option} /></span>
                 </button>
               );
             })}

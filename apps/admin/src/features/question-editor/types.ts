@@ -20,6 +20,10 @@ export type CreatPracticeQuestionType = {
   type: QuestionKind;
   question: string;
   description?: string;
+  /** A mock exam's questions only: directions shown above the question, and a reading passage it refers to.
+   * Questions that carry the same text share it (a passage with five questions under it). */
+  instruction?: string;
+  passage?: string;
   options: Option[];
   explanation?: string;
 };

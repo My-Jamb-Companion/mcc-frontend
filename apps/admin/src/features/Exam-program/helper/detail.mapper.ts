@@ -33,6 +33,8 @@ export function toUiQuestion(q: ApiExamQuestion): CreatPracticeQuestionType {
     type: toUiQuestionType(q.question_type),
     question: q.question_text,
     description: q.description ?? undefined,
+    ...(q.instruction ? {instruction: q.instruction} : {}),
+    ...(q.passage ? {passage: q.passage} : {}),
     options: (q.options ?? []).map((text, i) => ({
       id: uid(),
       text,
