@@ -463,6 +463,23 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
             >
               View as a student
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="text-nowrap"
+              shadow={"sm"}
+              size={"sm"}
+              leftIcon={<Icon icon="solar:clipboard-check-linear" size={16} />}
+              disabled={!programId}
+              title={
+                programId
+                  ? "Set up full-length timed mock exams for this program (opens in a new tab, so nothing here is lost)"
+                  : "Save the details first"
+              }
+              onClick={() => window.open(`/dashboard/exam-program/mocks?id=${programId}`, "_blank")}
+            >
+              Mock exams
+            </Button>
             {isLive ? (
               <>
                 <Button

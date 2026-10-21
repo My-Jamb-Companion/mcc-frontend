@@ -191,6 +191,9 @@ export default function ExamProgram() {
               onEditProgram={(id) => {
                 router.push(`/dashboard/exam-program/edit-program?id=${id}`);
               }}
+              onMockExams={(id) => {
+                router.push(`/dashboard/exam-program/mocks?id=${id}`);
+              }}
               onPublishProgram={async (id) => {
                 const target = programs.find((p) => p.id === id);
                 if (!target) return;

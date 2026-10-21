@@ -6,6 +6,7 @@ interface ProgramListProps {
   onShareLink?: (id: string) => void;
   onOpen?: (program: ProgramListRowData) => void;
   onEditProgram?: (id: string) => void;
+  onMockExams?: (id: string) => void;
   onPublishProgram?: (id: string) => void;
   onMessageTeacher?: (id: string) => void;
   onViewParentProgram?: (id: string) => void;
@@ -17,6 +18,7 @@ export function ProgramList({
   onShareLink,
   onOpen,
   onEditProgram,
+  onMockExams,
   onPublishProgram,
   onMessageTeacher,
   onViewParentProgram,
@@ -37,6 +39,7 @@ export function ProgramList({
           menuHandlers={{
             onOpenProgram: () => onOpen?.(item),
             onEditProgram: () => onEditProgram?.(item.id),
+            onMockExams: () => onMockExams?.(item.id),
             onPublishProgram: () => onPublishProgram?.(item.id),
             onMessageTeacher: () => onMessageTeacher?.(item.id),
             onViewParentProgram: () => onViewParentProgram?.(item.id),
