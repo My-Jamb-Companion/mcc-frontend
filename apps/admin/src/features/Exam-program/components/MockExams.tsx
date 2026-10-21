@@ -8,11 +8,13 @@ import {getApiErrorMessage} from "../services/exam.service";
 import type {ApiMockPaper, ApiMockPool} from "../services/mocks.service";
 import {
   blueprintTotal,
+  canUseBlueprint,
   emptyMockForm,
   formFromDetail,
   mockPayload,
   MockForm,
   plannedQuestionCount,
+  usesOwnQuestions,
   validateMockForm,
 } from "../helper/mockForm";
 
@@ -87,7 +89,7 @@ export default function MockExams() {
                   {paper.paid_only && <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-medium text-violet-700">Paid students</span>}
                 </p>
                 <p className="mt-1 text-sm text-subtle">
-                  {paper.mode === "auto" ? "Fresh questions each attempt" : "Fixed questions"} · {paper.question_count ?? 0} questions ·{" "}
+                  {paper.mode === "auto" ? (paper.pool_source === "paper" ? "Drawn from its own questions" : paper.pool_source === "both" ? "Drawn from the program and its own questions" : "Fresh questions each attempt") : "Fixed questions"} · {paper.question_count ?? 0} questions ·{" "}
                   {paper.duration_minutes} min
                   {paper.passing_score !== null && ` · pass mark ${paper.passing_score}%`} · {paper.attempts} attempt{paper.attempts === 1 ? "" : "s"}
                 </p>
@@ -217,11 +219,11 @@ function MockPaperEditor({programId, paperId, pool, onClose}: {
       </div>
 
       <div className="flex flex-col gap-3">
-        <p className="text-sm font-semibold">Where the questions come from</p>
-        <div className="grid gap-3 md:grid-cols-2" role="radiogroup" aria-label="Where the questions come from">
+        <p className="text-sm font-semibold">How the paper is made</p>
+        <div className="grid gap-3 md:grid-cols-2" role="radiogroup" aria-label="How the paper is made">
           {([
-            ["auto", "Drawn fresh each attempt", "From the program's Practice and Exercise questions, so no two attempts are the same."],
-            ["fixed", "A fixed paper", "Questions you write for this paper. Everyone sits the same paper."],
+            ["auto", "Drawn fresh each attempt", "Each attempt takes a different random set from a pool, so no two attempts are the same."],
+            ["fixed", "A fixed paper", "Questions you write or upload for this paper. Everyone sits all of them, in the same set."],
           ] as const).map(([value, label, hint]) => (
             <label key={value} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 ${form.mode === value ? "border-violet-500 bg-violet-50/50" : "border-muted/20"}`}>
               <input type="radio" name="mode" checked={form.mode === value} onChange={() => set("mode", value)} className="mt-1 accent-violet-600" />
@@ -233,17 +235,33 @@ function MockPaperEditor({programId, paperId, pool, onClose}: {
           ))}
         </div>
 
-        {form.mode === "auto" ? (
+        {form.mode === "auto" && (
           <div className="flex flex-col gap-3 rounded-2xl border border-muted/20 p-4">
-            <p className="text-sm text-subtle">
-              The program has <span className="font-semibold text-foreground">{pool?.total ?? 0}</span> questions to draw from.
-            </p>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={form.useBlueprint} onChange={(e) => set("useBlueprint", e.target.checked)} className="accent-violet-600" />
-              Choose how many questions come from each module
-            </label>
+            <p className="text-sm font-semibold">Where the questions are drawn from</p>
+            <div className="grid gap-2 md:grid-cols-3" role="radiogroup" aria-label="Where the questions are drawn from">
+              {([
+                ["program", "The program's questions", `Its Practice and Exercise questions (${pool?.total ?? 0} available).`],
+                ["paper", "This mock exam's own questions", "Questions you upload or write just for this mock exam."],
+                ["both", "Both", "Mix the program's questions with this mock exam's own."],
+              ] as const).map(([value, label, hint]) => (
+                <label key={value} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 ${form.poolSource === value ? "border-violet-500 bg-violet-50/50" : "border-muted/20"}`}>
+                  <input type="radio" name="poolSource" checked={form.poolSource === value} onChange={() => set("poolSource", value)} className="mt-1 accent-violet-600" />
+                  <span>
+                    <span className="block text-sm font-medium">{label}</span>
+                    <span className="block text-xs text-subtle">{hint}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
 
-            {form.useBlueprint ? (
+            {canUseBlueprint(form) && (
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={form.useBlueprint} onChange={(e) => set("useBlueprint", e.target.checked)} className="accent-violet-600" />
+                Choose how many questions come from each module
+              </label>
+            )}
+
+            {canUseBlueprint(form) && form.useBlueprint ? (
               <div className="flex flex-col gap-2">
                 {(pool?.modules ?? []).map((m) => (
                   <label key={m.module_id} className="flex items-center justify-between gap-3 rounded-lg border border-muted/20 px-3 py-2 text-sm">
@@ -262,13 +280,23 @@ function MockPaperEditor({programId, paperId, pool, onClose}: {
               <label className="flex flex-col gap-1">
                 <span className="text-sm font-medium text-gray-700">Questions per attempt</span>
                 <input type="number" min={1} max={300} value={form.questionCount} onChange={(e) => set("questionCount", e.target.value)} className={`${inputClass} w-32`} />
-                <span className="text-xs text-gray-400">Spread across the program&apos;s modules in proportion to how many questions each has.</span>
+                <span className="text-xs text-gray-400">
+                  {form.poolSource === "program"
+                    ? "Spread across the program's modules in proportion to how many questions each has."
+                    : "Picked at random from the pool each attempt, so add more questions than this."}
+                </span>
               </label>
             )}
           </div>
-        ) : (
+        )}
+
+        {usesOwnQuestions(form) && (
           <div className="rounded-2xl border border-muted/20 p-4">
-            <p className="mb-3 text-sm text-subtle">
+            <p className="text-sm font-semibold">
+              {form.mode === "fixed" ? "The paper's questions" : "This mock exam's own questions"} ({form.questions.length})
+            </p>
+            <p className="mb-3 mt-1 text-sm text-subtle">
+              Use <b>Upload questions</b> to add many at once from an Excel or CSV file, <b>Add from bank</b> to copy from the Question Bank, or add them one by one.
               The response you write under each option is shown to the student when they review their result, not during the exam.
             </p>
             <QuestionListEditor questions={form.questions} onChange={(q) => set("questions", q)} withResponses responsesShown="review" />

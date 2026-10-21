@@ -1,6 +1,6 @@
 import type {CreatPracticeQuestionType} from "@/src/features/question-editor/types";
 import {isMultiple} from "@/src/features/question-editor/types";
-import type {ApiMockPaperDetail, ApiMockPaperInput, ApiMockPool} from "../services/mocks.service";
+import type {ApiMockPaperDetail, ApiMockPaperInput, ApiMockPool, PoolSource} from "../services/mocks.service";
 import {toApiQuestion} from "./content.mapper";
 import {toUiQuestion} from "./detail.mapper";
 
@@ -9,6 +9,8 @@ export interface MockForm {
   title: string;
   description: string;
   mode: "auto" | "fixed";
+  /** Drawn papers: the program's questions, the paper's own (written or uploaded), or both. */
+  poolSource: PoolSource;
   duration: string;
   passingScore: string;
   questionCount: string;
@@ -27,6 +29,7 @@ export const emptyMockForm = (): MockForm => ({
   title: "",
   description: "",
   mode: "auto",
+  poolSource: "program",
   duration: "60",
   passingScore: "",
   questionCount: "40",
@@ -46,6 +49,7 @@ export function formFromDetail(paper: ApiMockPaperDetail): MockForm {
     title: paper.title,
     description: paper.description ?? "",
     mode: paper.mode,
+    poolSource: paper.pool_source ?? "program",
     duration: String(paper.duration_minutes),
     passingScore: paper.passing_score === null ? "" : String(paper.passing_score),
     questionCount: paper.mode === "auto" && !paper.blueprint?.length && paper.question_count ? String(paper.question_count) : "",
@@ -76,30 +80,52 @@ export function blueprintItems(form: MockForm, pool: ApiMockPool | undefined) {
 export const blueprintTotal = (form: MockForm, pool: ApiMockPool | undefined): number =>
   blueprintItems(form, pool).reduce((n, b) => n + b.count, 0);
 
+/** Whether the paper's own questions are in play: a fixed paper's, or a drawn paper whose pool includes them. */
+export const usesOwnQuestions = (form: MockForm): boolean => form.mode === "fixed" || form.poolSource !== "program";
+
+/** Questions per module only makes sense when the program's questions are the pool. */
+export const canUseBlueprint = (form: MockForm): boolean => form.mode === "auto" && form.poolSource === "program";
+
 /** What a student's attempt will have in it, as far as the form says. */
 export function plannedQuestionCount(form: MockForm, pool: ApiMockPool | undefined): number {
   if (form.mode === "fixed") return form.questions.length;
-  return form.useBlueprint ? blueprintTotal(form, pool) : whole(form.questionCount) ?? 0;
+  return form.useBlueprint && canUseBlueprint(form) ? blueprintTotal(form, pool) : whole(form.questionCount) ?? 0;
 }
 
 export function mockPayload(form: MockForm, pool: ApiMockPool | undefined): ApiMockPaperInput {
   const auto = form.mode === "auto";
-  const blueprint = auto && form.useBlueprint ? blueprintItems(form, pool) : [];
+  const blueprint = canUseBlueprint(form) && form.useBlueprint ? blueprintItems(form, pool) : [];
   const pass = whole(form.passingScore);
   return {
     title: form.title.trim(),
     description: form.description.trim() || undefined,
     mode: form.mode,
+    pool_source: auto ? form.poolSource : "program",
     duration_minutes: whole(form.duration) ?? 0,
     passing_score: pass,
-    question_count: auto && !form.useBlueprint ? whole(form.questionCount) : null,
+    question_count: auto && !(form.useBlueprint && canUseBlueprint(form)) ? whole(form.questionCount) : null,
     blueprint,
     shuffle_questions: form.shuffleQuestions,
     shuffle_options: form.shuffleOptions,
     paid_only: form.paidOnly,
     is_published: form.published,
-    questions: form.mode === "fixed" ? form.questions.map((q) => toApiQuestion(q, true)) : [],
+    questions: usesOwnQuestions(form) ? form.questions.map((q) => toApiQuestion(q, true)) : [],
   };
+}
+
+/** Each of the paper's own questions needs text, two options and a correct one. */
+function questionProblems(form: MockForm): string[] {
+  const errors: string[] = [];
+  form.questions.forEach((q, i) => {
+    const n = i + 1;
+    if (!q.question.trim()) errors.push(`Question ${n} has no text.`);
+    const options = q.options.filter((o) => o.text.trim());
+    if (options.length < 2) errors.push(`Question ${n} needs at least two options.`);
+    const right = q.options.filter((o) => o.isCorrect && o.text.trim()).length;
+    if (right === 0) errors.push(`Question ${n} needs a correct option.`);
+    else if (right > 1 && !isMultiple(q.type)) errors.push(`Question ${n} is single choice but has several correct options.`);
+  });
+  return errors;
 }
 
 /** What stops this from being saved (or published), in plain words. Empty when it is fine. */
@@ -116,7 +142,8 @@ export function validateMockForm(form: MockForm, pool: ApiMockPool | undefined):
   }
 
   if (form.mode === "auto") {
-    if (form.useBlueprint) {
+    const blueprint = form.useBlueprint && canUseBlueprint(form);
+    if (blueprint) {
       const items = blueprintItems(form, pool);
       if (!items.length) errors.push("Choose how many questions to draw from at least one module.");
       if (form.published) {
@@ -127,21 +154,23 @@ export function validateMockForm(form: MockForm, pool: ApiMockPool | undefined):
     } else {
       const count = whole(form.questionCount);
       if (!count || count < 1 || count > 300) errors.push("Questions per attempt must be between 1 and 300.");
-      else if (form.published && pool && count > pool.total) {
-        errors.push(`The program only has ${pool.total} questions to draw from. Lower the count, or add questions, before publishing.`);
+      else if (form.published) {
+        const own = form.poolSource === "program" ? 0 : form.questions.length;
+        const programs = form.poolSource === "paper" ? 0 : pool?.total ?? 0;
+        const available = own + programs;
+        if (count > available) {
+          errors.push(
+            form.poolSource === "program"
+              ? `The program only has ${available} questions to draw from. Lower the count, or add questions, before publishing.`
+              : `There are only ${available} questions to draw from. Lower the count, or add more questions to this paper, before publishing.`,
+          );
+        }
       }
     }
+    if (form.poolSource !== "program") errors.push(...questionProblems(form));
   } else {
     if (form.published && form.questions.length === 0) errors.push("Add at least one question before publishing.");
-    form.questions.forEach((q, i) => {
-      const n = i + 1;
-      if (!q.question.trim()) errors.push(`Question ${n} has no text.`);
-      const options = q.options.filter((o) => o.text.trim());
-      if (options.length < 2) errors.push(`Question ${n} needs at least two options.`);
-      const right = q.options.filter((o) => o.isCorrect && o.text.trim()).length;
-      if (right === 0) errors.push(`Question ${n} needs a correct option.`);
-      else if (right > 1 && !isMultiple(q.type)) errors.push(`Question ${n} is single choice but has several correct options.`);
-    });
+    errors.push(...questionProblems(form));
   }
   return errors;
 }
