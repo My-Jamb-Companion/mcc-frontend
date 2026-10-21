@@ -104,7 +104,7 @@ describe("MockExamPlayer", () => {
     fireEvent.click(screen.getByRole("button", {name: "Submit exam"}));
     expect(screen.getByRole("dialog")).toHaveTextContent("2 questions are unanswered and will be marked wrong");
     expect(calls.submit).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", {name: "Keep going"}));
+    fireEvent.click(screen.getByRole("button", {name: /^Return \(R\)$/}));
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
@@ -113,7 +113,7 @@ describe("MockExamPlayer", () => {
     render(<MockExamPlayer session={session()} onFinished={onFinished} />);
     fireEvent.click(screen.getByRole("button", {name: /^B\s*4$/}));
     fireEvent.click(screen.getByRole("button", {name: "Submit exam"}));
-    fireEvent.click(screen.getByRole("button", {name: "Submit"}));
+    fireEvent.click(screen.getByRole("button", {name: /^Submit \(Y\)$/}));
     expect(calls.submit).toHaveBeenCalledTimes(1);
     expect(calls.submit.mock.calls[0][0]).toEqual({sessionId: "s1", update: {answers: {q1: "4"}}});
     expect(onFinished).toHaveBeenCalledWith(result);
@@ -144,5 +144,63 @@ describe("MockExamPlayer", () => {
     fireEvent.click(screen.getByRole("button", {name: /^C\s*5$/}));
     await advance(1300);
     expect(screen.queryByText(/Couldn.t save just now/)).toBeNull();
+  });
+
+  describe("keyboard", () => {
+    const press = (key: string, init: KeyboardEventInit = {}) => fireEvent.keyDown(document, {key, ...init});
+
+    it("A to D choose that option and N and P move about", () => {
+      render(<MockExamPlayer session={session()} onFinished={vi.fn()} />);
+      press("b");
+      expect(screen.getByRole("button", {name: /^B\s*4$/})).toHaveAttribute("aria-pressed", "true");
+      press("n");
+      expect(screen.getByText("Question 2 of 3")).toBeInTheDocument();
+      press("p");
+      expect(screen.getByText("Question 1 of 3")).toBeInTheDocument();
+      press("p");
+      expect(screen.getByText("Question 1 of 3")).toBeInTheDocument();
+    });
+
+    it("a multiple-choice question toggles the options pressed", () => {
+      render(<MockExamPlayer session={session({state: {answers: {}, flagged: [], spent: {}, current: 1}})} onFinished={vi.fn()} />);
+      press("a");
+      press("c");
+      expect(screen.getByRole("button", {name: /^A\s*2$/})).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByRole("button", {name: /^C\s*5$/})).toHaveAttribute("aria-pressed", "true");
+      press("a");
+      expect(screen.getByRole("button", {name: /^A\s*2$/})).toHaveAttribute("aria-pressed", "false");
+    });
+
+    it("S asks to end the exam, R returns to it and Y ends it", () => {
+      const onFinished = vi.fn();
+      render(<MockExamPlayer session={session()} onFinished={onFinished} />);
+      press("y");
+      expect(calls.submit).not.toHaveBeenCalled();
+      press("s");
+      expect(screen.getByRole("dialog")).toHaveTextContent("Press Y to end the exam, or R to return");
+      press("r");
+      expect(screen.queryByRole("dialog")).toBeNull();
+      press("s");
+      press("y");
+      expect(calls.submit).toHaveBeenCalledTimes(1);
+      expect(onFinished).toHaveBeenCalledWith(result);
+    });
+
+    it("leaves the exam alone while the box is open", () => {
+      render(<MockExamPlayer session={session()} onFinished={vi.fn()} />);
+      press("s");
+      press("b");
+      press("n");
+      press("r");
+      expect(screen.getByText("Question 1 of 3")).toBeInTheDocument();
+      expect(screen.getByRole("button", {name: /^B\s*4$/})).toHaveAttribute("aria-pressed", "false");
+    });
+
+    it("ignores shortcuts with Ctrl or Cmd, such as a page refresh", () => {
+      render(<MockExamPlayer session={session()} onFinished={vi.fn()} />);
+      press("r", {ctrlKey: true});
+      press("s", {metaKey: true});
+      expect(screen.queryByRole("dialog")).toBeNull();
+    });
   });
 });
