@@ -21,6 +21,8 @@ import ReferralSourceDashboard from "./components/ReferralSourceDashboard";
 import PurposeDashboard from "./components/PurposeDashboard";
 import AdminUsersPanel from "@/src/features/admin-access/components/AdminUsersPanel";
 import {useMyAccess} from "@/src/features/admin-access/hooks/useAdminAccess";
+import AdminAccessModal from "@/src/features/admin-access/components/AdminAccessModal";
+import {canMakeAdmin} from "./helper/promote";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -37,6 +39,7 @@ export default function Users() {
   const [searchQuery, setSearchQuery] = useState("");
   const [editingUser, setEditingUser] = useState<ApiUser | null>(null);
   const [deactivatingUser, setDeactivatingUser] = useState<ApiUser | null>(null);
+  const [promotingUser, setPromotingUser] = useState<ApiUser | null>(null);
   const [activeTab, setActiveTab] = useState<"users" | "referrals" | "admins">("users");
   const {data: myAccess} = useMyAccess();
   // Only a super admin creates and manages admins; for everyone else the tab is not there.
@@ -204,6 +207,7 @@ export default function Users() {
                   onEdit={() => setEditingUser(user)}
                   onDeactivate={() => setDeactivatingUser(user)}
                   onActivate={() => handleActivate(user)}
+                  onMakeAdmin={isSuper && canMakeAdmin(user) ? () => setPromotingUser(user) : undefined}
                 />
                 )
               }
@@ -214,6 +218,7 @@ export default function Users() {
 
       <UpdateUserModal user={editingUser} onClose={() => setEditingUser(null)} />
       <DeactivateUserModal user={deactivatingUser} onClose={() => setDeactivatingUser(null)} />
+      <AdminAccessModal open={!!promotingUser} existing={null} promote={promotingUser} onClose={() => setPromotingUser(null)} />
     </div>
   );
 }

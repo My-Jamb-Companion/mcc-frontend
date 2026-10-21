@@ -71,6 +71,15 @@ export const createAdmin = async (input: AdminInput): Promise<ApiAdmin & {invite
   return res.data.data;
 };
 
+/** Makes an existing student or parent account an admin. Endpoint: POST /admin/admins/promote/<id> */
+export const promoteUserToAdmin = async (
+  userId: string,
+  input: {preset: string; permissions: Record<string, "view" | "manage">},
+): Promise<ApiAdmin> => {
+  const res = await apiClient.post<{data: ApiAdmin}>(`/admin/admins/promote/${userId}`, input);
+  return res.data.data;
+};
+
 /** Endpoint: PATCH /admin/admins/<id> */
 export const updateAdmin = async (userId: string, input: AdminInput): Promise<ApiAdmin> => {
   const res = await apiClient.patch<{data: ApiAdmin}>(`/admin/admins/${userId}`, input);

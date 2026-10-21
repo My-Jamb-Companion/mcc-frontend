@@ -10,7 +10,7 @@ import {
   presetFor,
   toApiPermissions,
 } from "../helper/access";
-import {useAccessCatalog, useCreateAdmin, useUpdateAdmin} from "../hooks/useAdminAccess";
+import {useAccessCatalog, useCreateAdmin, usePromoteUser, useUpdateAdmin} from "../hooks/useAdminAccess";
 import {AccessCatalog, ApiAdmin, getApiErrorMessage} from "../services/adminAccess.service";
 
 const field = "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-400 disabled:bg-gray-50 disabled:text-gray-500";
@@ -20,9 +20,23 @@ const LEVELS: {value: AccessLevel; label: string}[] = [
   {value: "manage", label: "Manage"},
 ];
 
-function Form({catalog, existing, onClose}: {catalog: AccessCatalog; existing: ApiAdmin | null; onClose: () => void}) {
+/** An existing student or parent account being made an admin. */
+export interface PromotableUser {
+  user_id: string;
+  email: string;
+  full_name?: string | null;
+  role: string;
+}
+
+function Form({catalog, existing, promote, onClose}: {
+  catalog: AccessCatalog;
+  existing: ApiAdmin | null;
+  promote: PromotableUser | null;
+  onClose: () => void;
+}) {
   const create = useCreateAdmin();
   const update = useUpdateAdmin();
+  const promoteUser = usePromoteUser();
   const [fullName, setFullName] = useState(existing?.full_name ?? "");
   const [email, setEmail] = useState(existing?.email ?? "");
   const [phone, setPhone] = useState(existing?.phone_number ?? "");
@@ -33,8 +47,8 @@ function Form({catalog, existing, onClose}: {catalog: AccessCatalog; existing: A
 
   const isSuper = preset === "super_admin";
   const emailOk = !!existing || /^\S+@\S+\.\S+$/.test(email.trim());
-  const canSave = !!fullName.trim() && emailOk && hasValidAccess(preset, permissions);
-  const busy = create.isPending || update.isPending;
+  const canSave = (!!promote || (!!fullName.trim() && emailOk)) && hasValidAccess(preset, permissions);
+  const busy = create.isPending || update.isPending || promoteUser.isPending;
   const groups = Array.from(new Set(catalog.areas.map((a) => a.group)));
 
   function choosePreset(key: string) {
@@ -53,7 +67,22 @@ function Form({catalog, existing, onClose}: {catalog: AccessCatalog; existing: A
     const access = {preset, permissions: isSuper ? {} : toApiPermissions(permissions)};
     const onError = (error: unknown) => showError(getApiErrorMessage(error, "Couldn't save the admin. Please try again."));
 
-    if (existing) {
+    if (promote) {
+      promoteUser.mutate(
+        {userId: promote.user_id, input: {preset: access.preset, permissions: access.permissions as Record<string, "view" | "manage">}},
+        {
+          onSuccess: (admin) => {
+            showSuccess(
+              admin.email_verified
+                ? `${promote.full_name || promote.email} is now an admin. They sign in to the admin console with the password they already have.`
+                : `${promote.full_name || promote.email} is now an admin, but their email isn't verified yet, so they can't sign in until it is.`,
+            );
+            onClose();
+          },
+          onError,
+        },
+      );
+    } else if (existing) {
       update.mutate(
         {userId: existing.user_id, input: {full_name: fullName.trim(), phone_number: phone.trim() || undefined, ...access}},
         {onSuccess: () => { showSuccess("Admin updated. Their new access applies straight away."); onClose(); }, onError},
@@ -78,6 +107,17 @@ function Form({catalog, existing, onClose}: {catalog: AccessCatalog; existing: A
 
   return (
     <div className="flex flex-col gap-5">
+      {promote && (
+        <div className="rounded-xl bg-violet-50 px-4 py-3 text-sm text-violet-900">
+          <p className="font-semibold">{promote.full_name || promote.email}</p>
+          <p className="text-xs">{promote.email}</p>
+          <p className="mt-2 text-xs">
+            This account keeps its email and password. It will sign in to the admin console from now on, and will no longer
+            work as a {promote.role} account.
+          </p>
+        </div>
+      )}
+      {!promote && (
       <div className="grid gap-3 sm:grid-cols-3">
         <label className="flex flex-col gap-1.5 text-sm font-medium text-gray-700">
           Full name
@@ -92,6 +132,7 @@ function Form({catalog, existing, onClose}: {catalog: AccessCatalog; existing: A
           <input value={phone} onChange={(e) => setPhone(e.target.value)} className={field} />
         </label>
       </div>
+      )}
 
       <div>
         <p className="mb-2 text-sm font-semibold text-gray-800">Role</p>
@@ -176,7 +217,7 @@ function Form({catalog, existing, onClose}: {catalog: AccessCatalog; existing: A
         {!hasValidAccess(preset, permissions) && <p className="mt-2 text-xs text-amber-700">Choose at least one area.</p>}
       </div>
 
-      {!existing && (
+      {!existing && !promote && (
         <p className="text-xs text-gray-500">
           They get no password from you. We email them a code to set their own; they can also use Forgot password on the login page.
         </p>
@@ -192,7 +233,7 @@ function Form({catalog, existing, onClose}: {catalog: AccessCatalog; existing: A
           disabled={busy || !canSave}
           className="whitespace-nowrap rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {busy ? "Saving..." : existing ? "Save access" : "Create admin"}
+          {busy ? "Saving..." : promote ? "Make admin" : existing ? "Save access" : "Create admin"}
         </button>
       </div>
     </div>
@@ -203,16 +244,19 @@ function Form({catalog, existing, onClose}: {catalog: AccessCatalog; existing: A
 export default function AdminAccessModal({
   open,
   existing,
+  promote = null,
   onClose,
 }: {
   open: boolean;
   existing: ApiAdmin | null;
+  /** Make this existing account an admin instead of creating a new one. */
+  promote?: PromotableUser | null;
   onClose: () => void;
 }) {
   const catalog = useAccessCatalog(open);
   return (
-    <Modal open={open} title={existing ? `Edit access: ${existing.full_name || existing.email}` : "Create an admin"} maxWidth="max-w-3xl">
-      {open && catalog.data && <Form key={existing?.user_id ?? "new"} catalog={catalog.data} existing={existing} onClose={onClose} />}
+    <Modal open={open} title={promote ? "Make admin" : existing ? `Edit access: ${existing.full_name || existing.email}` : "Create an admin"} maxWidth="max-w-3xl">
+      {open && catalog.data && <Form key={promote?.user_id ?? existing?.user_id ?? "new"} catalog={catalog.data} existing={existing} promote={promote} onClose={onClose} />}
       {open && catalog.isLoading && <p className="py-8 text-center text-sm text-gray-400">Loading…</p>}
       {open && catalog.isError && <p className="py-8 text-center text-sm text-red-500">Couldn&apos;t load the access options. Please try again.</p>}
     </Modal>
