@@ -10,6 +10,7 @@ import {
   saveMockState,
 } from "@/src/features/exams/services/exam.service";
 import {formatCountdown, secondsLeft} from "@/src/features/learnings/helper/countdown";
+import {interpretKey} from "@/src/features/learnings/helper/mockKeys";
 import {
   addSpent,
   applyUpdate,
@@ -162,6 +163,37 @@ export default function MockExamPlayer({session, onFinished}: MockExamPlayerProp
     finishRef.current = finish;
   });
 
+  // The keyboard controls of a CBT exam without a mouse (A B C D, N, P, S, then Y or R). The handler reads what is
+  // on screen from a ref, so it is attached once.
+  const keysRef = useRef({confirming, question, busy: submit.isPending});
+  useEffect(() => {
+    keysRef.current = {confirming, question, busy: submit.isPending};
+  });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const {confirming: open, question: here, busy} = keysRef.current;
+      const action = interpretKey(e, {confirming: open, optionCount: here?.options.length ?? 0});
+      if (!action || busy) return;
+      e.preventDefault();
+      if (action.type === "confirm") return finishRef.current();
+      if (action.type === "return") return setConfirming(false);
+      if (action.type === "end") return setConfirming(true);
+      if (action.type === "pick") {
+        if (here) setState((s) => pickAnswer(s, here, here.options[action.index]));
+        return;
+      }
+      const step = action.type === "next" ? 1 : -1;
+      setState((s) => {
+        const to = s.current + step;
+        if (to < 0 || to >= questions.length) return s;
+        return {...settleTime(s), current: to};
+      });
+      setPaletteOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [questions.length, settleTime]);
+
   useEffect(() => {
     const tick = () => {
       const left = secondsLeft(deadline.current, Date.now());
@@ -244,6 +276,9 @@ export default function MockExamPlayer({session, onFinished}: MockExamPlayerProp
           {question.description && <p className="mt-1 text-sm text-subtle">{question.description}</p>}
           {multiple && <p className="mt-2 text-xs font-semibold text-subtle">Choose all that apply.</p>}
 
+          <p className="mt-3 hidden text-xs text-subtle md:block" aria-label="Keyboard controls">
+            Keyboard: <Key>A</Key>–<Key>D</Key> choose · <Key>N</Key> next · <Key>P</Key> previous · <Key>S</Key> end the exam
+          </p>
           <div className="mt-5 flex flex-col gap-3" role="group" aria-label="Answers">
             {question.options.map((option, i) => {
               const selected = isPicked(option);
@@ -286,11 +321,11 @@ export default function MockExamPlayer({session, onFinished}: MockExamPlayerProp
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => go(index - 1)} disabled={index === 0}
             className="rounded-full border border-muted/20 px-4 py-2 text-sm font-semibold disabled:opacity-40">
-            Previous
+            Previous <Key>P</Key>
           </button>
           <button type="button" onClick={() => go(index + 1)} disabled={index === questions.length - 1}
             className="rounded-full border border-muted/20 px-4 py-2 text-sm font-semibold disabled:opacity-40">
-            Next
+            Next <Key>N</Key>
           </button>
           <button
             type="button"
@@ -317,7 +352,7 @@ export default function MockExamPlayer({session, onFinished}: MockExamPlayerProp
             disabled={submit.isPending}
             className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
           >
-            {submit.isPending ? "Submitting…" : "Submit exam"}
+            {submit.isPending ? "Submitting…" : <>Submit exam <Key>S</Key></>}
           </button>
         </div>
       </div>
@@ -329,13 +364,23 @@ export default function MockExamPlayer({session, onFinished}: MockExamPlayerProp
           <div className="flex flex-col gap-2">
             <p>{submitWarning(counts)}</p>
             <p>Once you submit you cannot change your answers. You&apos;ll see your score straight away.</p>
+            <p className="font-semibold">Press Y to end the exam, or R to return and carry on.</p>
           </div>
         }
-        confirmText="Submit"
-        cancelText="Keep going"
+        confirmText="Submit (Y)"
+        cancelText="Return (R)"
         onConfirm={finish}
         onCancel={() => setConfirming(false)}
       />
     </div>
+  );
+}
+
+/** A small key cap, for the key a button answers to. Hidden from screen readers: the button's name says it all. */
+function Key({children}: {children: React.ReactNode}) {
+  return (
+    <kbd aria-hidden="true" className="ml-1 rounded border border-current/30 px-1 text-[10px] font-semibold opacity-70">
+      {children}
+    </kbd>
   );
 }

@@ -6,6 +6,7 @@ import {useMockAttempts, useMockPapers, useStartMockExam} from "@/src/features/e
 import type {ApiMockPaper, ApiMockResult, ApiMockSession} from "@/src/features/exams/services/exam.service";
 import {getMockSession} from "@/src/features/exams/services/exam.service";
 import {durationLabel, timeUsedLabel} from "@/src/features/learnings/helper/mockExam";
+import {KEY_GUIDE} from "@/src/features/learnings/helper/mockKeys";
 
 interface MockExamsPanelProps {
   programId: string;
@@ -166,7 +167,7 @@ function MockIntro({paper, onClose, onStart}: {paper: ApiMockPaper; onClose: () 
   return (
     <div role="dialog" aria-modal="true" aria-label={`Start ${paper.title}`}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-md overflow-hidden rounded-2xl bg-background shadow-xl">
+      <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-2xl bg-background shadow-xl">
         <div className="bg-primary-gradient px-6 py-6 text-white">
           <p className="text-[11px] font-semibold uppercase tracking-widest opacity-80">Mock exam</p>
           <h3 className="mt-1 text-xl font-bold">{paper.title}</h3>
@@ -191,6 +192,21 @@ function MockIntro({paper, onClose, onStart}: {paper: ApiMockPaper; onClose: () 
               </li>
             ))}
           </ul>
+          <div className="mt-4 rounded-xl bg-muted/10 p-3">
+            <p className="mb-2 text-sm font-semibold">You can do it all from the keyboard</p>
+            <ul className="flex flex-col gap-1.5 text-xs">
+              {KEY_GUIDE.map((g) => (
+                <li key={g.text} className="flex items-center gap-2">
+                  <span className="flex shrink-0 gap-1">
+                    {g.keys.map((k) => (
+                      <kbd key={k} className="flex h-6 w-6 items-center justify-center rounded border border-muted/40 bg-background font-semibold">{k}</kbd>
+                    ))}
+                  </span>
+                  <span>{g.text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
         <div className="flex justify-end gap-2 border-t border-muted/20 bg-muted/5 px-6 py-4">
           <button type="button" onClick={onClose} disabled={start.isPending} className="rounded-full px-5 py-2 text-sm font-semibold text-subtle hover:bg-muted/10">
