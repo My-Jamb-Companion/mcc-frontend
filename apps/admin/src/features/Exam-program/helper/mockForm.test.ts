@@ -5,10 +5,12 @@ import type {ApiMockPaperDetail, ApiMockPool} from "../services/mocks.service";
 import {
   blueprintItems,
   blueprintTotal,
+  canUseBlueprint,
   emptyMockForm,
   formFromDetail,
   mockPayload,
   plannedQuestionCount,
+  usesOwnQuestions,
   validateMockForm,
 } from "./mockForm";
 
@@ -110,7 +112,7 @@ describe("mockPayload", () => {
 
 describe("formFromDetail", () => {
   const detail = (over: Partial<ApiMockPaperDetail> = {}): ApiMockPaperDetail => ({
-    paper_id: "p1", program_id: "x", title: "Mock", description: null, mode: "auto", duration_minutes: 90, passing_score: 50,
+    paper_id: "p1", program_id: "x", title: "Mock", description: null, mode: "auto", pool_source: "program", duration_minutes: 90, passing_score: 50,
     question_count: 40, blueprint: [], shuffle_questions: true, shuffle_options: true, paid_only: false, is_published: true,
     order_index: 0, attempts: 0, available_questions: 100, questions: [], ...over,
   });
@@ -140,5 +142,70 @@ describe("formFromDetail", () => {
     expect(f.questions).toHaveLength(1);
     expect(f.questions[0]).toMatchObject({id: "q1", question: "2 + 2?", explanation: "Sum."});
     expect(f.questions[0].options.map((o) => [o.text, o.isCorrect, o.response])).toEqual([["3", false, undefined], ["4", true, "Yes."]]);
+  });
+});
+
+
+describe("a paper's own question pool", () => {
+  const own = (n: number) => Array.from({length: n}, (_, i) => question({id: `o${i}`, question: `Own ${i}`}));
+
+  it("drawn papers use their own questions only when the pool says so", () => {
+    expect(usesOwnQuestions(form())).toBe(false);
+    expect(usesOwnQuestions(form({poolSource: "paper"}))).toBe(true);
+    expect(usesOwnQuestions(form({poolSource: "both"}))).toBe(true);
+    expect(usesOwnQuestions(form({mode: "fixed"}))).toBe(true);
+  });
+
+  it("sends the pool source and the own questions, with a count", () => {
+    const p = mockPayload(form({poolSource: "paper", questionCount: "10", questions: own(30)}), pool);
+    expect(p).toMatchObject({mode: "auto", pool_source: "paper", question_count: 10, blueprint: []});
+    expect(p.questions).toHaveLength(30);
+  });
+
+  it("does not send own questions when the pool is the program's", () => {
+    const p = mockPayload(form({poolSource: "program", questions: own(3)}), pool);
+    expect(p.questions).toEqual([]);
+    expect(p.pool_source).toBe("program");
+  });
+
+  it("a fixed paper is always sent as the program source", () => {
+    expect(mockPayload(form({mode: "fixed", poolSource: "paper", questions: own(2)}), pool).pool_source).toBe("program");
+  });
+
+  it("questions per module is only for the program's questions", () => {
+    expect(canUseBlueprint(form())).toBe(true);
+    expect(canUseBlueprint(form({poolSource: "both"}))).toBe(false);
+    const p = mockPayload(form({poolSource: "both", useBlueprint: true, blueprint: {m1: "4"}, questionCount: "5", questions: own(10)}), pool);
+    expect(p.blueprint).toEqual([]);
+    expect(p.question_count).toBe(5);
+  });
+
+  it("publishing needs enough questions in the pool", () => {
+    const short = validateMockForm(form({poolSource: "paper", questionCount: "20", published: true, questions: own(5)}), pool);
+    expect(short[0]).toMatch(/only 5 questions/);
+    expect(validateMockForm(form({poolSource: "paper", questionCount: "20", published: true, questions: own(25)}), pool)).toEqual([]);
+    expect(validateMockForm(form({poolSource: "both", questionCount: "60", published: true, questions: own(25)}), pool)[0]).toMatch(/only 55 questions/);
+    expect(validateMockForm(form({poolSource: "both", questionCount: "60", published: true, questions: own(25)}), {...pool, total: 40})).toEqual([]);
+  });
+
+  it("a draft can ask for more than it has yet", () => {
+    expect(validateMockForm(form({poolSource: "paper", questionCount: "20", questions: own(2)}), pool)).toEqual([]);
+  });
+
+  it("the own questions are checked like a fixed paper's", () => {
+    const bad = validateMockForm(form({poolSource: "paper", questionCount: "1", questions: [question({question: ""})]}), pool);
+    expect(bad).toContain("Question 1 has no text.");
+  });
+
+  it("loads a paper with its pool source and own questions", () => {
+    const f = formFromDetail({
+      paper_id: "p", program_id: "x", title: "T", description: null, mode: "auto", pool_source: "both", duration_minutes: 60,
+      passing_score: null, question_count: 12, blueprint: [], shuffle_questions: true, shuffle_options: false, paid_only: true,
+      is_published: false, order_index: 0, attempts: 0, available_questions: 40,
+      questions: [{question_id: "q1", question_text: "Q", description: null, question_type: "single_choice", options: ["a", "b"],
+        correct_answers: ["a"], explanation: "", option_feedback: null, order_index: 0, parent_id: "p", parent_type: "mock_paper", usage_type: "mock", created_at: ""}],
+    });
+    expect(f).toMatchObject({poolSource: "both", questionCount: "12", useBlueprint: false});
+    expect(f.questions).toHaveLength(1);
   });
 });
