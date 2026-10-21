@@ -3,12 +3,15 @@ import {
   appendQuestions,
   ApiBankQuestion,
   bankQuestionKey,
+  countWithPassages,
   countWithResponses,
   editorQuestionKey,
   fromBankQuestion,
   ParsedQuestion,
   parsedToBankPayload,
   questionProblem,
+  setSharedText,
+  sharedWith,
   splitForBank,
   toBankQuestion,
 } from "./bank";
@@ -193,5 +196,51 @@ describe("uploaded questions", () => {
 
   it("counts the questions that carry responses", () => {
     expect(countWithResponses([parsed(), parsed({option_feedback: [null, "x"]}), parsed({option_feedback: [null, null]})])).toBe(1);
+  });
+});
+
+
+describe("passages and instructions", () => {
+  const PASSAGE = "The lighthouse stood on the northern rock.";
+  const list = () => [
+    q({id: "1", question: "Q1", passage: PASSAGE, instruction: "Read the passage."}),
+    q({id: "2", question: "Q2", passage: PASSAGE, instruction: "Read the passage."}),
+    q({id: "3", question: "Q3", passage: "Another passage"}),
+    q({id: "4", question: "Q4"}),
+  ];
+
+  it("counts how many other questions share the same text", () => {
+    expect(sharedWith(list(), "passage", PASSAGE)).toBe(1);
+    expect(sharedWith(list(), "passage", "Another passage")).toBe(0);
+    expect(sharedWith(list(), "passage", "")).toBe(0);
+    expect(sharedWith(list(), "instruction", undefined)).toBe(0);
+  });
+
+  it("editing a shared passage changes every question that shared it, and no other", () => {
+    const next = setSharedText(list(), 0, "passage", "A rewritten passage");
+    expect(next.map((x) => x.passage)).toEqual(["A rewritten passage", "A rewritten passage", "Another passage", undefined]);
+  });
+
+  it("editing a question's own passage leaves the rest alone", () => {
+    const next = setSharedText(list(), 2, "passage", "Changed");
+    expect(next.map((x) => x.passage)).toEqual([PASSAGE, PASSAGE, "Changed", undefined]);
+  });
+
+  it("typing a passage into a question that had none touches only it", () => {
+    const next = setSharedText(list(), 3, "passage", "New");
+    expect(next.map((x) => x.passage)).toEqual([PASSAGE, PASSAGE, "Another passage", "New"]);
+  });
+
+  it("an upload keeps passages and instructions only where the set takes them", () => {
+    const parsed = {question_text: "Q", question_type: "single_choice" as const, options: ["a", "b"], correct_answers: ["a"], passage: "P", instruction: "I"};
+    expect(fromBankQuestion(parsed, false, true)).toMatchObject({passage: "P", instruction: "I"});
+    const without = fromBankQuestion(parsed, false, false);
+    expect(without.passage).toBeUndefined();
+    expect(without.instruction).toBeUndefined();
+    expect(fromBankQuestion({...parsed, passage: "  ", instruction: null}, false, true).passage).toBeUndefined();
+  });
+
+  it("counts the questions that carry long text", () => {
+    expect(countWithPassages([{passage: "P"}, {instruction: "I"}, {passage: " ", instruction: ""}, {}])).toBe(2);
   });
 });

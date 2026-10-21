@@ -296,10 +296,10 @@ function MockPaperEditor({programId, paperId, pool, onClose}: {
               {form.mode === "fixed" ? "The paper's questions" : "This mock exam's own questions"} ({form.questions.length})
             </p>
             <p className="mb-3 mt-1 text-sm text-subtle">
-              Use <b>Upload questions</b> to add many at once from an Excel or CSV file, <b>Add from bank</b> to copy from the Question Bank, or add them one by one.
+              Use <b>Upload questions</b> to add many at once from an Excel or CSV file (it can include reading passages and directions: see the template), <b>Add from bank</b> to copy from the Question Bank, or add them one by one.
               The response you write under each option is shown to the student when they review their result, not during the exam.
             </p>
-            <QuestionListEditor questions={form.questions} onChange={(q) => set("questions", q)} withResponses responsesShown="review" />
+            <QuestionListEditor questions={form.questions} onChange={(q) => set("questions", q)} withResponses withPassages responsesShown="review" />
           </div>
         )}
       </div>

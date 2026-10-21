@@ -440,6 +440,10 @@ export interface ApiMockQuestion {
   question_id: string;
   question_text: string;
   description: string | null;
+  /** Directions shown above the question. */
+  instruction?: string | null;
+  /** A reading passage the question refers to; questions that share one come together. */
+  passage?: string | null;
   question_type: string;
   options: string[];
 }
@@ -465,6 +469,8 @@ export interface ApiMockSession {
 export interface ApiMockReviewRow {
   question_id: string;
   question_text: string;
+  instruction?: string | null;
+  passage?: string | null;
   question_type: string;
   options: string[];
   your_answer: string | string[] | null;

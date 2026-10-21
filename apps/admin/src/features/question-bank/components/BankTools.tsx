@@ -20,10 +20,13 @@ export default function BankTools({
   questions,
   onChange,
   withResponses,
+  withPassages = false,
 }: {
   questions: CreatPracticeQuestionType[];
   onChange: (questions: CreatPracticeQuestionType[]) => void;
   withResponses: boolean;
+  /** Mock exam questions: an uploaded file's passages and instructions are kept. */
+  withPassages?: boolean;
 }) {
   const [picking, setPicking] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -60,6 +63,7 @@ export default function BankTools({
         target={{
           kind: "set",
           withResponses,
+          withPassages,
           onAdd: (added) => onChange(appendQuestions(questions, added)),
         }}
         onClose={() => setUploading(false)}

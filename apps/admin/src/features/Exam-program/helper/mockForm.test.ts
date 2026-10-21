@@ -209,3 +209,31 @@ describe("a paper's own question pool", () => {
     expect(f.questions).toHaveLength(1);
   });
 });
+
+
+describe("passages and instructions in a mock exam's questions", () => {
+  const withText = question({passage: "A long passage.", instruction: "Read it carefully."});
+
+  it("are sent with the question, trimmed", () => {
+    const p = mockPayload(form({mode: "fixed", questions: [{...withText, passage: "  A long passage. \n"}]}), pool);
+    expect(p.questions[0]).toMatchObject({passage: "A long passage.", instruction: "Read it carefully."});
+  });
+
+  it("are left out when empty", () => {
+    const p = mockPayload(form({mode: "fixed", questions: [question({passage: "  ", instruction: ""})]}), pool);
+    expect(p.questions[0]).not.toHaveProperty("passage");
+    expect(p.questions[0]).not.toHaveProperty("instruction");
+  });
+
+  it("come back into the editor when a paper is opened", () => {
+    const f = formFromDetail({
+      paper_id: "p", program_id: "x", title: "T", description: null, mode: "fixed", pool_source: "program", duration_minutes: 60,
+      passing_score: null, question_count: 1, blueprint: [], shuffle_questions: true, shuffle_options: false, paid_only: true,
+      is_published: false, order_index: 0, attempts: 0, available_questions: null,
+      questions: [{question_id: "q1", question_text: "Q", description: null, instruction: "Directions", passage: "Passage text",
+        question_type: "single_choice", options: ["a", "b"], correct_answers: ["a"], explanation: "", option_feedback: null,
+        order_index: 0, parent_id: "p", parent_type: "mock_paper", usage_type: "mock", created_at: ""}],
+    });
+    expect(f.questions[0]).toMatchObject({instruction: "Directions", passage: "Passage text"});
+  });
+});
