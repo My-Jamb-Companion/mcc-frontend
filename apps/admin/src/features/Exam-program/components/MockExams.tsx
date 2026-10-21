@@ -44,7 +44,7 @@ export default function MockExams() {
         <div>
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={() => (window.history.length > 1 ? router.back() : router.push(`/dashboard/exam-program/edit-program?id=${programId}`))}
             className="mb-2 flex items-center gap-1 text-sm text-subtle hover:underline"
           >
             <Icon icon="ph:arrow-left" size={14} />

@@ -64,6 +64,7 @@ export interface ProgramDetailData extends ProgramListRowData {
 interface ProgramOptionsMenuProps {
   onOpenProgram?: () => void;
   onEditProgram?: () => void;
+  onMockExams?: () => void;
   onPublishProgram?: () => void;
   onMessageTeacher?: () => void;
   onViewParentProgram?: () => void;
@@ -233,6 +234,7 @@ export function ProgramListRow({
 function ProgramOptionsMenu({
   onOpenProgram,
   onEditProgram,
+  onMockExams,
   onPublishProgram,
   onMessageTeacher,
   onViewParentProgram,
@@ -265,6 +267,12 @@ function ProgramOptionsMenu({
       icon: "ph:seal-check",
       label: "Edit program",
       onClick: onEditProgram,
+    },
+    {
+      key: "mocks",
+      icon: "solar:clipboard-check-linear",
+      label: "Mock exams",
+      onClick: onMockExams,
     },
     {
       key: "publish",
