@@ -2,6 +2,9 @@ import {apiClient} from "@mcc/api";
 import type {ApiQuestionPayload} from "../helper/content.mapper";
 import type {ApiExamQuestion} from "./exam.service";
 
+/** The program's Practice and Exercise questions, the paper's own written or uploaded questions, or both. */
+export type PoolSource = "program" | "paper" | "both";
+
 export interface ApiMockBlueprintItem {
   module_id: string;
   count: number;
@@ -13,6 +16,8 @@ export interface ApiMockPaper {
   title: string;
   description: string | null;
   mode: "auto" | "fixed";
+  /** Drawn papers: where each attempt's questions come from. */
+  pool_source: PoolSource;
   duration_minutes: number;
   passing_score: number | null;
   /** How many questions an attempt has: the blueprint's total, the authored list, or the number asked for. */
@@ -29,7 +34,7 @@ export interface ApiMockPaper {
 }
 
 export interface ApiMockPaperDetail extends ApiMockPaper {
-  /** A fixed paper's authored questions. */
+  /** The paper's own questions: a fixed paper's, or the pool a drawn paper takes from. */
   questions: ApiExamQuestion[];
 }
 
@@ -51,6 +56,7 @@ export interface ApiMockPaperInput {
   title: string;
   description?: string;
   mode: "auto" | "fixed";
+  pool_source: PoolSource;
   duration_minutes: number;
   passing_score?: number | null;
   question_count?: number | null;
