@@ -2,6 +2,8 @@ import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
   activateUser,
   deactivateUser,
+  deleteUser,
+  getDeletionCheck,
   getOnboardingOtherResponses,
   getPurposeBreakdown,
   getReferralSourceBreakdown,
@@ -84,6 +86,24 @@ export const useActivateUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (userId: string) => activateUser(userId),
+    onSuccess: () => queryClient.invalidateQueries({queryKey: USERS_KEY}),
+  });
+};
+
+
+/** Whether the account can be deleted for good, fetched when the delete dialog opens. */
+export const useDeletionCheck = (userId: string | null) =>
+  useQuery({
+    queryKey: ["admin-users", "deletion-check", userId],
+    queryFn: () => getDeletionCheck(userId as string),
+    enabled: !!userId,
+    staleTime: 0,
+  });
+
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({userId, confirmEmail}: {userId: string; confirmEmail: string}) => deleteUser(userId, confirmEmail),
     onSuccess: () => queryClient.invalidateQueries({queryKey: USERS_KEY}),
   });
 };
