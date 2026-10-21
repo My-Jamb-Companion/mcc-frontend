@@ -158,3 +158,30 @@ export const getOnboardingOtherResponses = async (
   );
   return res.data.data;
 };
+
+
+export interface DeletionCheck {
+  user_id: string;
+  email: string;
+  role: string;
+  can_delete: boolean;
+  /** Why not, when `can_delete` is false. */
+  reasons: string[];
+}
+
+/**
+ * Whether an account can be deleted for good (only a test-looking one can) and, if not, why.
+ * Endpoint: GET /admin/users/<id>/deletion-check
+ */
+export const getDeletionCheck = async (userId: string): Promise<DeletionCheck> => {
+  const res = await apiClient.get<{data: DeletionCheck}>(`/admin/users/${userId}/deletion-check`);
+  return res.data.data;
+};
+
+/**
+ * Deletes a test account for good. The account's own email must be typed back.
+ * Endpoint: DELETE /admin/users/<id>
+ */
+export const deleteUser = async (userId: string, confirmEmail: string): Promise<void> => {
+  await apiClient.delete(`/admin/users/${userId}`, {data: {confirm_email: confirmEmail}});
+};

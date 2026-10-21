@@ -9,6 +9,7 @@ export default function UserRowMenu({
   onDeactivate,
   onActivate,
   onMakeAdmin,
+  onDelete,
 }: {
   user: {is_active: boolean};
   onEdit: () => void;
@@ -16,6 +17,8 @@ export default function UserRowMenu({
   onActivate: () => void;
   /** Present only where the account can be made an admin (super admins, student and parent accounts). */
   onMakeAdmin?: () => void;
+  /** Present only for super admins: permanently deletes a test account (the dialog checks it is one). */
+  onDelete?: () => void;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -81,6 +84,19 @@ export default function UserRowMenu({
               >
                 <Icon icon="lucide:user-check" size={14} />
                 Activate
+              </button>
+            )}
+            {onDelete && (
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  onDelete();
+                }}
+                className="flex w-full items-center gap-2 border-t border-gray-100 px-3 py-2 text-left text-sm text-danger hover:bg-red-50"
+              >
+                <Icon icon="lucide:trash-2" size={14} />
+                Delete permanently
               </button>
             )}
           </div>

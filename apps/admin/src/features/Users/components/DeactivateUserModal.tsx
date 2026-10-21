@@ -45,8 +45,7 @@ export default function DeactivateUserModal({
             <Icon icon="lucide:alert-triangle" size={18} className="mt-0.5 shrink-0 text-amber-600" />
             <p className="text-sm text-amber-800">
               This deactivates <span className="font-semibold">{user.full_name || user.email}</span>'s
-              account -- they won't be able to log in. This is reversible; accounts are never
-              permanently deleted.
+              account -- they won't be able to log in. This is reversible: you can activate the account again.
             </p>
           </div>
 
