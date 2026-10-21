@@ -1,6 +1,6 @@
 import { apiClient } from "./api-client";
 import { tokenManager } from "./token-manager";
-import { AUTH_COOKIE, REFRESH_COOKIE } from "./session-keys";
+import { AUTH_COOKIE, REFRESH_COOKIE, USER_KEY } from "./session-keys";
 
 /**
  * The one way this tab exchanges a refresh token for new tokens.
@@ -46,6 +46,17 @@ export class SessionExpiredError extends Error {
 export const isSessionExpired = (error: unknown): boolean =>
   error instanceof SessionExpiredError;
 
+/** The id of the user this app signed in as, from its own stored session. */
+const storedUserId = (): string | null => {
+  if (typeof localStorage === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(USER_KEY);
+    return raw ? (JSON.parse(raw)?.user_id ?? null) : null;
+  } catch {
+    return null;
+  }
+};
+
 const doRefresh = async (): Promise<string> => {
   // Read at call time, not captured earlier: a refresh that completed a moment
   // ago may already have rotated it.
@@ -55,7 +66,14 @@ const doRefresh = async (): Promise<string> => {
     // sends it; the body is the fallback for when that third-party cookie is
     // blocked, which is why the rotated token below must be kept.
     const res = await apiClient.post("/auth/token/refresh", refreshToken ? { refresh_token: refreshToken } : {});
-    const { access_token, refresh_token: rotated } = res.data.data;
+    const { access_token, refresh_token: rotated, user } = res.data.data;
+    // A different account's session must never be adopted: the API's httpOnly refresh cookie is shared by every
+    // app in the browser, so an older server could answer this app with whoever signed in last (an admin in
+    // another tab). End this app's session instead of silently becoming that person.
+    const mine = storedUserId();
+    if (mine && user?.user_id && user.user_id !== mine) {
+      throw new SessionExpiredError(401);
+    }
     tokenManager.set(access_token);
     if (rotated) writeRefreshTokenCookie(rotated);
     return access_token as string;
