@@ -5,6 +5,7 @@ import {
   getAccessCatalog,
   getMyAccess,
   listAdmins,
+  promoteUserToAdmin,
   resendAdminInvite,
   updateAdmin,
 } from "../services/adminAccess.service";
@@ -42,6 +43,19 @@ export const useUpdateAdmin = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ADMINS_KEY});
       queryClient.invalidateQueries({queryKey: ["admin-users"]});
+    },
+  });
+};
+
+export const usePromoteUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({userId, input}: {userId: string; input: {preset: string; permissions: Record<string, "view" | "manage">}}) =>
+      promoteUserToAdmin(userId, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ADMINS_KEY});
+      queryClient.invalidateQueries({queryKey: ["admin-users"]});
+      queryClient.invalidateQueries({queryKey: ["users"]});
     },
   });
 };

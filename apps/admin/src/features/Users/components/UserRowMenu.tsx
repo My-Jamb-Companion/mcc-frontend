@@ -8,11 +8,14 @@ export default function UserRowMenu({
   onEdit,
   onDeactivate,
   onActivate,
+  onMakeAdmin,
 }: {
   user: {is_active: boolean};
   onEdit: () => void;
   onDeactivate: () => void;
   onActivate: () => void;
+  /** Present only where the account can be made an admin (super admins, student and parent accounts). */
+  onMakeAdmin?: () => void;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -42,6 +45,19 @@ export default function UserRowMenu({
               <Icon icon="lucide:pencil" size={14} />
               Update
             </button>
+            {onMakeAdmin && user.is_active && (
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  onMakeAdmin();
+                }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+              >
+                <Icon icon="ri:shield-user-line" size={14} />
+                Make admin
+              </button>
+            )}
             {user.is_active ? (
               <button
                 type="button"
