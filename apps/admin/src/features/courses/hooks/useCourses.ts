@@ -37,6 +37,11 @@ export const useCourse = (courseId: string | null | undefined) => {
     queryKey: ["course", courseId],
     queryFn: () => getCourse(courseId as string).then((res) => fromApiCourseDetail(res.data)),
     enabled: !!courseId,
+    // An editor must start from the course as it is now. The cache keeps a copy for minutes by default and hands it out
+    // first; a form filled from that older copy and saved deletes whatever was added in between.
+    gcTime: 0,
+    staleTime: 0,
+    refetchOnMount: "always",
     // EditCourse.tsx resets an in-progress wizard from this query's data
     // exactly once (see its loadedCourseIdRef guard) — but a background
     // refetch a user never asked for (e.g. tabbing away to pick a file,

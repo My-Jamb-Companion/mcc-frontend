@@ -341,6 +341,7 @@ export function fromApiCourseDetail(
   return {
     id: api.course_id,
     status: api.status,
+    contentVersion: api.content_version ?? null,
     courseName: api.title,
     // See the matching comment in fromApiCourseSummary — lowercased to
     // match CATEGORY_OPTIONS' placeholder values.

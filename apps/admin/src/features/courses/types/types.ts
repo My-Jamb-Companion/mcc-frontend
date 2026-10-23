@@ -23,6 +23,8 @@ export type Step1Values = {
 };
 
 export type CoursesFormValues = Step1Values & {
+  /** The content version this editor opened the course with (see the PATCH `base_content_version`). */
+  contentVersion?: number | null;
   content: {
     topics: Topic[];
   };
@@ -291,6 +293,11 @@ export interface UpdateCoursePayload {
   cover_image_url?: string;
   promo_video_url?: string;
   modules?: ApiModulePayload[];
+  /**
+   * The `content_version` the editor holds. Sent with `modules`: if the content has changed since (another tab, another
+   * admin) the server refuses the save (409 CONTENT_CHANGED) rather than replace newer work with this older copy.
+   */
+  base_content_version?: number;
 }
 
 // ─────────────────────────────────────────────
@@ -351,6 +358,8 @@ export interface ApiCourseDetail extends Omit<ApiCourseSummary, "category"> {
   learning_outcomes: string[];
   promo_video_url: string | null;
   modules: ApiModulePayload[];
+  /** Raised by every content save; sent back as `base_content_version` so a stale editor is refused. */
+  content_version?: number;
   updated_at: string;
 }
 
