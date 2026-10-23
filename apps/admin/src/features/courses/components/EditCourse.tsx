@@ -20,6 +20,8 @@ import {
   LEVELS,
 } from "../types/types";
 import {useCourse} from "../hooks/useCourses";
+import {nextVersion, withCourseVersion} from "../helper/contentVersion";
+import {useQueryClient} from "@tanstack/react-query";
 import {
   getApiErrorMessage,
   publishCourse,
@@ -143,7 +145,12 @@ export default function CreateCourseForm() {
     data: existingCourse,
     isLoading: isLoadingCourse,
     isError: isCourseError,
+    isFetchedAfterMount: courseIsFresh,
   } = useCourse(editId);
+  const queryClient = useQueryClient();
+  // The content version this editor holds: from the server when the course was loaded, then from each save. Sent with every
+  // content save so a save made from an out-of-date copy is refused instead of deleting newer work.
+  const contentVersion = useRef<number | null>(null);
 
   const [isEdit, setIsEdit] = useState(true);
 
@@ -181,11 +188,23 @@ export default function CreateCourseForm() {
   // nothing the user did asked for a reset.
   const loadedCourseIdRef = useRef<string | null>(null);
   useEffect(() => {
-    if (existingCourse && loadedCourseIdRef.current !== editId) {
+    // Only from a copy fetched since this page opened, never one the query cache kept from an earlier visit: that copy is the
+    // course as it was then, and saving a form filled from it deletes everything added since.
+    if (existingCourse && courseIsFresh && loadedCourseIdRef.current !== editId) {
       methods.reset(existingCourse);
+      contentVersion.current = existingCourse.contentVersion ?? null;
       loadedCourseIdRef.current = editId;
     }
-  }, [existingCourse, editId, methods]);
+  }, [existingCourse, courseIsFresh, editId, methods]);
+
+  /** A content save, from the version this editor holds; afterwards it holds the server's and the caches are refreshed. */
+  async function saveContent(courseId: string, payload: ReturnType<typeof toUpdateCoursePayload>) {
+    const result = await updateCourse(courseId, withCourseVersion(payload, contentVersion.current));
+    contentVersion.current = nextVersion(contentVersion.current, result.data.content_version);
+    queryClient.invalidateQueries({queryKey: ["course"]});
+    queryClient.invalidateQueries({queryKey: ["courses"]});
+    return result;
+  }
 
   // ─────────────────────────────────────────────
   // FORM DATA WATCHERS
@@ -261,7 +280,7 @@ export default function CreateCourseForm() {
       const skipped = unfinishedLessonCount(finalPayload.content.topics);
 
       if (finalPayload.id) {
-        await updateCourse(finalPayload.id, toUpdateCoursePayload(finalPayload, activeStep));
+        await saveContent(finalPayload.id, toUpdateCoursePayload(finalPayload, activeStep));
       }
 
       methods.reset(finalPayload);
@@ -301,7 +320,7 @@ export default function CreateCourseForm() {
       const finalPayload = buildCoursePayload("published");
 
       if (finalPayload.id) {
-        await updateCourse(finalPayload.id, toUpdateCoursePayload(finalPayload, activeStep));
+        await saveContent(finalPayload.id, toUpdateCoursePayload(finalPayload, activeStep));
         await publishCourse(finalPayload.id);
       }
 
@@ -336,7 +355,7 @@ export default function CreateCourseForm() {
     if (prev) setActiveStep(prev.id);
   }
 
-  if (editId && isLoadingCourse) {
+  if (editId && !isCourseError && (isLoadingCourse || !courseIsFresh)) {
     return <p className="text-sm text-muted">Loading course…</p>;
   }
 

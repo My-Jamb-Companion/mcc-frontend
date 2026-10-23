@@ -37,6 +37,16 @@ describe("fromApiCourseDetail uploads", () => {
   });
 });
 
+describe("fromApiCourseDetail content version", () => {
+  it("carries the version the server gave, so the editor can send it back with its saves", () => {
+    expect(fromApiCourseDetail(api({content_version: 4})).contentVersion).toBe(4);
+  });
+
+  it("is null when the server sent none (an older backend)", () => {
+    expect(fromApiCourseDetail(api({})).contentVersion).toBeNull();
+  });
+});
+
 const question = (id: string, correct = "A"): CreatPracticeQuestionType => ({
   id,
   type: "single",

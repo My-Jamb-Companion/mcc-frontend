@@ -1,6 +1,7 @@
 "use client";
 
-import {useState} from "react";
+import {useRef, useState} from "react";
+import {useQueryClient} from "@tanstack/react-query";
 import Link from "next/link";
 import {Button, confettiCelebrate, Icon, showError, showSuccess} from "@mcc/ui";
 import {useForm, FormProvider} from "@mcc/features";
@@ -11,6 +12,7 @@ import PromotionalCoverUpload, {
 } from "./CreateCoursesSteps/Step3";
 import CourseStudentView from "./studentPreview/CourseStudentView";
 import {calculateTotalHours} from "../helper/helper";
+import {nextVersion, withCourseVersion} from "../helper/contentVersion";
 import {AdditionalCourseTypes, CoursesFormValues, LEVELS, UpdateCoursePayload} from "../types/types";
 import {
   serializeModulesPayload,
@@ -123,6 +125,18 @@ export default function CreateCourseForm() {
   // ─────────────────────────────────────────────
   // FORM
   // ─────────────────────────────────────────────
+
+  const queryClient = useQueryClient();
+  // The content version this editor holds: unknown until its first content save, then the server's after each one. Sent with
+  // every later save so a save made from an out-of-date copy is refused instead of deleting newer work.
+  const contentVersion = useRef<number | null>(null);
+  async function saveContent(courseId: string, payload: UpdateCoursePayload) {
+    const result = await updateCourse(courseId, withCourseVersion(payload, contentVersion.current));
+    contentVersion.current = nextVersion(contentVersion.current, result.data.content_version);
+    queryClient.invalidateQueries({queryKey: ["course"]});
+    queryClient.invalidateQueries({queryKey: ["courses"]});
+    return result;
+  }
 
   const methods = useForm<CoursesFormValues>({
     mode: "onChange",
@@ -277,7 +291,7 @@ export default function CreateCourseForm() {
       const hasApiId = savedCourse.id && savedCourse.id.length > 7;
 
       if (hasApiId) {
-        await updateCourse(savedCourse.id, updatePayload);
+        await saveContent(savedCourse.id, updatePayload);
       } else {
         // First save — create the course on the backend and adopt the real id.
         const created = await createCourseDetails(
@@ -355,7 +369,7 @@ export default function CreateCourseForm() {
         );
       }
 
-      await updateCourse(publishedCourse.id, updatePayload);
+      await saveContent(publishedCourse.id, updatePayload);
       await publishCourse(publishedCourse.id);
 
       // Keep React Hook Form in sync.

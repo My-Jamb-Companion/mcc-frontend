@@ -110,7 +110,7 @@ export const createCourseDetails = async (
 
 interface CourseMutationResponse {
   success: boolean;
-  data: {course_id: string; status?: string};
+  data: {course_id: string; status?: string; content_version?: number};
   message: string;
 }
 
