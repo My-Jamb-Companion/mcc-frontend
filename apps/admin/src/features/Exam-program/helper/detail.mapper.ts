@@ -17,6 +17,7 @@ import {
   CreatPracticeQuestionType,
 } from "../components/CreateProgramSteps/PracticeQuestions";
 import {fromApiLevel} from "./helper";
+import {groupByName} from "./practiceSets";
 import {isPdfUrl} from "@/src/features/courses/helper/video";
 
 function toUiQuestionType(
@@ -77,6 +78,8 @@ function toUiModule(apiModule: ApiExamModule): MakeModule {
       type: "practice",
       count: apiModule.practices?.length ?? 0,
       questions: (apiModule.practices ?? []).map(toUiQuestion),
+      // The Practice's named sets, as the server groups them; questions of no set are the default one.
+      sets: groupByName(apiModule.practices ?? [], toUiQuestion, uid),
     },
   ];
 

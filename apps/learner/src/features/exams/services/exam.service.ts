@@ -71,7 +71,15 @@ export interface ApiExamModule {
   /** How many Exercise questions the module has. `quiz_count` is the same number under its old name. */
   exercise_count?: number;
   quiz_count: number;
+  /** Practice questions across every set. */
   practice_count: number;
+  /** The module's Practice sets in the order authored; the default set is called "Practice". Absent on an older server. */
+  practice_sets?: ApiPracticeSet[];
+}
+
+export interface ApiPracticeSet {
+  name: string;
+  count: number;
 }
 
 export interface ApiExamSubTopic {
@@ -143,6 +151,8 @@ export interface ApiAssessmentSession {
   title: string;
   node_type: "module" | "sub_topic";
   node_id: string;
+  /** Practice: the set being played, when one was chosen. */
+  set_name?: string | null;
   question_count: number;
   questions: ApiAssessmentQuestion[];
   /** Exercise only: minutes allowed (auto-submitted at zero); null = untimed. */
@@ -245,12 +255,13 @@ export interface ApiExamSubmissionResult {
 /** Endpoint: POST /exams/assessments/start -- Practice (module) or Exercise (module or sub-topic). */
 export const startAssessment = async (
   mode: AssessmentMode,
-  node: {moduleId?: string; subTopicId?: string},
+  node: {moduleId?: string; subTopicId?: string; practiceSet?: string},
 ): Promise<ApiAssessmentSession> => {
   const res = await apiClient.post<{data: ApiAssessmentSession}>("/exams/assessments/start", {
     mode,
     module_id: node.moduleId,
     sub_topic_id: node.subTopicId,
+    ...(node.practiceSet ? {practice_set: node.practiceSet} : {}),
   });
   return res.data.data;
 };

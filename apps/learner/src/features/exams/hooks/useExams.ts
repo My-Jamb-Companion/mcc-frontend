@@ -113,8 +113,8 @@ export const useCompleteProgramLecture = () => {
 /** Starts a Practice (module) or Exercise (module or sub-topic) for the assessment player. */
 export const useStartAssessment = () =>
   useMutation({
-    mutationFn: ({mode, moduleId, subTopicId}: {mode: AssessmentMode; moduleId?: string; subTopicId?: string}) =>
-      startAssessment(mode, {moduleId, subTopicId}),
+    mutationFn: ({mode, moduleId, subTopicId, practiceSet}: {mode: AssessmentMode; moduleId?: string; subTopicId?: string; practiceSet?: string}) =>
+      startAssessment(mode, {moduleId, subTopicId, practiceSet}),
   });
 
 /** Checks one answer; the server says whether it is right and nothing more until it is. */

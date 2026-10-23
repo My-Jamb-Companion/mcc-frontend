@@ -105,6 +105,8 @@ export interface ApiExamQuestion {
   /** A mock exam's own questions: directions and a reading passage. */
   instruction?: string | null;
   passage?: string | null;
+  /** Practice only: the set the question belongs to (null: the default set, "Practice"). */
+  set_name?: string | null;
   question_type: string;
   options: string[];
   correct_answers: string[];

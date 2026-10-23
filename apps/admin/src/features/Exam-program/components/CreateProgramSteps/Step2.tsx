@@ -5,6 +5,8 @@ import PracticeQuestions, {
   CreatPracticeQuestionType,
 } from "./PracticeQuestions";
 import Step2Sidebar from "./Step2SideBar";
+import PracticeSetsManager from "./PracticeSetsManager";
+import {flatten, PracticeSet, setsOf} from "@/src/features/Exam-program/helper/practiceSets";
 import LessonsCreate, {FileRow} from "./LessonsCreate";
 import {patchById} from "@/src/features/courses/helper/patchById";
 import QuizSettingsFields, {QuizSettings} from "@/src/features/question-editor/QuizSettingsFields";
@@ -18,13 +20,16 @@ import {
 } from "@/src/features/Exam-program/services/exam.service";
 import {useSaveProgramContent} from "@/src/features/Exam-program/hooks/useSaveProgramContent";
 
-type Leaf = {
+export type Leaf = {
   id: string;
   label: string;
   type: "lectures" | "practice" | "exercise";
   count?: number;
   lessons?: FileRow[];
+  /** Every question of the leaf. For Practice it is the questions of all its sets, set after set. */
   questions?: CreatPracticeQuestionType[];
+  /** Practice only: the named sets. A leaf with none is one default set made of `questions`. */
+  sets?: PracticeSet[];
 };
 
 export type MakeModule = {
@@ -384,6 +389,39 @@ export default function ContentStep({
     );
   }
 
+  /** A module's Practice changed: its sets, and with them every question and the count shown beside it. */
+  function setLeafPracticeSets(newSets: PracticeSet[]) {
+    if (!activeContext?.module || !activeContext.leaf) return;
+    const questions = flatten(newSets);
+    const {topic, subTopic, module, leaf} = activeContext;
+    setTopics(
+      topics.map((t) =>
+        t.id !== topic.id
+          ? t
+          : {
+              ...t,
+              subTopics: t.subTopics.map((s) =>
+                s.id !== subTopic.id
+                  ? s
+                  : {
+                      ...s,
+                      modules: s.modules.map((m) =>
+                        m.id !== module.id
+                          ? m
+                          : {
+                              ...m,
+                              leaves: m.leaves.map((l) =>
+                                l.id === leaf.id ? {...l, sets: newSets, questions, count: questions.length} : l,
+                              ),
+                            },
+                      ),
+                    },
+              ),
+            },
+      ),
+    );
+  }
+
   function setLeafQuestions(newQuestions: CreatPracticeQuestionType[]) {
     if (!activeContext) return;
     const {topic, subTopic, module, leaf} = activeContext;
@@ -572,10 +610,10 @@ export default function ContentStep({
               )}
 
               {activeContext?.leaf?.type === "practice" && (
-                <PracticeQuestions
-                  withResponses
-                  questions={activeQuestions}
-                  onChange={setLeafQuestions}
+                <PracticeSetsManager
+                  key={activeContext.leaf.id}
+                  sets={setsOf(activeContext.leaf)}
+                  onChange={setLeafPracticeSets}
                 />
               )}
 

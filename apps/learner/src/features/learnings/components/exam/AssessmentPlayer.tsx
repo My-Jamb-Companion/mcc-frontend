@@ -158,7 +158,7 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
     <div className="w-full overflow-hidden rounded-2xl border border-muted/20">
       <div className="flex items-center justify-between gap-3 bg-primary-gradient px-6 py-4 text-white">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-widest opacity-80">{isExercise ? "Exercise" : "Practice"}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-widest opacity-80">{isExercise ? "Exercise" : session.set_name ? `Practice · ${session.set_name}` : "Practice"}</p>
           <h2 className="truncate text-lg font-bold">{session.title}</h2>
         </div>
         {remaining !== null && (

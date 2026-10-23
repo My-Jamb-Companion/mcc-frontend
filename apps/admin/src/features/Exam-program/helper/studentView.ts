@@ -2,6 +2,7 @@ import type {Topic} from "../components/CreateProgramSteps/Step2";
 import type {CreatPracticeQuestionType} from "../components/CreateProgramSteps/PracticeQuestions";
 import {isPdfUrl, youTubeEmbedUrl} from "@/src/features/courses/helper/video";
 import {hasResponses, optionResponses} from "@/src/features/question-editor/types";
+import {displayName, setsOf} from "./practiceSets";
 
 /**
  * What a student actually gets from an exam program, built from the
@@ -33,12 +34,21 @@ export interface StudentExamLecture {
   kind: StudentLectureKind;
 }
 
+export interface StudentPracticeSet {
+  id: string;
+  /** What the set is called: its name, or "Practice" for the default set. */
+  name: string;
+  questions: StudentExamQuestion[];
+}
+
 export interface StudentExamModule {
   id: string;
   title: string;
   lectures: StudentExamLecture[];
   exercise: StudentExamQuestion[];
   practice: StudentExamQuestion[];
+  /** The Practice's named sets (empty ones left out). One set is the Practice itself; several are listed to pick from. */
+  practiceSets: StudentPracticeSet[];
   /** The module Exercise's timer (minutes) and passing score (percent); null = unset. */
   exerciseTimerMinutes: number | null;
   exercisePassingScore: number | null;
@@ -104,7 +114,12 @@ export function toStudentExamTree(topics: Topic[] = []): StudentExamTopic[] {
           exercise: leaves.filter((l) => l.type === "exercise").flatMap((l) => l.questions ?? []).map((q) => toQuestion(q, true)),
           exerciseTimerMinutes: module.quizSettings?.timer ?? null,
           exercisePassingScore: module.quizSettings?.passingScore ?? null,
-          practice: leaves.filter((l) => l.type === "practice").flatMap((l) => l.questions ?? []).map((q) => toQuestion(q, true)),
+          practice: leaves.filter((l) => l.type === "practice").flatMap((l) => setsOf(l).flatMap((set) => set.questions)).map((q) => toQuestion(q, true)),
+          practiceSets: leaves
+            .filter((l) => l.type === "practice")
+            .flatMap((l) => setsOf(l))
+            .filter((set) => set.questions.length > 0)
+            .map((set) => ({id: set.id, name: displayName(set.name), questions: set.questions.map((q) => toQuestion(q, true))})),
         };
       }),
     })),

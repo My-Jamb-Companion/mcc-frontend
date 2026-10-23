@@ -31,6 +31,12 @@ interface Session {
  * as it would be saved. "Before enrolling" shows the page a student sees
  * before registering. Nothing here is sent anywhere.
  */
+/** A Practice as the student plays it: one set when they picked one, else the whole Practice. */
+function practiceSession(mod: {practice: StudentExamQuestion[]; practiceSets: {id: string; name: string; questions: StudentExamQuestion[]}[]}, setId?: string) {
+  const set = setId ? mod.practiceSets.find((s) => s.id === setId) : undefined;
+  return set ? {label: `Practice · ${set.name}`, questions: set.questions} : {label: "Practice", questions: mod.practice};
+}
+
 export default function ExamStudentView({
   title,
   description,
@@ -69,7 +75,7 @@ export default function ExamStudentView({
       if (mod) {
         setSession(
           node.kind === "practice"
-            ? {label: "Practice", questions: mod.practice}
+            ? practiceSession(mod, node.setId)
             : {
                 label: "Exercise",
                 questions: mod.exercise,
