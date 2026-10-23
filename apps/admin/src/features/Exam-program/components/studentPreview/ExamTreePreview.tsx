@@ -10,7 +10,8 @@ import type {
 
 export type ActiveNode =
   | {kind: "lecture"; lectureId: string}
-  | {kind: "practice" | "exercise"; moduleId: string}
+  | {kind: "practice"; moduleId: string; setId?: string}
+  | {kind: "exercise"; moduleId: string}
   | {kind: "unit-exercise"; subTopicId: string};
 
 interface Props {
@@ -130,7 +131,13 @@ function ModuleAccordion({
   const [open, setOpen] = useState(false);
   const allWatched = mod.lectures.length > 0 && mod.lectures.every((l) => completedLectureIds.has(l.id));
   const isExerciseActive = active?.kind === "exercise" && active.moduleId === mod.id;
-  const isPracticeActive = active?.kind === "practice" && active.moduleId === mod.id;
+  // One row per set when the Practice has several (as students see it), else the single Practice row.
+  const practiceRows =
+    mod.practiceSets.length > 1
+      ? mod.practiceSets.map((set) => ({key: set.id, label: set.name, count: set.questions.length, setId: set.id}))
+      : mod.practice.length > 0
+        ? [{key: "all", label: mod.practiceSets[0]?.name ?? "Practice", count: mod.practice.length, setId: undefined as string | undefined}]
+        : [];
 
   return (
     <div>
@@ -189,20 +196,24 @@ function ModuleAccordion({
             );
           })}
 
-          {mod.practice.length > 0 && (
-            <button
-              type="button"
-              onClick={() => onSelect({kind: "practice", moduleId: mod.id})}
-              className={`flex items-center gap-2 pl-1 pr-2 py-1.5 text-left rounded-lg transition-colors ${
-                isPracticeActive ? "border-l-primary border-l-3 bg-primary/5" : "border-l-0 hover:bg-muted/5"
-              }`}
-            >
-              <Icon icon="material-symbols:edit-note-rounded" size={15} className="text-orange-500" />
-              <span className={`text-sm ${isPracticeActive ? "text-primary" : "text-subtle"}`}>
-                Practice ({mod.practice.length})
-              </span>
-            </button>
-          )}
+          {practiceRows.map((row) => {
+            const isPracticeActive = active?.kind === "practice" && active.moduleId === mod.id && active.setId === row.setId;
+            return (
+              <button
+                key={row.key}
+                type="button"
+                onClick={() => onSelect({kind: "practice", moduleId: mod.id, setId: row.setId})}
+                className={`flex items-center gap-2 pl-1 pr-2 py-1.5 text-left rounded-lg transition-colors ${
+                  isPracticeActive ? "border-l-primary border-l-3 bg-primary/5" : "border-l-0 hover:bg-muted/5"
+                }`}
+              >
+                <Icon icon="material-symbols:edit-note-rounded" size={15} className="text-orange-500" />
+                <span className={`text-sm ${isPracticeActive ? "text-primary" : "text-subtle"}`}>
+                  {row.label} ({row.count})
+                </span>
+              </button>
+            );
+          })}
           {mod.exercise.length > 0 && (
             <button
               type="button"

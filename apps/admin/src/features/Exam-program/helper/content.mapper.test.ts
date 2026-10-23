@@ -412,3 +412,47 @@ describe("ids kept across saves", () => {
     expect(topic.sub_topics[0].modules[0].exercises[0].question_id).toBe("q_ex");
   });
 });
+
+
+describe("serializeTopicsPayload: practice sets", () => {
+  const withPractice = (leaf: object): Topic[] => [{
+    id: "t", label: "T", subTopics: [{id: "s", label: "S", modules: [{id: "m", label: "M", leaves: [
+      {id: "l1", label: "Lectures", type: "lectures", count: 0},
+      {id: "l2", label: "Practice", type: "practice", count: 0, ...leaf},
+      {id: "l3", label: "Exercise", type: "exercise", count: 0},
+    ]}]}],
+  }];
+  const practices = (topics: Topic[]) => serializeTopicsPayload(topics)[0].sub_topics[0].modules[0].practices;
+
+  it("names each question's set, and sends none for the default set", () => {
+    const out = practices(withPractice({sets: [
+      {id: "a", name: "", questions: [makeQuestion({id: "q1", question: "D1"})]},
+      {id: "b", name: "Passage practice", questions: [makeQuestion({id: "q2", question: "P1"}), makeQuestion({id: "q3", question: "P2"})]},
+    ]}));
+    expect(out.map((p) => [p.question_text, p.set_name])).toEqual([["D1", undefined], ["P1", "Passage practice"], ["P2", "Passage practice"]]);
+  });
+
+  it("sends the sets in the order they are arranged", () => {
+    const out = practices(withPractice({sets: [
+      {id: "b", name: "Second", questions: [makeQuestion({question: "S1"})]},
+      {id: "a", name: "First", questions: [makeQuestion({question: "F1"})]},
+    ]}));
+    expect(out.map((p) => p.question_text)).toEqual(["S1", "F1"]);
+  });
+
+  it("a practice saved before sets (only questions) is one default set", () => {
+    const out = practices(withPractice({questions: [makeQuestion({question: "Old"})]}));
+    expect(out.map((p) => [p.question_text, p.set_name])).toEqual([["Old", undefined]]);
+  });
+
+  it("an empty set sends nothing, and no sets sends no practice", () => {
+    expect(practices(withPractice({sets: [{id: "a", name: "Empty", questions: []}]}))).toEqual([]);
+    expect(practices(withPractice({sets: []}))).toEqual([]);
+  });
+
+  it("keeps each option's response", () => {
+    const question = makeQuestion({options: [{id: "a", text: "A", isCorrect: true, response: "Well done"}, {id: "b", text: "B", isCorrect: false}]});
+    const out = practices(withPractice({sets: [{id: "a", name: "Named", questions: [question]}]}));
+    expect(out[0]).toMatchObject({set_name: "Named", option_feedback: ["Well done", null]});
+  });
+});

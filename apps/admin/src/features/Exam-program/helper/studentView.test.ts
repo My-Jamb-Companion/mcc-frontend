@@ -190,3 +190,36 @@ describe("lecture kinds in the student preview", () => {
     expect(allExamLectures(tree).map((l) => l.kind)).toEqual(["pdf", "video"]);
   });
 });
+
+describe("practice sets in the student preview", () => {
+  const make = (leaf: Topic["subTopics"][number]["modules"][number]["leaves"][number]): Topic[] => [
+    {id: "t", label: "T", subTopics: [{id: "s", label: "S", modules: [{id: "m", label: "M", leaves: [leaf]}]}]},
+  ];
+
+  it("lists each non-empty practice set under its name, the default one as Practice", () => {
+    const [tree] = toStudentExamTree(
+      make({
+        id: "p",
+        label: "Practice",
+        type: "practice",
+        questions: [q("a"), q("b"), q("c")],
+        sets: [
+          {id: "s1", name: "Practice", questions: [q("a")]},
+          {id: "s2", name: "Practice 2", questions: [q("b"), q("c")]},
+          {id: "s3", name: "Practice 3", questions: []},
+        ],
+      }),
+    );
+    const mod = tree.subTopics[0].modules[0];
+    expect(mod.practiceSets.map((s) => [s.name, s.questions.length])).toEqual([
+      ["Practice", 1],
+      ["Practice 2", 2],
+    ]);
+    expect(mod.practice).toHaveLength(3);
+  });
+
+  it("treats a leaf without sets as one default Practice", () => {
+    const [tree] = toStudentExamTree(make({id: "p", label: "Practice", type: "practice", questions: [q("a")]}));
+    expect(tree.subTopics[0].modules[0].practiceSets.map((s) => s.name)).toEqual(["Practice"]);
+  });
+});

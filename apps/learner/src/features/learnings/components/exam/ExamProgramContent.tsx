@@ -134,7 +134,9 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
     startAssessment.mutate(
       node.kind === "unit-exercise"
         ? {mode: "exercise", subTopicId: node.subTopicId}
-        : {mode: node.kind, moduleId: node.moduleId},
+        : node.kind === "practice"
+          ? {mode: "practice", moduleId: node.moduleId, practiceSet: node.setName}
+          : {mode: node.kind, moduleId: node.moduleId},
       {
         onSuccess: (data) => setSession(data),
         onError: (error) =>

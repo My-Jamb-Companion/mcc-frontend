@@ -4,10 +4,13 @@ import {Icon} from "@mcc/ui";
 import {ApiExamModule, ApiExamSubTopic, ApiExamTopic} from "@/src/features/exams/services/exam.service";
 import BookmarkButton from "@/src/features/bookmarks/BookmarkButton";
 import DownloadButton from "../DownloadButton";
+import {practiceRows} from "@/src/features/learnings/helper/practiceSets";
 
 export type ActiveNode =
   | {kind: "lecture"; lectureId: string}
-  | {kind: "practice" | "exercise"; moduleId: string}
+  /** `setName` plays one of the module's Practice sets; without it the module's whole Practice. */
+  | {kind: "practice"; moduleId: string; setName?: string}
+  | {kind: "exercise"; moduleId: string}
   | {kind: "unit-exercise"; subTopicId: string};
 
 interface ExamContentTreeProps {
@@ -130,7 +133,7 @@ function ModuleAccordion({
   const allWatched = mod.lectures.length > 0 && mod.lectures.every((l) => completedLectureIds.has(l.lecture_id));
   const isExerciseActive = active?.kind === "exercise" && active.moduleId === mod.module_id;
   const exerciseCount = mod.exercise_count ?? mod.quiz_count;
-  const isPracticeActive = active?.kind === "practice" && active.moduleId === mod.module_id;
+  const practice = practiceRows(mod);
 
   return (
     <div>
@@ -176,20 +179,25 @@ function ModuleAccordion({
             );
           })}
 
-          {mod.practice_count > 0 && (
-            <button
-              type="button"
-              onClick={() => onSelect({kind: "practice", moduleId: mod.module_id})}
-              className={`flex items-center gap-2 pl-1 pr-2 py-1.5 text-left rounded-lg transition-colors ${
-                isPracticeActive ? "border-l-primary border-l-3 bg-primary/5" : "border-l-0 hover:bg-muted/5"
-              }`}
-            >
-              <Icon icon="material-symbols:edit-note-rounded" size={15} className="text-orange-500" />
-              <span className={`text-sm ${isPracticeActive ? "text-primary" : "text-subtle"}`}>
-                Practice ({mod.practice_count})
-              </span>
-            </button>
-          )}
+          {practice.map((row) => {
+            const isPracticeActive =
+              active?.kind === "practice" && active.moduleId === mod.module_id && (active.setName ?? undefined) === row.setName;
+            return (
+              <button
+                key={row.setName ?? "all"}
+                type="button"
+                onClick={() => onSelect({kind: "practice", moduleId: mod.module_id, setName: row.setName})}
+                className={`flex items-center gap-2 pl-1 pr-2 py-1.5 text-left rounded-lg transition-colors ${
+                  isPracticeActive ? "border-l-primary border-l-3 bg-primary/5" : "border-l-0 hover:bg-muted/5"
+                }`}
+              >
+                <Icon icon="material-symbols:edit-note-rounded" size={15} className="text-orange-500" />
+                <span className={`text-sm ${isPracticeActive ? "text-primary" : "text-subtle"}`}>
+                  {row.label} ({row.count})
+                </span>
+              </button>
+            );
+          })}
           {exerciseCount > 0 && (
             <button
               type="button"

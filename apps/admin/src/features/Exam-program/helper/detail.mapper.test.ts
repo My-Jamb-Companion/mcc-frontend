@@ -117,3 +117,38 @@ describe("ids when loading", () => {
     expect(t.subTopics[0].quizQuestions?.[0].id).toBe("q");
   });
 });
+
+
+describe("loading practice sets", () => {
+  const apiQuestion = (text: string, set_name: string | null) => ({
+    question_id: text, question_text: text, description: null, question_type: "single_choice", options: ["A", "B"], correct_answers: ["A"],
+    explanation: "", option_feedback: null, set_name, order_index: 0, parent_id: "m", parent_type: "module", usage_type: "practice", created_at: "",
+  });
+  const load = (practices: unknown[]) => {
+    const topics = [{
+      topic_id: "t", program_id: "p", title: "T", order_index: 0, created_at: "",
+      sub_topics: [{sub_topic_id: "s", topic_id: "t", title: "S", description: null, order_index: 0, created_at: "", unit_exercises: [], modules: [
+        {module_id: "m", sub_topic_id: "s", title: "M", order_index: 0, created_at: "", lectures: [], exercises: [], practices},
+      ]}],
+    }] as unknown as ApiExamTopic[];
+    const leaf = deserializeExamTopics(topics)[0].subTopics[0].modules[0].leaves.find((l) => l.type === "practice");
+    return leaf!;
+  };
+
+  it("groups the practice questions into their sets, in the order they first appear", () => {
+    const leaf = load([apiQuestion("D1", null), apiQuestion("P1", "Passages"), apiQuestion("D2", null), apiQuestion("V1", "Vocab"), apiQuestion("P2", "Passages")]);
+    expect(leaf.sets?.map((s) => [s.name, s.questions.map((x) => x.question)])).toEqual([
+      ["", ["D1", "D2"]], ["Passages", ["P1", "P2"]], ["Vocab", ["V1"]],
+    ]);
+  });
+
+  it("still holds every question and the count, for the places that read them flat", () => {
+    const leaf = load([apiQuestion("D1", null), apiQuestion("P1", "Passages")]);
+    expect(leaf.count).toBe(2);
+    expect(leaf.questions?.map((x) => x.question)).toEqual(["D1", "P1"]);
+  });
+
+  it("a module with no practice has no sets", () => {
+    expect(load([]).sets).toEqual([]);
+  });
+});

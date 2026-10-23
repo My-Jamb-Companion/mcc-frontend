@@ -1,7 +1,8 @@
 import {hasResponses, optionResponses} from "@/src/features/question-editor/types";
 import {CreatPracticeQuestionType} from "../components/CreateProgramSteps/PracticeQuestions";
 import {FileRow} from "../components/CreateProgramSteps/LessonsCreate";
-import {MakeModule, SubTopic, Topic} from "../components/CreateProgramSteps/Step2";
+import {Leaf, MakeModule, SubTopic, Topic} from "../components/CreateProgramSteps/Step2";
+import {apiName, setsOf} from "./practiceSets";
 
 // ─────────────────────────────────────────────
 // PATCH /admin/exams/programs/{program_id} payload shapes
@@ -20,6 +21,8 @@ export interface ApiQuestionPayload {
   explanation?: string;
   /** Practice and Exercise: the response for each option, aligned to `options` (null where none). */
   option_feedback?: (string | null)[];
+  /** Practice only: the name of the practice set the question belongs to (none: the default set, "Practice"). */
+  set_name?: string;
   /** A mock exam's own questions: directions and a reading passage. */
   instruction?: string;
   passage?: string;
@@ -131,6 +134,14 @@ function toApiLecture(file: FileRow): ApiLecturePayload {
   };
 }
 
+/** A Practice leaf's questions, each carrying the name of its set. A leaf with no sets of its own is one default set. */
+function practiceQuestions(leaf: Leaf): ApiQuestionPayload[] {
+  return setsOf(leaf).flatMap((set) => {
+    const name = apiName(set.name);
+    return set.questions.map((q) => ({...toApiQuestion(q, true), ...(name ? {set_name: name} : {})}));
+  });
+}
+
 function toApiModule(module: MakeModule): ApiModulePayload {
   const lectures = module.leaves.filter((l) => l.type === "lectures");
   const practices = module.leaves.filter((l) => l.type === "practice");
@@ -146,7 +157,7 @@ function toApiModule(module: MakeModule): ApiModulePayload {
       .map(toApiLecture),
     // An Exercise keeps each option's response, shown to the student when they review.
     exercises: exercises.flatMap((l) => l.questions ?? []).map((q) => toApiQuestion(q, true)),
-    practices: practices.flatMap((l) => l.questions ?? []).map((q) => toApiQuestion(q, true)),
+    practices: practices.flatMap(practiceQuestions),
     ...(module.quizSettings?.timer ? {quiz_timer_minutes: module.quizSettings.timer} : {}),
     ...(module.quizSettings?.passingScore !== undefined ? {quiz_passing_score: module.quizSettings.passingScore} : {}),
   };
