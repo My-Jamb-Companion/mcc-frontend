@@ -192,6 +192,17 @@ function QuestionCard({
           {withPassages && (
             <div className="flex flex-col gap-3 rounded-xl border border-dashed border-violet-200 bg-violet-50/30 p-4">
               <label className="flex flex-col gap-1.5 text-sm font-medium text-gray-700">
+                Topic (optional)
+                <input
+                  type="text"
+                  value={question.topic ?? ""}
+                  onChange={(e) => updateField("topic", e.target.value)}
+                  maxLength={120}
+                  placeholder="e.g. Comprehension. The result groups questions by topic; blank ones count as General."
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-normal outline-none focus:border-violet-400"
+                />
+              </label>
+              <label className="flex flex-col gap-1.5 text-sm font-medium text-gray-700">
                 Instruction (optional)
                 <textarea
                   value={question.instruction ?? ""}

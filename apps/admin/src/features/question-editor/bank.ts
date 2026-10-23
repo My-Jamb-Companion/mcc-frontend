@@ -62,6 +62,7 @@ export type CopyableQuestion = Pick<BankQuestionPayload, "question_text" | "ques
   option_feedback?: (string | null)[] | null;
   instruction?: string | null;
   passage?: string | null;
+  topic?: string | null;
 };
 
 const norm = (s: string) => s.trim().replace(/\s+/g, " ").toLowerCase();
@@ -105,6 +106,7 @@ export function fromBankQuestion(b: CopyableQuestion, withResponses: boolean, wi
     id: uid(),
     ...(withPassages && b.passage?.trim() ? {passage: b.passage} : {}),
     ...(withPassages && b.instruction?.trim() ? {instruction: b.instruction} : {}),
+    ...(withPassages && b.topic?.trim() ? {topic: b.topic.trim()} : {}),
     type: b.question_type === "multi_choice" ? "multiple" : "single",
     question: b.question_text,
     description: b.description ?? undefined,

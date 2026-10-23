@@ -24,6 +24,8 @@ export type CreatPracticeQuestionType = {
    * Questions that carry the same text share it (a passage with five questions under it). */
   instruction?: string;
   passage?: string;
+  /** A mock exam's questions only: the topic the result groups this question under. */
+  topic?: string;
   options: Option[];
   explanation?: string;
 };

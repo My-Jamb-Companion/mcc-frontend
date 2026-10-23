@@ -1,5 +1,5 @@
 import {describe, it, expect} from "vitest";
-import {serializeTopicsPayload, toApiQuestionType, unfinishedLectureCount, unfinishedUploadsNotice} from "./content.mapper";
+import {serializeTopicsPayload, toApiQuestion, toApiQuestionType, unfinishedLectureCount, unfinishedUploadsNotice} from "./content.mapper";
 import {Topic} from "../components/CreateProgramSteps/Step2";
 import {CreatPracticeQuestionType} from "../components/CreateProgramSteps/PracticeQuestions";
 import {FileRow} from "../components/CreateProgramSteps/LessonsCreate";
@@ -454,5 +454,13 @@ describe("serializeTopicsPayload: practice sets", () => {
     const question = makeQuestion({options: [{id: "a", text: "A", isCorrect: true, response: "Well done"}, {id: "b", text: "B", isCorrect: false}]});
     const out = practices(withPractice({sets: [{id: "a", name: "Named", questions: [question]}]}));
     expect(out[0]).toMatchObject({set_name: "Named", option_feedback: ["Well done", null]});
+  });
+});
+
+describe("a mock exam question's topic", () => {
+  it("is sent trimmed, and left out when blank", () => {
+    expect(toApiQuestion(makeQuestion({topic: " Comprehension "})).topic).toBe("Comprehension");
+    expect("topic" in toApiQuestion(makeQuestion({topic: "  "}))).toBe(false);
+    expect("topic" in toApiQuestion(makeQuestion())).toBe(false);
   });
 });

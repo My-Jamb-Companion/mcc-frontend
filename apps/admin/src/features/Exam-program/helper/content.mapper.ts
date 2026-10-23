@@ -26,6 +26,8 @@ export interface ApiQuestionPayload {
   /** A mock exam's own questions: directions and a reading passage. */
   instruction?: string;
   passage?: string;
+  /** A mock exam's own questions: the topic the result groups the question under. */
+  topic?: string;
 }
 
 export interface ApiLecturePayload {
@@ -89,6 +91,7 @@ export function toApiQuestion(q: CreatPracticeQuestionType, practice = false): A
     ...(practice && hasResponses(q) ? {option_feedback: optionResponses(q)} : {}),
     ...(q.instruction?.trim() ? {instruction: q.instruction.trim()} : {}),
     ...(q.passage?.trim() ? {passage: q.passage.trim()} : {}),
+    ...(q.topic?.trim() ? {topic: q.topic.trim()} : {}),
   };
 }
 

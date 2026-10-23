@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import {describe, expect, it} from "vitest";
-import {deserializeExamTopics} from "./detail.mapper";
+import {deserializeExamTopics, toUiQuestion} from "./detail.mapper";
 import type {ApiExamTopic} from "../services/exam.service";
 
 const topic = (subExtra: Record<string, unknown> = {}, moduleExtra: Record<string, unknown> = {}): ApiExamTopic =>
@@ -150,5 +150,13 @@ describe("loading practice sets", () => {
 
   it("a module with no practice has no sets", () => {
     expect(load([]).sets).toEqual([]);
+  });
+});
+
+describe("a mock exam question's topic", () => {
+  const api = {question_id: "q", question_text: "Q", description: null, question_type: "single_choice", options: ["a", "b"], correct_answers: ["a"], explanation: null};
+  it("comes back from the server when it has one", () => {
+    expect(toUiQuestion({...api, topic: "Comprehension"} as never).topic).toBe("Comprehension");
+    expect(toUiQuestion({...api, topic: null} as never).topic).toBeUndefined();
   });
 });

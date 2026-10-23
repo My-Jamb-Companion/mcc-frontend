@@ -494,7 +494,7 @@ export interface ApiMockReviewRow {
 }
 
 export interface ApiMockTopicResult {
-  node_type: "module" | "sub_topic" | "general";
+  node_type: "module" | "sub_topic" | "topic" | "general";
   node_id: string;
   title: string;
   correct: number;
