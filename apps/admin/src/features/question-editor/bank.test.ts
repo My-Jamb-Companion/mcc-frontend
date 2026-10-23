@@ -240,6 +240,13 @@ describe("passages and instructions", () => {
     expect(fromBankQuestion({...parsed, passage: "  ", instruction: null}, false, true).passage).toBeUndefined();
   });
 
+  it("an upload's Topic comes across only into a mock exam, trimmed", () => {
+    const parsed = {question_text: "Q", question_type: "single_choice" as const, options: ["a", "b"], correct_answers: ["a"], topic: " Comprehension "};
+    expect(fromBankQuestion(parsed, false, true).topic).toBe("Comprehension");
+    expect(fromBankQuestion(parsed, false, false).topic).toBeUndefined();
+    expect(fromBankQuestion({...parsed, topic: "  "}, false, true).topic).toBeUndefined();
+  });
+
   it("counts the questions that carry long text", () => {
     expect(countWithPassages([{passage: "P"}, {instruction: "I"}, {passage: " ", instruction: ""}, {}])).toBe(2);
   });
