@@ -15,8 +15,8 @@ import {
 } from "@/src/features/Exam-program/helper/content.mapper";
 import {
   getApiErrorMessage,
-  updateExamProgramContent,
 } from "@/src/features/Exam-program/services/exam.service";
+import {useSaveProgramContent} from "@/src/features/Exam-program/hooks/useSaveProgramContent";
 
 type Leaf = {
   id: string;
@@ -161,6 +161,7 @@ export default function ContentStep({
   programId: string;
 }) {
   const {watch, setValue, getValues} = useFormContext<ContentFormValues>();
+  const saveContent = useSaveProgramContent();
   const topics = watch("content.topics") ?? [];
   function setTopics(newTopics: Topic[]) {
     setValue("content.topics", newTopics, {shouldDirty: true});
@@ -192,7 +193,7 @@ export default function ContentStep({
 
     try {
       const skipped = unfinishedLectureCount(topics);
-      await updateExamProgramContent(programId, {
+      await saveContent(programId, {
         topics: serializeTopicsPayload(topics),
       });
       if (skipped > 0) showError(unfinishedUploadsNotice(skipped));
@@ -222,7 +223,7 @@ export default function ContentStep({
 
     try {
       const skipped = unfinishedLectureCount(topics);
-      await updateExamProgramContent(programId, {
+      await saveContent(programId, {
         topics: serializeTopicsPayload(topics),
       });
       showSuccess("Exam program draft saved successfully!");

@@ -185,6 +185,8 @@ export interface ApiExamProgramDetail {
   cover_image_url: string | null;
   promo_video_url: string | null;
   topics: ApiExamTopic[];
+  /** Raised by every content save; sent back as `base_content_version` so a stale editor is refused. */
+  content_version?: number;
   created_at: string;
   updated_at: string;
   published_at: string | null;
@@ -275,11 +277,18 @@ export interface UpdateExamProgramContentPayload {
   topics: ApiTopicPayload[];
   cover_image_url?: string;
   promo_video_url?: string;
+  /**
+   * The `content_version` the editor holds. If the content has changed since (another tab, another admin), the server
+   * refuses the save (409 CONTENT_CHANGED) rather than replace newer work with this older copy.
+   */
+  base_content_version?: number;
 }
 
 export interface UpdateExamProgramContentResponse {
   program_id: string;
   status: string;
+  /** The content version after this save: the next save is made from it. */
+  content_version?: number;
 }
 
 /**

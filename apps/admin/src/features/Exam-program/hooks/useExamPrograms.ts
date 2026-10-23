@@ -62,6 +62,7 @@ export const useExamProgramDisplay = (programId: string | null | undefined) => {
       getExamProgram(programId as string).then(fromApiExamProgramToDisplay),
     enabled: !!programId,
     refetchOnWindowFocus: false,
+    refetchOnMount: "always",
   });
 };
 
@@ -80,5 +81,10 @@ export const useExamProgramEdit = (programId: string | null | undefined) => {
       })),
     enabled: !!programId,
     refetchOnWindowFocus: false,
+    // An editor must start from the program as it is now. The cache keeps a copy for minutes by default and hands it
+    // out first; a form filled from that older copy and saved deletes whatever was added in between.
+    gcTime: 0,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 };

@@ -164,6 +164,7 @@ export function fromApiExamProgramDetail(
     description: api.description ?? "",
     learnItems: api.learning_outcomes ?? [],
     tags: api.tags ?? [],
+    contentVersion: api.content_version ?? null,
     content: {topics: deserializeExamTopics(api.topics)},
     upload: {
       coverImage: remoteFile(api.cover_image_url),

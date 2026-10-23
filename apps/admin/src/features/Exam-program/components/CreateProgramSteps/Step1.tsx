@@ -82,6 +82,8 @@ export default function CreateDetails({onNext, live = false}: {onNext: () => voi
       // Adopt the backend-issued id so later steps target the program the
       // API actually created.
       setValue("id", created.program_id);
+      // A new program has no content yet: the first content save is made from version 0.
+      setValue("contentVersion", 0);
     }
     queryClient.invalidateQueries({queryKey: ["exam-programs"]});
     queryClient.invalidateQueries({queryKey: ["exam-program"]});
