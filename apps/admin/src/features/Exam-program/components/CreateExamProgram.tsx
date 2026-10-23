@@ -19,9 +19,10 @@ import {
   getApiErrorMessage,
   publishExamProgram,
   unpublishExamProgram,
-  updateExamProgramContent,
 } from "../services/exam.service";
 import {useExamProgramEdit} from "../hooks/useExamPrograms";
+import {useSaveProgramContent} from "../hooks/useSaveProgramContent";
+import {isContentChanged} from "../helper/contentSave";
 import ExamStudentView from "./studentPreview/ExamStudentView";
 import {
   examProgramTitle,
@@ -61,6 +62,11 @@ type Step1Values = {
 };
 
 export type ExamProgramFormValues = Step1Values & {
+  /**
+   * The content version this editor holds (from the server when the program was loaded, then from each save). Sent with
+   * every content save so a save made from an out-of-date copy is refused instead of deleting newer work.
+   */
+  contentVersion?: number | null;
   content: {
     topics: Topic[];
   };
@@ -147,6 +153,7 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
     data: existing,
     isLoading: isLoadingExisting,
     isError: isExistingError,
+    isFetchedAfterMount: existingIsFresh,
     refetch: refetchExisting,
   } = useExamProgramEdit(editId);
 
@@ -163,15 +170,19 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
       description: "",
       learnItems: [],
       tags: [],
+      contentVersion: null,
       content: {topics: []},
       upload: {coverImage: null, promoVideo: null},
     },
   });
 
+  const saveContent = useSaveProgramContent(methods as unknown as Parameters<typeof useSaveProgramContent>[0]);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isUnpublishing, setIsUnpublishing] = useState(false);
   const [previewView, setPreviewView] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
+  // The server refused a save because the content changed since this page opened: the only way on is to reload.
+  const [contentChanged, setContentChanged] = useState(false);
   const [pricingBannerDismissed, setPricingBannerDismissed] = useState(false);
   const programId = methods.watch("id");
 
@@ -180,11 +191,13 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
   // silently discard unsaved edits.
   const loadedIdRef = useRef<string | null>(null);
   useEffect(() => {
-    if (existing && loadedIdRef.current !== editId) {
+    // Only from a copy fetched since this page opened, never one the query cache kept from an earlier visit: that copy is
+    // the program as it was then, and saving a form filled from it deletes everything added since.
+    if (existing && existingIsFresh && loadedIdRef.current !== editId) {
       methods.reset(existing.values);
       loadedIdRef.current = editId ?? null;
     }
-  }, [existing, editId, methods]);
+  }, [existing, existingIsFresh, editId, methods]);
 
   // A live program can be edited in place, like a course: what is saved is
   // what students see, so the header offers "Save changes" instead of "Publish".
@@ -233,7 +246,7 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
     const values = methods.getValues();
     // Patch the cover image / promo video (and re-send content, in case
     // Step2 was left with unsaved edits).
-    await updateExamProgramContent(programId, {
+    await saveContent(programId, {
       topics: serializeTopicsPayload(values.content.topics),
       cover_image_url:
         values.upload.coverImageUrl ||
@@ -281,6 +294,7 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
       confettiCelebrate(undefined, 1000, 300);
       setIsPublished(true);
     } catch (error) {
+      setContentChanged(isContentChanged(error));
       setPublishError(
         getApiErrorMessage(
           error,
@@ -312,6 +326,7 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
       await refetchExisting();
       showSuccess("Changes saved. Students can see them now.");
     } catch (error) {
+      setContentChanged(isContentChanged(error));
       setPublishError(
         getApiErrorMessage(error, "Failed to save your changes. Please try again."),
       );
@@ -330,7 +345,7 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
     if (prev) setActiveStep(prev.id);
   }
 
-  if (editId && isLoadingExisting) {
+  if (editId && !isExistingError && (isLoadingExisting || !existingIsFresh)) {
     return <p className="text-sm text-muted">Loading exam program…</p>;
   }
 
@@ -546,13 +561,23 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
               />
               <span>{publishError}</span>
             </div>
-            <button
-              type="button"
-              onClick={() => setPublishError(null)}
-              className="font-semibold text-xs text-red-500 hover:text-red-700"
-            >
-              Dismiss
-            </button>
+            {contentChanged ? (
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="shrink-0 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
+              >
+                Reload the page
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setPublishError(null)}
+                className="font-semibold text-xs text-red-500 hover:text-red-700"
+              >
+                Dismiss
+              </button>
+            )}
           </div>
         )}
 
