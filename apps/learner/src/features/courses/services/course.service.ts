@@ -62,6 +62,8 @@ export interface ApiCourseContentRow {
   file_format?: string | null;
   /** Admin-authored lesson HTML. Mutually exclusive with video_url. */
   content?: string | null;
+  /** How many questions the module's Practice quiz has (repeated on every row of the module). */
+  practice_count?: number;
   /** The module's named exercise sets, in authored order (repeated on every row of the module). */
   exercise_sets?: {name: string; count: number}[];
   /** The module's named quiz sets (timed entries), in authored order. */

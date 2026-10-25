@@ -5,6 +5,7 @@ import {useSearchParams} from "next/navigation";
 import {Icon, showError} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import {isPdfUrl, youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
+import {nextLectureId} from "@/src/features/learnings/helper/lectureOrder";
 import CoursePlayer from "../course/CoursePlayer";
 import InteractiveLessonContent from "../InteractiveLessonContent";
 import ExamContentTree, {ActiveNode} from "./ExamContentTree";
@@ -161,6 +162,13 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
     setActive({kind: "lecture", lectureId});
   };
 
+  // "Continue" at the end of a lecture (or a video ending): it counts as finished and the next lecture opens.
+  const finishLecture = (lectureId: string) => {
+    markLectureComplete(lectureId);
+    const next = nextLectureId(allLectures, lectureId);
+    if (next) openLecture(next);
+  };
+
   const leaveMock = () => {
     setMock(null);
     setMockResult(null);
@@ -219,6 +227,7 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_22rem] gap-6 px-4 pb-8">
         <div className="min-w-0">
+          {!session && activeLecture && <p className="mb-3 px-1 text-lg font-semibold">{activeLecture.title}</p>}
           {isLoading ? (
             <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
               Loading…
@@ -247,7 +256,7 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
             <InteractiveLessonContent
               html={activeLecture.content}
               lessonTitle={activeLecture.title}
-              onComplete={() => markLectureComplete(activeLecture.lecture_id)}
+              onComplete={() => finishLecture(activeLecture.lecture_id)}
             />
           ) : youTubeEmbedUrl(activeLecture.video_url) ? (
             <iframe
@@ -265,27 +274,24 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
           ) : (
             <CoursePlayer
               src={activeLecture.video_url ?? undefined}
-              onEnded={() => markLectureComplete(activeLecture.lecture_id)}
+              onEnded={() => finishLecture(activeLecture.lecture_id)}
             />
           )}
 
-          {!session && activeLecture && (
-            <div className="mt-4 flex items-center justify-between px-1">
-              <p className="text-lg font-semibold">{activeLecture.title}</p>
-              {!activeLecture.content && (
-                <button
-                  type="button"
-                  onClick={() => markLectureComplete(activeLecture.lecture_id)}
-                  disabled={completedLectureIds.has(activeLecture.lecture_id)}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                    completedLectureIds.has(activeLecture.lecture_id)
-                      ? "border border-muted/20 text-subtle"
-                      : "bg-primary text-white"
-                  }`}
-                >
-                  {completedLectureIds.has(activeLecture.lecture_id) ? "Completed" : "Mark as complete"}
-                </button>
-              )}
+          {!session && activeLecture && !activeLecture.content && (
+            <div className="mt-4 flex items-center justify-end px-1">
+              <button
+                type="button"
+                onClick={() => markLectureComplete(activeLecture.lecture_id)}
+                disabled={completedLectureIds.has(activeLecture.lecture_id)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                  completedLectureIds.has(activeLecture.lecture_id)
+                    ? "border border-muted/20 text-subtle"
+                    : "bg-primary text-white"
+                }`}
+              >
+                {completedLectureIds.has(activeLecture.lecture_id) ? "Completed" : "Mark as complete"}
+              </button>
             </div>
           )}
         </div>

@@ -15,6 +15,7 @@ import OverviewTab from "./tabs/OverviewTab";
 import {CoursePractice} from "./CoursePractice";
 import {BookingSection} from "@/src/features/booking/components/BookingSection";
 import {Lesson, Module, lessonKind} from "@/src/features/learnings/helper/content.mapper";
+import {afterLesson} from "@/src/features/learnings/helper/lessonOrder";
 import {youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import {useAllLessons, useLessonsDuration, formatDuration} from "@/src/features/learnings/hooks/useLesson";
 import {useCertificates, useCompleteLecture, useCourseProgress} from "@/src/features/courses/hooks/useCourses";
@@ -150,10 +151,9 @@ export default function CourseContent({
   const handleLessonEnded = () => {
     if (!activeLesson) return;
     markComplete(activeLesson.id);
-    const currentIndex = allLessons.findIndex((item) => item.id === activeLesson.id);
-    if (currentIndex >= 0 && currentIndex < allLessons.length - 1) {
-      handleSelectLesson(allLessons[currentIndex + 1]);
-    }
+    const next = afterLesson(modules, activeLesson.id);
+    if (next?.kind === "lesson") handleSelectLesson(next.lesson);
+    else if (next?.kind === "quiz") handleSelectQuiz(next.moduleId);
   };
 
   const handleBrainySend = async (message: string): Promise<string> => {
@@ -193,6 +193,14 @@ export default function CourseContent({
         className={`grid grid-cols-1 ${isSidePanelOpen ? "lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_20rem]" : "lg:grid-cols-[minmax(0,1fr)_2rem]"} gap-6 transition-[grid-template-columns] duration-400 ease-in-out`}
       >
         <motion.div layout transition={{type: "spring", stiffness: 120, damping: 20}} className="min-w-0 pb-8">
+          {!activeQuizModuleId && !activeExercise && !activeQuizSet && activeLesson && (
+            <div className="mb-3 px-1">
+              <p className="text-lg font-semibold">{activeLesson.title}</p>
+              {!!activeLesson.duration && (
+                <p className="text-sm text-muted">{formatDuration(activeLesson.duration)}</p>
+              )}
+            </div>
+          )}
           <div className="w-full min-w-0 overflow-hidden">
             {activeQuizSet ? (
               quizSetQuestions.isLoading ? (
@@ -286,24 +294,16 @@ export default function CourseContent({
             )}
           </div>
 
-          {!activeQuizModuleId && !activeExercise && !activeQuizSet && activeLesson && (
-            <div className="mt-4 flex items-center justify-between px-1">
-              <div>
-                <p className="text-lg font-semibold">{activeLesson.title}</p>
-                {!!activeLesson.duration && (
-                  <p className="text-sm text-muted">{formatDuration(activeLesson.duration)}</p>
-                )}
-              </div>
-              {kind !== "html" && (
-                <Button
-                  variant={completedLessonIds.has(activeLesson.id) ? "outline" : "primary"}
-                  width="fit"
-                  onClick={() => markComplete(activeLesson.id)}
-                  disabled={completedLessonIds.has(activeLesson.id)}
-                >
-                  {completedLessonIds.has(activeLesson.id) ? "Completed" : "Mark as complete"}
-                </Button>
-              )}
+          {!activeQuizModuleId && !activeExercise && !activeQuizSet && activeLesson && kind !== "html" && (
+            <div className="mt-4 flex items-center justify-end px-1">
+              <Button
+                variant={completedLessonIds.has(activeLesson.id) ? "outline" : "primary"}
+                width="fit"
+                onClick={() => markComplete(activeLesson.id)}
+                disabled={completedLessonIds.has(activeLesson.id)}
+              >
+                {completedLessonIds.has(activeLesson.id) ? "Completed" : "Mark as complete"}
+              </Button>
             </div>
           )}
 
