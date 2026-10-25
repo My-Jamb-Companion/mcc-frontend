@@ -63,6 +63,8 @@ export const LESSON_CONTENT_CSS = `
   border: 1px solid #e5e7eb; padding: 0.5rem 0.75rem; text-align: left; vertical-align: top;
 }
 .lesson-block-content th { background: #f9fafb; font-weight: 600; }
+/* The block wraps with overflow-wrap: anywhere, which lets a narrow column break words letter by letter; cells wrap at spaces only. */
+.lesson-block-content th, .lesson-block-content td { overflow-wrap: normal; }
 
 /* The formats Quill writes as classes. */
 .lesson-block-content .ql-align-center { text-align: center; }
@@ -89,5 +91,6 @@ export const LESSON_CONTENT_CSS = `
   .lesson-block-content .ql-indent-4, .lesson-block-content .ql-indent-5, .lesson-block-content .ql-indent-6,
   .lesson-block-content .ql-indent-7, .lesson-block-content .ql-indent-8 { padding-left: 1.25rem; }
   .lesson-block-content table { display: block; overflow-x: auto; }
+  .lesson-block-content th, .lesson-block-content td { min-width: 6.5rem; }
 }
 `;

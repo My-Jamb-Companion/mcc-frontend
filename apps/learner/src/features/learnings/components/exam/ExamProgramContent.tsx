@@ -219,6 +219,7 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_22rem] gap-6 px-4 pb-8">
         <div className="min-w-0">
+          {!session && activeLecture && <p className="mb-3 px-1 text-lg font-semibold">{activeLecture.title}</p>}
           {isLoading ? (
             <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
               Loading…
@@ -269,23 +270,20 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
             />
           )}
 
-          {!session && activeLecture && (
-            <div className="mt-4 flex items-center justify-between px-1">
-              <p className="text-lg font-semibold">{activeLecture.title}</p>
-              {!activeLecture.content && (
-                <button
-                  type="button"
-                  onClick={() => markLectureComplete(activeLecture.lecture_id)}
-                  disabled={completedLectureIds.has(activeLecture.lecture_id)}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                    completedLectureIds.has(activeLecture.lecture_id)
-                      ? "border border-muted/20 text-subtle"
-                      : "bg-primary text-white"
-                  }`}
-                >
-                  {completedLectureIds.has(activeLecture.lecture_id) ? "Completed" : "Mark as complete"}
-                </button>
-              )}
+          {!session && activeLecture && !activeLecture.content && (
+            <div className="mt-4 flex items-center justify-end px-1">
+              <button
+                type="button"
+                onClick={() => markLectureComplete(activeLecture.lecture_id)}
+                disabled={completedLectureIds.has(activeLecture.lecture_id)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                  completedLectureIds.has(activeLecture.lecture_id)
+                    ? "border border-muted/20 text-subtle"
+                    : "bg-primary text-white"
+                }`}
+              >
+                {completedLectureIds.has(activeLecture.lecture_id) ? "Completed" : "Mark as complete"}
+              </button>
             </div>
           )}
         </div>
