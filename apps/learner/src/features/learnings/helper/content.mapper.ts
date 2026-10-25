@@ -43,6 +43,8 @@ export interface Module {
   exerciseSets: ExerciseSet[];
   /** The module's named quizzes, each a separate (optionally timed) entry. */
   quizSets: QuizSet[];
+  /** How many questions the module's Practice quiz has; undefined when the server does not say. */
+  practiceCount?: number;
 }
 
 export type LessonKind = "video" | "youtube" | "pdf" | "html";
@@ -69,6 +71,7 @@ export function groupContentRows(rows: ApiCourseContentRow[]): Module[] {
         id: row.module_id,
         title: row.module_title,
         lessons: [],
+        practiceCount: row.practice_count,
         exerciseSets: row.exercise_sets ?? [],
         quizSets: (row.quiz_sets ?? []).map((q) => ({
           name: q.name,

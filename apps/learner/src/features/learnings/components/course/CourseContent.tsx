@@ -15,6 +15,7 @@ import OverviewTab from "./tabs/OverviewTab";
 import {CoursePractice} from "./CoursePractice";
 import {BookingSection} from "@/src/features/booking/components/BookingSection";
 import {Lesson, Module, lessonKind} from "@/src/features/learnings/helper/content.mapper";
+import {afterLesson} from "@/src/features/learnings/helper/lessonOrder";
 import {youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import {useAllLessons, useLessonsDuration, formatDuration} from "@/src/features/learnings/hooks/useLesson";
 import {useCertificates, useCompleteLecture, useCourseProgress} from "@/src/features/courses/hooks/useCourses";
@@ -150,10 +151,9 @@ export default function CourseContent({
   const handleLessonEnded = () => {
     if (!activeLesson) return;
     markComplete(activeLesson.id);
-    const currentIndex = allLessons.findIndex((item) => item.id === activeLesson.id);
-    if (currentIndex >= 0 && currentIndex < allLessons.length - 1) {
-      handleSelectLesson(allLessons[currentIndex + 1]);
-    }
+    const next = afterLesson(modules, activeLesson.id);
+    if (next?.kind === "lesson") handleSelectLesson(next.lesson);
+    else if (next?.kind === "quiz") handleSelectQuiz(next.moduleId);
   };
 
   const handleBrainySend = async (message: string): Promise<string> => {
