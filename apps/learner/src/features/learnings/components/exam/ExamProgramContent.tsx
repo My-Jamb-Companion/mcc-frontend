@@ -5,6 +5,7 @@ import {useSearchParams} from "next/navigation";
 import {Icon, showError} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import {isPdfUrl, youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
+import {nextLectureId} from "@/src/features/learnings/helper/lectureOrder";
 import CoursePlayer from "../course/CoursePlayer";
 import InteractiveLessonContent from "../InteractiveLessonContent";
 import ExamContentTree, {ActiveNode} from "./ExamContentTree";
@@ -161,6 +162,13 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
     setActive({kind: "lecture", lectureId});
   };
 
+  // "Continue" at the end of a lecture (or a video ending): it counts as finished and the next lecture opens.
+  const finishLecture = (lectureId: string) => {
+    markLectureComplete(lectureId);
+    const next = nextLectureId(allLectures, lectureId);
+    if (next) openLecture(next);
+  };
+
   const leaveMock = () => {
     setMock(null);
     setMockResult(null);
@@ -248,7 +256,7 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
             <InteractiveLessonContent
               html={activeLecture.content}
               lessonTitle={activeLecture.title}
-              onComplete={() => markLectureComplete(activeLecture.lecture_id)}
+              onComplete={() => finishLecture(activeLecture.lecture_id)}
             />
           ) : youTubeEmbedUrl(activeLecture.video_url) ? (
             <iframe
@@ -266,7 +274,7 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
           ) : (
             <CoursePlayer
               src={activeLecture.video_url ?? undefined}
-              onEnded={() => markLectureComplete(activeLecture.lecture_id)}
+              onEnded={() => finishLecture(activeLecture.lecture_id)}
             />
           )}
 
