@@ -163,16 +163,39 @@ export default function CoursePlayer({
     setMuted(next);
   };
 
+  // Full screen. Desktop and Android take the whole player; iPhone Safari only allows it on the video element itself
+  // (with the phone's own controls), and has no element fullscreen at all, so it needs that fallback.
   const toggleFullscreen = () => {
-    if (!containerRef.current) return;
-    if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen();
-      setIsFullscreen(true);
+    const container = containerRef.current as (HTMLDivElement & {webkitRequestFullscreen?: () => void}) | null;
+    const video = videoRef.current as (HTMLVideoElement & {webkitEnterFullscreen?: () => void}) | null;
+    const doc = document as Document & {webkitFullscreenElement?: Element; webkitExitFullscreen?: () => void};
+    const current = document.fullscreenElement ?? doc.webkitFullscreenElement;
+    if (current) {
+      (document.exitFullscreen ?? doc.webkitExitFullscreen)?.call(document);
+      return;
+    }
+    if (container?.requestFullscreen) {
+      container.requestFullscreen().catch(() => video?.webkitEnterFullscreen?.());
+    } else if (container?.webkitRequestFullscreen) {
+      container.webkitRequestFullscreen();
     } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
+      video?.webkitEnterFullscreen?.();
     }
   };
+
+  // Follow the browser: leaving full screen with its own gesture or the Back button must turn the icon back too.
+  useEffect(() => {
+    const sync = () => {
+      const doc = document as Document & {webkitFullscreenElement?: Element};
+      setIsFullscreen(!!(document.fullscreenElement ?? doc.webkitFullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", sync);
+    document.addEventListener("webkitfullscreenchange", sync);
+    return () => {
+      document.removeEventListener("fullscreenchange", sync);
+      document.removeEventListener("webkitfullscreenchange", sync);
+    };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -221,7 +244,7 @@ export default function CoursePlayer({
       ref={containerRef}
       className={`relative w-full overflow-hidden bg-neutral-900 shadow-2xl select-none ${
         isAudio ? "rounded-2xl border border-neutral-800 p-4" : "md:rounded-2xl"
-      }`}
+      } ${isFullscreen ? "flex h-full items-center justify-center md:rounded-none" : ""}`}
       onMouseMove={resetHideTimer}
       onMouseLeave={() => playing && !isAudio && setControlsVisible(false)}
       onClick={() => showVolume && setShowVolume(false)}
@@ -233,7 +256,7 @@ export default function CoursePlayer({
           src={src}
           poster={poster}
           loop={looping}
-          className="w-full aspect-video object-cover"
+          className={isFullscreen ? "h-full w-full object-contain" : "w-full aspect-video object-cover"}
           onTimeUpdate={onTimeUpdate}
           onLoadedMetadata={() => {
             setLoadFailed(false);
@@ -450,7 +473,7 @@ export default function CoursePlayer({
                   <button
                     type="button"
                     onClick={toggleFullscreen}
-                    aria-label="Fullscreen"
+                    aria-label={isFullscreen ? "Exit full screen" : "Full screen"}
                     className="text-neutral-300 hover:text-white hover:scale-110 transition-all"
                   >
                     <Icon

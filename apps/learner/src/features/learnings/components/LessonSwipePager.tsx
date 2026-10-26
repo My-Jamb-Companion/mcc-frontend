@@ -7,6 +7,8 @@ import type {ContentBlock} from "@/src/features/learnings/helper/lessonBlocks";
 import {lessonProgress, targetPage} from "@/src/features/learnings/helper/lessonPager";
 import {normalizeLessonHtml, relaxSpaces} from "@/src/features/learnings/helper/lessonHtml";
 import {LESSON_CONTENT_CSS} from "@/src/features/learnings/helper/lessonCss";
+import {useFullScreen} from "@/src/features/learnings/hooks/useFullScreen";
+import FullScreenButton from "./FullScreenButton";
 import LessonAskBrainy from "./LessonAskBrainy";
 
 interface LessonSwipePagerProps {
@@ -27,9 +29,8 @@ export default function LessonSwipePager({blocks, lessonTitle, onComplete}: Less
   const pageRefs = useRef<(HTMLElement | null)[]>([]);
   const [page, setPage] = useState(0);
   // Full screen: the lesson takes the whole screen so nothing but the text is left to look at.
-  const [focus, setFocus] = useState(false);
+  const {focus, enter, leave} = useFullScreen();
   const pageNow = useRef(0);
-  const nativeFullscreen = useRef(false);
   const pages = blocks.length + 1; // the sections, then the closing page
   pageNow.current = page;
 
@@ -60,51 +61,6 @@ export default function LessonSwipePager({blocks, lessonTitle, onComplete}: Less
     if (pageNow.current === 0) return;
     pageRefs.current[pageNow.current]?.scrollIntoView?.({block: "start", behavior: "instant"});
   }, [focus]);
-
-  // While full screen: the page behind stays still, and Escape (or the browser's own exit) leaves it.
-  useEffect(() => {
-    if (!focus) return;
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") leaveFocus();
-    };
-    const onNativeExit = () => {
-      if (!document.fullscreenElement && nativeFullscreen.current) {
-        nativeFullscreen.current = false;
-        setFocus(false);
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    document.addEventListener("fullscreenchange", onNativeExit);
-    return () => {
-      document.body.style.overflow = overflow;
-      document.removeEventListener("keydown", onKey);
-      document.removeEventListener("fullscreenchange", onNativeExit);
-    };
-  }, [focus]);
-
-  function enterFocus() {
-    setFocus(true);
-    // Where the browser allows it (not iPhone Safari), also hide its own bars. The covering layer works either way.
-    const root = document.documentElement;
-    if (root.requestFullscreen && !document.fullscreenElement) {
-      root
-        .requestFullscreen()
-        .then(() => {
-          nativeFullscreen.current = true;
-        })
-        .catch(() => {});
-    }
-  }
-
-  function leaveFocus() {
-    setFocus(false);
-    if (nativeFullscreen.current && document.fullscreenElement) {
-      nativeFullscreen.current = false;
-      document.exitFullscreen?.().catch(() => {});
-    }
-  }
 
   function goTo(index: number) {
     pageRefs.current[index]?.scrollIntoView({behavior: "smooth", block: "start"});
@@ -177,16 +133,12 @@ export default function LessonSwipePager({blocks, lessonTitle, onComplete}: Less
       </div>
 
       {/* Full screen on and off. Only one shows at a time. */}
-      <button
-        type="button"
-        onClick={focus ? leaveFocus : enterFocus}
-        aria-label={focus ? "Exit full screen" : "Full screen"}
-        className={`absolute left-3 z-10 flex size-8 items-center justify-center rounded-full bg-background/90 text-subtle shadow-sm hover:text-foreground ${
-          focus ? "top-[calc(0.75rem+env(safe-area-inset-top))]" : "top-3"
-        }`}
-      >
-        <Icon icon={focus ? "lucide:minimize-2" : "lucide:maximize-2"} size={16} />
-      </button>
+      <FullScreenButton
+        focus={focus}
+        onEnter={enter}
+        onLeave={leave}
+        className={`absolute left-3 ${focus ? "top-[calc(0.75rem+env(safe-area-inset-top))]" : "top-3"}`}
+      />
 
       {/* Which section. It sits over the scroller and ignores the pointer, so a swipe that starts on it still scrolls. */}
       <p className={`pointer-events-none absolute right-3 rounded-full bg-background/90 px-2.5 py-1 text-xs font-medium text-subtle shadow-sm ${
