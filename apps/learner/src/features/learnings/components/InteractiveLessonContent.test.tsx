@@ -54,6 +54,42 @@ describe("a text lesson on a phone or tablet", () => {
     expect(Element.prototype.scrollIntoView).toHaveBeenCalledTimes(1);
   });
 
+  describe("full screen", () => {
+    const fixedLayer = () => document.body.querySelector(".fixed.inset-0");
+
+    it("offers Full screen, which covers the page with the lesson, and Exit full screen to come back", () => {
+      render(<InteractiveLessonContent html={HTML} lessonTitle="Time" onComplete={() => {}} />);
+      expect(screen.queryByRole("button", {name: "Exit full screen"})).not.toBeInTheDocument();
+      expect(fixedLayer()).toBeNull();
+
+      fireEvent.click(screen.getByRole("button", {name: "Full screen"}));
+      expect(fixedLayer()).not.toBeNull();
+      expect(screen.queryByRole("button", {name: "Full screen"})).not.toBeInTheDocument();
+      expect(screen.getByRole("heading", {name: "The Matrix"})).toBeInTheDocument();
+      expect(document.body.style.overflow).toBe("hidden");
+
+      fireEvent.click(screen.getByRole("button", {name: "Exit full screen"}));
+      expect(fixedLayer()).toBeNull();
+      expect(document.body.style.overflow).not.toBe("hidden");
+      expect(screen.getByRole("button", {name: "Full screen"})).toBeInTheDocument();
+    });
+
+    it("leaves full screen with Escape", () => {
+      render(<InteractiveLessonContent html={HTML} lessonTitle="Time" onComplete={() => {}} />);
+      fireEvent.click(screen.getByRole("button", {name: "Full screen"}));
+      fireEvent.keyDown(document, {key: "Escape"});
+      expect(fixedLayer()).toBeNull();
+    });
+
+    it("keeps the Continue button working in full screen", () => {
+      const onComplete = vi.fn();
+      render(<InteractiveLessonContent html={HTML} lessonTitle="Time" onComplete={onComplete} />);
+      fireEvent.click(screen.getByRole("button", {name: "Full screen"}));
+      fireEvent.click(screen.getByRole("button", {name: /Continue/}));
+      expect(onComplete).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it("says when a lesson has no content", () => {
     render(<InteractiveLessonContent html="" lessonTitle="Time" onComplete={() => {}} />);
     expect(screen.getByText(/no content yet/i)).toBeInTheDocument();
