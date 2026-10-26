@@ -16,6 +16,7 @@
     "@mcc/ui": "workspace:*",
     "@tanstack/react-query": "^5.96.2",
     "next": "16.3.5",
+    "pdfjs-dist": "^6.4.299",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-markdown": "^10.1.0",

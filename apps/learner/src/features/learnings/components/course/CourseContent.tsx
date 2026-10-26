@@ -8,6 +8,7 @@ import CoursePlayModules from "./CourseModules";
 import CoursePlayer from "./CoursePlayer";
 import BrainyCourseSidePanel from "./BrainyCourseSidePanel";
 import InteractiveLessonContent from "../InteractiveLessonContent";
+import PdfLesson from "../PdfLesson";
 import CommunityTab from "./tabs/CommunityTab";
 import NotesTab from "./tabs/NotesTab";
 import FacilitatorTab from "./tabs/FacilitatorTab";
@@ -274,10 +275,7 @@ export default function CourseContent({
                 allowFullScreen
               />
             ) : kind === "pdf" ? (
-              <iframe
-                src={activeLesson.videoUrl ?? undefined}
-                className="aspect-video w-full rounded-2xl border border-muted/20"
-              />
+              <PdfLesson src={activeLesson.videoUrl ?? ""} title={activeLesson.title} />
             ) : kind === "html" ? (
               <InteractiveLessonContent
                 html={activeLesson.content ?? ""}

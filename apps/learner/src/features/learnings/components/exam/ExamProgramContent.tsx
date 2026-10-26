@@ -8,6 +8,7 @@ import {isPdfUrl, youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import {nextLectureId} from "@/src/features/learnings/helper/lectureOrder";
 import CoursePlayer from "../course/CoursePlayer";
 import InteractiveLessonContent from "../InteractiveLessonContent";
+import PdfLesson from "../PdfLesson";
 import ExamContentTree, {ActiveNode} from "./ExamContentTree";
 import AssessmentPlayer from "./AssessmentPlayer";
 import ReadinessPanel from "./ReadinessPanel";
@@ -266,11 +267,7 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
               allowFullScreen
             />
           ) : isPdfUrl(activeLecture.video_url) ? (
-            <iframe
-              src={activeLecture.video_url ?? undefined}
-              title={activeLecture.title}
-              className="aspect-video w-full rounded-2xl border border-muted/20"
-            />
+            <PdfLesson src={activeLecture.video_url ?? ""} title={activeLecture.title} />
           ) : (
             <CoursePlayer
               src={activeLecture.video_url ?? undefined}
