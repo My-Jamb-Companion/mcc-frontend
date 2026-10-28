@@ -10,6 +10,8 @@ export interface ActionCardConfig {
   description: string;
   badge?: string;
   disabled?: boolean;
+  /** Stands out from the other cards: a solid brand background. */
+  highlight?: boolean;
 }
 
 export interface ActionCardGridProps {
@@ -30,6 +32,7 @@ function ActionCard({
   onSelect?: (id: string) => void;
 }) {
   const isDisabled = !!action.disabled;
+  const highlight = !!action.highlight;
 
   return (
     <motion.button
@@ -40,21 +43,27 @@ function ActionCard({
       whileTap={!isDisabled ? {scale: 0.99} : undefined}
       transition={{type: "spring", stiffness: 400, damping: 28}}
       className={[
-        "flex w-full items-start gap-3 rounded-2xl border-2 bg-background p-4 text-left",
-        "border-muted/20 shadow-sm",
+        "flex w-full items-start gap-3 rounded-2xl border-2 p-4 text-left",
+        highlight ? "border-primary bg-primary shadow-md" : "border-muted/20 bg-background shadow-sm",
         isDisabled
           ? "cursor-default opacity-90"
-          : "cursor-pointer hover:border-muted/30 hover:shadow-md",
+          : highlight
+            ? "cursor-pointer hover:shadow-lg hover:brightness-110"
+            : "cursor-pointer hover:border-muted/30 hover:shadow-md",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2",
       ].join(" ")}
     >
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-muted/20 bg-muted/10">
-        <Icon icon={action.icon} className="h-4.5 w-4.5 text-purple-600" />
+      <span
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 ${
+          highlight ? "border-white/30 bg-white/20" : "border-muted/20 bg-muted/10"
+        }`}
+      >
+        <Icon icon={action.icon} className={`h-4.5 w-4.5 ${highlight ? "text-white" : "text-purple-600"}`} />
       </span>
 
       <div className="flex-1">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold text-foreground">
+          <h3 className={`text-sm font-semibold ${highlight ? "text-white" : "text-foreground"}`}>
             {action.title}
           </h3>
           {action.badge && (
@@ -64,7 +73,7 @@ function ActionCard({
             </span>
           )}
         </div>
-        <p className="mt-0.5 text-sm leading-snug text-subtle">
+        <p className={`mt-0.5 text-sm leading-snug ${highlight ? "text-white/85" : "text-subtle"}`}>
           {action.description}
         </p>
       </div>
