@@ -5,7 +5,7 @@ import type { LandingBlock, LandingContent } from "./types";
 /** Sections with nothing real to say yet are present but hidden, so an admin finds them and fills them in. */
 const HIDDEN_UNTIL_FILLED = new Set(["courses", "proof"]);
 
-const ORDER = ["hero", "exams", "steps", "brainy", "practice", "humans", "courses", "parents", "proof", "faq", "cta"];
+const ORDER = ["hero", "audience", "exams", "steps", "brainy", "practice", "humans", "progress", "courses", "parents", "proof", "faq", "cta"];
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;

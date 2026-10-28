@@ -14,11 +14,15 @@
 .mcc-btn-dark:hover { background: #171717 !important; color: #fff !important; }
 .mcc-btn-white:hover { background: #f1ebff !important; color: #4f0fb0 !important; }
 .mcc-btn-glass:hover { background: rgba(255, 255, 255, 0.12) !important; }
+.mcc-lift { transition: transform .2s; }
+.mcc-lift:hover { transform: translateY(-4px); }
+.mcc-pill-link:hover { background: #eadfff !important; color: #4f0fb0 !important; }
 .mcc-link:hover { color: #4f0fb0 !important; }
 .mcc-navlink:hover { background: #f4efff !important; color: #4f0fb0 !important; }
 .mcc-card { transition: transform .15s, border-color .15s, background .15s; }
 .mcc-card:hover { border-color: #6b26ff !important; transform: translateY(-2px); }
-.mcc-exam:hover { background: #f7f3ff !important; }
+.mcc-exam-tile { transition: transform .2s ease, box-shadow .2s ease; }
+.mcc-exam-tile:hover { transform: translateY(-4px) rotate(-0.4deg); box-shadow: 0 26px 44px -26px rgba(60, 20, 140, 0.6); }
 .mcc-footlink:hover { color: #c9b2ff !important; }
 .mcc-teach:hover { border-color: #6b26ff !important; }
 .mcc-chip:hover { border-color: #6b26ff !important; color: #4f0fb0 !important; }
@@ -38,7 +42,37 @@
   .mcc-wide-only { display: flex; }
 }
 
+/* Motion: the small floating chips, the pulsing call ring, the scanning line, the typing dots. */
+@keyframes slhqFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes slhqPulse { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.9); opacity: 0; } }
+@keyframes slhqPop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes slhqSpin { to { transform: rotate(360deg); } }
+@keyframes slhqRise { 0% { transform: translateY(10px); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(-46px); opacity: 0; } }
+@keyframes slhqNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+@keyframes slhqScan { 0% { top: 14%; } 50% { top: 78%; } 100% { top: 14%; } }
+@keyframes slhqDots { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+.mcc-float { animation: slhqFloat 5s ease-in-out infinite; }
+
+/* Where a layout changes with the page's own width (the sections are container-query boxes). */
+.mcc-hero-phone { zoom: 1; }
+@container (max-width: 759px) {
+  .mcc-hero-phone { zoom: .74; }
+  .mcc-exam-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .mcc-exam-card { grid-column: span 1 !important; }
+  .mcc-exam-card.mcc-exam-big { grid-column: span 2 !important; }
+  .mcc-aud-card { flex-basis: 84% !important; }
+  .mcc-exam-big { min-height: 260px !important; }
+  .mcc-exam-card:not(.mcc-exam-big) { min-height: 200px !important; }
+  .mcc-exam-big .mcc-exam-code { font-size: 44px !important; }
+  .mcc-exam-card:not(.mcc-exam-big) .mcc-exam-code { font-size: 26px !important; }
+  .mcc-exam-big .mcc-exam-wm { font-size: 120px !important; }
+  .mcc-exam-card:not(.mcc-exam-big) .mcc-exam-wm { font-size: 72px !important; }
+  .mcc-exam-card:not(.mcc-exam-big) .mcc-exam-chips { display: none !important; }
+  .mcc-exam-big .mcc-exam-chips > :nth-child(n + 4) { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mcc-card, .mcc-btn { transition: none; }
-  .mcc-card:hover { transform: none; }
+  .mcc-card:hover, .mcc-exam-tile:hover, .mcc-lift:hover { transform: none; }
+  .mcc-root *, .mcc-root *::before, .mcc-root *::after { animation: none !important; transition: none !important; }
 }

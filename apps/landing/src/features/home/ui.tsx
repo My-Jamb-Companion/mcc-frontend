@@ -62,7 +62,7 @@ export function Button({ href, tone = "primary", size = "md", arrow = false, sha
       className={base.className}
       style={{
         display: "inline-flex", alignItems: "center", gap: 10, minHeight: lg ? 56 : 52, padding: lg ? "0 26px" : "0 24px",
-        borderRadius: 999, fontSize: lg ? 17 : 16, fontWeight: 600, ...base.style,
+        borderRadius: 10, fontSize: lg ? 17 : 16, fontWeight: 700, ...base.style,
         ...(shadow ? { boxShadow: "0 10px 24px -10px rgba(103,23,222,.7)" } : null),
       }}
     >
@@ -88,12 +88,12 @@ export function Section({ id, blockId, background, color = "#171717", border, ov
 }
 
 export function Eyebrow({ children, color = "#6717DE" }: { children: ReactNode; color?: string }) {
-  return children ? <span style={{ fontSize: 14, fontWeight: 600, color }}>{children}</span> : null;
+  return children ? <span style={{ fontSize: 14, fontWeight: 700, color }}>{children}</span> : null;
 }
 
 export function H2({ children, size = "clamp(34px,4.6cqw,56px)", lineHeight = 1.04 }: { children: ReactNode; size?: string; lineHeight?: number }) {
   return (
-    <h2 style={{ margin: 0, fontFamily: DISPLAY, fontWeight: 700, fontSize: size, lineHeight, letterSpacing: "-0.01em", textWrap: "balance" }}>
+    <h2 style={{ margin: 0, fontFamily: DISPLAY, fontWeight: 800, fontSize: size, lineHeight, letterSpacing: "-0.01em", textWrap: "balance" }}>
       {children}
     </h2>
   );

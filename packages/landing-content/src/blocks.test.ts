@@ -35,7 +35,7 @@ describe("the block registry", () => {
     expect(new Set(BLOCKS.map((b) => b.type)).size).toBe(BLOCKS.length);
     for (const block of BLOCKS) {
       expect(block.fields.length, block.type).toBeGreaterThan(0);
-      expect(block.anchor, block.type).toMatch(/^[a-z]+$/);
+      expect(block.anchor, block.type).toMatch(/^[a-z]+(-[a-z]+)*$/);
     }
   });
 

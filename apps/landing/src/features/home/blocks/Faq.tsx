@@ -16,7 +16,7 @@ export function Faq({ data, blockId }: { data: FieldData; blockId: string }) {
           <H2>{str(data, "headline")}</H2>
           {str(data, "body") && <p style={{ margin: 0, fontSize: 16, lineHeight: 1.6, color: "#4A4A4A" }}>{str(data, "body")}</p>}
           {str(data, "cta_label") && (
-            <A href={str(data, "cta_href")} className="mcc-btn mcc-btn-dark" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", minHeight: 48, padding: "0 20px", borderRadius: 999, border: "1.5px solid #171717", color: "#171717", fontSize: 15, fontWeight: 600 }}>
+            <A href={str(data, "cta_href")} className="mcc-btn mcc-btn-dark" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", minHeight: 48, padding: "0 20px", borderRadius: 10, border: "1.5px solid #171717", color: "#171717", fontSize: 15, fontWeight: 700 }}>
               {str(data, "cta_label")}
             </A>
           )}
@@ -25,12 +25,12 @@ export function Faq({ data, blockId }: { data: FieldData; blockId: string }) {
           {items.map((q, i) => {
             const isOpen = open === i;
             return (
-              <div key={i} style={{ borderRadius: 22, background: "#fff", border: "1px solid #EEE8FB" }}>
+              <div key={i} style={{ borderRadius: 16, background: "#fff", border: "1px solid #EEE8FB" }}>
                 <button
                   type="button"
                   aria-expanded={isOpen}
                   onClick={() => setOpen(isOpen ? -1 : i)}
-                  style={{ width: "100%", minHeight: 64, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: "16px 22px", border: 0, background: "transparent", font: "inherit", fontSize: 17, fontWeight: 600, color: "#171717", textAlign: "left", cursor: "pointer" }}
+                  style={{ width: "100%", minHeight: 64, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: "16px 22px", border: 0, background: "transparent", font: "inherit", fontSize: 17, fontWeight: 700, color: "#171717", textAlign: "left", cursor: "pointer" }}
                 >
                   {str(q, "q")}
                   <span style={{ width: 32, height: 32, flex: "none", borderRadius: "50%", background: "#F4EFFF", color: "#6717DE", display: "grid", placeItems: "center", transition: "transform .2s", transform: isOpen ? "rotate(180deg)" : "none" }}>

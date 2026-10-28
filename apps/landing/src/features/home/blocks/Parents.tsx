@@ -10,7 +10,7 @@ function ParentPhone() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".08em", color: "#6717DE" }}>PARENT APP</span><span style={{ fontSize: 11, color: "#5C5C5C" }}>This week</span></div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{ width: 44, height: 44, borderRadius: "50%", background: "#EADFFF", color: "#4F0FB0", display: "grid", placeItems: "center", fontWeight: 700 }}>T</span>
-          <div><div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 20, lineHeight: 1.1 }}>Tolu&apos;s week</div><div style={{ fontSize: 12, color: "#5C5C5C" }}>JAMB · SS3</div></div>
+          <div><div style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: 20, lineHeight: 1.1 }}>Tolu&apos;s week</div><div style={{ fontSize: 12, color: "#5C5C5C" }}>JAMB · SS3</div></div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           {[["Study streak", "5 days"], ["Quizzes done", "8"]].map(([l, v]) => (
@@ -28,6 +28,10 @@ function ParentPhone() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
           <span><b>Attended</b> Thursday&apos;s live class</span>
         </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: 12, borderRadius: 16, background: "#F4EFFF", color: "#2B1A4F" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6717DE" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /></svg>
+          <span>Teacher&apos;s note from Mrs. Okafor</span>
+        </div>
       </div>
     </div>
   );
@@ -44,7 +48,7 @@ export function Parents({ data, blockId }: { data: FieldData; blockId: string })
           <Lead maxWidth={540}>{str(data, "body")}</Lead>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,200px),1fr))", gap: 12, width: "100%" }}>
             {pillars.map((p, i) => (
-              <div key={i} style={{ padding: 20, borderRadius: 22, background: "#fff", display: "flex", flexDirection: "column", gap: 8 }}>
+              <div key={i} style={{ padding: 20, borderRadius: 16, background: "#fff", display: "flex", flexDirection: "column", gap: 8 }}>
                 <span style={{ fontSize: 16, fontWeight: 700 }}>{str(p, "title")}</span>
                 <span style={{ fontSize: 14, lineHeight: 1.55, color: "#4A4A4A" }}>{str(p, "body")}</span>
               </div>
@@ -53,7 +57,7 @@ export function Parents({ data, blockId }: { data: FieldData; blockId: string })
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
             {str(data, "cta_label") && <Button href={str(data, "cta_href")} arrow>{str(data, "cta_label")}</Button>}
             {str(data, "secondary_label") && (
-              <A href={str(data, "secondary_href")} className="mcc-link" style={{ display: "inline-flex", alignItems: "center", minHeight: 52, padding: "0 8px", fontSize: 16, fontWeight: 600, color: "#4F0FB0" }}>
+              <A href={str(data, "secondary_href")} className="mcc-link" style={{ display: "inline-flex", alignItems: "center", minHeight: 52, padding: "0 8px", fontSize: 16, fontWeight: 700, color: "#4F0FB0" }}>
                 {str(data, "secondary_label")}
               </A>
             )}

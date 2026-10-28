@@ -9,7 +9,7 @@ describe("LandingPage", () => {
   it("draws the built-in design with its sections in order, and hides the ones with nothing to say yet", () => {
     const { container } = render(<LandingPage content={defaultContent()} />);
     const ids = Array.from(container.querySelectorAll("main > section")).map((s) => s.id);
-    expect(ids).toEqual(["top", "exams", "how", "brainy", "practice", "teachers", "parents", "faq", "start"]);
+    expect(ids).toEqual(["top", "for-you", "exams", "how", "brainy", "practice", "teachers", "progress", "parents", "faq", "start"]);
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Learn smart,");
   });
 

@@ -82,7 +82,7 @@ export const SITE_DEFAULTS: FieldData = {
     { label: "YouTube", href: "" }, { label: "WhatsApp", href: "" },
   ],
   copyright: "© 2026 SmartLearnersHQ",
-  currency_note: "",
+  currency_note: "₦ NGN · $ USD",
   seo_title: "SmartLearnersHQ · Learn smart, pass with confidence.",
   seo_description: "Prep for JAMB, WAEC, NECO, IGCSE and more with lessons, practice tests, live classes and Brainy, your AI study buddy.",
   og_image_url: "",

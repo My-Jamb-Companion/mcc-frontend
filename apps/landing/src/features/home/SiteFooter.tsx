@@ -32,10 +32,10 @@ export function SiteFooter({ site }: { site: FieldData }) {
             )}
             {str(site, "footer_about") && <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: "#BDBDBD" }}>{str(site, "footer_about")}</p>}
             {str(site, "teach_label") && (
-              <A id="teach" href={str(site, "teach_href")} className="mcc-teach" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "16px 18px", borderRadius: 20, background: "#17151C", border: "1px solid #2A2633", color: "#fff", textDecoration: "none" }}>
+              <A id="teach" href={str(site, "teach_href")} className="mcc-teach" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "16px 18px", borderRadius: 16, background: "#17151C", border: "1px solid #2A2633", color: "#fff", textDecoration: "none" }}>
                 <span>
                   <span style={{ display: "block", fontSize: 15, fontWeight: 700 }}>{str(site, "teach_label")}</span>
-                  <span style={{ display: "block", fontSize: 13, color: "#A3A3A3", marginTop: 2 }}>{str(site, "teach_body")}</span>
+                  <span style={{ display: "block", fontSize: 14, color: "#A3A3A3", marginTop: 2 }}>{str(site, "teach_body")}</span>
                 </span>
                 <Arrow />
               </A>
