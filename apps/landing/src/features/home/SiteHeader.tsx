@@ -27,17 +27,17 @@ export function SiteHeader({ site, homeHref = "#top" }: { site: FieldData; homeH
 
         <nav className="mcc-header-wide" aria-label="Main" style={{ gap: 2, flex: 1, justifyContent: "center" }}>
           {links.map((l, i) => (
-            <A key={i} href={str(l, "href")} className="mcc-navlink" style={{ padding: "10px 12px", borderRadius: 10, fontSize: 15, fontWeight: 500, color: "#262626", textDecoration: "none" }}>
+            <A key={i} href={str(l, "href")} className="mcc-navlink" style={{ padding: "10px 12px", borderRadius: 10, fontSize: 15, fontWeight: 400, color: "#262626", textDecoration: "none" }}>
               {str(l, "label")}
             </A>
           ))}
         </nav>
-        <A href={str(site, "login_href")} className="mcc-header-wide mcc-navlink" style={{ alignItems: "center", minHeight: 48, padding: "0 16px", borderRadius: 999, fontSize: 15, fontWeight: 600, color: "#171717", textDecoration: "none" }}>
+        <A href={str(site, "login_href")} className="mcc-header-wide mcc-navlink" style={{ alignItems: "center", minHeight: 48, padding: "0 16px", borderRadius: 10, fontSize: 15, fontWeight: 700, color: "#171717", textDecoration: "none" }}>
           {str(site, "login_label")}
         </A>
         <span className="mcc-header-compact" style={{ flex: 1 }} />
 
-        <A href={str(site, "cta_href")} className="mcc-btn mcc-btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 8, minHeight: 44, padding: "0 18px", borderRadius: 999, background: "#6717DE", color: "#fff", fontSize: 15, fontWeight: 600, whiteSpace: "nowrap", flex: "none" }}>
+        <A href={str(site, "cta_href")} className="mcc-btn mcc-btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 8, minHeight: 44, padding: "0 18px", borderRadius: 10, background: "#6717DE", color: "#fff", fontSize: 15, fontWeight: 700, whiteSpace: "nowrap", flex: "none" }}>
           <span className="mcc-header-wide" style={{ display: undefined }}>{str(site, "cta_label")}</span>
           <span className="mcc-header-compact">{str(site, "cta_label_short") || str(site, "cta_label")}</span>
         </A>
@@ -59,14 +59,14 @@ export function SiteHeader({ site, homeHref = "#top" }: { site: FieldData; homeH
       {open && (
         <div className="mcc-header-compact" style={{ borderTop: "1px solid #EEEAF5", padding: "8px 16px 20px", flexDirection: "column", background: "#fff" }}>
           {links.map((l, i) => (
-            <A key={i} href={str(l, "href")} style={{ display: "flex", alignItems: "center", minHeight: 52, padding: "0 8px", borderBottom: "1px solid #F2EEF8", fontSize: 16, fontWeight: 500, color: "#171717", textDecoration: "none" }}>
+            <A key={i} href={str(l, "href")} style={{ display: "flex", alignItems: "center", minHeight: 52, padding: "0 8px", borderBottom: "1px solid #F2EEF8", fontSize: 16, fontWeight: 400, color: "#171717", textDecoration: "none" }}>
               {str(l, "label")}
             </A>
           ))}
           <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-            <A href={str(site, "login_href")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 48, borderRadius: 999, border: "1.5px solid #171717", color: "#171717", fontWeight: 600, textDecoration: "none" }}>{str(site, "login_label")}</A>
+            <A href={str(site, "login_href")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 48, borderRadius: 10, border: "1.5px solid #171717", color: "#171717", fontWeight: 700, textDecoration: "none" }}>{str(site, "login_label")}</A>
             {str(site, "parent_label") && (
-              <A href={str(site, "parent_href")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 48, borderRadius: 999, background: "#F4EFFF", color: "#4F0FB0", fontWeight: 600, textDecoration: "none" }}>{str(site, "parent_label")}</A>
+              <A href={str(site, "parent_href")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 48, borderRadius: 10, background: "#F4EFFF", color: "#4F0FB0", fontWeight: 700, textDecoration: "none" }}>{str(site, "parent_label")}</A>
             )}
           </div>
         </div>

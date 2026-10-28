@@ -34,7 +34,7 @@ export function Courses({ data, blockId }: { data: FieldData; blockId: string })
                   aria-pressed={active}
                   onClick={() => setFilter(c)}
                   className={active ? undefined : "mcc-chip"}
-                  style={{ minHeight: 44, padding: "0 18px", borderRadius: 999, border: `1.5px solid ${active ? "#171717" : "#E2DAF3"}`, background: active ? "#171717" : "#fff", color: active ? "#fff" : "#171717", font: "inherit", fontSize: 15, fontWeight: 600, cursor: "pointer" }}
+                  style={{ minHeight: 44, padding: "0 18px", borderRadius: 10, border: `1.5px solid ${active ? "#171717" : "#E2DAF3"}`, background: active ? "#171717" : "#fff", color: active ? "#fff" : "#171717", font: "inherit", fontSize: 15, fontWeight: 700, cursor: "pointer" }}
                 >
                   {c}
                 </button>
@@ -48,14 +48,14 @@ export function Courses({ data, blockId }: { data: FieldData; blockId: string })
           const free = bool(c, "free");
           const cover = str(c, "image_url");
           return (
-            <A key={i} href={str(c, "href")} className="mcc-card" style={{ display: "flex", flexDirection: "column", borderRadius: 28, border: "1.5px solid #EEE8FB", background: "#fff", overflow: "hidden", textDecoration: "none", color: "#171717" }}>
+            <A key={i} href={str(c, "href")} className="mcc-card" style={{ display: "flex", flexDirection: "column", borderRadius: 16, border: "1.5px solid #EEE8FB", background: "#fff", overflow: "hidden", textDecoration: "none", color: "#171717" }}>
               <div style={{ position: "relative", height: 160, background: "#F4EFFF", display: "flex", alignItems: "flex-end", padding: 18, overflow: "hidden" }}>
                 {cover ? (
                   <img src={cover} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                 ) : (
                   <>
                     <span style={{ position: "absolute", right: -20, top: -30, width: 150, height: 150, borderRadius: "50%", background: "#EADFFF" }} />
-                    <span style={{ position: "relative", fontFamily: DISPLAY, fontWeight: 700, fontSize: 30, lineHeight: 1, color: "#4F0FB0" }}>{str(c, "glyph")}</span>
+                    <span style={{ position: "relative", fontFamily: DISPLAY, fontWeight: 800, fontSize: 30, lineHeight: 1, color: "#4F0FB0" }}>{str(c, "glyph")}</span>
                   </>
                 )}
                 <span style={{ position: "absolute", left: 16, top: 16, padding: "5px 12px", borderRadius: 999, background: free ? "#E9F8EF" : "#6717DE", color: free ? "#13703D" : "#fff", fontSize: 12, fontWeight: 700, letterSpacing: ".04em" }}>
@@ -68,7 +68,7 @@ export function Courses({ data, blockId }: { data: FieldData; blockId: string })
                 {str(c, "byline") && <span style={{ fontSize: 14, color: "#5C5C5C" }}>{str(c, "byline")}</span>}
                 <div style={{ marginTop: "auto", paddingTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #F2EEF8" }}>
                   <span style={{ fontSize: 15, fontWeight: 700 }}>{free ? "Free" : str(c, "price_label")}</span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: "#6717DE" }}>View course</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "#6717DE" }}>View course</span>
                 </div>
               </div>
             </A>
@@ -76,7 +76,7 @@ export function Courses({ data, blockId }: { data: FieldData; blockId: string })
         })}
       </div>
       {str(data, "cta_label") && (
-        <A href={str(data, "cta_href")} className="mcc-btn mcc-btn-dark" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 10, minHeight: 52, padding: "0 24px", borderRadius: 999, border: "1.5px solid #171717", color: "#171717", fontSize: 16, fontWeight: 600 }}>
+        <A href={str(data, "cta_href")} className="mcc-btn mcc-btn-dark" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 10, minHeight: 52, padding: "0 24px", borderRadius: 10, border: "1.5px solid #171717", color: "#171717", fontSize: 16, fontWeight: 700 }}>
           {str(data, "cta_label")}
         </A>
       )}

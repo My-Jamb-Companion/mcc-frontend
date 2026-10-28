@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import { visibleBlocks } from "@mcc/landing-content";
 import type { FieldData, LandingContent } from "@mcc/landing-content";
 import "./landing.css";
+import { Audience } from "./blocks/Audience";
 import { Brainy } from "./blocks/Brainy";
 import { Courses } from "./blocks/Courses";
 import { Cta } from "./blocks/Cta";
@@ -11,6 +12,7 @@ import { Hero } from "./blocks/Hero";
 import { Humans } from "./blocks/Humans";
 import { Parents } from "./blocks/Parents";
 import { Practice } from "./blocks/Practice";
+import { Progress } from "./blocks/Progress";
 import { Proof } from "./blocks/Proof";
 import { Steps } from "./blocks/Steps";
 import { SiteFooter } from "./SiteFooter";
@@ -20,8 +22,8 @@ type BlockView = ComponentType<{ data: FieldData; blockId: string }>;
 
 /** Block type to the component that draws it. A type missing here is skipped, so content from a newer editor can't break an older site. */
 const VIEWS: Record<string, BlockView> = {
-  hero: Hero, exams: Exams, steps: Steps, brainy: Brainy, practice: Practice, humans: Humans,
-  courses: Courses, parents: Parents, proof: Proof, faq: Faq, cta: Cta,
+  hero: Hero, audience: Audience, exams: Exams, steps: Steps, brainy: Brainy, practice: Practice, humans: Humans,
+  progress: Progress, courses: Courses, parents: Parents, proof: Proof, faq: Faq, cta: Cta,
 };
 
 /** The whole landing page, drawn from its content. Used by the live site and by the admin's live preview. */
