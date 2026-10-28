@@ -166,25 +166,16 @@ export default function Brainy() {
           {mode === "exam" && (
             <div key="exam" className="w-full">
               {examView === "actions" ? (
-                <>
-                  <div className="mb-2 flex justify-end">
-                    <Link
-                      href="/learnings/study-sets"
-                      className="text-sm font-medium text-btn-primary dark:text-primary hover:underline"
-                    >
-                      My study sets
-                    </Link>
-                  </div>
-                  <BrainyExamActionCardGrid
-                    eyebrow="Exam Preparations"
-                    heading="How do you want to prepare for your exams?"
-                    subtext="Turn your notes, slides, photos or a live lecture into flashcards to study from."
-                    actions={EXAM_PREP_ACTIONS}
-                    onSelect={(id) => {
-                      if (id === "paste" || id === "upload" || id === "record") setExamView(id);
-                    }}
-                  />
-                </>
+                <BrainyExamActionCardGrid
+                  eyebrow="Exam Preparations"
+                  heading="How do you want to prepare for your exams?"
+                  subtext="Turn your notes, slides, photos or a live lecture into flashcards to study from."
+                  actions={EXAM_PREP_ACTIONS}
+                  onSelect={(id) => {
+                    if (id === "paste" || id === "upload" || id === "record") setExamView(id);
+                    else if (id === "study-sets") router.push("/learnings/study-sets");
+                  }}
+                />
               ) : (
                 <FlashcardGenerator source={examView} onBack={() => setExamView("actions")} />
               )}
@@ -289,5 +280,12 @@ const EXAM_PREP_ACTIONS: ActionCardConfig[] = [
     icon: "ph:book-open",
     title: "Paste",
     description: "Paste your notes or study material",
+  },
+  {
+    id: "study-sets",
+    icon: "ph:cards",
+    title: "My study sets",
+    description: "Study and quiz the flashcards you've saved",
+    highlight: true,
   },
 ];
