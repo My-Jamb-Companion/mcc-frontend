@@ -2,10 +2,11 @@
 import {afterEach, describe, expect, it, vi} from "vitest";
 import {cleanup, fireEvent, render, screen} from "@testing-library/react";
 
-vi.mock("@mcc/ui", () => ({Icon: () => null}));
+vi.mock("@mcc/ui", () => ({Icon: () => null, showSuccess: vi.fn(), showError: vi.fn()}));
 const refetch = vi.fn();
 vi.mock("../hooks/useImageLibrary", () => ({
   IMAGE_LIBRARY_KEY: ["admin-image-library"],
+  useDeleteLibraryImages: () => ({mutate: vi.fn(), isPending: false}),
   useImageLibrary: () => ({images: [], total: 0, isLoading: false, isError: true, hasMore: false, loadMore: vi.fn(), loadingMore: false, refetch}),
 }));
 
