@@ -1,5 +1,5 @@
-import {keepPreviousData, useInfiniteQuery} from "@tanstack/react-query";
-import {listLibraryImages} from "../services/imageLibrary.service";
+import {keepPreviousData, useInfiniteQuery, useMutation, useQueryClient} from "@tanstack/react-query";
+import {deleteLibraryImages, listLibraryImages} from "../services/imageLibrary.service";
 import {allImages, nextOffset} from "../helper/imageLibrary";
 
 export const IMAGE_LIBRARY_KEY = ["admin-image-library"] as const;
@@ -27,4 +27,13 @@ export function useImageLibrary(search: string, enabled: boolean) {
     loadingMore: query.isFetchingNextPage,
     refetch: query.refetch,
   };
+}
+
+/** Deleting images; the library is read again afterwards. */
+export function useDeleteLibraryImages() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (urls: string[]) => deleteLibraryImages(urls),
+    onSuccess: () => queryClient.invalidateQueries({queryKey: IMAGE_LIBRARY_KEY}),
+  });
 }
