@@ -4,9 +4,12 @@ import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {createPortal} from "react-dom";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
+import {useQueryClient} from "@tanstack/react-query";
 import {Icon, showError} from "@mcc/ui";
 import {uploadMedia} from "@/src/features/courses/services/media.service";
 import {planPaste} from "@/src/features/courses/helper/lessonPaste";
+import ImagePickerDialog from "@/src/features/media-library/components/ImagePickerDialog";
+import {IMAGE_LIBRARY_KEY} from "@/src/features/media-library/hooks/useImageLibrary";
 
 // react-quill-new touches `document` at import time, so it must never run
 // on the server -- same reasoning as the messaging compose box
@@ -206,33 +209,41 @@ export default function LessonHtmlEditor({
     editor.setSelection(range.index + symbol.length, 0);
   }
 
-  function handleImageClick() {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
-      const editor = getEditor();
-      if (!editor) return;
+  // The Image button opens the picker (images already uploaded, or a new one). Where the image goes is the
+  // cursor as it was when the button was pressed, since opening the picker moves focus out of the editor.
+  const queryClient = useQueryClient();
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const insertAt = useRef(0);
 
-      const range = editor.getSelection(true) || {index: editor.getLength()};
-      setUploadingImage(true);
-      try {
-        // Real upload, real URL -- Quill's default image handler just
-        // inlines a base64 data URI, which would bloat the saved HTML and
-        // never resolve to a stable, cacheable image. Same presigned-URL
-        // upload path used for course cover images and lecture video.
-        const url = await uploadMedia(file, "lessons");
-        editor.insertEmbed(range.index, "image", url, "user");
-        editor.setSelection(range.index + 1, 0);
-      } catch {
-        showError("Failed to upload image. Please try again.");
-      } finally {
-        setUploadingImage(false);
-      }
-    };
-    input.click();
+  function handleImageClick() {
+    const editor = getEditor();
+    insertAt.current = (editor?.getSelection(true) || {index: editor ? editor.getLength() : 0}).index;
+    setPickerOpen(true);
+  }
+
+  function insertImage(url: string) {
+    const editor = getEditor();
+    if (!editor) return;
+    const index = Math.min(insertAt.current, Math.max(0, editor.getLength() - 1));
+    editor.insertEmbed(index, "image", url, "user");
+    editor.setSelection(index + 1, 0);
+  }
+
+  async function uploadImage(file: File) {
+    setUploadingImage(true);
+    try {
+      // Real upload, real URL -- Quill's default image handler just inlines a base64 data URI, which would
+      // bloat the saved HTML and never resolve to a stable, cacheable image. Same presigned-URL upload
+      // path used for course cover images and lecture video. The new image joins the library.
+      const url = await uploadMedia(file, "lessons");
+      void queryClient.invalidateQueries({queryKey: IMAGE_LIBRARY_KEY});
+      insertImage(url);
+      setPickerOpen(false);
+    } catch {
+      showError("Failed to upload image. Please try again.");
+    } finally {
+      setUploadingImage(false);
+    }
   }
 
   const modules = useMemo(
@@ -257,6 +268,17 @@ export default function LessonHtmlEditor({
         onChange={onChange}
         modules={modules}
         placeholder="Write the lesson content. Use Heading 2 to start a new block -- students will see one block at a time."
+      />
+
+      <ImagePickerDialog
+        open={pickerOpen}
+        uploading={uploadingImage}
+        onClose={() => setPickerOpen(false)}
+        onPick={(url) => {
+          insertImage(url);
+          setPickerOpen(false);
+        }}
+        onUpload={uploadImage}
       />
 
       <div className="flex items-center gap-2 border-t border-gray-100 bg-gray-50/60 px-3 py-2">

@@ -4,7 +4,9 @@
  * sliver showed and nothing could be picked. The panel must render outside that frame,
  * and choosing a symbol must put it into the editor.
  */
-import {cleanup, fireEvent, render, screen} from "@testing-library/react";
+import {cleanup, fireEvent, render as rtlRender, screen} from "@testing-library/react";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import type {ReactElement} from "react";
 import {afterEach, describe, expect, it, vi} from "vitest";
 
 const insertText = vi.fn();
@@ -31,6 +33,9 @@ vi.mock("next/dynamic", async () => {
   };
 });
 vi.mock("@/src/features/courses/services/media.service", () => ({uploadMedia: vi.fn()}));
+
+// The image picker reads the library through React Query.
+const render = (ui: ReactElement) => rtlRender(<QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>);
 
 import LessonHtmlEditor from "./LessonHtmlEditor";
 
