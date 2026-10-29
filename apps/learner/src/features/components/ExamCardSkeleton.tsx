@@ -1,6 +1,9 @@
 export default function ExamCardSkeleton() {
   return (
     <div className="relative shrink-0 w-48 rounded-2xl bg-background p-4 flex flex-col gap-3 overflow-hidden">
+      {/* Thumbnail */}
+      <div className="w-full aspect-video rounded-xl bg-muted/10 animate-pulse" />
+
       {/* Icon + Name */}
       <div className="flex items-center gap-2">
         <div className="w-9 h-9 rounded-full bg-muted/10 animate-pulse shrink-0" />

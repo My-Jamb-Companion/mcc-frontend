@@ -2,6 +2,8 @@ export interface ExamItem {
   id: string;
   name: string;
   icon?: string;
+  /** The program's cover image, shown as the card's thumbnail. */
+  imageUrl?: string;
   rating?: number;
   reviewCount?: string;
   /** Omitted for an already-enrolled program -- see completePercent. */

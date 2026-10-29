@@ -2,6 +2,7 @@
 
 import {Icon} from "@mcc/ui";
 import {ExamsProps} from "../constants/ExamCards";
+import {coverFallback} from "./coverFallback";
 import Link from "next/link";
 
 export default function ExamCard({exam}: ExamsProps) {
@@ -9,6 +10,11 @@ export default function ExamCard({exam}: ExamsProps) {
 
   return (
     <div className="relative shrink-0 w-48 rounded-2xl bg-background p-4 flex flex-col gap-3 overflow-hidden">
+      {exam.imageUrl && (
+        <div className="w-full aspect-video rounded-xl overflow-hidden bg-muted/10 z-10">
+          <img src={exam.imageUrl} alt={exam.name} loading="lazy" onError={coverFallback} className="w-full h-full object-cover" />
+        </div>
+      )}
       <div className="flex items-center gap-2 z-10">
         <div className="w-9 h-9 rounded-full bg-muted/10 flex items-center justify-center shrink-0">
           <Icon icon={exam.icon ?? "solar:document-bold"} size={20} />
