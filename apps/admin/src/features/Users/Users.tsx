@@ -33,6 +33,13 @@ function formatDate(iso: string): string {
   });
 }
 
+function formatDateTime(iso: string): string {
+  return `${formatDate(iso)}, ${new Date(iso).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  })}`;
+}
+
 export default function Users() {
   const {users, isLoading} = useUsers();
   const activateUser = useActivateUser();
@@ -121,6 +128,18 @@ export default function Users() {
       cell: ({getValue}) => (
         <span className="text-slate-500">{formatDate(getValue() as string)}</span>
       ),
+    },
+    {
+      accessorKey: "last_login_at",
+      header: "Last login",
+      cell: ({getValue}) => {
+        const value = getValue() as string | null | undefined;
+        return (
+          <span className="whitespace-nowrap text-slate-500">
+            {value ? formatDateTime(value) : "Never"}
+          </span>
+        );
+      },
     },
     {
       accessorKey: "auth_provider",

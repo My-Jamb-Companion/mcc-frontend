@@ -8,6 +8,8 @@ export interface ApiActiveStudent {
   program_description: string;
   program_icon?: string | null;
   date_joined: string;
+  /** Most recent sign-in; null if the student has none on record. */
+  last_login_at?: string | null;
   date_onboarded?: string | null;
   leaderboard_position?: number | null;
   location: string;

@@ -475,6 +475,21 @@ export default function ActiveTable({
           </span>
         ),
       }),
+      columnHelper.accessor("lastLogin", {
+        header: "Last login",
+        enableSorting: false,
+        cell: (info) => (
+          <span className="text-sm text-gray-600 whitespace-nowrap">
+            {info.getValue() ?? "—"}
+            {info.row.original.lastLoginTime && (
+              <>
+                <span className="text-gray-300 mx-1">|</span>
+                {info.row.original.lastLoginTime}
+              </>
+            )}
+          </span>
+        ),
+      }),
       columnHelper.accessor("dateOnboarded", {
         header: "Date onb.",
         enableSorting: false,

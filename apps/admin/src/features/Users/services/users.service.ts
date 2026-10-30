@@ -11,6 +11,8 @@ export interface ApiUser {
   username?: string | null;
   phone_number?: string | null;
   created_at: string;
+  /** Most recent sign-in; null if the account has none on record. */
+  last_login_at?: string | null;
 }
 
 interface ListUsersParams {

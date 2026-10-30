@@ -34,6 +34,8 @@ export function fromApiActiveStudent(api: ApiActiveStudent): Student {
     ],
     dateJoined: formatDate(api.date_joined),
     dateJoinedTime: formatTime(api.date_joined),
+    lastLogin: formatDate(api.last_login_at),
+    lastLoginTime: formatTime(api.last_login_at),
     dateOnboarded: formatDate(api.date_onboarded),
     dateOnboardedTime: formatTime(api.date_onboarded),
     rank: api.leaderboard_position ?? 0,
