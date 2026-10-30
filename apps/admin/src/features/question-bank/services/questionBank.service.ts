@@ -104,10 +104,19 @@ export const parseQuestionFile = async (file: File): Promise<ParseResult> => {
   return res.data.data;
 };
 
-/** The upload template. Endpoint: GET /admin/question-bank/template?format=xlsx|csv */
-export const downloadQuestionTemplate = async (format: "xlsx" | "csv"): Promise<Blob> => {
+export type TemplateKind = "general" | "practice" | "exercise" | "mock";
+
+/**
+ * The upload template. Endpoint: GET /admin/question-bank/template?format=xlsx|csv&kind=...&subject=...
+ * `kind` picks the columns for one kind of set; `subject: "maths"` (with a kind) adds maths examples and a guide.
+ */
+export const downloadQuestionTemplate = async (
+  format: "xlsx" | "csv",
+  kind: TemplateKind = "general",
+  subject: "general" | "maths" = "general",
+): Promise<Blob> => {
   const res = await apiClient.get<Blob>("/admin/question-bank/template", {
-    params: {format},
+    params: {format, kind, subject},
     responseType: "blob",
   });
   return res.data;

@@ -12,7 +12,7 @@ import {
 } from "@/src/features/question-editor/bank";
 import type {CreatPracticeQuestionType} from "@/src/features/question-editor/types";
 import {useParseQuestionFile, useSaveSetToBank} from "../hooks/useQuestionBank";
-import {downloadQuestionTemplate, getApiErrorMessage} from "../services/questionBank.service";
+import {downloadQuestionTemplate, getApiErrorMessage, type TemplateKind} from "../services/questionBank.service";
 
 export type UploadTarget =
   /** Into a Practice / Exercise / Quiz / Test set; `withResponses` is true for Practice. */
@@ -78,9 +78,14 @@ export default function UploadQuestionsModal({
     });
   }
 
-  async function template(format: "xlsx" | "csv") {
+  // The template that fits what is being uploaded into: a mock exam's has the passage columns, a practice's the
+  // response columns, an exercise's neither; the Question Bank takes them all.
+  const kind: TemplateKind = inBank ? "general" : withPassages ? "mock" : withResponses ? "practice" : "exercise";
+
+  async function template(format: "xlsx" | "csv", subject: "general" | "maths" = "general") {
     try {
-      downloadBlob(await downloadQuestionTemplate(format), `question-template.${format}`);
+      const prefix = inBank ? "question" : `${subject === "maths" ? "maths-" : ""}${kind}`;
+      downloadBlob(await downloadQuestionTemplate(format, kind, subject), `${prefix}-template.${format}`);
     } catch (error) {
       showError(getApiErrorMessage(error, "Couldn't download the template. Please try again."));
     }
@@ -137,7 +142,14 @@ export default function UploadQuestionsModal({
               <Icon icon="lucide:download" size={14} />
               CSV template
             </button>
+            {!inBank && (
+              <button type="button" onClick={() => template("xlsx", "maths")} className={link}>
+                <Icon icon="lucide:download" size={14} />
+                Maths template (Excel)
+              </button>
+            )}
           </div>
+          {!inBank && <p className="mt-2 text-xs text-gray-500">The maths template has worked examples and a guide to typing maths.</p>}
         </div>
 
         <label
