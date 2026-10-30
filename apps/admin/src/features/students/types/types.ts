@@ -17,6 +17,8 @@ export interface Student {
   programs: Program[];
   dateJoined: string;
   dateJoinedTime: string;
+  lastLogin?: string;
+  lastLoginTime?: string;
   dateOnboarded?: string;
   dateOnboardedTime?: string;
   rank: number;
