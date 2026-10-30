@@ -5,10 +5,10 @@ import {Icon} from "@mcc/ui";
 import {useExamHistory} from "../hooks/useExamHistory";
 
 const ACTIVITY_LABEL: Record<string, string> = {
-  // A module's old Quiz and a sub-topic's old Test are Exercises now; older rows keep their old names.
-  quiz: "Exercise",
-  exercise: "Exercise",
-  exam: "Exercise",
+  // A module's old Quiz and a sub-topic's old Test are Smart Zones now; older rows keep their old names.
+  quiz: "Smart Zone",
+  exercise: "Smart Zone",
+  exam: "Smart Zone",
   practice: "Practice",
   mock: "Mock exam",
 };

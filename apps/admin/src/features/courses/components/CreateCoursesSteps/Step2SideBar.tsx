@@ -420,7 +420,7 @@ export default function Step2Sidebar({
                                 </span>
                                 <div className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded px-1 py-0.5">
                                   <span className="truncate text-sm text-gray-500">
-                                    Exercise
+                                    Smart Zone
                                   </span>
                                   <span className="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
                                     {exerciseCount}

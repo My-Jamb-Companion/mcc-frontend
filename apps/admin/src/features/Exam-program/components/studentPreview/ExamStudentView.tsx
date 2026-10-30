@@ -77,7 +77,7 @@ export default function ExamStudentView({
           node.kind === "practice"
             ? practiceSession(mod, node.setId)
             : {
-                label: "Exercise",
+                label: "Smart Zone",
                 questions: mod.exercise,
                 timerMinutes: mod.exerciseTimerMinutes,
                 passingScore: mod.exercisePassingScore,
@@ -88,7 +88,7 @@ export default function ExamStudentView({
       const sub = tree.flatMap((t) => t.subTopics).find((s) => s.id === node.subTopicId);
       if (sub) {
         setSession({
-          label: "Exercise",
+          label: "Smart Zone",
           questions: sub.unitExercise,
           timerMinutes: sub.unitTimerMinutes,
           passingScore: sub.unitPassingScore,
@@ -152,7 +152,7 @@ export default function ExamStudentView({
                 <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
                   {lectures.length === 0
                     ? "This program has no content yet."
-                    : "Pick a lecture, practice or exercise from the content list."}
+                    : "Pick a lecture, practice or Smart Zone from the content list."}
                 </div>
               ) : activeLecture.kind === "html" ? (
                 <InteractiveLesson

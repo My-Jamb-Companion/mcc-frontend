@@ -392,7 +392,7 @@ export default function Step2Sidebar({
                             {!sub.hasQuiz && (
                               <MenuItem
                                 icon="lucide:list-checks"
-                                label="Add unit exercise"
+                                label="Add unit Smart Zone"
                                 onClick={() => addQuiz(topic.id, sub.id)}
                               />
                             )}
@@ -527,7 +527,7 @@ export default function Step2Sidebar({
                             </button>
                             <div className="min-w-0 flex-1">
                               <span className="truncate text-sm font-medium text-gray-700">
-                                Unit exercise
+                                Unit Smart Zone
                               </span>
                             </div>
                             <button
@@ -609,7 +609,7 @@ function makeModule(): MakeModule {
     leaves: [
       {id: uid(), label: "Lectures", type: "lectures", count: 0},
       {id: uid(), label: "Practice", type: "practice", count: 0},
-      {id: uid(), label: "Exercise", type: "exercise", count: 0},
+      {id: uid(), label: "Smart Zone", type: "exercise", count: 0},
     ],
   };
 }

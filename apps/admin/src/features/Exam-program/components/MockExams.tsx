@@ -70,7 +70,7 @@ export default function MockExams() {
         <div className="rounded-2xl border border-dashed border-muted/30 px-6 py-12 text-center">
           <p className="font-semibold">No mock exams yet</p>
           <p className="mx-auto mt-1 max-w-md text-sm text-subtle">
-            Build one from this program&apos;s Practice and Exercise questions (a fresh paper for every attempt), or write a fixed paper.
+            Build one from this program&apos;s Practice and Smart Zone questions (a fresh paper for every attempt), or write a fixed paper.
             {pool ? ` The program has ${pool.total} question${pool.total === 1 ? "" : "s"} to draw from.` : ""}
           </p>
         </div>
@@ -240,7 +240,7 @@ function MockPaperEditor({programId, paperId, pool, onClose}: {
             <p className="text-sm font-semibold">Where the questions are drawn from</p>
             <div className="grid gap-2 md:grid-cols-3" role="radiogroup" aria-label="Where the questions are drawn from">
               {([
-                ["program", "The program's questions", `Its Practice and Exercise questions (${pool?.total ?? 0} available).`],
+                ["program", "The program's questions", `Its Practice and Smart Zone questions (${pool?.total ?? 0} available).`],
                 ["paper", "This mock exam's own questions", "Questions you upload or write just for this mock exam."],
                 ["both", "Both", "Mix the program's questions with this mock exam's own."],
               ] as const).map(([value, label, hint]) => (

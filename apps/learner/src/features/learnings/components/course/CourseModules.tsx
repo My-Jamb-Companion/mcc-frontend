@@ -4,6 +4,7 @@ import {useLessonsDuration, useModuleProgress} from "@/src/features/learnings/ho
 import {Lesson, LessonKind, Module, lessonKind} from "@/src/features/learnings/helper/content.mapper";
 import {describeDuration} from "@/src/features/learnings/helper/countdown";
 import {testLabel} from "@/src/features/learnings/helper/testLabel";
+import {smartZoneLabel} from "@/src/features/smart-zone/label";
 import BookmarkButton from "@/src/features/bookmarks/BookmarkButton";
 import DownloadButton from "../DownloadButton";
 
@@ -249,14 +250,15 @@ function ModuleAccordion({
                     }`}
                   >
                     <div className="flex items-center justify-center size-5.5 rounded shrink-0 text-[13px] text-blue-500">
-                      <Icon icon="ph:pencil-simple-line" size={16} />
+                      <Icon icon="ph:lightning-fill" size={16} />
                     </div>
                     <div className="min-w-0">
                       <p className={`text-sm truncate ${isActive ? "text-primary" : "text-subtle"}`}>
-                        Exercise: {set.name}
+                        {smartZoneLabel(set.name)}
                       </p>
                       <p className="text-sm mt-0.5 text-muted">
                         {set.count} {set.count === 1 ? "question" : "questions"}
+                        {set.timerMinutes ? ` · ${describeDuration(set.timerMinutes)}` : ""}
                       </p>
                     </div>
                   </motion.button>

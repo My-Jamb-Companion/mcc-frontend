@@ -2,7 +2,7 @@
 
 import {useState} from "react";
 import {AnimatePresence, Icon, motion} from "@mcc/ui";
-import {testLabel} from "@/src/features/courses/helper/studentView";
+import {smartZoneLabel, testLabel} from "@/src/features/courses/helper/studentView";
 import {describeDuration} from "@/src/features/courses/helper/countdown";
 import {
   formatTotalDuration,
@@ -228,7 +228,7 @@ function ModuleAccordion({
                       <Icon icon="ph:pencil-simple-line" size={16} />
                     </div>
                     <p className={`text-sm truncate ${isActive ? "text-primary" : "text-subtle"}`}>
-                      Exercise: {set.name}
+                      {smartZoneLabel(set.name)}
                     </p>
                   </button>
                 );

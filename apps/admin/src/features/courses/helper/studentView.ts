@@ -41,6 +41,8 @@ export interface StudentLesson {
 export interface StudentExerciseSet {
   name: string;
   questions: CreatPracticeQuestionType[];
+  /** The Smart Zone's countdown in minutes; null = untimed. */
+  timerMinutes: number | null;
 }
 
 export interface StudentQuizSet {
@@ -71,8 +73,12 @@ export const DEFAULT_QUIZ_NAME = "Quiz";
 export const testLabel = (setName: string): string =>
   !setName || setName === DEFAULT_QUIZ_NAME ? "Test" : `Test: ${setName}`;
 
-/** An exercise with no name is saved (and shown) as "Exercise". */
+/** An exercise with no name is saved as "Exercise" (what the API calls it) and shown as "Smart Zone". */
 export const DEFAULT_EXERCISE_NAME = "Exercise";
+
+/** What a student sees for a Smart Zone (a course exercise set): its name, or just "Smart Zone" for the default one. */
+export const smartZoneLabel = (setName: string | null | undefined): string =>
+  !setName || setName === DEFAULT_EXERCISE_NAME ? "Smart Zone" : `Smart Zone: ${setName}`;
 
 export function studentLessonKind(lesson: {
   content?: string | null;
@@ -105,11 +111,16 @@ export function toStudentModules(topics: Topic[] = []): StudentModule[] {
     .flatMap((topic) => topic.modules ?? [])
     .map((module) => {
       const content = module.content ?? [];
-      const exerciseSets = new Map<string, CreatPracticeQuestionType[]>();
+      const exerciseSets = new Map<string, StudentExerciseSet>();
       for (const item of content) {
         if (item.type !== "exercise") continue;
         const name = item.name?.trim() || DEFAULT_EXERCISE_NAME;
-        exerciseSets.set(name, [...(exerciseSets.get(name) ?? []), ...item.questions]);
+        const existing = exerciseSets.get(name);
+        exerciseSets.set(name, {
+          name,
+          questions: [...(existing?.questions ?? []), ...item.questions],
+          timerMinutes: item.settings?.timer || existing?.timerMinutes || null,
+        });
       }
       const quizSets = new Map<string, StudentQuizSet>();
       for (const item of content) {
@@ -133,7 +144,7 @@ export function toStudentModules(topics: Topic[] = []): StudentModule[] {
           .filter((c): c is PracticeModuleContent => c.type === "practice")
           .flatMap((c) => c.questions),
         quizSets: [...quizSets.values()],
-        exerciseSets: [...exerciseSets].map(([name, questions]) => ({name, questions})),
+        exerciseSets: [...exerciseSets.values()],
       };
     });
 }

@@ -1,6 +1,6 @@
 "use client";
 import {useEffect, useRef, useState} from "react";
-import {Icon, showError} from "@mcc/ui";
+import {Icon, confettiCelebrate, motion, showError} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import {
   useAssessmentHint,
@@ -25,6 +25,15 @@ import {
 } from "@/src/features/learnings/helper/assessmentFlow";
 import AssessmentIntro from "./AssessmentIntro";
 import AssessmentSummary from "./AssessmentSummary";
+import SmartZoneTimer from "@/src/features/smart-zone/components/SmartZoneTimer";
+import SoundToggle from "@/src/features/smart-zone/components/SoundToggle";
+import StreakBadge from "@/src/features/smart-zone/components/StreakBadge";
+import KeyCap from "@/src/features/smart-zone/components/KeyCap";
+import ShortcutsHelp, {ShortcutsButton} from "@/src/features/smart-zone/components/ShortcutsHelp";
+import {useSmartZoneKeys} from "@/src/features/smart-zone/hooks/useSmartZoneKeys";
+import {buzz, playSound, unlockAudio} from "@/src/features/smart-zone/sound/engine";
+import {setSoundEnabled, soundEnabledNow} from "@/src/features/smart-zone/sound/prefs";
+import {nextStreak, streakPitch, streakSparkles} from "@/src/features/smart-zone/streak";
 
 interface AssessmentPlayerProps {
   session: ApiAssessmentSession;
@@ -37,7 +46,8 @@ interface AssessmentPlayerProps {
 }
 
 /**
- * Practice and Exercise, one question at a time. The server checks every answer, so the questions
+ * Practice and the Smart Zone (an Exercise), one question at a time. The Smart Zone adds a countdown, sounds, a streak
+ * and keyboard controls. The server checks every answer, so the questions
  * arrive without their answers: a wrong answer says so and the student tries again, takes a hint
  * (up to the last step, which works the answer through) or skips to see it. A question counts as
  * mastered only when it was right first time with no hint.
@@ -52,6 +62,11 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
   const [lastChecked, setLastChecked] = useState<Record<string, string>>({});
   const [result, setResult] = useState<ApiExamSubmissionResult | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // Smart Zone extras: the run of answers right first time, the shortcut guide, and whether the clock ended it.
+  const [streak, setStreak] = useState(0);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
+  const zone = isExercise;
 
   const check = useCheckAnswer();
   const hint = useAssessmentHint();
@@ -72,11 +87,17 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
       onSuccess: (graded) => {
         setResult(graded);
         setPhase("summary");
+        if (zone) {
+          // The alarm has already sounded if time ran out.
+          if (!timedOutRef.current) playSound(graded.score_percent >= 50 ? "complete" : "consolation");
+          if (graded.score_percent === 100) confettiCelebrate();
+        }
       },
       onError: () => setSubmitError("Couldn't finish this session. Please try again."),
     });
   };
   const finishRef = useRef(finish);
+  const timedOutRef = useRef(false);
   useEffect(() => {
     finishRef.current = finish;
   });
@@ -85,18 +106,35 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
   const remaining = useCountdown(
     session.time_limit_minutes,
     isExercise && phase === "play" && !submit.isPending,
-    () => finishRef.current(),
+    () => {
+      timedOutRef.current = true;
+      setTimedOut(true);
+      finishRef.current();
+    },
   );
+  const totalSeconds = (session.time_limit_minutes ?? 0) * 60;
 
   const doCheck = () => {
     const answer = state.answer;
     const at = index;
+    if (zone) playSound("enter");
     check.mutate(
       {sessionId: session.session_id, questionId: question.question_id, answer},
       {
         onSuccess: (res) => {
           setLastChecked((prev) => ({...prev, [question.question_id]: answer}));
           update(at, (s) => afterCheck(s, res));
+          if (!zone) return;
+          const run = nextStreak(streak, res.is_correct && res.first_try);
+          setStreak(run);
+          if (res.is_correct) {
+            playSound("correct", {pitch: streakPitch(run)});
+            if (streakSparkles(run)) playSound("streak");
+            buzz(30);
+          } else {
+            playSound("wrong");
+            buzz([60, 40, 60]);
+          }
         },
         onError: (error) => showError(extractApiError(error, "Couldn't check that answer. Please try again.")),
       },
@@ -105,6 +143,10 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
 
   const doHint = () => {
     const at = index;
+    if (zone) {
+      playSound("select");
+      setStreak(0);
+    }
     hint.mutate(
       {sessionId: session.session_id, questionId: question.question_id},
       {
@@ -116,6 +158,10 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
 
   const doSkip = () => {
     const at = index;
+    if (zone) {
+      playSound("next");
+      setStreak(0);
+    }
     reveal.mutate(
       {sessionId: session.session_id, questionId: question.question_id},
       {
@@ -127,18 +173,76 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
 
   const onPrimary = () => {
     if (!isFinished(state)) return doCheck();
-    if (isLast) return finish();
+    if (isLast) {
+      if (zone) playSound("enter");
+      return finish();
+    }
+    if (zone) playSound("next");
     setIndex((i) => i + 1);
+  };
+
+  const choose = (option: string) => {
+    if (zone) playSound("select");
+    update(index, (s) => pickOption(s, option));
   };
 
   const progressLabel = `${index + 1} of ${questions.length}`;
 
-  if (phase === "intro") return <AssessmentIntro session={session} onStart={() => setPhase("play")} />;
+  const inputsLocked = isFinished(state) || busy;
+  const checkDisabled = isFinished(state) ? busy : !canCheck(state, lastChecked[question?.question_id] ?? null) || busy;
+
+  useSmartZoneKeys(
+    (action) => {
+      if (!question) return;
+      switch (action.type) {
+        case "pick":
+          if (!inputsLocked) choose(question.options[action.index]);
+          break;
+        case "primary":
+          if (!checkDisabled) onPrimary();
+          break;
+        case "next":
+          if (isFinished(state) && !busy) onPrimary();
+          break;
+        case "hint":
+          if (!busy && canTakeHint(state)) doHint();
+          break;
+        case "skip":
+          if (!isFinished(state) && !busy) doSkip();
+          break;
+        case "mute": {
+          const next = !soundEnabledNow();
+          setSoundEnabled(next);
+          if (next) playSound("toggle");
+          break;
+        }
+        case "help":
+          setHelpOpen((open) => !open);
+          break;
+        case "close":
+          setHelpOpen(false);
+          break;
+      }
+    },
+    {optionCount: question?.options.length ?? 0, helpOpen, enabled: zone && phase === "play"},
+  );
+
+  if (phase === "intro") {
+    return (
+      <AssessmentIntro
+        session={session}
+        onStart={() => {
+          unlockAudio();
+          setPhase("play");
+        }}
+      />
+    );
+  }
 
   if (phase === "summary" && result) {
     return (
       <div className="w-full rounded-2xl bg-muted/5 p-6">
-        <AssessmentSummary result={result} questions={questions} mode={session.mode} onRetry={onRestart} onDone={onDone} onOpenLecture={onOpenLecture} />
+        <AssessmentSummary result={result} questions={questions} mode={session.mode} timedOut={timedOut} onRetry={onRestart} onDone={onDone} onOpenLecture={onOpenLecture} />
       </div>
     );
   }
@@ -151,17 +255,22 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
     );
   }
 
-  const inputsLocked = isFinished(state) || busy;
-  const checkDisabled = isFinished(state) ? busy : !canCheck(state, lastChecked[question.question_id] ?? null) || busy;
-
   return (
     <div className="w-full overflow-hidden rounded-2xl border border-muted/20">
       <div className="flex items-center justify-between gap-3 bg-primary-gradient px-6 py-4 text-white">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-widest opacity-80">{isExercise ? "Exercise" : session.set_name ? `Practice · ${session.set_name}` : "Practice"}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-widest opacity-80">{isExercise ? "Smart Zone" : session.set_name ? `Practice · ${session.set_name}` : "Practice"}</p>
           <h2 className="truncate text-lg font-bold">{session.title}</h2>
         </div>
-        {remaining !== null && (
+        {zone && (
+          <div className="flex shrink-0 items-center gap-2">
+            <StreakBadge streak={streak} />
+            {remaining !== null && <SmartZoneTimer remaining={remaining} totalSeconds={totalSeconds} />}
+            <SoundToggle onDark />
+            <ShortcutsButton onClick={() => setHelpOpen(true)} onDark />
+          </div>
+        )}
+        {!zone && remaining !== null && (
           <span
             role="timer"
             aria-label="Time left"
@@ -179,7 +288,14 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
         <h3 className="text-base font-bold">{question.question_text}</h3>
         {question.description && <p className="mt-1 text-sm text-subtle">{question.description}</p>}
 
-        <div className="mt-5 flex flex-col gap-3" role="group" aria-label="Answers">
+        <motion.div
+          key={`answers-${question.question_id}-${state.attempts}`}
+          animate={zone && state.status === "wrong" ? {x: [0, -8, 8, -6, 6, 0]} : {x: 0}}
+          transition={{duration: 0.4}}
+          className="mt-5 flex flex-col gap-3"
+          role="group"
+          aria-label="Answers"
+        >
           {question.options.map((option, i) => {
             const selected = state.answer === option;
             const isRight = isFinished(state) && option === state.correctAnswer;
@@ -194,7 +310,7 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
                 type="button"
                 aria-pressed={selected}
                 disabled={inputsLocked}
-                onClick={() => update(index, (s) => pickOption(s, option))}
+                onClick={() => choose(option)}
                 className={`flex w-full items-center gap-4 rounded-2xl border px-4 py-3.5 text-left transition-colors ${style}`}
               >
                 <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${
@@ -203,10 +319,11 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
                   {String.fromCharCode(65 + i)}
                 </span>
                 <span className="text-sm font-medium">{option}</span>
+                {zone && <KeyCap className="ml-auto">{String.fromCharCode(65 + i)}</KeyCap>}
               </button>
             );
           })}
-        </div>
+        </motion.div>
 
         {state.hints.length > 0 && (
           <ol className="mt-5 flex flex-col gap-2 border-l-2 border-primary/30 pl-4" aria-label="Hints">
@@ -269,13 +386,14 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
           {!isFinished(state) && (
             <>
               <button type="button" onClick={doSkip} disabled={busy}
-                className="rounded-full px-4 py-2 text-sm font-semibold text-subtle hover:bg-muted/10 disabled:opacity-50" title="Show the answer and move on">
-                Skip
+                className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-subtle hover:bg-muted/10 disabled:opacity-50" title="Show the answer and move on">
+                Skip {zone && <KeyCap>S</KeyCap>}
               </button>
               <button type="button" onClick={doHint} disabled={busy || !canTakeHint(state)}
                 className="flex items-center gap-1.5 rounded-full border border-muted/20 px-4 py-2 text-sm font-semibold disabled:opacity-40">
                 <Icon icon="ph:lightbulb" size={15} />
                 {state.hintTotal ? `Hint ${state.hints.length}/${state.hintTotal}` : "Hint"}
+                {zone && <KeyCap>H</KeyCap>}
               </button>
             </>
           )}
@@ -283,12 +401,14 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
             type="button"
             onClick={onPrimary}
             disabled={checkDisabled}
-            className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+            className="flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
           >
             {submit.isPending ? "Finishing…" : check.isPending ? "Checking…" : primaryLabel(state, isLast)}
+            {zone && <KeyCap className="border-white/60 text-white">Enter</KeyCap>}
           </button>
         </div>
       </div>
+      {zone && <ShortcutsHelp open={helpOpen} onClose={() => setHelpOpen(false)} />}
     </div>
   );
 }

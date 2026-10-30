@@ -131,7 +131,7 @@ function getActiveContext(topics: Topic[], leafId: string) {
           topic,
           subTopic: sub,
           type: "unit-exercise" as const,
-          label: "Unit exercise",
+          label: "Unit Smart Zone",
         };
       }
       for (const mod of sub.modules) {
@@ -620,7 +620,7 @@ export default function ContentStep({
               {activeContext?.leaf?.type === "exercise" && (
                 <>
                   <QuizSettingsFields
-                    noun="exercise"
+                    noun="Smart Zone"
                     value={activeContext.module?.quizSettings ?? {}}
                     onChange={setModuleExerciseSettings}
                   />
@@ -636,7 +636,7 @@ export default function ContentStep({
               {activeContext?.type === "unit-exercise" && (
                 <>
                   <QuizSettingsFields
-                    noun="exercise"
+                    noun="Smart Zone"
                     value={activeContext.subTopic?.testSettings ?? {}}
                     onChange={setSubTopicTestSettings}
                   />

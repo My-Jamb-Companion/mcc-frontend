@@ -24,6 +24,8 @@ export interface Lesson {
 export interface ExerciseSet {
   name: string;
   count: number;
+  /** The Smart Zone's countdown in minutes; null = untimed. */
+  timerMinutes: number | null;
 }
 
 export interface QuizSet {
@@ -72,7 +74,7 @@ export function groupContentRows(rows: ApiCourseContentRow[]): Module[] {
         title: row.module_title,
         lessons: [],
         practiceCount: row.practice_count,
-        exerciseSets: row.exercise_sets ?? [],
+        exerciseSets: (row.exercise_sets ?? []).map((e) => ({name: e.name, count: e.count, timerMinutes: e.timer_minutes ?? null})),
         quizSets: (row.quiz_sets ?? []).map((q) => ({
           name: q.name,
           count: q.count,

@@ -87,6 +87,14 @@ describe("loading lecture files", () => {
     expect(pdf.fileSizeBytes).toBe(4096);
     expect(video.format).toBe("MP4");
   });
+
+  it("shows a lecture that points at YouTube as a YouTube link, not an uploaded video", () => {
+    const [yt] = withLectures([
+      {lecture_id: "y", title: "Intro", video_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", content: null},
+    ]);
+    expect(yt.format).toBe("YOUTUBE");
+    expect(yt.src).toBe("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+  });
 });
 
 describe("loading a module's Exercise", () => {
@@ -96,7 +104,7 @@ describe("loading a module's Exercise", () => {
     const [t] = deserializeExamTopics([topic()]);
     const leaves = t.subTopics[0].modules[0].leaves;
     expect(leaves.map((l) => l.type)).toEqual(["lectures", "practice", "exercise"]);
-    expect(leaves[2]).toMatchObject({label: "Exercise", count: 0});
+    expect(leaves[2]).toMatchObject({label: "Smart Zone", count: 0});
   });
 
   it("reads the module and unit Exercise from an older server's quizzes and test_exercises", () => {

@@ -22,6 +22,7 @@ import {useAllLessons, useLessonsDuration, formatDuration} from "@/src/features/
 import {useCertificates, useCompleteLecture, useCourseProgress} from "@/src/features/courses/hooks/useCourses";
 import {useModuleQuestions} from "@/src/features/learnings/hooks/useModuleQuiz";
 import {testLabel} from "@/src/features/learnings/helper/testLabel";
+import {smartZoneLabel} from "@/src/features/smart-zone/label";
 import {chatReplyText, sendChatMessage} from "@/src/features/brainy/services/brainy.service";
 
 interface CourseContentProps {
@@ -78,6 +79,10 @@ export default function CourseContent({
   );
   const activeQuizSetInfo = activeQuizSet
     ? modules.find((m) => m.id === activeQuizSet.moduleId)?.quizSets.find((q) => q.name === activeQuizSet.name)
+    : undefined;
+
+  const activeExerciseInfo = activeExercise
+    ? modules.find((m) => m.id === activeExercise.moduleId)?.exerciseSets.find((e) => e.name === activeExercise.name)
     : undefined;
 
   const tabQuery = searchParams.get("tab");
@@ -228,11 +233,11 @@ export default function CourseContent({
             ) : activeExercise ? (
               exerciseQuestions.isLoading ? (
                 <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
-                  Loading exercise…
+                  Loading Smart Zone…
                 </div>
               ) : exerciseQuestions.questions.length === 0 ? (
                 <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl bg-muted/10 px-8 text-center text-sm text-muted">
-                  No questions in this exercise yet.
+                  No questions in this Smart Zone yet.
                 </div>
               ) : (
                 <CoursePractice
@@ -240,7 +245,9 @@ export default function CourseContent({
                   courseId={courseId}
                   moduleId={activeExercise.moduleId}
                   questions={exerciseQuestions.questions}
-                  label={`Exercise: ${activeExercise.name}`}
+                  label={smartZoneLabel(activeExercise.name)}
+                  smartZone
+                  timerMinutes={activeExerciseInfo?.timerMinutes ?? null}
                   onDone={() => setActiveExercise(null)}
                 />
               )

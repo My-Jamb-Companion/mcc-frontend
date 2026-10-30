@@ -113,7 +113,7 @@ function SubTopicAccordion({
               }`}
             >
               <Icon icon="material-symbols:fact-check-outline" size={16} className="text-orange-500" />
-              <span className="text-sm">Exercise ({subTopic.unitExercise.length})</span>
+              <span className="text-sm">Smart Zone ({subTopic.unitExercise.length})</span>
             </button>
           )}
         </div>
@@ -224,7 +224,7 @@ function ModuleAccordion({
             >
               <Icon icon="material-symbols:quiz-outline" size={15} className="text-orange-500" />
               <span className={`text-sm ${isExerciseActive ? "text-primary" : "text-subtle"}`}>
-                Exercise ({mod.exercise.length})
+                Smart Zone ({mod.exercise.length})
               </span>
             </button>
           )}

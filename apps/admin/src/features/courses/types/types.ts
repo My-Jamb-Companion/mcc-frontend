@@ -107,6 +107,10 @@ export type ExerciseSet = {
   id: string;
   name: string;
   questions: CreatPracticeQuestionType[];
+  /** The Smart Zone's countdown; untimed when empty. */
+  settings?: {
+    timer?: number;
+  };
 };
 
 export type ExerciseModuleContent = ExerciseSet & {type: "exercise"};
@@ -268,6 +272,8 @@ export interface ApiQuizQuestionPayload {
 /** Timer and passing score of one quiz set, matched to its questions by set_name. */
 export interface ApiQuizSettings {
   set_name: string;
+  /** Which kind of set: a Test (`quiz`, the default) or a Smart Zone (`exercise`). */
+  usage_type?: "quiz" | "exercise";
   timer_minutes?: number | null;
   passing_score?: number | null;
 }
