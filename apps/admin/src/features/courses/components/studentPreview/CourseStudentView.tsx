@@ -17,7 +17,7 @@ import InteractiveLesson from "./InteractiveLesson";
 import PurchasePreview from "./PurchasePreview";
 import StudentModules from "./StudentModules";
 import StudentOverview from "./StudentOverview";
-import {testLabel} from "@/src/features/courses/helper/studentView";
+import {smartZoneLabel, testLabel} from "@/src/features/courses/helper/studentView";
 
 export interface CourseStudentViewProps {
   course: CoursesFormValues & Partial<AdditionalCourseTypes>;
@@ -192,7 +192,8 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
                   <CoursePractice
                     key={`${activeExercise?.moduleId}-${activeExerciseSet.name}`}
                     questions={toPracticeCardQuestions(activeExerciseSet.questions)}
-                    label={`Exercise: ${activeExerciseSet.name}`}
+                    label={smartZoneLabel(activeExerciseSet.name)}
+                    timerMinutes={activeExerciseSet.timerMinutes}
                     onDone={() => setActiveExercise(null)}
                   />
                 ) : activeQuizModule ? (

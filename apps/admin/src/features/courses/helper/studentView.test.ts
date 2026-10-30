@@ -103,7 +103,7 @@ describe("toStudentModules", () => {
 
   it("gives each exercise set its own entry, never part of the Practice quiz", () => {
     expect(modules[0].questions.map((x) => x.id)).not.toContain("ex1");
-    expect(modules[0].exerciseSets).toEqual([{name: "Exercise", questions: [q("ex1")]}]);
+    expect(modules[0].exerciseSets).toEqual([{name: "Exercise", questions: [q("ex1")], timerMinutes: null}]);
     expect(modules[1].exerciseSets).toEqual([]);
   });
 
@@ -129,6 +129,19 @@ describe("toStudentModules", () => {
       ["Drill", ["a", "b"]],
       ["Exercise", ["c"]],
     ]);
+  });
+
+  it("carries a Smart Zone's countdown", () => {
+    const [m] = toStudentModules([
+      {
+        id: "t",
+        label: "T",
+        modules: [
+          {id: "m", label: "M", content: [{id: "e1", type: "exercise", name: "Drill", questions: [q("a")], settings: {timer: 8}}]},
+        ],
+      },
+    ]);
+    expect(m.exerciseSets[0].timerMinutes).toBe(8);
   });
 
   it("matches exactly what is saved: same lectures, Practice quiz questions and exercise sets as serializeModulesPayload", () => {

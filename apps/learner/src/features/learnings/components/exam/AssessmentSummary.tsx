@@ -12,13 +12,15 @@ interface AssessmentSummaryProps {
   result: ApiExamSubmissionResult;
   questions: ApiAssessmentQuestion[];
   mode: "practice" | "exercise";
+  /** The Smart Zone's clock ran out and ended it. */
+  timedOut?: boolean;
   onRetry: () => void;
   onDone: () => void;
   onOpenLecture: (lectureId: string) => void;
 }
 
 /** After the last question: how many were right first time, how each topic did, what to revisit, and a review. */
-export default function AssessmentSummary({result, questions, mode, onRetry, onDone, onOpenLecture}: AssessmentSummaryProps) {
+export default function AssessmentSummary({result, questions, mode, timedOut = false, onRetry, onDone, onOpenLecture}: AssessmentSummaryProps) {
   const total = result.results.length;
   const right = result.results.filter((r) => r.is_correct).length;
   const [reviewing, setReviewing] = useState(false);
@@ -38,6 +40,11 @@ export default function AssessmentSummary({result, questions, mode, onRetry, onD
       <div className="mb-3 text-6xl">{headline.emoji}</div>
       <h2 className="text-2xl font-bold">{headline.title}</h2>
       <p className="mt-2 max-w-md text-sm text-subtle">{headline.message}</p>
+      {timedOut && (
+        <p role="status" className="mt-3 flex items-center gap-1.5 rounded-full bg-red-100 px-4 py-1.5 text-sm font-semibold text-red-600">
+          <Icon icon="ph:alarm-bold" size={16} /> Time&apos;s up: your answers so far were submitted.
+        </p>
+      )}
 
       {result.passed !== null && result.passed !== undefined && (
         <p

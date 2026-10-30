@@ -315,3 +315,45 @@ describe("lessons whose upload has not finished", () => {
     expect(module.lectures).toHaveLength(1);
   });
 });
+
+describe("Smart Zone countdown", () => {
+  const question = {id: "q", type: "single_choice" as const, question: "Q", options: [{id: "a", text: "a", isCorrect: true}, {id: "b", text: "b", isCorrect: false}]};
+  const withZone = (name: string, timer?: number): Topic[] => [
+    {
+      id: "t",
+      label: "T",
+      modules: [
+        {
+          id: "m",
+          label: "M",
+          content: [
+            {id: "e", type: "exercise", name, questions: [question] as CreatPracticeQuestionType[], settings: {timer}},
+            {id: "z", type: "quiz", title: name, questions: [question] as CreatPracticeQuestionType[], settings: {timer: 30}},
+          ],
+        },
+      ],
+    },
+  ];
+
+  it("is sent as an exercise setting, apart from a Test of the same name", () => {
+    const [module] = serializeModulesPayload(withZone("Speed", 8));
+    expect(module.quiz_settings).toEqual([
+      {set_name: "Speed", usage_type: "exercise", timer_minutes: 8},
+      {set_name: "Speed", timer_minutes: 30, passing_score: undefined},
+    ]);
+  });
+
+  it("is left out when there is no timer, and an unnamed Smart Zone is saved as Exercise", () => {
+    expect(serializeModulesPayload(withZone("Speed", undefined))[0].quiz_settings).toEqual([
+      {set_name: "Speed", timer_minutes: 30, passing_score: undefined},
+    ]);
+    expect(serializeModulesPayload(withZone("", 5))[0].quiz_settings?.[0]).toMatchObject({set_name: "Exercise", usage_type: "exercise"});
+  });
+
+  it("survives a save and reload without touching the Test's own timer", () => {
+    const [topic] = deserializeModulesPayload(serializeModulesPayload(withZone("Speed", 8)));
+    const [zone, test] = topic.modules[0].content;
+    expect(zone).toMatchObject({type: "exercise", name: "Speed", settings: {timer: 8}});
+    expect(test).toMatchObject({type: "quiz", settings: {timer: 30}});
+  });
+});

@@ -18,7 +18,7 @@ import {
 } from "../components/CreateProgramSteps/PracticeQuestions";
 import {fromApiLevel} from "./helper";
 import {groupByName} from "./practiceSets";
-import {isPdfUrl} from "@/src/features/courses/helper/video";
+import {isPdfUrl, isYouTubeUrl} from "@/src/features/courses/helper/video";
 
 function toUiQuestionType(
   questionType: string,
@@ -53,7 +53,13 @@ function toUiLecture(lecture: ApiExamModule["lectures"][number]): FileRow {
     id: lecture.lecture_id ?? uid(),
     title: lecture.title,
     // Not returned by this endpoint — the player only needs the URL.
-    format: lecture.content ? "HTML" : isPdfUrl(lecture.video_url) ? "PDF" : "MP4",
+    format: lecture.content
+      ? "HTML"
+      : isYouTubeUrl(lecture.video_url)
+        ? "YOUTUBE"
+        : isPdfUrl(lecture.video_url)
+          ? "PDF"
+          : "MP4",
     fileSizeBytes: lecture.file_size_bytes ?? undefined,
     size: lecture.file_size_bytes
       ? `${(lecture.file_size_bytes / (1024 * 1024)).toFixed(1)}mb`
@@ -88,7 +94,7 @@ function toUiModule(apiModule: ApiExamModule): MakeModule {
   const exercises = apiModule.exercises ?? apiModule.quizzes ?? [];
   leaves.push({
     id: uid(),
-    label: "Exercise",
+    label: "Smart Zone",
     type: "exercise",
     count: exercises.length,
     questions: exercises.map(toUiQuestion),

@@ -5,6 +5,7 @@ import LessonHtmlEditor from "@/src/components/LessonHtmlEditor";
 import {relaxSpaces} from "@/src/features/courses/helper/lessonHtml";
 import {uploadMedia} from "@/src/features/courses/services/media.service";
 import {LESSON_FILE_ACCEPT, LESSON_FILE_CAPTION, splitLessonFiles} from "@/src/features/courses/helper/lessonFiles";
+import {isYouTubeUrl} from "@/src/features/courses/helper/video";
 
 export type FileRow = {
   id: string;
@@ -22,9 +23,11 @@ export type FileRow = {
   content?: string;
 };
 
+const YOUTUBE_FORMAT = "YOUTUBE";
 const HTML_FORMAT = "HTML";
 
 function rowIcon(format: string): string {
+  if (format === YOUTUBE_FORMAT) return "mdi:youtube";
   if (format === HTML_FORMAT) return "lucide:align-left";
   if (format.toUpperCase() === "PDF") return "lucide:file-text";
   return "lucide:play";
@@ -130,7 +133,7 @@ function FileRowItem({
           </div>
         )}
         <p className="text-xs text-gray-400">
-          {isHtml ? "Text lesson" : `${file.format} • ${file.size}`}
+          {file.format === YOUTUBE_FORMAT ? "YouTube" : isHtml ? "Text lesson" : `${file.format} • ${file.size}`}
         </p>
         {error && (
           <p className="mt-0.5 flex items-center gap-2 text-xs text-danger">
@@ -294,6 +297,30 @@ export default function LessonsCreate({
     );
   }
 
+  const [addingYoutube, setAddingYoutube] = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [youtubeError, setYoutubeError] = useState<string | null>(null);
+
+  function closeYoutubeForm() {
+    setAddingYoutube(false);
+    setYoutubeUrl("");
+    setYoutubeError(null);
+  }
+
+  function addYoutubeLink() {
+    const url = youtubeUrl.trim();
+    if (!url) return;
+    if (!isYouTubeUrl(url)) {
+      setYoutubeError("That doesn't look like a YouTube link.");
+      return;
+    }
+    onFilesChange([
+      ...files,
+      {id: uid(), title: "YouTube video", format: YOUTUBE_FORMAT, size: "", previewUrl: url, src: url},
+    ]);
+    closeYoutubeForm();
+  }
+
   const [contentEditorOpen, setContentEditorOpen] = useState(false);
   const [editingContentId, setEditingContentId] = useState<string | null>(null);
   const [draftContent, setDraftContent] = useState("");
@@ -368,6 +395,41 @@ export default function LessonsCreate({
         accept={LESSON_FILE_ACCEPT}
       />
 
+      {addingYoutube ? (
+        <div className="flex flex-col gap-2 rounded-xl border border-dashed border-gray-200 px-4 py-3.5">
+          <div className="flex items-center gap-2">
+            <input
+              autoFocus
+              value={youtubeUrl}
+              onChange={(e) => setYoutubeUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addYoutubeLink();
+                }
+                if (e.key === "Escape") closeYoutubeForm();
+              }}
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400"
+            />
+            <button
+              type="button"
+              onClick={addYoutubeLink}
+              className="shrink-0 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              onClick={closeYoutubeForm}
+              className="shrink-0 text-sm font-medium text-gray-500 hover:text-gray-700"
+            >
+              Cancel
+            </button>
+          </div>
+          {youtubeError && <p className="text-xs text-danger">{youtubeError}</p>}
+        </div>
+      ) : (
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -379,6 +441,14 @@ export default function LessonsCreate({
         </button>
         <button
           type="button"
+          onClick={() => setAddingYoutube(true)}
+          className="flex shrink-0 items-center gap-2 rounded-xl border border-dashed border-gray-200 px-4 py-3.5 text-left text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors"
+        >
+          <Icon icon="mdi:youtube" size={16} className="text-gray-400" />
+          YouTube link
+        </button>
+        <button
+          type="button"
           onClick={openNewContentEditor}
           className="flex shrink-0 items-center gap-2 rounded-xl border border-dashed border-gray-200 px-4 py-3.5 text-left text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors"
         >
@@ -386,6 +456,7 @@ export default function LessonsCreate({
           Write content
         </button>
       </div>
+      )}
 
       <p className="-mt-1 px-1 text-xs text-gray-400">{LESSON_FILE_CAPTION}</p>
       {fileProblems.length > 0 && (

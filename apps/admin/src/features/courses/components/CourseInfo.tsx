@@ -84,7 +84,7 @@ function ModuleAccordionItem({module}: {module: MakeModule}) {
             {exerciseCount > 0 && (
               <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-1 font-medium">
                 <Icon icon="lucide:dumbbell" size={13} /> {exerciseCount}{" "}
-                Exercises
+                Smart Zones
               </span>
             )}
             {quizCount > 0 && (

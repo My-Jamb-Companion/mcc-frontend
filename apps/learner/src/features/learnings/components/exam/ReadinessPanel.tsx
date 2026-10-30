@@ -123,7 +123,7 @@ function Legend() {
         </li>
       ))}
       <li className="flex items-center gap-1.5">
-        <Icon icon="solar:star-bold" size={12} /> A sub-topic&apos;s own exercise
+        <Icon icon="solar:star-bold" size={12} /> A sub-topic&apos;s own Smart Zone
       </li>
     </ul>
   );

@@ -65,7 +65,7 @@ export interface ApiCourseContentRow {
   /** How many questions the module's Practice quiz has (repeated on every row of the module). */
   practice_count?: number;
   /** The module's named exercise sets, in authored order (repeated on every row of the module). */
-  exercise_sets?: {name: string; count: number}[];
+  exercise_sets?: {name: string; count: number; timer_minutes?: number | null}[];
   /** The module's named quiz sets (timed entries), in authored order. */
   quiz_sets?: {name: string; count: number; timer_minutes?: number | null; passing_score?: number | null}[];
 }

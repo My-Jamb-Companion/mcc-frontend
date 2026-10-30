@@ -23,7 +23,7 @@ function labelFor(item: ModuleContent): string {
     case "practice":
       return item.name || "Untitled practice";
     case "exercise":
-      return item.name || "Untitled exercise";
+      return item.name || "Untitled Smart Zone";
     case "quiz":
       return item.title || "Untitled quiz";
   }

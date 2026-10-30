@@ -24,12 +24,15 @@ describe("groupContentRows", () => {
   });
 
   it("carries a module's exercise sets, which the API repeats on each of its rows", () => {
-    const sets = [{name: "Algebra drill", count: 2}, {name: "Geometry drill", count: 1}];
+    const sets = [{name: "Algebra drill", count: 2, timer_minutes: 8}, {name: "Geometry drill", count: 1}];
     const [module] = groupContentRows([
       row({lesson_id: "l1", exercise_sets: sets}),
       row({lesson_id: "l2", exercise_sets: sets}),
     ]);
-    expect(module.exerciseSets).toEqual(sets);
+    expect(module.exerciseSets).toEqual([
+      {name: "Algebra drill", count: 2, timerMinutes: 8},
+      {name: "Geometry drill", count: 1, timerMinutes: null},
+    ]);
   });
 
   it("has no exercise sets when the API sends none", () => {
@@ -41,7 +44,7 @@ describe("groupContentRows", () => {
       row({lesson_id: null, lesson_title: null, exercise_sets: [{name: "Drill", count: 3}]}),
     ]);
     expect(module.lessons).toEqual([]);
-    expect(module.exerciseSets).toEqual([{name: "Drill", count: 3}]);
+    expect(module.exerciseSets).toEqual([{name: "Drill", count: 3, timerMinutes: null}]);
   });
 
   it("carries a module's quiz sets with their timer and pass mark", () => {

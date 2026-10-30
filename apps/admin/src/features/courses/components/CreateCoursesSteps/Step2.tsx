@@ -3,6 +3,7 @@ import {Button, Icon} from "@mcc/ui";
 import {FormInputs, useFormContext} from "@mcc/features";
 import Step2Sidebar from "./Step2SideBar";
 import PracticeQuestions from "./CreatePractice";
+import QuizSettingsFields from "@/src/features/question-editor/QuizSettingsFields";
 import LessonsCreate from "./CreateLessons";
 import ContentReorderPanel from "./ContentReorder";
 import {patchById} from "@/src/features/courses/helper/patchById";
@@ -485,7 +486,7 @@ function ExerciseManager({
   return (
     <div className="mt-6 flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold text-gray-900">Exercises</p>
+        <p className="text-sm font-semibold text-gray-900">Smart Zones</p>
         <Button
           type="button"
           variant="outline"
@@ -494,13 +495,13 @@ function ExerciseManager({
           onClick={addExercise}
           leftIcon={<Icon icon="lucide:plus" size={14} />}
         >
-          Add exercise
+          Add Smart Zone
         </Button>
       </div>
 
       {exercises.length === 0 ? (
         <p className="text-sm text-gray-400">
-          No exercises yet. Click &ldquo;Add exercise&rdquo; to create one.
+          No Smart Zones yet. Click &ldquo;Add Smart Zone&rdquo; to create one.
         </p>
       ) : (
         <div className="flex flex-wrap gap-2">
@@ -513,7 +514,7 @@ function ExerciseManager({
                 <div key={e.id} className="w-40">
                   <InlineRename
                     value={e.name}
-                    placeholder="Exercise name"
+                    placeholder="Smart Zone name"
                     onCommit={(v) => renameExercise(e.id, v)}
                     onCancel={() => setRenamingId(null)}
                   />
@@ -535,7 +536,7 @@ function ExerciseManager({
                   onClick={() => setSelectedExerciseId(e.id)}
                   className="flex items-center gap-1.5"
                 >
-                  <span>{e.name || "Untitled exercise"}</span>
+                  <span>{e.name || "Untitled Smart Zone"}</span>
                   <span className="text-xs text-gray-400">
                     ({e.questions.length})
                   </span>
@@ -544,7 +545,7 @@ function ExerciseManager({
                   <button
                     type="button"
                     onClick={() => setRenamingId(e.id)}
-                    aria-label="Rename exercise"
+                    aria-label="Rename Smart Zone"
                   >
                     <Icon
                       icon="lucide:pencil"
@@ -555,7 +556,7 @@ function ExerciseManager({
                   <button
                     type="button"
                     onClick={() => deleteExercise(e.id)}
-                    aria-label="Delete exercise"
+                    aria-label="Delete Smart Zone"
                   >
                     <Icon
                       icon="lucide:trash-2"
@@ -572,8 +573,20 @@ function ExerciseManager({
 
       {selectedExercise && (
         <div className="mt-2 border-t border-gray-100 pt-4">
+          <QuizSettingsFields
+            hidePassingScore
+            noun="Smart Zone"
+            value={{timer: selectedExercise.settings?.timer}}
+            onChange={(next) =>
+              onChange(
+                exercises.map((e) =>
+                  e.id === selectedExercise.id ? {...e, settings: {...e.settings, timer: next.timer}} : e,
+                ),
+              )
+            }
+          />
           <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">
-            Questions in {selectedExercise.name || "this exercise"}
+            Questions in {selectedExercise.name || "this Smart Zone"}
           </p>
           <PracticeQuestions
             withResponses
@@ -658,7 +671,7 @@ function getActiveContext(topics: Topic[], selection: string) {
           topic,
           module: mod,
           type: "exercise" as const,
-          label: "Exercise",
+          label: "Smart Zone",
           exercises: mod.content.filter(
             (c): c is ExerciseModuleContent => c.type === "exercise",
           ),

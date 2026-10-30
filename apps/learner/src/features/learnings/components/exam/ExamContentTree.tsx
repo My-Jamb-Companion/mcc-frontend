@@ -23,7 +23,7 @@ interface ExamContentTreeProps {
 /**
  * The exam-prep equivalent of ../course/CourseModules.tsx, one level
  * deeper: topic -> sub-topic -> module -> lecture, with a "Practice" and an
- * "Exercise" action on each module and a unit "Exercise" on each sub-topic.
+ * "Smart Zone" action on each module and a unit "Smart Zone" on each sub-topic.
  */
 export default function ExamContentTree({topics, active, completedLectureIds, onSelect}: ExamContentTreeProps) {
   return (
@@ -114,7 +114,7 @@ function SubTopicAccordion({
               }`}
             >
               <Icon icon="material-symbols:fact-check-outline" size={16} className="text-orange-500" />
-              <span className="text-sm">Exercise ({unitExerciseCount})</span>
+              <span className="text-sm">Smart Zone ({unitExerciseCount})</span>
             </button>
           )}
         </div>
@@ -208,7 +208,7 @@ function ModuleAccordion({
             >
               <Icon icon="material-symbols:quiz-outline" size={15} className="text-orange-500" />
               <span className={`text-sm ${isExerciseActive ? "text-primary" : "text-subtle"}`}>
-                Exercise ({exerciseCount})
+                Smart Zone ({exerciseCount})
               </span>
             </button>
           )}

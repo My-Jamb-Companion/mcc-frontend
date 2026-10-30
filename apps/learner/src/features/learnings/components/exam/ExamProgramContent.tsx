@@ -251,7 +251,7 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
             <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
               {allLectures.length === 0
                 ? "This program has no content yet."
-                : "Pick a lecture, practice or exercise from the content list."}
+                : "Pick a lecture, practice or Smart Zone from the content list."}
             </div>
           ) : activeLecture.content ? (
             <InteractiveLessonContent

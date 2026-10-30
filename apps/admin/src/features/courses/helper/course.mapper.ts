@@ -42,6 +42,8 @@ export function normalizeQuestionType(
 
 /** What the API calls a quiz set with no name. */
 export const DEFAULT_QUIZ_NAME = "Quiz";
+/** What the API calls a Smart Zone (course exercise set) that has no name. */
+export const DEFAULT_EXERCISE_SET_NAME = "Exercise";
 
 /** An already-uploaded file, shaped so the Upload step shows it and counts it as present. */
 function remoteFile(url: string | null | undefined) {
@@ -129,17 +131,28 @@ export function serializeModulesPayload(topics: Topic[]): ApiModulePayload[] {
 
     // A quiz's timer and passing score, keyed by the quiz's name (an unnamed
     // quiz is saved as "Quiz", which is what the API calls it too).
-    const quizSettings: ApiQuizSettings[] = module.content.flatMap((c) =>
-      c.type === "quiz" && (c.settings?.timer || c.settings?.passingScore !== undefined)
-        ? [
-            {
-              set_name: c.title?.trim() || DEFAULT_QUIZ_NAME,
-              timer_minutes: c.settings.timer || undefined,
-              passing_score: c.settings.passingScore,
-            },
-          ]
-        : [],
-    );
+    const quizSettings: ApiQuizSettings[] = module.content.flatMap((c): ApiQuizSettings[] => {
+      if (c.type === "quiz" && (c.settings?.timer || c.settings?.passingScore !== undefined)) {
+        return [
+          {
+            set_name: c.title?.trim() || DEFAULT_QUIZ_NAME,
+            timer_minutes: c.settings.timer || undefined,
+            passing_score: c.settings.passingScore,
+          },
+        ];
+      }
+      // A Smart Zone's countdown (an unnamed one is saved as "Exercise", which is what the API calls it).
+      if (c.type === "exercise" && c.settings?.timer) {
+        return [
+          {
+            set_name: c.name?.trim() || DEFAULT_EXERCISE_SET_NAME,
+            usage_type: "exercise",
+            timer_minutes: c.settings.timer,
+          },
+        ];
+      }
+      return [];
+    });
 
     return {
       module_id: module.id,
@@ -188,7 +201,10 @@ export function deserializeModulesPayload(
     // Map questions back into their sets. Consecutive questions with the same
     // kind and set name were one set when they were saved. Rows saved before
     // sets were recorded carry no kind and become a single practice set.
-    const quizSettings = new Map((apiMod.quiz_settings ?? []).map((q) => [q.set_name, q]));
+    const settingKey = (usage: QuestionUsage, name: string) => `${usage}|${name}`;
+    const quizSettings = new Map(
+      (apiMod.quiz_settings ?? []).map((q) => [settingKey(q.usage_type ?? "quiz", q.set_name), q]),
+    );
     const sets = new Map<
       string,
       {usage: QuestionUsage; name: string | undefined; questions: CreatPracticeQuestionType[]}
@@ -221,7 +237,7 @@ export function deserializeModulesPayload(
       PracticeModuleContent | QuizModuleContent | ExerciseModuleContent
     > = [...sets.values()].map(({usage, name, questions}) => {
       if (usage === "quiz") {
-        const saved = quizSettings.get(name ?? DEFAULT_QUIZ_NAME);
+        const saved = quizSettings.get(settingKey("quiz", name ?? DEFAULT_QUIZ_NAME));
         return {
           id: uid(),
           type: "quiz" as const,
@@ -234,7 +250,14 @@ export function deserializeModulesPayload(
         };
       }
       if (usage === "exercise") {
-        return {id: uid(), type: "exercise" as const, name: name ?? "Exercise", questions};
+        const timer = quizSettings.get(settingKey("exercise", name ?? DEFAULT_EXERCISE_SET_NAME))?.timer_minutes;
+        return {
+          id: uid(),
+          type: "exercise" as const,
+          name: name ?? DEFAULT_EXERCISE_SET_NAME,
+          questions,
+          settings: {timer: timer ?? undefined},
+        };
       }
       return {id: uid(), type: "practice" as const, name: name ?? "Practice", questions};
     });

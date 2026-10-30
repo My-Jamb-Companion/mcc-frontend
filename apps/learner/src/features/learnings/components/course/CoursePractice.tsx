@@ -1,7 +1,7 @@
 "use client";
 
 import {useEffect, useMemo, useRef, useState} from "react";
-import {AnimatePresence, motion, Variants, Icon, showError} from "@mcc/ui";
+import {AnimatePresence, motion, Variants, Icon, confettiCelebrate, showError} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import {shuffleArray} from "@/src/features/learnings/helper/helper";
 import {ApiModuleGradedAnswer, ApiModuleQuestion, ApiModuleQuizResult} from "@/src/features/learnings/services/moduleQuiz.service";
@@ -13,6 +13,14 @@ import {isChosenCorrect, responsesForChosen} from "@/src/features/learnings/help
 import PointsEarnedCard from "@/src/features/rewards/components/PointsEarnedCard";
 import PracticeFeedbackCard from "@/src/features/learnings/components/PracticeFeedbackCard";
 import CourseTestIntro from "./CourseTestIntro";
+import SmartZoneIntro from "@/src/features/smart-zone/components/SmartZoneIntro";
+import SmartZoneTimer from "@/src/features/smart-zone/components/SmartZoneTimer";
+import SoundToggle from "@/src/features/smart-zone/components/SoundToggle";
+import KeyCap from "@/src/features/smart-zone/components/KeyCap";
+import ShortcutsHelp, {ShortcutsButton} from "@/src/features/smart-zone/components/ShortcutsHelp";
+import {useSmartZoneKeys} from "@/src/features/smart-zone/hooks/useSmartZoneKeys";
+import {playSound, unlockAudio} from "@/src/features/smart-zone/sound/engine";
+import {setSoundEnabled, soundEnabledNow} from "@/src/features/smart-zone/sound/prefs";
 
 interface PracticeCardProps {
   courseId: string;
@@ -31,6 +39,11 @@ interface PracticeCardProps {
   showFeedback?: boolean;
   /** A Test opens with an intro card ("Time for a Course test?") before the first question. */
   showIntro?: boolean;
+  /**
+   * The Smart Zone (a course Exercise): a ring countdown with a tick and alarm, sound effects, A-D / Enter keyboard
+   * controls and its own intro. Answers are still marked all together when the learner submits.
+   */
+  smartZone?: boolean;
   onDone?: () => void;
 }
 
@@ -43,8 +56,10 @@ export function CoursePractice({
   passingScore,
   showFeedback = false,
   showIntro = false,
+  smartZone = false,
   onDone,
 }: PracticeCardProps) {
+  const zone = smartZone;
   const submit = useSubmitModuleAnswers(courseId, moduleId);
   const questionHelp = useQuestionHelp();
 
@@ -60,7 +75,10 @@ export function CoursePractice({
   const [aiHelp, setAiHelp] = useState<Record<string, string>>({});
   const [timedOut, setTimedOut] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const [started, setStarted] = useState(!showIntro);
+  const [started, setStarted] = useState(!(showIntro || zone));
+  const [helpOpen, setHelpOpen] = useState(false);
+  // The clock ended the session, so the finish sound is the alarm's, not the fanfare's.
+  const [endedByClock, setEndedByClock] = useState(false);
   // Practice mode: question ids the student has checked (their answer is then locked).
   const [checked, setChecked] = useState<Record<string, boolean>>({});
 
@@ -70,14 +88,23 @@ export function CoursePractice({
     answersRef.current = answers;
   }, [answers]);
 
+  // Marks arrived: show them, with the Smart Zone's finish sound (the alarm has already sounded if the clock ended it).
+  const onGraded = (graded: ApiModuleQuizResult, byClock: boolean) => {
+    setResult(graded);
+    if (!zone) return;
+    if (!byClock) playSound(graded.score_percent >= 50 ? "complete" : "consolation");
+    if (graded.score_percent === 100) confettiCelebrate();
+  };
+
   const remaining = useCountdown(
     timerMinutes,
     !result && !timedOut && !submit.isPending,
     () => {
       const current = answersRef.current;
       if (Object.values(current).some((a) => a.some((x) => x.trim()))) {
+        setEndedByClock(true);
         submit.mutate(current, {
-          onSuccess: (graded) => setResult(graded),
+          onSuccess: (graded) => onGraded(graded, true),
           onError: () => setSubmitError("Time's up, but we couldn't submit your answers. Please try again."),
         });
       } else {
@@ -114,6 +141,7 @@ export function CoursePractice({
 
   const selectOption = (option: string) => {
     if (reviewMode || isChecked) return;
+    if (zone) playSound("select");
     setAnswers((prev) => {
       const existing = prev[currentQuestion.question_id] ?? [];
       if (isMultiChoice) {
@@ -133,6 +161,7 @@ export function CoursePractice({
 
   const handleNext = () => {
     setShowExplanation(false);
+    if (zone) playSound(isLastQuestion && !reviewMode ? "enter" : "next");
 
     if (reviewMode) {
       if (isLastQuestion) {
@@ -146,7 +175,7 @@ export function CoursePractice({
     if (isLastQuestion) {
       setSubmitError(null);
       submit.mutate(answers, {
-        onSuccess: (graded) => setResult(graded),
+        onSuccess: (graded) => onGraded(graded, false),
         onError: () => setSubmitError("Couldn't submit your answers. Please try again."),
       });
       return;
@@ -165,6 +194,7 @@ export function CoursePractice({
     setAiHelp({});
     setTimedOut(false);
     setChecked({});
+    setEndedByClock(false);
     setAttempt((n) => n + 1);
   };
 
@@ -175,8 +205,83 @@ export function CoursePractice({
     });
   };
 
+  // What the main button does and whether it can be pressed; the Enter key does the same.
+  const needsCheck = showFeedback && !reviewMode && !isChecked;
+  const primaryDisabled = needsCheck
+    ? !isAnswered
+    : isLastQuestion && !reviewMode
+      ? !allAnswered || submit.isPending
+      : !isAnswered;
+  const runPrimary = () => {
+    if (needsCheck) setChecked((prev) => ({...prev, [currentQuestion.question_id]: true}));
+    else handleNext();
+  };
+
+  // Reviewing a marked Smart Zone: each question you land on sounds its verdict.
+  const reviewedId = currentQuestion?.question_id;
+  useEffect(() => {
+    if (!zone || !reviewMode || !reviewedId) return;
+    const verdict = resultByQuestionId.get(reviewedId)?.is_correct;
+    if (verdict === true) playSound("correct");
+    else if (verdict === false) playSound("wrong");
+  }, [zone, reviewMode, reviewedId, resultByQuestionId]);
+
+  useSmartZoneKeys(
+    (action) => {
+      if (!currentQuestion) return;
+      switch (action.type) {
+        case "pick":
+          selectOption(currentQuestion.options[action.index]);
+          break;
+        case "primary":
+          if (!primaryDisabled) runPrimary();
+          break;
+        case "next":
+          if (!primaryDisabled && (isAnswered || reviewMode)) runPrimary();
+          break;
+        case "previous":
+          if (reviewMode && !isFirstQuestion) {
+            playSound("next");
+            setCurrentIndex((prev) => prev - 1);
+          }
+          break;
+        case "mute": {
+          const next = !soundEnabledNow();
+          setSoundEnabled(next);
+          if (next) playSound("toggle");
+          break;
+        }
+        case "help":
+          setHelpOpen((open) => !open);
+          break;
+        case "close":
+          setHelpOpen(false);
+          break;
+      }
+    },
+    {
+      optionCount: isFreeText ? 0 : (currentQuestion?.options.length ?? 0),
+      helpOpen,
+      enabled: zone && started && !timedOut && (!result || reviewMode),
+    },
+  );
+
   // The question list can be refreshed underneath a running session; render nothing rather than crash.
   if (!currentQuestion) return null;
+
+  if (!started && zone) {
+    return (
+      <SmartZoneIntro
+        questionCount={questions.length}
+        estimate={timerMinutes ? "" : `${questions.length} - ${questions.length * 2} minutes`}
+        timerMinutes={timerMinutes}
+        onStart={() => {
+          unlockAudio();
+          setStarted(true);
+        }}
+      />
+    );
+  }
 
   if (!started) {
     return (
@@ -207,17 +312,28 @@ export function CoursePractice({
         >
           {label} - Question {currentIndex + 1} of {questions.length}
         </motion.p>
-        {remaining !== null && !result && (
-          <span
-            role="timer"
-            aria-label="Time left"
-            className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold tabular-nums ${
-              isCountdownLow(remaining) ? "bg-red-100 text-red-600" : "bg-muted/20 text-foreground"
-            }`}
-          >
-            <Icon icon="ph:timer" className="h-3.5 w-3.5" />
-            {formatCountdown(remaining)}
-          </span>
+        {zone ? (
+          <div className="flex shrink-0 items-center gap-2">
+            {remaining !== null && !result && timerMinutes ? (
+              <SmartZoneTimer remaining={remaining} totalSeconds={timerMinutes * 60} />
+            ) : null}
+            <SoundToggle />
+            <ShortcutsButton onClick={() => setHelpOpen(true)} />
+          </div>
+        ) : (
+          remaining !== null &&
+          !result && (
+            <span
+              role="timer"
+              aria-label="Time left"
+              className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold tabular-nums ${
+                isCountdownLow(remaining) ? "bg-red-100 text-red-600" : "bg-muted/20 text-foreground"
+              }`}
+            >
+              <Icon icon="ph:timer" className="h-3.5 w-3.5" />
+              {formatCountdown(remaining)}
+            </span>
+          )
         )}
       </motion.div>
 
@@ -251,6 +367,7 @@ export function CoursePractice({
           >
             <QuizResults
               result={result}
+              endedByClock={endedByClock}
               practice={showFeedback}
               passingScore={passingScore}
               onRetry={retry}
@@ -371,6 +488,7 @@ export function CoursePractice({
                             />
                           )}
                         </motion.span>
+                        {zone && !reviewMode && <KeyCap className="ml-auto mr-2">{String.fromCharCode(65 + index)}</KeyCap>}
                       </motion.button>
                     );
                   })}
@@ -397,7 +515,7 @@ export function CoursePractice({
                     disabled={isFirstQuestion}
                     className="flex items-center gap-2 border rounded-full text-sm font-semibold text-gray-700 disabled:text-gray-300 disabled:bg-gray-100 dark:text-gray-300 dark:disabled:text-gray-600 dark:disabled:bg-neutral-800 px-5 py-2.5 transition-all cursor-pointer hover:bg-gray-100 dark:hover:bg-neutral-800"
                   >
-                    Prev
+                    Prev {zone && <KeyCap>P</KeyCap>}
                   </motion.button>
                 )}
 
@@ -436,20 +554,10 @@ export function CoursePractice({
                 <motion.button
                   layout
                   type="button"
-                  onClick={
-                    showFeedback && !reviewMode && !isChecked
-                      ? () => setChecked((prev) => ({...prev, [currentQuestion.question_id]: true}))
-                      : handleNext
-                  }
+                  onClick={runPrimary}
                   whileHover={{scale: 1.03, y: -2}}
                   whileTap={{scale: 0.96}}
-                  disabled={
-                    showFeedback && !reviewMode && !isChecked
-                      ? !isAnswered
-                      : isLastQuestion && !reviewMode
-                        ? !allAnswered || submit.isPending
-                        : !isAnswered
-                  }
+                  disabled={primaryDisabled}
                   className={`flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 active:scale-95 transition-all text-nowrap ${
                     isLastQuestion && !reviewMode && !allAnswered ? "cursor-not-allowed" : "cursor-pointer"
                   }`}
@@ -466,6 +574,7 @@ export function CoursePractice({
                   ) : (
                     "Next question"
                   )}
+                  {zone && <KeyCap className="border-white/60 text-white">Enter</KeyCap>}
                 </motion.button>
               </motion.div>
 
@@ -548,12 +657,14 @@ export function CoursePractice({
           </motion.div>
         )}
       </AnimatePresence>
+      {zone && <ShortcutsHelp open={helpOpen} onClose={() => setHelpOpen(false)} />}
     </motion.div>
   );
 }
 
 function QuizResults({
   result,
+  endedByClock,
   practice,
   passingScore,
   onRetry,
@@ -561,6 +672,8 @@ function QuizResults({
   onReview,
 }: {
   result: ApiModuleQuizResult;
+  /** The Smart Zone's clock ran out and submitted the answers so far. */
+  endedByClock?: boolean;
   /** Practice: no grade-style verdict, just a note that it is for learning. */
   practice?: boolean;
   passingScore?: number | null;
@@ -628,6 +741,11 @@ function QuizResults({
         <motion.p initial={{opacity: 0}} animate={{opacity: 1}} transition={{delay: 0.35}} className="mt-2 max-w-md text-[15px] text-subtle">
           {message}
         </motion.p>
+        {endedByClock && (
+          <motion.p role="status" initial={{opacity: 0}} animate={{opacity: 1}} className="mt-3 flex items-center gap-1.5 rounded-full bg-red-100 px-4 py-1.5 text-sm font-semibold text-red-600">
+            <Icon icon="ph:alarm-bold" className="h-4 w-4" /> Time&apos;s up: your answers so far were submitted.
+          </motion.p>
+        )}
         {result.passed !== null && result.passed !== undefined && (
           <motion.p
             role="status"
