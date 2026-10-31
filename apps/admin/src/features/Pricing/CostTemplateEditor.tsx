@@ -198,8 +198,9 @@ function TemplateEditorForm({detail, programType, programId, initialEdition}: {
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
       <div className="flex min-w-0 flex-col gap-6">
         <Section title="Live teaching"
-          description={`Students choose at signup whether to learn self-paced, in a live group of ${GROUP_SEATS}, or one-to-one. The live sessions, their length and the teacher's pay are shared by the two live formats; the difference is who the teacher's time is divided between. Use 0 sessions for a program with no live teaching.`}>
-          <div className="grid gap-4 sm:grid-cols-3">
+          description={`Students choose at signup whether to learn self-paced, in a live group of ${GROUP_SEATS}, or one-to-one. The live sessions, their length and the teacher's pay are shared by the two live formats; the difference is who the teacher's time is divided between. Use 0 sessions for a program with no live teaching. The duration in weeks and the live sessions are shown to learners and parents on the enrolment page; the weeks do not change any price.`}>
+          <div className="grid gap-4 sm:grid-cols-4">
+            <NumberField id="durationWeeks" label="Duration in weeks" value={form.durationWeeks} onChange={set("durationWeeks")} error={err("durationWeeks")} />
             <NumberField id="liveSessions" label="Live sessions per enrolment" value={form.liveSessions} onChange={set("liveSessions")} error={err("liveSessions")} />
             <NumberField id="hoursPerSession" label="Hours per session" value={form.hoursPerSession} onChange={set("hoursPerSession")} error={err("hoursPerSession")} disabled={!hasSessions} />
             <NumberField id="hourlyRate" label="Teacher pay per hour" prefix="₦" value={form.hourlyRate} onChange={set("hourlyRate")} error={err("hourlyRate")} disabled={!hasSessions} />

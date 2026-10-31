@@ -8,6 +8,7 @@ import {Button, Icon} from "@mcc/ui";
 import {useInitializeCoursePayment} from "@/src/features/courses/hooks/useCourses";
 import {ApiCourse} from "@/src/features/courses/services/course.service";
 import {FormatPicker} from "@/src/features/components/FormatPicker";
+import {WhatYouGet} from "@/src/features/components/WhatYouGet";
 import {defaultFormat, defaultTierId, gemsApply, priceOf, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
 import {useGemPacks, useUnlockCourseWithGems, useWalletBalance} from "@/src/features/wallet/hooks/useWallet";
 import {courseGemCost} from "@/src/features/wallet/helper/wallet";
@@ -125,6 +126,8 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
           </p>
 
           {!isFree && <FormatPicker formats={formats} selected={format} tierId={tierId} onSelect={setFormat} />}
+
+          <WhatYouGet kind="course" formats={formats} format={format} />
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 

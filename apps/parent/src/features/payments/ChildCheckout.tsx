@@ -5,6 +5,7 @@ import { Button } from "@mcc/ui";
 import type { CatalogueTierPrice } from "./payments.service";
 import { useCourseCatalogue, useEnrollChildInCourse, useProgramCatalogue, useRegisterChildForExam } from "./usePayments";
 import { FormatCards } from "./FormatCards";
+import { WhatYouGet } from "./WhatYouGet";
 import { defaultTierId, formatFor, priceOf, tiersFor, type CatalogueFormat, type LiveFormat } from "./formats";
 
 const formatPrice = (price: string) => {
@@ -125,6 +126,7 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
                     tierId={tierId}
                     onChange={(f) => setSelectedFormats((prev) => ({...prev, [course.course_id]: f}))}
                   />
+                  <WhatYouGet kind="course" formats={course.formats ?? []} format={format} />
                 </li>
               );
             })}
@@ -165,6 +167,7 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
                     tierId={tierId}
                     onChange={(f) => setSelectedFormats((prev) => ({...prev, [program.program_id]: f}))}
                   />
+                  <WhatYouGet kind="exam" formats={program.formats ?? []} format={format} />
                 </li>
               );
             })}
