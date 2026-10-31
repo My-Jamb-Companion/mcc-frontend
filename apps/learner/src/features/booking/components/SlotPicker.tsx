@@ -3,6 +3,7 @@
 import {useState} from "react";
 import {Button, showSuccess} from "@mcc/ui";
 import {useSelectSlot} from "../hooks/useAssignment";
+import {OUTSIDE_HOURS_TITLE} from "./AssignmentStatusCard";
 
 interface SlotPickerProps {
   purpose: "course" | "exam";
@@ -38,7 +39,17 @@ export function SlotPicker({purpose, targetId}: SlotPickerProps) {
     if (!iso) return;
     selectSlot.mutate(
       {purpose, target_id: targetId, scheduled_at: iso},
-      {onSuccess: () => showSuccess("Your onboarding call is booked")},
+      {
+        onSuccess: (booked) => {
+          if (booked.status === "cra_escalated") {
+            showSuccess("Request received. Our team will confirm your onboarding call time.");
+          } else if (booked.cra_is_fallback) {
+            showSuccess(`Your onboarding call is booked, but ${OUTSIDE_HOURS_TITLE.toLowerCase()}. See the note below.`);
+          } else {
+            showSuccess("Your onboarding call is booked");
+          }
+        },
+      },
     );
   }
 

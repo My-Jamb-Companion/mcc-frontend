@@ -15,6 +15,11 @@ const AFTER_CALL: Record<string, string> = {
   one_to_one: "After the call we'll match you with a teacher for your weekly 1-to-1 sessions.",
 };
 
+/** Shown on a booked call whose time is outside every coordinator's availability (cra_is_fallback). */
+export const OUTSIDE_HOURS_TITLE = "This time is outside our coordinators' usual hours";
+export const OUTSIDE_HOURS_BODY =
+  "We've booked it and told your coordinator, but they may not be free then. For a time that's certain, reschedule to one within normal hours.";
+
 function formatWhen(iso: string): string {
   return new Date(iso).toLocaleString("en-US", {
     weekday: "short",
@@ -38,40 +43,54 @@ export function AssignmentStatusCard({assignment}: {assignment: ApiAssignmentSta
 
   if (assignment.status === "onboarding_scheduled") {
     return (
-      <div className="flex flex-col gap-3 rounded-2xl border border-muted/20 bg-muted/5 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-        <div className="flex items-start gap-3">
-          <Icon icon="lucide:calendar-check" size={20} className="mt-0.5 shrink-0 text-primary" />
-          <div>
-            <p className="font-semibold text-foreground">Your onboarding call is booked</p>
-            {assignment.onboarding_scheduled_at && (
-              <p className="text-sm text-muted">{formatWhen(assignment.onboarding_scheduled_at)}</p>
-            )}
-            {assignment.is_paid === false ? (
-              <p className="mt-1 text-sm text-muted">{FREE_AFTER_CALL}</p>
-            ) : (
-              assignment.live_format && <p className="mt-1 text-sm text-muted">{AFTER_CALL[assignment.live_format]}</p>
+      <div className="rounded-2xl border border-muted/20 bg-muted/5 p-4 sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <Icon icon="lucide:calendar-check" size={20} className="mt-0.5 shrink-0 text-primary" />
+            <div>
+              <p className="font-semibold text-foreground">Your onboarding call is booked</p>
+              {assignment.onboarding_scheduled_at && (
+                <p className="text-sm text-muted">{formatWhen(assignment.onboarding_scheduled_at)}</p>
+              )}
+              {assignment.is_paid === false ? (
+                <p className="mt-1 text-sm text-muted">{FREE_AFTER_CALL}</p>
+              ) : (
+                assignment.live_format && <p className="mt-1 text-sm text-muted">{AFTER_CALL[assignment.live_format]}</p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setRescheduling(true)}
+              className="inline-flex items-center justify-center rounded-full border border-muted/30 px-4 py-2 text-sm font-medium text-foreground hover:bg-muted/10"
+            >
+              Reschedule
+            </button>
+            {assignment.onboarding_meeting_url && (
+              <a
+                href={assignment.onboarding_meeting_url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+              >
+                Join Zoom call
+              </a>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setRescheduling(true)}
-            className="inline-flex items-center justify-center rounded-full border border-muted/30 px-4 py-2 text-sm font-medium text-foreground hover:bg-muted/10"
+        {assignment.cra_is_fallback && (
+          <div
+            role="alert"
+            className="mt-4 flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-900"
           >
-            Reschedule
-          </button>
-          {assignment.onboarding_meeting_url && (
-            <a
-              href={assignment.onboarding_meeting_url}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-            >
-              Join Zoom call
-            </a>
-          )}
-        </div>
+            <Icon icon="lucide:triangle-alert" size={18} className="mt-0.5 shrink-0" />
+            <div className="text-sm">
+              <p className="font-semibold">{OUTSIDE_HOURS_TITLE}</p>
+              <p className="mt-0.5">{OUTSIDE_HOURS_BODY}</p>
+            </div>
+          </div>
+        )}
         <OnboardingRescheduleModal
           assignmentId={rescheduling ? assignment.id : null}
           onClose={() => setRescheduling(false)}
@@ -95,8 +114,27 @@ export function AssignmentStatusCard({assignment}: {assignment: ApiAssignmentSta
     );
   }
 
-  // pending_cra / cra_escalated -- the request has gone in, a coordinator
-  // hasn't taken it yet. Both are transient, no action for the student.
+  // No coordinator exists to take the booking, so the team has been alerted to assign one by hand.
+  // It will not sort itself out in a moment, so say so instead of showing a spinner.
+  if (assignment.status === "cra_escalated") {
+    return (
+      <div role="status" className="flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-900 sm:p-6">
+        <Icon icon="lucide:clock" size={20} className="mt-0.5 shrink-0" />
+        <div>
+          <p className="font-semibold">We&apos;ve got your request, and our team will confirm your call</p>
+          {assignment.onboarding_scheduled_at && (
+            <p className="text-sm">You asked for {formatWhen(assignment.onboarding_scheduled_at)}.</p>
+          )}
+          <p className="mt-1 text-sm">
+            No coordinator was free to take it automatically. We&apos;ll confirm the time with you and let you know here
+            and by email.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // pending_cra -- the request has gone in, a coordinator hasn't taken it yet. Transient, no action for the student.
   return (
     <div className="flex items-start gap-3 rounded-2xl border border-muted/20 bg-muted/5 p-4 sm:p-6">
       <Icon icon="lucide:loader-2" size={20} className="mt-0.5 shrink-0 animate-spin text-primary" />
