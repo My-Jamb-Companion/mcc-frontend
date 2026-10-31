@@ -1,13 +1,19 @@
 import {afterEach, describe, expect, it, vi} from "vitest";
-import {cleanup, fireEvent, render, screen} from "@testing-library/react";
+import {cleanup, fireEvent, render, screen, waitFor} from "@testing-library/react";
 
-const createMutate = vi.fn();
+const createAsync = vi.fn();
+const acceptMutate = vi.fn();
+const voteMutate = vi.fn();
+const replies = vi.fn();
 const reportMutate = vi.fn();
 const posts = vi.fn();
 const showSuccess = vi.fn();
 const showError = vi.fn();
 
-vi.mock("lucide-react", () => ({Flag: () => null, Pencil: () => null, Trash2: () => null}));
+vi.mock("lucide-react", () => ({
+  Flag: () => null, Pencil: () => null, Trash2: () => null, ChevronUp: () => null, CheckCircle2: () => null,
+  MessageSquare: () => null, Pin: () => null,
+}));
 vi.mock("@mcc/ui", () => ({
   Button: ({children, onClick, disabled}: {children: React.ReactNode; onClick?: () => void; disabled?: boolean}) => (
     <button onClick={onClick} disabled={disabled}>{children}</button>
@@ -21,7 +27,12 @@ vi.mock("@mcc/ui", () => ({
 vi.mock("@mcc/api", () => ({extractApiError: (e: {message?: string}, fallback: string) => e?.message ?? fallback}));
 vi.mock("@/src/features/learnings/hooks/useCommunity", () => ({
   useCommunityPosts: () => posts(),
-  useCreatePost: () => ({mutate: createMutate, isPending: false}),
+  useCreatePost: () => ({mutateAsync: createAsync, isPending: false}),
+  useReplies: () => replies(),
+  useAcceptReply: () => ({mutate: acceptMutate, isPending: false}),
+  useVote: () => ({mutate: voteMutate, isPending: false}),
+  useGuidelines: () => ({data: {title: "Keep the discussion about learning", rules: ["Ask and answer questions about this course."], consequences: "Posts that break these rules are removed.", accepted: false}, isLoading: false}),
+  useAcceptGuidelines: () => ({mutate: (_: unknown, opts: {onSuccess: () => void}) => opts.onSuccess(), isPending: false}),
   useUpdatePost: () => ({mutate: vi.fn(), isPending: false}),
   useDeletePost: () => ({mutate: vi.fn(), isPending: false}),
   useReportPost: () => ({mutate: reportMutate, isPending: false}),
@@ -76,22 +87,50 @@ describe("CommunityTab", () => {
     expect((screen.getByText("Post") as HTMLButtonElement).disabled).toBe(true);
   });
 
-  it("tells the writer when a post was held for review, instead of letting it look lost", () => {
+  it("tells the writer when a post was held for review, instead of letting it look lost", async () => {
     ready([]);
-    createMutate.mockImplementation((_body, opts) => opts.onSuccess({post_id: "p9", status: "held", message: "Your post is waiting for a moderator to review it."}));
+    createAsync.mockResolvedValue({post_id: "p9", status: "held", message: "Your post is waiting for a moderator to review it."});
     render(<CommunityTab courseId="c1" />);
     fireEvent.change(screen.getByLabelText("Write a post"), {target: {value: "some words"}});
     fireEvent.click(screen.getByText("Post"));
-    expect(showSuccess).toHaveBeenCalledWith("Your post is waiting for a moderator to review it.");
+    await waitFor(() => expect(showSuccess).toHaveBeenCalledWith("Your post is waiting for a moderator to review it."));
   });
 
-  it("shows the refusal message (phone number, link, too many posts) as an error", () => {
+  it("shows the refusal message (phone number, link, too many posts) as an error and keeps the draft", async () => {
     ready([]);
-    createMutate.mockImplementation((_body, opts) => opts.onError({message: "Please don't share phone numbers"}));
+    createAsync.mockRejectedValue({message: "Please don't share phone numbers"});
     render(<CommunityTab courseId="c1" />);
     fireEvent.change(screen.getByLabelText("Write a post"), {target: {value: "call me"}});
     fireEvent.click(screen.getByText("Post"));
-    expect(showError).toHaveBeenCalledWith("Please don't share phone numbers");
+    await waitFor(() => expect(showError).toHaveBeenCalledWith("Please don't share phone numbers"));
+    expect((screen.getByLabelText("Write a post") as HTMLTextAreaElement).value).toBe("call me");
+  });
+
+  it("shows the guidelines before a first post, then sends the post that was waiting", async () => {
+    ready([]);
+    const needGuidelines = {response: {data: {error: {code: "GUIDELINES_REQUIRED"}}}};
+    createAsync.mockRejectedValueOnce(needGuidelines).mockResolvedValueOnce({post_id: "p1", status: "visible"});
+    render(<CommunityTab courseId="c1" />);
+    fireEvent.change(screen.getByLabelText("Write a post"), {target: {value: "What is a mole?"}});
+    fireEvent.click(screen.getByText("Post"));
+    expect(await screen.findByText("Ask and answer questions about this course.")).toBeTruthy();
+    fireEvent.click(screen.getByText("I agree"));
+    await waitFor(() => expect(createAsync).toHaveBeenCalledTimes(2));
+    expect(createAsync).toHaveBeenLastCalledWith({body: "What is a mole?", parentPostId: undefined});
+    expect(showError).not.toHaveBeenCalled();
+  });
+
+  it("drops the post, quietly, if they say not now to the guidelines", async () => {
+    ready([]);
+    createAsync.mockRejectedValue({response: {data: {error: {code: "GUIDELINES_REQUIRED"}}}});
+    render(<CommunityTab courseId="c1" />);
+    fireEvent.change(screen.getByLabelText("Write a post"), {target: {value: "What is a mole?"}});
+    fireEvent.click(screen.getByText("Post"));
+    fireEvent.click(await screen.findByText("Not now"));
+    await waitFor(() => expect(screen.queryByText("I agree")).toBeNull());
+    expect(createAsync).toHaveBeenCalledTimes(1);
+    expect(showError).not.toHaveBeenCalled();
+    expect((screen.getByLabelText("Write a post") as HTMLTextAreaElement).value).toBe("What is a mole?");
   });
 
   it("lets people report someone else's post, with a reason a moderator can use", () => {
@@ -131,5 +170,82 @@ describe("CommunityTab", () => {
     ready([post({edited: true})]);
     render(<CommunityTab courseId="c1" />);
     expect(screen.getByText(/edited/)).toBeTruthy();
+  });
+});
+
+describe("questions and answers", () => {
+  it("lets you switch between newest, top and unanswered", () => {
+    ready([]);
+    render(<CommunityTab courseId="c1" />);
+    expect(screen.getByRole("tab", {name: "Newest"}).getAttribute("aria-selected")).toBe("true");
+    fireEvent.click(screen.getByRole("tab", {name: "Unanswered"}));
+    expect(screen.getByRole("tab", {name: "Unanswered"}).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByText(/Every question has an answer/)).toBeTruthy();
+  });
+
+  it("shows pinned, answered and the teacher's badge", () => {
+    ready([post({pinned: true, answered: true, author: {user_id: "t1", full_name: "Mrs Okafor", profile_photo_url: null, badge: "Teacher"}})]);
+    render(<CommunityTab courseId="c1" />);
+    expect(screen.getByText("Pinned")).toBeTruthy();
+    expect(screen.getByText("Answered")).toBeTruthy();
+    expect(screen.getByText("Teacher")).toBeTruthy();
+  });
+
+  it("votes on a question, but not on your own", () => {
+    ready([post({vote_count: 2, i_voted: false})]);
+    render(<CommunityTab courseId="c1" />);
+    fireEvent.click(screen.getByLabelText("Vote up (2)"));
+    expect(voteMutate).toHaveBeenCalledWith({postId: "p1", on: true}, expect.any(Object));
+    cleanup();
+    ready([post({is_mine: true, vote_count: 2})]);
+    render(<CommunityTab courseId="c1" />);
+    expect((screen.getByLabelText("Vote up (2)") as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("takes a vote back when you have already voted", () => {
+    ready([post({vote_count: 1, i_voted: true})]);
+    render(<CommunityTab courseId="c1" />);
+    fireEvent.click(screen.getByLabelText("Remove your vote (1)"));
+    expect(voteMutate).toHaveBeenCalledWith({postId: "p1", on: false}, expect.any(Object));
+  });
+
+  it("opens the answers under a question, accepted one marked, and lets the asker accept another", () => {
+    ready([post({is_mine: true, reply_count: 2})]);
+    replies.mockReturnValue({
+      isLoading: false, isError: false, error: null, acceptedReplyId: "r1",
+      replies: [
+        {post_id: "r1", author: {user_id: "t1", full_name: "Mrs Okafor", badge: "Teacher"}, body: "Divide by the smallest.", created_at: new Date().toISOString(), is_accepted: true, vote_count: 3},
+        {post_id: "r2", author: {user_id: "u3", full_name: "Chidi"}, body: "Try the ratio.", created_at: new Date().toISOString(), is_accepted: false, vote_count: 0},
+      ],
+    });
+    render(<CommunityTab courseId="c1" />);
+    fireEvent.click(screen.getByText("2 answers"));
+    expect(screen.getByText("Divide by the smallest.")).toBeTruthy();
+    expect(screen.getByText("Accepted answer")).toBeTruthy();
+    fireEvent.click(screen.getByText("Accept this answer"));
+    expect(acceptMutate).toHaveBeenCalledWith({questionId: "p1", replyId: "r2"}, expect.any(Object));
+    fireEvent.click(screen.getByText("Remove accepted answer"));
+    expect(acceptMutate).toHaveBeenLastCalledWith({questionId: "p1", replyId: null}, expect.any(Object));
+  });
+
+  it("does not offer to accept an answer to someone else's question", () => {
+    ready([post({is_mine: false, reply_count: 1})]);
+    replies.mockReturnValue({isLoading: false, isError: false, error: null, acceptedReplyId: null,
+      replies: [{post_id: "r1", author: {user_id: "u3", full_name: "Chidi"}, body: "Try the ratio.", created_at: new Date().toISOString(), vote_count: 0}]});
+    render(<CommunityTab courseId="c1" />);
+    fireEvent.click(screen.getByText("1 answer"));
+    expect(screen.queryByText("Accept this answer")).toBeNull();
+  });
+
+  it("sends an answer as a reply to that question", async () => {
+    ready([post({reply_count: 0})]);
+    replies.mockReturnValue({isLoading: false, isError: false, error: null, replies: [], acceptedReplyId: null});
+    createAsync.mockResolvedValue({post_id: "r9", status: "visible"});
+    render(<CommunityTab courseId="c1" />);
+    fireEvent.click(screen.getByText("Be first to answer"));
+    expect(screen.getByText(/No answers yet/)).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Write an answer"), {target: {value: "Balance the oxygen last."}});
+    fireEvent.click(screen.getByRole("button", {name: "Answer"}));
+    await waitFor(() => expect(createAsync).toHaveBeenCalledWith({body: "Balance the oxygen last.", parentPostId: "p1"}));
   });
 });

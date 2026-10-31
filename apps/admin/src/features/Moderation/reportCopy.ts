@@ -34,3 +34,28 @@ export function decisionCopy(report: Pick<ApiContentReport, "content_type" | "co
   };
 }
 
+
+/** How long a moderator can mute for. `days: null` is until they lift it. */
+export const MUTE_DURATIONS: { label: string; days: number | null }[] = [
+  { label: "1 day", days: 1 },
+  { label: "7 days", days: 7 },
+  { label: "30 days", days: 30 },
+  { label: "Until I lift it", days: null },
+];
+
+/** A line about the author, so one report can be read in context: "6 posts, 2 removed in the last 90 days". */
+export function authorHistory(report: Pick<ApiContentReport, "author_total_posts" | "author_removed_posts" | "author_muted">): string | null {
+  const total = report.author_total_posts ?? 0;
+  if (!total && !report.author_muted) return null;
+  const posts = `${total} post${total === 1 ? "" : "s"}`;
+  const removed = report.author_removed_posts ?? 0;
+  const parts = [removed > 0 ? `${posts}, ${removed} removed in the last 90 days` : `${posts}, none removed lately`];
+  if (report.author_muted) parts.push("muted now");
+  return parts.join(" · ");
+}
+
+/** When a mute ends, in words: "until 7 Nov 2026" or "until you lift it". */
+export function muteEnds(mutedUntil: string | null): string {
+  if (!mutedUntil) return "until you lift it";
+  return `until ${new Date(mutedUntil).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`;
+}

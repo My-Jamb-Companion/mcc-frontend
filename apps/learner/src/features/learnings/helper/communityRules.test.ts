@@ -40,3 +40,37 @@ describe("report reasons", () => {
     expect(reportReasonLabel("nonsense")).toBe("Something else");
   });
 });
+
+import {FEED_MODES, answersLabel, canAccept, canVote, errorCode} from "./communityRules";
+
+describe("errorCode", () => {
+  it("reads the server's code, and nothing else", () => {
+    expect(errorCode({response: {data: {error: {code: "GUIDELINES_REQUIRED"}}}})).toBe("GUIDELINES_REQUIRED");
+    expect(errorCode({response: {data: {}}})).toBeNull();
+    expect(errorCode(new Error("boom"))).toBeNull();
+    expect(errorCode(null)).toBeNull();
+  });
+});
+
+describe("answersLabel", () => {
+  it("counts answers and invites the first one", () => {
+    expect(answersLabel(0)).toBe("Be first to answer");
+    expect(answersLabel(1)).toBe("1 answer");
+    expect(answersLabel(5)).toBe("5 answers");
+  });
+});
+
+describe("who can vote and accept", () => {
+  it("only votes on other people's showing posts", () => {
+    expect(canVote({is_mine: false, status: "visible"})).toBe(true);
+    expect(canVote({is_mine: true, status: "visible"})).toBe(false);
+    expect(canVote({is_mine: false, status: "held"})).toBe(false);
+  });
+  it("only the asker accepts, from here", () => {
+    expect(canAccept({is_mine: true})).toBe(true);
+    expect(canAccept({is_mine: false})).toBe(false);
+  });
+  it("offers three ways to sort", () => {
+    expect(FEED_MODES.map((m) => m.value)).toEqual(["new", "top", "unanswered"]);
+  });
+});
