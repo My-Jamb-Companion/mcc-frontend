@@ -8,7 +8,7 @@ import type {ApiTierSet} from "../services/locations.service";
 import {pricingErrorMessage} from "../services/pricing.service";
 import {Section} from "./Fields";
 
-/** The most the API accepts for a tier's buyer-facing line. */
+/** The most the API accepts for a tier's note. */
 const MAX_DESCRIPTION = 160;
 
 interface TierRow {
@@ -29,7 +29,7 @@ export default function TierEditor() {
   return (
     <Section
       title="Purchasing-power tiers"
-      description="Each tier's multiplier scales only the part of a price above its hard floor — development, overheads and profit — so no tier can sell below cost. 1.00 is full cost; below 1 is a discount, above 1 a premium. A buyer picks a tier directly at checkout."
+      description="Each tier's multiplier scales only the part of a price above its hard floor — development, overheads and profit — so no tier can sell below cost. 1.00 is full cost; below 1 is a discount, above 1 a premium. Buyers do not choose a tier: every enrolment is charged the default tier below."
     >
       {isLoading ? (
         <p className="text-sm text-neutral-400">Loading tiers…</p>
@@ -70,7 +70,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
     const errors: Record<string, string> = {};
     rows.forEach((r) => {
       if (!r.name.trim()) errors[r.tier_id] = "Name the tier";
-      else if (r.description.trim().length > MAX_DESCRIPTION) errors[r.tier_id] = `Keep the buyer-facing line under ${MAX_DESCRIPTION} characters`;
+      else if (r.description.trim().length > MAX_DESCRIPTION) errors[r.tier_id] = `Keep the note under ${MAX_DESCRIPTION} characters`;
       else if (!DECIMAL.test(r.multiplier) || Number(r.multiplier) <= 0 || Number(r.multiplier) > 5 || decimals(r.multiplier) > 3)
         errors[r.tier_id] = "Multiplier must be above 0 and at most 5, up to 3 decimals";
       else if (!DECIMAL.test(r.sharePct) || Number(r.sharePct) > 100 || decimals(r.sharePct) > 3)
@@ -146,7 +146,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="text-xs uppercase tracking-wide text-neutral-400">
-              <th className="pb-2 pr-3 font-medium">Tier and the line buyers see</th>
+              <th className="pb-2 pr-3 font-medium">Tier and note</th>
               <th className="pb-2 pr-3 font-medium">Multiplier</th>
               <th className="pb-2 pr-3 font-medium">Expected share of sales</th>
               <th className="pb-2 font-medium">Default</th>
@@ -157,8 +157,8 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
               <tr key={r.tier_id} className="align-top">
                 <td className="py-1.5 pr-3">
                   <input aria-label="Tier name" value={r.name} onChange={(e) => update(r.tier_id, {name: e.target.value})} className={`${input} min-w-44`} />
-                  <input aria-label={`Line shown to buyers for ${r.name}`} value={r.description} maxLength={MAX_DESCRIPTION + 40}
-                    placeholder="Shown to buyers, e.g. For most students"
+                  <input aria-label={`Note for ${r.name}`} value={r.description} maxLength={MAX_DESCRIPTION + 40}
+                    placeholder="A note for the team, e.g. For most students"
                     onChange={(e) => update(r.tier_id, {description: e.target.value})} className={`${input} mt-1.5 min-w-44 font-normal`} />
                   <p className={`mt-0.5 text-[11px] ${r.description.length > MAX_DESCRIPTION ? "text-red-600" : "text-neutral-400"}`}>
                     {r.description.length}/{MAX_DESCRIPTION}
@@ -195,8 +195,8 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
         </table>
       </div>
       <p className="text-xs text-neutral-500">
-        The default tier is used for any checkout where no tier is chosen. Every tier gets the same course, so the line should say who the
-        price is for, not what it includes. It shows beside the price at checkout and takes effect as soon as you save, with no republish.
+        The default tier is the one every learner and parent is charged: its published price for the way of learning they pick (self-paced,
+        live group or 1-to-1). Change it here and it applies to the next purchase, with no republish. The note is for the team only; buyers do not see it.
       </p>
 
       <div className="grid gap-3 sm:grid-cols-2">

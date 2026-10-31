@@ -8,6 +8,8 @@ export interface ApiTierPrice {
   price: number | string;
   /** Admin-written line saying who this price is for. Empty when none. */
   description?: string;
+  /** The admin's default tier: the one every purchase is charged. */
+  is_default?: boolean;
 }
 
 export interface ApiCourse {
