@@ -7,9 +7,8 @@ import {useAuthStore} from "@mcc/store";
 import {Button, Icon} from "@mcc/ui";
 import {useRegisterForProgram} from "@/src/features/exams/hooks/useExams";
 import {ApiExamProgram} from "@/src/features/exams/services/exam.service";
-import {TierPicker} from "@/src/features/components/TierPicker";
 import {FormatPicker} from "@/src/features/components/FormatPicker";
-import {FORMAT_LABELS, defaultFormat, tierAfterFormatChange, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
+import {defaultFormat, defaultTierId, priceOf, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
 import {coverFallback} from "@/src/features/components/coverFallback";
 
 const FALLBACK_IMAGE = "/assets/images/tower.jpg";
@@ -33,17 +32,9 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
   const formats = program.formats ?? [];
   // Live teaching is optional: the buyer picks self-paced, a live group or 1-to-1, each priced on its own.
   const [format, setFormat] = useState<LiveFormat | null>(() => defaultFormat(formats));
-  const tiers = tiersFor(formats, format, program.tier_prices);
-  // The catalogue's flat price is always the default tier's price, so
-  // that's the sensible pre-selected choice.
-  const [selectedTierId, setSelectedTierId] = useState<string | null>(
-    () => tiers.find((t) => Number(t.price) === price)?.tier_id ?? tiers[0]?.tier_id ?? null,
-  );
-  const chooseFormat = (next: LiveFormat) => {
-    setFormat(next);
-    setSelectedTierId((prev) => tierAfterFormatChange(tiersFor(formats, next, program.tier_prices), prev, price));
-  };
-  const selectedPrice = tiers.find((t) => t.tier_id === selectedTierId)?.price ?? price;
+  // Buyers do not choose a tier: every purchase is charged the admin's default tier, in whichever format they pick.
+  const tierId = defaultTierId(formats, program.tier_prices, price);
+  const selectedPrice = priceOf(tiersFor(formats, format, program.tier_prices), tierId, price);
 
   const handleRegister = () => {
     setError(null);
@@ -51,7 +42,7 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
       {
         programId: program.program_id,
         email: email || undefined,
-        tierId: selectedTierId ?? undefined,
+        tierId: tierId ?? undefined,
         liveFormat: format ?? undefined,
       },
       {
@@ -113,11 +104,7 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
             )}
           </p>
 
-          {!isFree && <FormatPicker formats={formats} selected={format} onSelect={chooseFormat} />}
-
-          {!isFree && (
-            <TierPicker tiers={tiers} selectedTierId={selectedTierId} onSelect={setSelectedTierId} formatLabel={format ? FORMAT_LABELS[format] : null} />
-          )}
+          {!isFree && <FormatPicker formats={formats} selected={format} tierId={tierId} onSelect={setFormat} />}
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 

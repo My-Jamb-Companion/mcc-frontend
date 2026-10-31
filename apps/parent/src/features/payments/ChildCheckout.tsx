@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { Button } from "@mcc/ui";
+import type { CatalogueTierPrice } from "./payments.service";
 import { useCourseCatalogue, useEnrollChildInCourse, useProgramCatalogue, useRegisterChildForExam } from "./usePayments";
-import { TierCards } from "./TierCards";
 import { FormatCards } from "./FormatCards";
-import { FORMAT_NAMES, formatFor, tierFor, tiersFor, type CatalogueFormat, type LiveFormat } from "./formats";
+import { defaultTierId, formatFor, priceOf, tiersFor, type CatalogueFormat, type LiveFormat } from "./formats";
 
 const formatPrice = (price: string) => {
   const amount = Number(price);
@@ -26,25 +26,23 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // Selected tier per program, defaulting to whichever tier prices the
-  // catalogue's own flat price (the default tier) once loaded.
-  const [selectedTiers, setSelectedTiers] = useState<Record<string, string>>({});
-
   // Live teaching is optional: the parent picks self-paced, a live group of five, or 1-to-1 per program.
   const [selectedFormats, setSelectedFormats] = useState<Record<string, LiveFormat>>({});
 
-  /** Everything the row needs for one program once the format and tier are resolved. */
+  /**
+   * Everything the row needs for one program once the format is resolved. Parents do not choose a tier: every
+   * purchase is charged the admin's default tier, in whichever format they pick.
+   */
   const choiceFor = (
     id: string,
     price: string,
-    tierPrices: {tier_id: string; tier_name: string; price: string}[],
+    tierPrices: CatalogueTierPrice[],
     formats: CatalogueFormat[] | undefined,
   ) => {
     const format = formatFor(formats, selectedFormats[id]);
-    const tiers = tiersFor(formats, format, tierPrices);
-    const tierId = tierFor(tiers, selectedTiers[id], price);
-    const shown = tiers.find((t) => t.tier_id === tierId)?.price ?? price;
-    return { format, tiers, tierId, shown };
+    const tierId = defaultTierId(formats, tierPrices, price);
+    const shown = priceOf(tiersFor(formats, format, tierPrices), tierId, price);
+    return { format, tierId, shown };
   };
 
   const handleEnroll = async (courseId: string, price: string, tierId?: string, liveFormat?: LiveFormat) => {
@@ -101,7 +99,7 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
           )}
           <ul className="space-y-2">
             {courses?.map((course) => {
-              const { format, tiers, tierId, shown } = choiceFor(course.course_id, course.price, course.tier_prices, course.formats);
+              const { format, tierId, shown } = choiceFor(course.course_id, course.price, course.tier_prices, course.formats);
               return (
                 <li
                   key={course.course_id}
@@ -124,14 +122,8 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
                     groupId={course.course_id}
                     formats={course.formats ?? []}
                     value={format}
+                    tierId={tierId}
                     onChange={(f) => setSelectedFormats((prev) => ({...prev, [course.course_id]: f}))}
-                  />
-                  <TierCards
-                    groupId={course.course_id}
-                    tiers={tiers}
-                    formatLabel={format ? FORMAT_NAMES[format] : null}
-                    value={tierId ?? null}
-                    onChange={(id) => setSelectedTiers((prev) => ({...prev, [course.course_id]: id}))}
                   />
                 </li>
               );
@@ -147,7 +139,7 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
           )}
           <ul className="space-y-2">
             {programs?.map((program) => {
-              const { format, tiers, tierId, shown } = choiceFor(program.program_id, program.price, program.tier_prices, program.formats);
+              const { format, tierId, shown } = choiceFor(program.program_id, program.price, program.tier_prices, program.formats);
               return (
                 <li
                   key={program.program_id}
@@ -170,14 +162,8 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
                     groupId={program.program_id}
                     formats={program.formats ?? []}
                     value={format}
+                    tierId={tierId}
                     onChange={(f) => setSelectedFormats((prev) => ({...prev, [program.program_id]: f}))}
-                  />
-                  <TierCards
-                    groupId={program.program_id}
-                    tiers={tiers}
-                    formatLabel={format ? FORMAT_NAMES[format] : null}
-                    value={tierId ?? null}
-                    onChange={(id) => setSelectedTiers((prev) => ({...prev, [program.program_id]: id}))}
                   />
                 </li>
               );

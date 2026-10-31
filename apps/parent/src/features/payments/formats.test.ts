@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FORMAT_ORDER, formatChoices, formatFor, tierFor, tiersFor, type CatalogueFormat } from "./formats";
+import { FORMAT_ORDER, defaultTierId, formatChoices, formatFor, priceOf, tiersFor, type CatalogueFormat } from "./formats";
 
 const t = (id: string, price: string) => ({ tier_id: id, tier_name: id, price });
 const formats: CatalogueFormat[] = [
@@ -21,12 +21,17 @@ describe("live formats on the parent checkout", () => {
     expect(tiersFor(undefined, undefined, [t("z", "1")])[0].tier_id).toBe("z");
   });
 
-  it("keeps the picked tier across formats, else the one matching the flat price", () => {
-    const group = tiersFor(formats, "group", []);
-    expect(tierFor(group, "b", "5000")).toBe("b");
-    expect(tierFor(group, undefined, "24000")).toBe("b");
-    expect(tierFor(group, "gone", "1")).toBe("a");
-    expect(tierFor([], undefined, "1")).toBeUndefined();
+  it("charges the admin's default tier in any format", () => {
+    const marked = formats.map((f) => ({ ...f, tier_prices: f.tier_prices.map((x) => ({ ...x, is_default: x.tier_id === "b" })) }));
+    expect(defaultTierId(marked, [], "5000")).toBe("b");
+    expect(priceOf(tiersFor(marked, "group", []), "b", "0")).toBe("24000");
+  });
+
+  it("falls back to the tier at the flat price when the API does not mark one", () => {
+    expect(defaultTierId(formats, [], "5000")).toBe("a");
+    expect(defaultTierId(formats, [], "123")).toBeUndefined();
+    expect(defaultTierId(undefined, [t("z", "9")], "9")).toBe("z");
+    expect(priceOf([], undefined, "5000")).toBe("5000");
   });
 });
 
@@ -36,10 +41,10 @@ describe("formatChoices", () => {
     expect(formatChoices([]).map((c) => c.name)).toEqual(["Self-paced", "Live group (1 Tutor : 5 students)", "Live 1-to-1"]);
   });
 
-  it("marks what is on sale, with its lowest price", () => {
-    const [self, group, one] = formatChoices(formats);
-    expect([self.onSale, self.fromPrice]).toEqual([true, 4000]);
-    expect([group.onSale, group.fromPrice]).toEqual([true, 24000]);
-    expect([one.onSale, one.fromPrice]).toEqual([false, null]);
+  it("marks what is on sale, with the default tier's price", () => {
+    const [self, group, one] = formatChoices(formats, "b");
+    expect([self.onSale, self.price]).toEqual([true, 4000]);
+    expect([group.onSale, group.price]).toEqual([true, 24000]);
+    expect([one.onSale, one.price]).toEqual([false, null]);
   });
 });

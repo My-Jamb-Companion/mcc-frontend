@@ -11,11 +11,11 @@ const group: CatalogueFormat = { format: "group", label: "Live group", seats: 5,
 
 describe("FormatCards", () => {
   it("lists the three ways to learn, even when only one is on sale", () => {
-    render(<FormatCards groupId="c1" formats={[selfPaced]} value="self_paced" onChange={() => {}} />);
+    render(<FormatCards groupId="c1" formats={[selfPaced]} value="self_paced" tierId="b" onChange={() => {}} />);
     expect(screen.getByText("Self-paced")).toBeInTheDocument();
     expect(screen.getByText("Live group (1 Tutor : 5 students)")).toBeInTheDocument();
     expect(screen.getByText("Live 1-to-1")).toBeInTheDocument();
-    expect(screen.getByText("from ₦7,000")).toBeInTheDocument();
+    expect(screen.getByText("₦11,000")).toBeInTheDocument();
   });
 
   it("marks a way that is not on sale, and will not let it be chosen", () => {
