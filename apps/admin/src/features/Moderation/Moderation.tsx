@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useReports } from "./hooks/useModeration";
 import { ReportRow } from "./ReportRow";
 import BugReports from "./bugs/BugReports";
+import { MutedList } from "./MutedList";
 
 const TABS: { key: string | undefined; label: string }[] = [
   { key: "pending", label: "Pending" },
@@ -14,6 +15,7 @@ const TABS: { key: string | undefined; label: string }[] = [
 
 const VIEWS = [
   { key: "content", label: "Content reports" },
+  { key: "muted", label: "Muted" },
   { key: "bugs", label: "Bug reports" },
 ] as const;
 
@@ -44,7 +46,15 @@ export default function Moderation() {
           ))}
         </div>
 
-        {view === "bugs" ? (
+        {view === "muted" ? (
+          <>
+            <h1 className="text-lg font-bold text-neutral-900">Muted from course discussions</h1>
+            <p className="mb-4 mt-0.5 text-sm text-neutral-400">
+              People who can&apos;t post in course discussions right now. A mute ends by itself on its date, or when you lift it.
+            </p>
+            <MutedList />
+          </>
+        ) : view === "bugs" ? (
           <>
             <h1 className="text-lg font-bold text-neutral-900">Bug reports</h1>
             <p className="mb-4 mt-0.5 text-sm text-neutral-400">Problems students and staff report from the apps, most urgent first.</p>

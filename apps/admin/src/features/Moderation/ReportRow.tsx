@@ -2,9 +2,11 @@
 
 import { ConfirmModal, showError, showSuccess } from "@mcc/ui";
 import { extractApiError } from "@mcc/api";
+import { useState } from "react";
 import { useDismissReport, useResolveReport } from "./hooks/useModeration";
+import { MuteModal } from "./MuteModal";
 import type { ApiContentReport } from "./services/moderation.service";
-import { POST_STATE, decisionCopy } from "./reportCopy";
+import { POST_STATE, authorHistory, decisionCopy } from "./reportCopy";
 
 const formatWhen = (iso: string) =>
   new Date(iso).toLocaleString("en-US", {
@@ -80,6 +82,8 @@ export function ReportRow({ report }: { report: ApiContentReport }) {
   };
 
   const copy = decisionCopy(report);
+  const [muting, setMuting] = useState(false);
+  const history = authorHistory(report);
   const isPost = report.content_type === "community_post";
   const state = report.content_status ? POST_STATE[report.content_status] : null;
   const automatic = report.source === "auto";
@@ -120,6 +124,13 @@ export function ReportRow({ report }: { report: ApiContentReport }) {
           <span className="font-medium text-neutral-700">{automatic ? "Why: " : "Reason: "}</span>
           {report.reason}
         </p>
+        {history && <p className="mt-1 text-xs text-neutral-400">About the author: {history}</p>}
+        {isPost && report.author_id && !report.author_muted && (
+          <button type="button" onClick={() => setMuting(true)} className="mt-2 text-xs font-medium text-violet-700 hover:underline">
+            Mute {report.author_name || "the author"}…
+          </button>
+        )}
+        <MuteModal userId={muting ? (report.author_id ?? null) : null} userName={report.author_name} onClose={() => setMuting(false)} />
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <StatusTag status={report.status} />

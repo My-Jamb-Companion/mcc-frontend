@@ -43,3 +43,31 @@ export function reviewNotice(post: Pick<ApiPost, "status" | "is_mine">): string 
 export function canReport(post: Pick<ApiPost, "status" | "is_mine">): boolean {
   return !post.is_mine && (post.status ?? "visible") === "visible";
 }
+
+export const FEED_MODES = [
+  {value: "new", label: "Newest"},
+  {value: "top", label: "Top"},
+  {value: "unanswered", label: "Unanswered"},
+] as const;
+
+/** The server's error code for a failed request ("GUIDELINES_REQUIRED", "COMMUNITY_MUTED", "NOT_ENROLLED", ...). */
+export function errorCode(error: unknown): string | null {
+  const code = (error as {response?: {data?: {error?: {code?: unknown}}}})?.response?.data?.error?.code;
+  return typeof code === "string" ? code : null;
+}
+
+/** "Be first to answer", "1 answer", "3 answers". */
+export function answersLabel(count: number): string {
+  if (count <= 0) return "Be first to answer";
+  return count === 1 ? "1 answer" : `${count} answers`;
+}
+
+/** Posts a person can vote on: someone else's, and showing. */
+export function canVote(post: {is_mine?: boolean; status?: string}): boolean {
+  return !post.is_mine && (post.status ?? "visible") === "visible";
+}
+
+/** Who may mark an answer as accepted: the person who asked (the teacher does it from the teacher app). */
+export function canAccept(question: {is_mine?: boolean}): boolean {
+  return !!question.is_mine;
+}

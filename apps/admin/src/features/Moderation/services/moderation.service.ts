@@ -18,6 +18,12 @@ export interface ApiContentReport {
   course_title?: string | null;
   /** Open reports on this same content, this one included. */
   pending_reports?: number;
+  /** The author's history, so a moderator can see whether this is a one-off. */
+  author_total_posts?: number;
+  /** Their posts a moderator or teacher removed in the last 90 days. */
+  author_removed_posts?: number;
+  /** The author is muted from course discussions right now. */
+  author_muted?: boolean;
   reason: string;
   status: "pending" | "resolved" | "dismissed";
   resolved_at: string | null;
@@ -48,4 +54,37 @@ export const dismissReport = async (id: string): Promise<ApiContentReport> => {
     `/admin/moderation/reports/${id}/dismiss`,
   );
   return res.data.data;
+};
+
+export interface ApiCommunityMute {
+  mute_id: string;
+  user_id: string;
+  user_name: string | null;
+  user_email: string | null;
+  reason: string;
+  /** Null: until a moderator lifts it. */
+  muted_until: string | null;
+  source: "moderator" | "auto";
+  created_at: string;
+}
+
+/** Endpoint: GET /admin/moderation/community-mutes -- who is muted from course discussions right now. */
+export const listMutes = async (): Promise<ApiCommunityMute[]> => {
+  const res = await apiClient.get<{ data: { mutes: ApiCommunityMute[] } }>("/admin/moderation/community-mutes");
+  return res.data.data.mutes;
+};
+
+/** Endpoint: POST /admin/moderation/community-mutes -- `days` null means until lifted. The person is told why. */
+export const muteUser = async (input: { user_id: string; reason: string; days: number | null }): Promise<ApiCommunityMute> => {
+  const res = await apiClient.post<{ data: ApiCommunityMute }>("/admin/moderation/community-mutes", {
+    user_id: input.user_id,
+    reason: input.reason,
+    ...(input.days ? { days: input.days } : {}),
+  });
+  return res.data.data;
+};
+
+/** Endpoint: DELETE /admin/moderation/community-mutes/{user_id} */
+export const unmuteUser = async (userId: string): Promise<void> => {
+  await apiClient.delete(`/admin/moderation/community-mutes/${userId}`);
 };

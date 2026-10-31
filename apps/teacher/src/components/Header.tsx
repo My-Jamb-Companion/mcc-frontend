@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/dashboard", label: "Sessions" },
   { href: "/availability", label: "Availability" },
   { href: "/messages", label: "Messages" },
+  { href: "/community", label: "Community" },
   { href: "/support", label: "SmartLearnersHQ team" },
   { href: "/earnings", label: "Earnings" },
   { href: "/notifications", label: "Notifications" },
