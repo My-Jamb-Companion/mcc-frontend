@@ -50,6 +50,7 @@ export interface ApiTemplateVersion {
   version_number: number;
   live_sessions: number;
   hours_per_session: string;
+  duration_weeks?: number | null;
   teacher_hourly_rate: string;
   seats_per_session: number;
   direct_costs: ApiDirectCostLine[];
@@ -142,6 +143,7 @@ export interface ApiProgramVersion {
   version_number: number | null;
   live_sessions: number;
   hours_per_session: string;
+  duration_weeks?: number | null;
   teacher_hourly_rate: string;
   direct_costs: ApiDirectCostLine[];
   development_cost: string;
@@ -167,6 +169,7 @@ export interface ApiProgramTemplate {
 export interface TemplateInput {
   live_sessions: number;
   hours_per_session: string;
+  duration_weeks?: number;
   teacher_hourly_rate: string;
   direct_costs: {category: DirectCostCategory; label: string; amount: string; currency: "NGN" | "USD"; vatable: boolean}[];
   development_cost: string;

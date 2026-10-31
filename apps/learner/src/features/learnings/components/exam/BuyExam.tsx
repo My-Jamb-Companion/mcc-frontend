@@ -8,6 +8,7 @@ import {Button, Icon} from "@mcc/ui";
 import {useRegisterForProgram} from "@/src/features/exams/hooks/useExams";
 import {ApiExamProgram} from "@/src/features/exams/services/exam.service";
 import {FormatPicker} from "@/src/features/components/FormatPicker";
+import {WhatYouGet} from "@/src/features/components/WhatYouGet";
 import {defaultFormat, defaultTierId, priceOf, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
 import {coverFallback} from "@/src/features/components/coverFallback";
 
@@ -105,6 +106,8 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
           </p>
 
           {!isFree && <FormatPicker formats={formats} selected={format} tierId={tierId} onSelect={setFormat} />}
+
+          <WhatYouGet kind="exam" formats={formats} format={format} />
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 

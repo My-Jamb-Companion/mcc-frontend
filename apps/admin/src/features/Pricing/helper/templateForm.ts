@@ -38,6 +38,8 @@ export interface DirectCostForm {
 export interface TemplateForm {
   liveSessions: string;
   hoursPerSession: string;
+  /** Weeks the program runs, shown to learners and parents beside the live sessions. */
+  durationWeeks: string;
   hourlyRate: string;
   directCosts: DirectCostForm[];
   developmentCost: string;
@@ -80,6 +82,7 @@ export const newDirectCost = () => line();
 export const emptyTemplateForm = (programType: ProgramType): TemplateForm => ({
   liveSessions: "",
   hoursPerSession: "1",
+  durationWeeks: "",
   hourlyRate: "",
   directCosts: [
     line("ai", "AI usage (Brainy)"),
@@ -103,6 +106,7 @@ const plain = (v: string | number) => shiftDecimal(String(v), 0);
 export const templateFormFromVersion = (v: ApiProgramVersion): TemplateForm => ({
   liveSessions: String(v.live_sessions),
   hoursPerSession: plain(v.hours_per_session),
+  durationWeeks: v.duration_weeks == null ? "" : String(v.duration_weeks),
   hourlyRate: plain(v.teacher_hourly_rate),
   directCosts: v.direct_costs.map((d) => ({
     key: d.line_id, category: d.category, label: d.label, amount: plain(d.amount), currency: d.currency, vatable: d.vatable,
@@ -130,6 +134,9 @@ export const validateTemplate = (form: TemplateForm): TemplateErrors => {
   const sessions = clean(form.liveSessions);
   if (!WHOLE.test(sessions)) e.liveSessions = "Enter a whole number (0 for none)";
   const hasSessions = WHOLE.test(sessions) && Number(sessions) > 0;
+
+  const weeks = clean(form.durationWeeks);
+  if (!WHOLE.test(weeks) || Number(weeks) < 1 || Number(weeks) > 260) e.durationWeeks = "Enter the number of weeks, 1 to 260";
 
   if (hasSessions) {
     if (!DECIMAL.test(clean(form.hoursPerSession)) || Number(clean(form.hoursPerSession)) <= 0) e.hoursPerSession = "Enter the length in hours";
@@ -177,6 +184,7 @@ export const templateInput = (form: TemplateForm): TemplateInput => {
     // A purely self-paced program has no live sessions, so their length and
     // rate are irrelevant -- send neutral values rather than blanks.
     hours_per_session: sessions > 0 ? clean(form.hoursPerSession) : "0",
+    duration_weeks: Number(clean(form.durationWeeks)),
     teacher_hourly_rate: sessions > 0 ? clean(form.hourlyRate) : "0",
     direct_costs: form.directCosts.map((d) => ({
       category: d.category as DirectCostCategory,

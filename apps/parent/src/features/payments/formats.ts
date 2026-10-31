@@ -9,6 +9,12 @@ export interface CatalogueFormat {
   label: string;
   /** Students taught together in a live session (1 = one-to-one). */
   seats: number;
+  /** Live sessions in this format (0 for self-paced). */
+  live_sessions?: number;
+  /** Length of each live session in hours. */
+  hours_per_session?: number | string;
+  /** Weeks the program runs; null until an admin enters it. */
+  duration_weeks?: number | null;
   tier_prices: CatalogueTierPrice[];
 }
 

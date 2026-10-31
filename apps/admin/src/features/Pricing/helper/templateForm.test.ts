@@ -5,11 +5,26 @@ const filled = () => ({
   ...emptyTemplateForm("course"),
   liveSessions: "16",
   hoursPerSession: "1",
+  durationWeeks: "12",
   hourlyRate: "15000",
   developmentCost: "0",
   periods: "1",
   enrolmentsPerPeriod: "100",
   directCosts: [],
+});
+
+describe("program duration", () => {
+  it("needs a whole number of weeks, 1 to 260, since buyers are shown it", () => {
+    expect(validateTemplate(filled()).durationWeeks).toBeUndefined();
+    for (const bad of ["", "0", "261", "2.5", "abc"]) {
+      expect(validateTemplate({...filled(), durationWeeks: bad}).durationWeeks).toBeDefined();
+    }
+  });
+
+  it("sends the weeks, even for a program with no live sessions", () => {
+    expect(templateInput(filled()).duration_weeks).toBe(12);
+    expect(templateInput({...filled(), liveSessions: "0"}).duration_weeks).toBe(12);
+  });
 });
 
 describe("pricing formats", () => {
