@@ -24,13 +24,26 @@ export const tiersFor = (
 ): CatalogueTierPrice[] => formats?.find((f) => f.format === format)?.tier_prices ?? fallback;
 
 /**
- * The tier to use: the parent's own pick if the chosen format has it (tiers are shared across formats), else
- * the tier matching the program's flat price, else the first.
+ * The tier every purchase is charged: the one the admin marked as the default. Parents do not choose a tier. When
+ * the API does not say (an older backend), the tier priced at the program's flat price is the default, since the
+ * flat price is always the default tier's price.
  */
-export const tierFor = (tiers: CatalogueTierPrice[], picked: string | undefined, flatPrice: string): string | undefined =>
-  tiers.find((t) => t.tier_id === picked)?.tier_id ??
-  tiers.find((t) => Number(t.price) === Number(flatPrice))?.tier_id ??
-  tiers[0]?.tier_id;
+export const defaultTierId = (
+  formats: CatalogueFormat[] | undefined,
+  fallback: CatalogueTierPrice[],
+  flatPrice: string,
+): string | undefined => {
+  const lists = [...(formats ?? []).map((f) => f.tier_prices), fallback];
+  for (const list of lists) {
+    const marked = list.find((t) => t.is_default);
+    if (marked) return marked.tier_id;
+  }
+  return lists[0]?.find((t) => Number(t.price) === Number(flatPrice))?.tier_id;
+};
+
+/** What a list of tier prices charges: the default tier's price, else the program's flat price. */
+export const priceOf = (tiers: CatalogueTierPrice[], tierId: string | undefined, flatPrice: string): string =>
+  tiers.find((t) => t.tier_id === tierId)?.price ?? flatPrice;
 
 /** The three ways to learn, in the order they are offered. */
 export const FORMAT_ORDER: LiveFormat[] = ["self_paced", "group", "one_to_one"];
@@ -55,21 +68,22 @@ export interface FormatChoice {
   blurb: string;
   /** Priced and published, so it can be paid for. Otherwise it is shown but cannot be chosen. */
   onSale: boolean;
-  /** The lowest tier price in this format; null when it is not on sale. */
-  fromPrice: number | null;
+  /** What the parent pays in this format (the default tier's price); null when it is not on sale. */
+  price: number | null;
 }
 
 /** All three options whether or not each is on sale yet, so a parent sees the whole range. */
-export function formatChoices(formats: CatalogueFormat[] | undefined): FormatChoice[] {
+export function formatChoices(formats: CatalogueFormat[] | undefined, tierId?: string): FormatChoice[] {
   return FORMAT_ORDER.map((format) => {
     const offer = formats?.find((f) => f.format === format);
     const prices = (offer?.tier_prices ?? []).map((t) => Number(t.price)).filter(Number.isFinite);
+    const onSale = !!offer && prices.length > 0;
     return {
       format,
       name: FORMAT_NAMES[format],
       blurb: FORMAT_BLURBS[format],
-      onSale: !!offer && prices.length > 0,
-      fromPrice: prices.length ? Math.min(...prices) : null,
+      onSale,
+      price: onSale ? Number(priceOf(offer!.tier_prices, tierId, String(Math.min(...prices)))) : null,
     };
   });
 }

@@ -18,10 +18,10 @@ describe("FormatPicker", () => {
     expect(screen.queryByText(/1 teacher/)).not.toBeInTheDocument();
   });
 
-  it("shows the lowest price of each way that is on sale", () => {
-    render(<FormatPicker formats={[selfPaced, group]} selected="self_paced" onSelect={() => {}} />);
-    expect(screen.getByText("from ₦7,000")).toBeInTheDocument();
-    expect(screen.getByText("from ₦61,000")).toBeInTheDocument();
+  it("shows the default tier's price of each way that is on sale", () => {
+    render(<FormatPicker formats={[selfPaced, group]} selected="self_paced" tierId="b" onSelect={() => {}} />);
+    expect(screen.getByText("₦11,000")).toBeInTheDocument();
+    expect(screen.getByText("₦70,000")).toBeInTheDocument();
   });
 
   it("marks a way that is not on sale, and will not let it be chosen", () => {

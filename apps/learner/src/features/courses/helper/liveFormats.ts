@@ -35,24 +35,50 @@ export interface FormatChoice {
   blurb: string;
   /** Priced and published, so it can be bought. Otherwise the option is shown but cannot be chosen. */
   onSale: boolean;
-  /** The lowest tier price in this format, for "from ₦X"; null when it is not on sale. */
-  fromPrice: number | null;
+  /** What the buyer pays in this format (the default tier's price); null when it is not on sale. */
+  price: number | null;
 }
 
 /**
- * All three options, whether or not each is on sale yet: a buyer should see the whole range, with the ones that are
- * not available marked as such, rather than a list that silently leaves live teaching out.
+ * The tier every purchase is charged: the one the admin marked as the default. Buyers do not choose a tier. When
+ * the API does not say (an older backend), the tier whose price is the program's flat price is the default, since
+ * the flat price is always the default tier's price.
  */
-export function formatChoices(formats: ApiFormatOffer[] | undefined): FormatChoice[] {
+export function defaultTierId(
+  formats: ApiFormatOffer[] | undefined,
+  fallback: ApiTierPrice[] | undefined,
+  flatPrice: number,
+): string | null {
+  const lists = [...(formats ?? []).map((f) => f.tier_prices), fallback ?? []];
+  for (const list of lists) {
+    const marked = list.find((t) => t.is_default);
+    if (marked) return marked.tier_id;
+  }
+  return lists[0]?.find((t) => Number(t.price) === flatPrice)?.tier_id ?? null;
+}
+
+/** What a list of tier prices charges: the default tier's price, else the program's flat price. */
+export const priceOf = (tiers: ApiTierPrice[], tierId: string | null, flatPrice: number): number => {
+  const price = Number(tiers.find((t) => t.tier_id === tierId)?.price);
+  return Number.isFinite(price) ? price : flatPrice;
+};
+
+/**
+ * All three options, whether or not each is on sale yet: a buyer should see the whole range, with the ones that are
+ * not available marked as such, rather than a list that silently leaves live teaching out. Each on-sale option
+ * carries the price the buyer would pay (the default tier's).
+ */
+export function formatChoices(formats: ApiFormatOffer[] | undefined, tierId: string | null = null): FormatChoice[] {
   return FORMAT_ORDER.map((format) => {
     const offer = formats?.find((f) => f.format === format);
     const prices = (offer?.tier_prices ?? []).map((t) => Number(t.price)).filter(Number.isFinite);
+    const onSale = !!offer && prices.length > 0;
     return {
       format,
       label: FORMAT_LABELS[format],
       blurb: FORMAT_BLURBS[format],
-      onSale: !!offer && prices.length > 0,
-      fromPrice: prices.length ? Math.min(...prices) : null,
+      onSale,
+      price: onSale ? priceOf(offer!.tier_prices, tierId, Math.min(...prices)) : null,
     };
   });
 }
@@ -66,20 +92,6 @@ export const tiersFor = (
   format: LiveFormat | null,
   fallback: ApiTierPrice[] | undefined,
 ): ApiTierPrice[] => formats?.find((f) => f.format === format)?.tier_prices ?? fallback ?? [];
-
-/**
- * The tier to select after the format changes: keep the buyer's tier when the new format has it (tiers are
- * shared across formats), else the one matching the flat price, else the first.
- */
-export const tierAfterFormatChange = (
-  tiers: ApiTierPrice[],
-  previousTierId: string | null,
-  flatPrice: number,
-): string | null =>
-  tiers.find((t) => t.tier_id === previousTierId)?.tier_id ??
-  tiers.find((t) => Number(t.price) === flatPrice)?.tier_id ??
-  tiers[0]?.tier_id ??
-  null;
 
 /** Gems only buy self-paced access, so the option is offered for that format (or an unformatted program). */
 export const gemsApply = (format: LiveFormat | null): boolean => format === null || format === "self_paced";

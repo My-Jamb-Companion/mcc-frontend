@@ -5,24 +5,26 @@ import {formatChoices, type ApiFormatOffer, type LiveFormat} from "@/src/feature
 interface FormatPickerProps {
   formats: ApiFormatOffer[];
   selected: LiveFormat | null;
+  /** The default tier: every way is priced at it. */
+  tierId?: string | null;
   onSelect: (format: LiveFormat) => void;
 }
 
 const formatPrice = (price: number | string) => `₦${Number(price).toLocaleString()}`;
 
 /**
- * Step one of the price: how the buyer wants to learn. All three ways (self-paced, a live group of five, one-to-one)
- * are always listed; one that is not on sale yet is shown but cannot be chosen, and says so. The tier prices below
- * are those of the chosen way. Renders nothing for a program with no published prices at all: its flat price is
+ * How the buyer wants to learn, and so what they pay. All three ways (self-paced, a live group of five, one-to-one)
+ * are always listed, each with its price (the admin's default tier, which every purchase is charged); one that is
+ * not on sale yet is shown but cannot be chosen, and says so. Renders nothing for a program with no published prices at all: its flat price is
  * the only option (docs/pricing-model.md).
  */
-export function FormatPicker({formats, selected, onSelect}: FormatPickerProps) {
+export function FormatPicker({formats, selected, tierId = null, onSelect}: FormatPickerProps) {
   if (formats.length < 1) return null;
 
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="text-sm font-semibold mb-1">1. How do you want to learn?</legend>
-      {formatChoices(formats).map((choice) => (
+      <legend className="text-sm font-semibold mb-1">How do you want to learn?</legend>
+      {formatChoices(formats, tierId).map((choice) => (
         <label
           key={choice.format}
           className={`flex items-start justify-between gap-3 rounded-xl border px-4 py-3 transition-colors ${
@@ -49,8 +51,8 @@ export function FormatPicker({formats, selected, onSelect}: FormatPickerProps) {
             </span>
           </span>
           <span className="text-sm font-semibold whitespace-nowrap">
-            {choice.onSale && choice.fromPrice !== null ? (
-              `from ${formatPrice(choice.fromPrice)}`
+            {choice.onSale && choice.price !== null ? (
+              formatPrice(choice.price)
             ) : (
               <span className="text-xs font-medium text-subtle">Not available yet</span>
             )}

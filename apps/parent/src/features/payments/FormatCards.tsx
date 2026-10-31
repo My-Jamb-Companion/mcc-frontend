@@ -7,23 +7,26 @@ interface FormatCardsProps {
   groupId: string;
   formats: CatalogueFormat[];
   value: LiveFormat | undefined;
+  /** The default tier: every way is priced at it. */
+  tierId?: string;
   onChange: (format: LiveFormat) => void;
 }
 
 const formatPrice = (price: number) => `₦${price.toLocaleString()}`;
 
 /**
- * Step one of the price: how the child learns. All three ways (self-paced, a live group of five, one-to-one) are
- * always listed; one that is not on sale yet is shown but cannot be chosen, and says so. Renders nothing for a
+ * How the child learns, and so what is paid. All three ways (self-paced, a live group of five, one-to-one) are
+ * always listed with their price (the admin's default tier); one that is not on sale yet is shown but cannot be
+ * chosen, and says so. Renders nothing for a
  * program with no published prices at all: its flat price is the only option.
  */
-export function FormatCards({ groupId, formats, value, onChange }: FormatCardsProps) {
+export function FormatCards({ groupId, formats, value, tierId, onChange }: FormatCardsProps) {
   if (formats.length < 1) return null;
 
   return (
     <fieldset className="space-y-1.5">
-      <legend className="text-xs font-medium text-muted mb-1">1. How does your child learn?</legend>
-      {formatChoices(formats).map((choice) => (
+      <legend className="text-xs font-medium text-muted mb-1">How does your child learn?</legend>
+      {formatChoices(formats, tierId).map((choice) => (
         <label
           key={choice.format}
           className={`flex items-start justify-between gap-3 rounded-lg border px-3 py-2 ${
@@ -50,8 +53,8 @@ export function FormatCards({ groupId, formats, value, onChange }: FormatCardsPr
             </span>
           </span>
           <span className="text-sm font-semibold whitespace-nowrap">
-            {choice.onSale && choice.fromPrice !== null ? (
-              `from ${formatPrice(choice.fromPrice)}`
+            {choice.onSale && choice.price !== null ? (
+              formatPrice(choice.price)
             ) : (
               <span className="text-xs font-medium text-muted">Not available yet</span>
             )}
