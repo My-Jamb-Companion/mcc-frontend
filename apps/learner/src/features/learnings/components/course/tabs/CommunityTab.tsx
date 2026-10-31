@@ -91,7 +91,7 @@ export default function CommunityTab({courseId}: {courseId: string}) {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask a question about this course"
+          placeholder="Ask a question, share useful insights and conversations about this course"
           rows={3}
           aria-label="Write a post"
           className="w-full resize-none bg-transparent text-sm text-foreground placeholder:text-muted outline-none leading-relaxed"

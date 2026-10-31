@@ -64,7 +64,9 @@ describe("CommunityTab", () => {
   it("tells people what the space is for before they write", () => {
     ready([]);
     render(<CommunityTab courseId="c1" />);
-    expect(screen.getByText(/questions and answers about this course/i)).toBeTruthy();
+    expect(screen.getByText(/your learners community space/i)).toBeTruthy();
+    expect(screen.getByText(/questions and answers about this course, share your knowledge and interact/i)).toBeTruthy();
+    expect(screen.getByPlaceholderText("Ask a question, share useful insights and conversations about this course")).toBeTruthy();
     expect(screen.getByText(/phone numbers, links or social handles/i)).toBeTruthy();
   });
 
