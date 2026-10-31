@@ -9,7 +9,7 @@ import {useRegisterForProgram} from "@/src/features/exams/hooks/useExams";
 import {ApiExamProgram} from "@/src/features/exams/services/exam.service";
 import {TierPicker} from "@/src/features/components/TierPicker";
 import {FormatPicker} from "@/src/features/components/FormatPicker";
-import {defaultFormat, tierAfterFormatChange, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
+import {FORMAT_LABELS, defaultFormat, tierAfterFormatChange, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
 import {coverFallback} from "@/src/features/components/coverFallback";
 
 const FALLBACK_IMAGE = "/assets/images/tower.jpg";
@@ -116,7 +116,7 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
           {!isFree && <FormatPicker formats={formats} selected={format} onSelect={chooseFormat} />}
 
           {!isFree && (
-            <TierPicker tiers={tiers} selectedTierId={selectedTierId} onSelect={setSelectedTierId} />
+            <TierPicker tiers={tiers} selectedTierId={selectedTierId} onSelect={setSelectedTierId} formatLabel={format ? FORMAT_LABELS[format] : null} />
           )}
 
           {error && <p className="text-sm text-red-600">{error}</p>}

@@ -32,9 +32,44 @@ export const tierFor = (tiers: CatalogueTierPrice[], picked: string | undefined,
   tiers.find((t) => Number(t.price) === Number(flatPrice))?.tier_id ??
   tiers[0]?.tier_id;
 
-/** Short names for the picker; the API label is longer than a row has room for. */
+/** The three ways to learn, in the order they are offered. */
+export const FORMAT_ORDER: LiveFormat[] = ["self_paced", "group", "one_to_one"];
+
+/** Names the parent sees, whatever the API's own label says. */
 export const FORMAT_NAMES: Record<LiveFormat, string> = {
   self_paced: "Self-paced",
-  group: "Live group (1:5)",
+  group: "Live group (1 Tutor : 5 students)",
   one_to_one: "Live 1-to-1",
 };
+
+export const FORMAT_BLURBS: Record<LiveFormat, string> = {
+  self_paced: "Learns on their own time with lessons, quizzes and Brainy.",
+  group: "Everything in self-paced, plus live classes with their Tutor and up to four other students.",
+  one_to_one: "Everything in self-paced, plus live classes with a Tutor just for them.",
+};
+
+/** One of the three options as the card list shows it. */
+export interface FormatChoice {
+  format: LiveFormat;
+  name: string;
+  blurb: string;
+  /** Priced and published, so it can be paid for. Otherwise it is shown but cannot be chosen. */
+  onSale: boolean;
+  /** The lowest tier price in this format; null when it is not on sale. */
+  fromPrice: number | null;
+}
+
+/** All three options whether or not each is on sale yet, so a parent sees the whole range. */
+export function formatChoices(formats: CatalogueFormat[] | undefined): FormatChoice[] {
+  return FORMAT_ORDER.map((format) => {
+    const offer = formats?.find((f) => f.format === format);
+    const prices = (offer?.tier_prices ?? []).map((t) => Number(t.price)).filter(Number.isFinite);
+    return {
+      format,
+      name: FORMAT_NAMES[format],
+      blurb: FORMAT_BLURBS[format],
+      onSale: !!offer && prices.length > 0,
+      fromPrice: prices.length ? Math.min(...prices) : null,
+    };
+  });
+}

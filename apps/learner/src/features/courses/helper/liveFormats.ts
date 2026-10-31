@@ -12,11 +12,50 @@ export interface ApiFormatOffer {
   tier_prices: ApiTierPrice[];
 }
 
+/** The three ways to learn, in the order they are offered. */
+export const FORMAT_ORDER: LiveFormat[] = ["self_paced", "group", "one_to_one"];
+
+/** What a buyer sees, whatever the API's own label says. */
+export const FORMAT_LABELS: Record<LiveFormat, string> = {
+  self_paced: "Self-paced",
+  group: "Live group (1 Tutor : 5 students)",
+  one_to_one: "Live 1-to-1",
+};
+
 export const FORMAT_BLURBS: Record<LiveFormat, string> = {
   self_paced: "Learn on your own time with lessons, quizzes and Brainy.",
-  group: "Everything in self-paced, plus live classes with a teacher and up to four other students.",
-  one_to_one: "Everything in self-paced, plus live classes with a teacher just for you.",
+  group: "Everything in self-paced, plus live classes with your Tutor and up to four other students.",
+  one_to_one: "Everything in self-paced, plus live classes with a Tutor just for you.",
 };
+
+/** One of the three options as the picker shows it. */
+export interface FormatChoice {
+  format: LiveFormat;
+  label: string;
+  blurb: string;
+  /** Priced and published, so it can be bought. Otherwise the option is shown but cannot be chosen. */
+  onSale: boolean;
+  /** The lowest tier price in this format, for "from ₦X"; null when it is not on sale. */
+  fromPrice: number | null;
+}
+
+/**
+ * All three options, whether or not each is on sale yet: a buyer should see the whole range, with the ones that are
+ * not available marked as such, rather than a list that silently leaves live teaching out.
+ */
+export function formatChoices(formats: ApiFormatOffer[] | undefined): FormatChoice[] {
+  return FORMAT_ORDER.map((format) => {
+    const offer = formats?.find((f) => f.format === format);
+    const prices = (offer?.tier_prices ?? []).map((t) => Number(t.price)).filter(Number.isFinite);
+    return {
+      format,
+      label: FORMAT_LABELS[format],
+      blurb: FORMAT_BLURBS[format],
+      onSale: !!offer && prices.length > 0,
+      fromPrice: prices.length ? Math.min(...prices) : null,
+    };
+  });
+}
 
 /** The format a buyer starts on: the first one on sale (self-paced when it is), or none for an unpriced program. */
 export const defaultFormat = (formats: ApiFormatOffer[] | undefined): LiveFormat | null => formats?.[0]?.format ?? null;

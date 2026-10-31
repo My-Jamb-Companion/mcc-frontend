@@ -1,6 +1,6 @@
 "use client";
 
-import {FORMAT_BLURBS, type ApiFormatOffer, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
+import {formatChoices, type ApiFormatOffer, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
 
 interface FormatPickerProps {
   formats: ApiFormatOffer[];
@@ -11,44 +11,52 @@ interface FormatPickerProps {
 const formatPrice = (price: number | string) => `₦${Number(price).toLocaleString()}`;
 
 /**
- * Lets a buyer choose, at signup, whether to learn self-paced, in a live group of five, or one-to-one
- * (docs/pricing-model.md). Live teaching is optional: self-paced is the entry price. Renders nothing when a
- * program is sold in one format or none, since there's nothing to choose.
+ * Step one of the price: how the buyer wants to learn. All three ways (self-paced, a live group of five, one-to-one)
+ * are always listed; one that is not on sale yet is shown but cannot be chosen, and says so. The tier prices below
+ * are those of the chosen way. Renders nothing for a program with no published prices at all: its flat price is
+ * the only option (docs/pricing-model.md).
  */
 export function FormatPicker({formats, selected, onSelect}: FormatPickerProps) {
-  if (formats.length < 2) return null;
+  if (formats.length < 1) return null;
 
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="text-sm font-semibold mb-1">How do you want to learn?</legend>
-      {formats.map((f) => {
-        // "From" the cheapest tier, so the card reads the same whichever tier is picked below.
-        const cheapest = Math.min(...f.tier_prices.map((t) => Number(t.price)));
-        return (
-          <label
-            key={f.format}
-            className={`flex items-start justify-between gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-colors ${
-              selected === f.format ? "border-primary bg-primary/5" : "border-muted/30 hover:border-muted/60"
-            }`}
-          >
-            <span className="flex items-start gap-2">
-              <input
-                type="radio"
-                name="live-format"
-                value={f.format}
-                checked={selected === f.format}
-                onChange={() => onSelect(f.format)}
-                className="mt-1 accent-primary"
-              />
-              <span>
-                <span className="block text-sm font-medium">{f.label}</span>
-                <span className="block text-xs text-subtle">{FORMAT_BLURBS[f.format]}</span>
-              </span>
+      <legend className="text-sm font-semibold mb-1">1. How do you want to learn?</legend>
+      {formatChoices(formats).map((choice) => (
+        <label
+          key={choice.format}
+          className={`flex items-start justify-between gap-3 rounded-xl border px-4 py-3 transition-colors ${
+            !choice.onSale
+              ? "cursor-not-allowed border-muted/20 opacity-60"
+              : selected === choice.format
+                ? "cursor-pointer border-primary bg-primary/5"
+                : "cursor-pointer border-muted/30 hover:border-muted/60"
+          }`}
+        >
+          <span className="flex items-start gap-2">
+            <input
+              type="radio"
+              name="live-format"
+              value={choice.format}
+              checked={selected === choice.format}
+              disabled={!choice.onSale}
+              onChange={() => choice.onSale && onSelect(choice.format)}
+              className="mt-1 accent-primary"
+            />
+            <span>
+              <span className="block text-sm font-medium">{choice.label}</span>
+              <span className="block text-xs text-subtle">{choice.blurb}</span>
             </span>
-            {Number.isFinite(cheapest) && <span className="text-sm font-semibold whitespace-nowrap">from {formatPrice(cheapest)}</span>}
-          </label>
-        );
-      })}
+          </span>
+          <span className="text-sm font-semibold whitespace-nowrap">
+            {choice.onSale && choice.fromPrice !== null ? (
+              `from ${formatPrice(choice.fromPrice)}`
+            ) : (
+              <span className="text-xs font-medium text-subtle">Not available yet</span>
+            )}
+          </span>
+        </label>
+      ))}
     </fieldset>
   );
 }

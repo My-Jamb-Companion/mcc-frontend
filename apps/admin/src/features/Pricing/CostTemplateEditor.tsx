@@ -109,9 +109,9 @@ function FormatTabs({formats, costed, selected, onSelect}: {
                 : f && !f.applicable
                   ? "Needs live sessions"
                   : tier
-                    ? `Costs the student ${naira(tier.student_pays)}`
+                    ? `${f?.published_price ? "Costs" : "Would cost"} the student ${naira(tier.student_pays)}`
                     : "No price yet"}
-              {f?.published_price ? ` · on sale at ${naira(f.published_price)}` : ""}
+              {f?.published_price ? ` · on sale at ${naira(f.published_price)}` : costed && f?.applicable && tier ? " · not on sale yet" : ""}
             </p>
           </button>
         );
