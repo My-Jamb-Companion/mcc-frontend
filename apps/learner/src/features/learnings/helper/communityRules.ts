@@ -4,8 +4,9 @@ export {MAX_POST_LENGTH} from "../services/community.service";
 
 /** Shown above the composer, so people know what the space is for before they write anything. */
 export const COMMUNITY_GUIDELINES =
-  "This space is for questions and answers about this course. Please don't share phone numbers, links or social " +
-  "handles, and never ask for or offer exam questions or answers. Posts that break these rules are removed.";
+  "This space is your learners community space, use it for questions and answers about this course, share your " +
+  "knowledge and interact. Please don't share phone numbers, links or social handles, and never ask for or offer " +
+  "exam questions or answers. Posts that break these rules are removed.";
 
 /** Why a post is being reported. The chosen label is what a moderator reads. */
 export const REPORT_REASONS = [

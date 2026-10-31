@@ -39,7 +39,7 @@ export default function FacilitatorTab({courseId, currentTime, onTimestampClick}
 
   return (
     <section className="w-full md:max-w-[75%] font-sans">
-      <h2 className="text-3xl font-bold text-foreground mb-1">Ask your instructor.</h2>
+      <h2 className="text-3xl font-bold text-foreground mb-1">Ask your Tutor</h2>
       <p className="text-sm text-subtle leading-relaxed mb-5">
         Questions here go straight to whoever teaches this course.
       </p>
