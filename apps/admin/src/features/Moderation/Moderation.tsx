@@ -1,122 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ConfirmModal, showError, showSuccess } from "@mcc/ui";
-import { extractApiError } from "@mcc/api";
-import { useDismissReport, useReports, useResolveReport } from "./hooks/useModeration";
-import type { ApiContentReport } from "./services/moderation.service";
+import { useReports } from "./hooks/useModeration";
+import { ReportRow } from "./ReportRow";
 import BugReports from "./bugs/BugReports";
-
-const formatWhen = (iso: string) =>
-  new Date(iso).toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-
-const CONTENT_TYPE_LABEL: Record<string, string> = {
-  community_post: "Community post",
-  instructor_qa_message: "Instructor Q&A message",
-};
-
-function StatusTag({ status }: { status: string }) {
-  const style: Record<string, string> = {
-    pending: "bg-amber-50 text-amber-600",
-    resolved: "bg-green-50 text-green-600",
-    dismissed: "bg-gray-100 text-gray-600",
-  };
-  return (
-    <span className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${style[status] ?? "bg-gray-100 text-gray-600"}`}>
-      {status}
-    </span>
-  );
-}
-
-function PillButton({
-  label,
-  variant = "outline",
-  loading,
-  onClick,
-}: {
-  label: string;
-  variant?: "outline" | "primary" | "danger";
-  loading?: boolean;
-  onClick?: () => void;
-}) {
-  const variantClass =
-    variant === "primary"
-      ? "bg-violet-600 text-white hover:bg-violet-700"
-      : variant === "danger"
-        ? "border border-red-200 text-red-600 hover:bg-red-50"
-        : "border border-gray-200 text-gray-800 hover:bg-gray-50";
-  return (
-    <button
-      type="button"
-      disabled={loading}
-      onClick={onClick}
-      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors disabled:opacity-50 ${variantClass}`}
-    >
-      {loading ? "…" : label}
-    </button>
-  );
-}
-
-function ReportRow({ report }: { report: ApiContentReport }) {
-  const resolve = useResolveReport();
-  const dismiss = useDismissReport();
-
-  const handleResolve = () => {
-    resolve.mutate(report.id, {
-      onSuccess: () => showSuccess("Report resolved"),
-      onError: (error) => showError(extractApiError(error, "Couldn't resolve this report")),
-    });
-  };
-
-  const handleDismiss = () => {
-    dismiss.mutate(report.id, {
-      onSuccess: () => showSuccess("Report dismissed"),
-      onError: (error) => showError(extractApiError(error, "Couldn't dismiss this report")),
-    });
-  };
-
-  return (
-    <div className="flex items-center justify-between py-4 gap-4">
-      <div className="min-w-0">
-        <div className="text-sm font-semibold text-neutral-900">
-          {CONTENT_TYPE_LABEL[report.content_type] ?? report.content_type}
-        </div>
-        <div className="text-xs text-neutral-400 mt-0.5">
-          Reported {formatWhen(report.created_at)} · content id {report.content_id.slice(0, 12)}…
-        </div>
-        <p className="text-sm text-neutral-700 mt-2">{report.reason}</p>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        <StatusTag status={report.status} />
-        {report.status === "pending" && (
-          <>
-            <ConfirmModal
-              title="Resolve report"
-              description="Confirm you've acted on the reported content. This marks the report resolved."
-              confirmText="Resolve"
-              variant="default"
-              onConfirm={handleResolve}
-              trigger={<PillButton label="Resolve" variant="primary" loading={resolve.isPending} />}
-            />
-            <ConfirmModal
-              title="Dismiss report"
-              description="No action needed on the reported content. This marks the report dismissed."
-              confirmText="Dismiss"
-              variant="danger"
-              onConfirm={handleDismiss}
-              trigger={<PillButton label="Dismiss" variant="danger" loading={dismiss.isPending} />}
-            />
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
 
 const TABS: { key: string | undefined; label: string }[] = [
   { key: "pending", label: "Pending" },
@@ -169,7 +56,7 @@ export default function Moderation() {
           <div>
             <h1 className="text-lg font-bold text-neutral-900">Content reports</h1>
             <p className="text-sm text-neutral-400 mt-0.5">
-              Reports filed against community posts and instructor Q&amp;A messages.
+              Reports on community posts and instructor Q&amp;A messages, and posts the automatic check held for review.
             </p>
           </div>
           {activeTab === "pending" && pendingCount > 0 && (
