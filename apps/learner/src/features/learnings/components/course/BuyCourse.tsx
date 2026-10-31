@@ -9,7 +9,7 @@ import {useInitializeCoursePayment} from "@/src/features/courses/hooks/useCourse
 import {ApiCourse} from "@/src/features/courses/services/course.service";
 import {TierPicker} from "@/src/features/components/TierPicker";
 import {FormatPicker} from "@/src/features/components/FormatPicker";
-import {defaultFormat, gemsApply, tierAfterFormatChange, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
+import {FORMAT_LABELS, defaultFormat, gemsApply, tierAfterFormatChange, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
 import {useGemPacks, useUnlockCourseWithGems, useWalletBalance} from "@/src/features/wallet/hooks/useWallet";
 import {courseGemCost} from "@/src/features/wallet/helper/wallet";
 import {coverFallback} from "@/src/features/components/coverFallback";
@@ -136,7 +136,7 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
           {!isFree && <FormatPicker formats={formats} selected={format} onSelect={chooseFormat} />}
 
           {!isFree && (
-            <TierPicker tiers={tiers} selectedTierId={selectedTierId} onSelect={setSelectedTierId} />
+            <TierPicker tiers={tiers} selectedTierId={selectedTierId} onSelect={setSelectedTierId} formatLabel={format ? FORMAT_LABELS[format] : null} />
           )}
 
           {error && <p className="text-sm text-red-600">{error}</p>}

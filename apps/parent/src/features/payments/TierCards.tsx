@@ -8,6 +8,8 @@ interface TierCardsProps {
   tiers: CatalogueTierPrice[];
   value: string | null;
   onChange: (tierId: string) => void;
+  /** The way of learning these prices are for (step one), named in the heading when there is a choice of ways. */
+  formatLabel?: string | null;
 }
 
 const formatPrice = (price: string) => `₦${Number(price).toLocaleString()}`;
@@ -18,15 +20,16 @@ const formatPrice = (price: string) => `₦${Number(price).toLocaleString()}`;
  * for, and one fixed note says every tier gets the same course. Renders nothing when nothing is published
  * for this program -- there's nothing to choose, the flat price applies.
  */
-export function TierCards({ groupId, tiers, value, onChange }: TierCardsProps) {
+export function TierCards({ groupId, tiers, value, onChange, formatLabel }: TierCardsProps) {
   if (tiers.length === 0) return null;
 
   return (
     <fieldset className="space-y-1.5">
-      <legend className="text-xs font-medium text-muted mb-1">Choose a price</legend>
+      <legend className="text-xs font-medium text-muted mb-1">{formatLabel ? "2. Choose a price" : "Choose a price"}</legend>
+      {formatLabel && <p className="text-xs text-muted">Prices for {formatLabel}</p>}
       {tiers.length > 1 && (
         <p className="text-xs text-muted">
-          Every price includes the same course and features. The tier only sets what you pay.
+          Your child gets the same course and features whichever you pick. Choose the price that suits you.
         </p>
       )}
       {tiers.map((tier) => (

@@ -12,6 +12,8 @@ interface TierPickerProps {
   tiers: TierPriceOption[];
   selectedTierId: string | null;
   onSelect: (tierId: string) => void;
+  /** The way of learning these prices are for (step one), named in the heading when there is a choice of ways. */
+  formatLabel?: string | null;
 }
 
 const formatPrice = (price: number | string) => `₦${Number(price).toLocaleString()}`;
@@ -25,15 +27,16 @@ const formatPrice = (price: number | string) => `₦${Number(price).toLocaleStri
  * the same course. Renders nothing when a program has no published tiers,
  * since there's nothing to choose -- the flat price applies.
  */
-export function TierPicker({tiers, selectedTierId, onSelect}: TierPickerProps) {
+export function TierPicker({tiers, selectedTierId, onSelect, formatLabel}: TierPickerProps) {
   if (tiers.length === 0) return null;
 
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="text-sm font-semibold mb-1">Choose your price tier</legend>
+      <legend className="text-sm font-semibold mb-1">{formatLabel ? "2. Choose your price" : "Choose your price"}</legend>
+      {formatLabel && <p className="text-xs text-subtle -mt-1">Prices for {formatLabel}</p>}
       {tiers.length > 1 && (
         <p className="text-xs text-subtle -mt-1 mb-1">
-          Every price includes the same course and features. The tier only sets what you pay.
+          You get the same course and features whichever you pick. Choose the price that suits you.
         </p>
       )}
       {tiers.map((tier) => (

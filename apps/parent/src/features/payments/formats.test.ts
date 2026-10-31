@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatFor, tierFor, tiersFor, type CatalogueFormat } from "./formats";
+import { FORMAT_ORDER, formatChoices, formatFor, tierFor, tiersFor, type CatalogueFormat } from "./formats";
 
 const t = (id: string, price: string) => ({ tier_id: id, tier_name: id, price });
 const formats: CatalogueFormat[] = [
@@ -27,5 +27,19 @@ describe("live formats on the parent checkout", () => {
     expect(tierFor(group, undefined, "24000")).toBe("b");
     expect(tierFor(group, "gone", "1")).toBe("a");
     expect(tierFor([], undefined, "1")).toBeUndefined();
+  });
+});
+
+describe("formatChoices", () => {
+  it("is always the three ways, in order, named for the parent", () => {
+    expect(formatChoices(undefined).map((c) => c.format)).toEqual(FORMAT_ORDER);
+    expect(formatChoices([]).map((c) => c.name)).toEqual(["Self-paced", "Live group (1 Tutor : 5 students)", "Live 1-to-1"]);
+  });
+
+  it("marks what is on sale, with its lowest price", () => {
+    const [self, group, one] = formatChoices(formats);
+    expect([self.onSale, self.fromPrice]).toEqual([true, 4000]);
+    expect([group.onSale, group.fromPrice]).toEqual([true, 24000]);
+    expect([one.onSale, one.fromPrice]).toEqual([false, null]);
   });
 });

@@ -35,3 +35,34 @@ describe("live formats at checkout", () => {
     expect(gemsApply("one_to_one")).toBe(false);
   });
 });
+
+import {FORMAT_LABELS, FORMAT_ORDER, formatChoices} from "./liveFormats";
+
+describe("formatChoices", () => {
+  const offer = (format: "self_paced" | "group" | "one_to_one", prices: number[]) => ({
+    format, label: format, seats: 1, tier_prices: prices.map((p, i) => ({tier_id: `t${i}`, tier_name: `T${i}`, price: p})),
+  });
+
+  it("is always the three ways, in order, with the buyer's names", () => {
+    expect(formatChoices([]).map((c) => c.format)).toEqual(FORMAT_ORDER);
+    expect(formatChoices(undefined).map((c) => c.label)).toEqual([
+      "Self-paced", "Live group (1 Tutor : 5 students)", "Live 1-to-1",
+    ]);
+    expect(FORMAT_LABELS.group).toContain("Tutor");
+  });
+
+  it("marks what is on sale and its lowest price", () => {
+    const [self, group, one] = formatChoices([offer("self_paced", [11000, 7000, 9500]), offer("group", [61000])]);
+    expect([self.onSale, self.fromPrice]).toEqual([true, 7000]);
+    expect([group.onSale, group.fromPrice]).toEqual([true, 61000]);
+    expect([one.onSale, one.fromPrice]).toEqual([false, null]);
+  });
+
+  it("treats a way with no prices as not on sale", () => {
+    expect(formatChoices([offer("group", [])])[1].onSale).toBe(false);
+  });
+
+  it("describes each way", () => {
+    for (const c of formatChoices([])) expect(c.blurb.length).toBeGreaterThan(20);
+  });
+});

@@ -4,8 +4,8 @@ import { useState } from "react";
 import { Button } from "@mcc/ui";
 import { useCourseCatalogue, useEnrollChildInCourse, useProgramCatalogue, useRegisterChildForExam } from "./usePayments";
 import { TierCards } from "./TierCards";
-import { FormatSelect } from "./FormatSelect";
-import { formatFor, tierFor, tiersFor, type CatalogueFormat, type LiveFormat } from "./formats";
+import { FormatCards } from "./FormatCards";
+import { FORMAT_NAMES, formatFor, tierFor, tiersFor, type CatalogueFormat, type LiveFormat } from "./formats";
 
 const formatPrice = (price: string) => {
   const amount = Number(price);
@@ -120,7 +120,8 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
                       Enroll
                     </Button>
                   </div>
-                  <FormatSelect
+                  <FormatCards
+                    groupId={course.course_id}
                     formats={course.formats ?? []}
                     value={format}
                     onChange={(f) => setSelectedFormats((prev) => ({...prev, [course.course_id]: f}))}
@@ -128,6 +129,7 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
                   <TierCards
                     groupId={course.course_id}
                     tiers={tiers}
+                    formatLabel={format ? FORMAT_NAMES[format] : null}
                     value={tierId ?? null}
                     onChange={(id) => setSelectedTiers((prev) => ({...prev, [course.course_id]: id}))}
                   />
@@ -164,7 +166,8 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
                       Register
                     </Button>
                   </div>
-                  <FormatSelect
+                  <FormatCards
+                    groupId={program.program_id}
                     formats={program.formats ?? []}
                     value={format}
                     onChange={(f) => setSelectedFormats((prev) => ({...prev, [program.program_id]: f}))}
@@ -172,6 +175,7 @@ export const ChildCheckout = ({ childId, childName }: ChildCheckoutProps) => {
                   <TierCards
                     groupId={program.program_id}
                     tiers={tiers}
+                    formatLabel={format ? FORMAT_NAMES[format] : null}
                     value={tierId ?? null}
                     onChange={(id) => setSelectedTiers((prev) => ({...prev, [program.program_id]: id}))}
                   />
