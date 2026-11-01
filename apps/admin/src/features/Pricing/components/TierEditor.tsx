@@ -32,7 +32,7 @@ export default function TierEditor() {
       description="Each tier's multiplier scales only the part of a price above its hard floor — development, overheads and profit — so no tier can sell below cost. 1.00 is full cost; below 1 is a discount, above 1 a premium. Buyers do not choose a tier: every enrolment is charged the default tier below."
     >
       {isLoading ? (
-        <p className="text-sm text-neutral-400">Loading tiers…</p>
+        <p className="text-sm text-neutral-500">Loading tiers…</p>
       ) : isError || !data ? (
         <p className="text-sm text-red-600">
           {pricingErrorMessage(error, "Couldn't load the tiers.")}{" "}
@@ -145,7 +145,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
-            <tr className="text-xs uppercase tracking-wide text-neutral-400">
+            <tr className="text-xs uppercase tracking-wide text-neutral-500">
               <th className="pb-2 pr-3 font-medium">Tier and note</th>
               <th className="pb-2 pr-3 font-medium">Multiplier</th>
               <th className="pb-2 pr-3 font-medium">Expected share of sales</th>
@@ -160,7 +160,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
                   <input aria-label={`Note for ${r.name}`} value={r.description} maxLength={MAX_DESCRIPTION + 40}
                     placeholder="A note for the team, e.g. For most students"
                     onChange={(e) => update(r.tier_id, {description: e.target.value})} className={`${input} mt-1.5 min-w-44 font-normal`} />
-                  <p className={`mt-0.5 text-[11px] ${r.description.length > MAX_DESCRIPTION ? "text-red-600" : "text-neutral-400"}`}>
+                  <p className={`mt-0.5 text-[11px] ${r.description.length > MAX_DESCRIPTION ? "text-red-600" : "text-neutral-500"}`}>
                     {r.description.length}/{MAX_DESCRIPTION}
                   </p>
                   {rowErrors[r.tier_id] && <p className="mt-1 text-xs text-red-600">{rowErrors[r.tier_id]}</p>}
@@ -169,14 +169,14 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
                   <div className="flex items-center gap-1">
                     <input aria-label={`Multiplier for ${r.name}`} inputMode="decimal" value={r.multiplier}
                       onChange={(e) => update(r.tier_id, {multiplier: e.target.value})} className={`${input} w-24`} />
-                    <span className="text-neutral-400">×</span>
+                    <span className="text-neutral-500">×</span>
                   </div>
                 </td>
                 <td className="py-1.5 pr-3">
                   <div className="flex items-center gap-1">
                     <input aria-label={`Share of sales for ${r.name}`} inputMode="decimal" value={r.sharePct}
                       onChange={(e) => update(r.tier_id, {sharePct: e.target.value})} className={`${input} w-24`} />
-                    <span className="text-neutral-400">%</span>
+                    <span className="text-neutral-500">%</span>
                   </div>
                 </td>
                 <td className="py-1.5 pt-3.5">
@@ -256,7 +256,7 @@ function TierForm({tierSet, onReload}: {tierSet: ApiTierSet; onReload: () => voi
           className="rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50">
           {save.isPending ? "Saving…" : unchanged ? "No changes to save" : "Save tiers"}
         </button>
-        <p className="text-xs text-neutral-400">Applies to new purchases once prices are published. Every save is recorded.</p>
+        <p className="text-xs text-neutral-500">Applies to new purchases once prices are published. Every save is recorded.</p>
       </div>
     </div>
   );

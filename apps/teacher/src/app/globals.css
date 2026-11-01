@@ -7,13 +7,13 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --subtle: #4e4e55;
+  --subtle: #3f3f46;
   --primary: #6b26ff;
   --btn-primary: #6717de;
-  --muted: #6f6f77;
+  --muted: #5b5b63;
   --danger: #d42422;
   --success: #25d366;
-  --hint: rgba(39, 39, 42, 0.3);
+  --hint: rgba(39, 39, 42, 0.55);
   --primary-gradient: linear-gradient(91deg, #6b26ff -13.46%, #b40d9b 100%);
 }
 

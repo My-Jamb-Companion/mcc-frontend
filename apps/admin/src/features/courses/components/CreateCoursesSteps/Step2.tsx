@@ -128,7 +128,7 @@ function PracticeManager({
       </div>
 
       {practices.length === 0 ? (
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-gray-500">
           No practices yet. Click &ldquo;Add practice&rdquo; to create one.
         </p>
       ) : (
@@ -165,7 +165,7 @@ function PracticeManager({
                   className="flex items-center gap-1.5"
                 >
                   <span>{p.name || "Untitled practice"}</span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-500">
                     ({p.questions.length})
                   </span>
                 </button>
@@ -178,7 +178,7 @@ function PracticeManager({
                     <Icon
                       icon="lucide:pencil"
                       size={11}
-                      className="text-gray-400"
+                      className="text-gray-500"
                     />
                   </button>
                   <button
@@ -201,7 +201,7 @@ function PracticeManager({
 
       {selectedPractice && (
         <div className="mt-2 border-t border-gray-100 pt-4">
-          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">
+          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500">
             Questions in {selectedPractice.name || "this practice"}
           </p>
           <PracticeQuestions
@@ -300,7 +300,7 @@ function QuizManager({
       </div>
 
       {quizzes.length === 0 ? (
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-gray-500">
           No quizzes yet. Click &ldquo;Add quiz&rdquo; to create one.
         </p>
       ) : (
@@ -337,7 +337,7 @@ function QuizManager({
                   className="flex items-center gap-1.5"
                 >
                   <span>{quiz.title || "Untitled quiz"}</span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-500">
                     ({quiz.questions.length})
                   </span>
                 </button>
@@ -350,7 +350,7 @@ function QuizManager({
                     <Icon
                       icon="lucide:pencil"
                       size={11}
-                      className="text-gray-400"
+                      className="text-gray-500"
                     />
                   </button>
                   <button
@@ -427,7 +427,7 @@ function QuizManager({
             </label>
           </div>
 
-          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">
+          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500">
             Questions in {selectedQuiz.title || "this test"}
           </p>
           <PracticeQuestions
@@ -500,7 +500,7 @@ function ExerciseManager({
       </div>
 
       {exercises.length === 0 ? (
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-gray-500">
           No Smart Zones yet. Click &ldquo;Add Smart Zone&rdquo; to create one.
         </p>
       ) : (
@@ -537,7 +537,7 @@ function ExerciseManager({
                   className="flex items-center gap-1.5"
                 >
                   <span>{e.name || "Untitled Smart Zone"}</span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-500">
                     ({e.questions.length})
                   </span>
                 </button>
@@ -550,7 +550,7 @@ function ExerciseManager({
                     <Icon
                       icon="lucide:pencil"
                       size={11}
-                      className="text-gray-400"
+                      className="text-gray-500"
                     />
                   </button>
                   <button
@@ -585,7 +585,7 @@ function ExerciseManager({
               )
             }
           />
-          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">
+          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500">
             Questions in {selectedExercise.name || "this Smart Zone"}
           </p>
           <PracticeQuestions
@@ -851,13 +851,13 @@ export default function ContentStep({
                 <Icon
                   icon="lucide:book-open"
                   size={24}
-                  className="text-gray-400"
+                  className="text-gray-500"
                 />
               </div>
               <p className="text-sm font-medium text-gray-500">
                 Add a topic to get started
               </p>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-500">
                 Use the sidebar to create topics and modules
               </p>
             </div>
@@ -882,7 +882,7 @@ export default function ContentStep({
                     </div>
                   ) : (
                     <>
-                      <span className="text-gray-400">
+                      <span className="text-gray-500">
                         {activeContext?.topic?.label || "Select a topic"}
                       </span>
                       {activeContext?.topic && (
@@ -894,7 +894,7 @@ export default function ContentStep({
                           <Icon
                             icon="lucide:pencil"
                             size={14}
-                            className="text-gray-400"
+                            className="text-gray-500"
                           />
                         </button>
                       )}
@@ -921,7 +921,7 @@ export default function ContentStep({
                   <span className="text-sm font-semibold text-gray-900">
                     {activeContext?.module?.label || "Module"}
                   </span>
-                  <span className="text-sm text-gray-400">
+                  <span className="text-sm text-gray-500">
                     / {activeContext?.label || "Content"}
                   </span>
                 </div>

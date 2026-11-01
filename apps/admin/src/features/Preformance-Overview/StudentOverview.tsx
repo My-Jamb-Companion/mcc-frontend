@@ -22,7 +22,7 @@ export const StudentPerformanceDashboard: React.FC = () => {
 
       <div className="mb-8 flex items-center gap-12">
         <div className="flex flex-col">
-          <span className="font-mono text-xs text-gray-400">
+          <span className="font-mono text-xs text-gray-500">
             Total No of students
           </span>
           <span className="mt-1 text-2xl font-bold text-gray-900">
@@ -31,7 +31,7 @@ export const StudentPerformanceDashboard: React.FC = () => {
         </div>
 
         <div className="flex flex-col">
-          <span className="font-mono text-xs text-gray-400">
+          <span className="font-mono text-xs text-gray-500">
             No of courses
           </span>
           <span className="mt-1 text-2xl font-bold text-gray-900">
@@ -44,7 +44,7 @@ export const StudentPerformanceDashboard: React.FC = () => {
         <div className="p-8">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
             <div className="flex flex-col items-center justify-center text-center md:col-span-5">
-              <span className="font-mono text-sm tracking-wide text-gray-400">
+              <span className="font-mono text-sm tracking-wide text-gray-500">
                 Total Enrolled <br /> student.
               </span>
               <span className="mt-3 text-6xl font-bold tracking-tight text-gray-900">

@@ -95,7 +95,7 @@ const FormInputs = ({
       )}
       <div className="relative">
         {icon && type !== "select" && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
             {icon}
           </div>
         )}
@@ -104,7 +104,7 @@ const FormInputs = ({
           <button
             type="button"
             onClick={() => setShow((prev) => !prev)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
           >
             <Icon
               icon={show ? "ph:eye-slash" : "ph:eye"}

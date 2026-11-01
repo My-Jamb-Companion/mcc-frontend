@@ -147,9 +147,9 @@ export default function BankPickerModal({
 
         <div className="max-h-[48vh] overflow-y-auto rounded-xl border border-gray-100">
           {list.isLoading ? (
-            <p className="py-10 text-center text-sm text-gray-400">Loading the bank…</p>
+            <p className="py-10 text-center text-sm text-gray-500">Loading the bank…</p>
           ) : rows.length === 0 ? (
-            <p className="py-10 text-center text-sm text-gray-400">
+            <p className="py-10 text-center text-sm text-gray-500">
               {list.data?.total === 0 && !debouncedSearch && !subjectId && !topic && !difficulty
                 ? "The bank is empty. Save a set of questions to it, or add some from the Question Bank page."
                 : "No questions match."}

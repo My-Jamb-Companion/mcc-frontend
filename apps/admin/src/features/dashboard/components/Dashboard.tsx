@@ -32,14 +32,14 @@ function UserGrowthChart() {
       <h2 className="text-base font-semibold text-gray-900 mb-1">
         New users (last 30 days)
       </h2>
-      <p className="text-sm text-gray-400 mb-6">
+      <p className="text-sm text-gray-500 mb-6">
         Daily sign-ups across the platform
       </p>
 
       {isLoading ? (
-        <p className="py-10 text-center text-sm text-gray-400">Loading…</p>
+        <p className="py-10 text-center text-sm text-gray-500">Loading…</p>
       ) : growth.length === 0 ? (
-        <p className="py-10 text-center text-sm text-gray-400">
+        <p className="py-10 text-center text-sm text-gray-500">
           No new users in this window yet.
         </p>
       ) : (
@@ -70,12 +70,12 @@ function LeaderboardPreview() {
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-6">
       <h2 className="text-base font-semibold text-gray-900 mb-1">Top students</h2>
-      <p className="text-sm text-gray-400 mb-6">By total points earned</p>
+      <p className="text-sm text-gray-500 mb-6">By total points earned</p>
 
       {isLoading ? (
-        <p className="py-6 text-center text-sm text-gray-400">Loading…</p>
+        <p className="py-6 text-center text-sm text-gray-500">Loading…</p>
       ) : leaderboard.length === 0 ? (
-        <p className="py-6 text-center text-sm text-gray-400">
+        <p className="py-6 text-center text-sm text-gray-500">
           No leaderboard activity yet.
         </p>
       ) : (
@@ -86,7 +86,7 @@ function LeaderboardPreview() {
               className="flex items-center justify-between py-2.5"
             >
               <div className="flex items-center gap-3">
-                <span className="w-6 text-sm font-semibold text-gray-400">
+                <span className="w-6 text-sm font-semibold text-gray-500">
                   #{entry.leaderboard_position}
                 </span>
                 <span className="text-sm font-medium text-gray-900">

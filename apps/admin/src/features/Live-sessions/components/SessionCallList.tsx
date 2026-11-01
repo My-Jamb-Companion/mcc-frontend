@@ -260,10 +260,10 @@ function CallRow({
         <div className="min-w-0">
           <div className="text-sm text-gray-900">
             <span className="font-semibold">{call.studentName}</span>{" "}
-            <span className="text-gray-400 font-normal">x</span>{" "}
+            <span className="text-gray-500 font-normal">x</span>{" "}
             <span className="font-semibold">{call.hostName}</span>
           </div>
-          <div className="text-xs text-gray-400 mt-0.5">
+          <div className="text-xs text-gray-500 mt-0.5">
             {call.subject} · {call.time}
           </div>
         </div>
@@ -336,7 +336,7 @@ export default function SessionCallsList({onReplay}: SessionCallsListProps) {
   const [messageCall, setMessageCall] = useState<CallRowData | null>(null);
 
   if (isLoading) {
-    return <p className="py-10 text-center text-sm text-gray-400">Loading calls…</p>;
+    return <p className="py-10 text-center text-sm text-gray-500">Loading calls…</p>;
   }
 
   return (
@@ -346,7 +346,7 @@ export default function SessionCallsList({onReplay}: SessionCallsListProps) {
           ? `${calls.length} call${calls.length === 1 ? "" : "s"} happening this week!`
           : "No calls this week"}
       </h2>
-      <p className="text-sm text-gray-400 mt-0.5">
+      <p className="text-sm text-gray-500 mt-0.5">
         Reach out to your students to help them prepare
       </p>
 

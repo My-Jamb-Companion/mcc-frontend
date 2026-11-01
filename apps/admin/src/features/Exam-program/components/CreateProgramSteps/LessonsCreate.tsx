@@ -90,7 +90,7 @@ function FileRowItem({
           style={{width: `${file.progress}%`}}
         />
       )}
-      <span className="relative z-10 text-gray-300 cursor-grab active:cursor-grabbing">
+      <span className="relative z-10 text-gray-500 cursor-grab active:cursor-grabbing">
         <Icon icon="lucide:grip-vertical" size={16} />
       </span>
       <span
@@ -100,7 +100,7 @@ function FileRowItem({
         onClick={isHtml ? () => onEditContent?.(file.id) : undefined}
         title={isHtml ? "Edit content" : undefined}
       >
-        <Icon icon={rowIcon(file.format)} size={16} className="text-gray-400" />
+        <Icon icon={rowIcon(file.format)} size={16} className="text-gray-500" />
       </span>
       <div className="relative z-10 min-w-0 flex-1">
         {isRenaming && !uploading ? (
@@ -124,7 +124,7 @@ function FileRowItem({
               <button
                 type="button"
                 onClick={() => setIsRenaming(true)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-500 hover:text-gray-600"
                 aria-label="Rename"
               >
                 <Icon icon="lucide:pencil" size={12} />
@@ -132,7 +132,7 @@ function FileRowItem({
             )}
           </div>
         )}
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-gray-500">
           {file.format === YOUTUBE_FORMAT ? "YouTube" : isHtml ? "Text lesson" : `${file.format} • ${file.size}`}
         </p>
         {error && (
@@ -154,7 +154,7 @@ function FileRowItem({
         onClick={() => onRemove?.(file.id)}
         aria-label={`Delete ${file.title}`}
         title="Delete lecture"
-        className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 hover:bg-gray-50"
+        className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 hover:bg-gray-50"
       >
         <Icon icon="lucide:x" size={14} />
       </button>
@@ -436,7 +436,7 @@ export default function LessonsCreate({
           onClick={() => fileInputRef.current?.click()}
           className="flex flex-1 items-center gap-3 rounded-xl border border-dashed border-gray-200 px-4 py-3.5 text-left text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors"
         >
-          <Icon icon="lucide:plus" size={16} className="text-gray-400" />
+          <Icon icon="lucide:plus" size={16} className="text-gray-500" />
           Add {addLabel}
         </button>
         <button
@@ -444,7 +444,7 @@ export default function LessonsCreate({
           onClick={() => setAddingYoutube(true)}
           className="flex shrink-0 items-center gap-2 rounded-xl border border-dashed border-gray-200 px-4 py-3.5 text-left text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors"
         >
-          <Icon icon="mdi:youtube" size={16} className="text-gray-400" />
+          <Icon icon="mdi:youtube" size={16} className="text-gray-500" />
           YouTube link
         </button>
         <button
@@ -452,13 +452,13 @@ export default function LessonsCreate({
           onClick={openNewContentEditor}
           className="flex shrink-0 items-center gap-2 rounded-xl border border-dashed border-gray-200 px-4 py-3.5 text-left text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors"
         >
-          <Icon icon="lucide:align-left" size={16} className="text-gray-400" />
+          <Icon icon="lucide:align-left" size={16} className="text-gray-500" />
           Write content
         </button>
       </div>
       )}
 
-      <p className="-mt-1 px-1 text-xs text-gray-400">{LESSON_FILE_CAPTION}</p>
+      <p className="-mt-1 px-1 text-xs text-gray-500">{LESSON_FILE_CAPTION}</p>
       {fileProblems.length > 0 && (
         <ul role="alert" className="px-1 text-xs text-danger">
           {fileProblems.map((p) => (

@@ -50,7 +50,7 @@ export default function RecipientPicker({
         <button
           type="button"
           onClick={() => onChange(null)}
-          className="text-neutral-400 hover:text-neutral-600"
+          className="text-neutral-500 hover:text-neutral-600"
           aria-label="Change recipient"
         >
           <Icon icon="mdi:close" size={16} />
@@ -65,7 +65,7 @@ export default function RecipientPicker({
         <Icon
           icon="mdi:magnify"
           size={16}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500"
         />
         <input
           value={query}
@@ -79,10 +79,10 @@ export default function RecipientPicker({
       {open && query.trim().length > 0 && (
         <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-10 max-h-56 overflow-y-auto rounded-xl border border-neutral-200 bg-white shadow-lg">
           {isFetching && (
-            <p className="px-4 py-3 text-sm text-neutral-400">Searching…</p>
+            <p className="px-4 py-3 text-sm text-neutral-500">Searching…</p>
           )}
           {!isFetching && results.length === 0 && (
-            <p className="px-4 py-3 text-sm text-neutral-400">No matches found.</p>
+            <p className="px-4 py-3 text-sm text-neutral-500">No matches found.</p>
           )}
           {results.map((r) => (
             <button

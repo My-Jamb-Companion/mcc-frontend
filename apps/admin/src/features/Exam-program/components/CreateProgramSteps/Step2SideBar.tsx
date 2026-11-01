@@ -221,7 +221,7 @@ export default function Step2Sidebar({
           <span className="text-sm font-medium text-gray-500">
             Create your program
           </span>
-          <span className="flex items-center gap-1 text-gray-400">
+          <span className="flex items-center gap-1 text-gray-500">
             <button type="button" className="rounded p-1 hover:bg-gray-100">
               <Icon icon="lucide:undo-2" size={16} />
             </button>
@@ -233,7 +233,7 @@ export default function Step2Sidebar({
 
         <div className="flex-1 overflow-y-auto px-2 pb-2">
           {topics.length === 0 && (
-            <p className="px-3 py-4 text-xs text-gray-400">
+            <p className="px-3 py-4 text-xs text-gray-500">
               No topics yet. Click &ldquo;Add topic&rdquo; below.
             </p>
           )}
@@ -258,7 +258,7 @@ export default function Step2Sidebar({
                       <div className="flex items-center gap-1">
                         <span className="truncate text-sm font-semibold text-gray-900">
                           {topic.label || (
-                            <span className="italic text-gray-400">
+                            <span className="italic text-gray-500">
                               Untitled topic
                             </span>
                           )}
@@ -267,7 +267,7 @@ export default function Step2Sidebar({
                         <button
                           type="button"
                           onClick={() => setRenamingId(topic.id)}
-                          className="shrink-0 rounded p-0.5 text-gray-300 opacity-0 transition-opacity hover:text-gray-500 group-hover:opacity-100"
+                          className="shrink-0 rounded p-0.5 text-gray-500 opacity-0 transition-opacity hover:text-gray-500 group-hover:opacity-100"
                           aria-label="Rename topic"
                         >
                           <Icon icon="lucide:pencil" size={12} />
@@ -285,7 +285,7 @@ export default function Step2Sidebar({
                           m === topicMenuKey ? null : topicMenuKey,
                         )
                       }
-                      className="shrink-0 rounded p-1 text-gray-400 hover:bg-gray-100"
+                      className="shrink-0 rounded p-1 text-gray-500 hover:bg-gray-100"
                     >
                       <Icon icon="proicons:more" size={15} />
                     </button>
@@ -333,7 +333,7 @@ export default function Step2Sidebar({
                         <Icon
                           icon="lucide:folder"
                           size={14}
-                          className="shrink-0 text-gray-400"
+                          className="shrink-0 text-gray-500"
                         />
                         <div className="min-w-0 flex-1">
                           {isRenamingSub ? (
@@ -349,7 +349,7 @@ export default function Step2Sidebar({
                             <div className="flex items-center gap-1">
                               <span className="truncate text-sm text-gray-700">
                                 {sub.label || (
-                                  <span className="italic text-gray-400">
+                                  <span className="italic text-gray-500">
                                     Untitled sub-topic
                                   </span>
                                 )}
@@ -357,7 +357,7 @@ export default function Step2Sidebar({
                               <button
                                 type="button"
                                 onClick={() => setRenamingId(sub.id)}
-                                className="shrink-0 rounded p-0.5 text-gray-300 opacity-0 transition-opacity hover:text-gray-500 group-hover:opacity-100"
+                                className="shrink-0 rounded p-0.5 text-gray-500 opacity-0 transition-opacity hover:text-gray-500 group-hover:opacity-100"
                                 aria-label="Rename sub-topic"
                               >
                                 <Icon icon="lucide:pencil" size={11} />
@@ -375,7 +375,7 @@ export default function Step2Sidebar({
                                 m === subMenuKey ? null : subMenuKey,
                               )
                             }
-                            className="shrink-0 rounded p-1 text-gray-400 hover:bg-gray-100"
+                            className="shrink-0 rounded p-1 text-gray-500 hover:bg-gray-100"
                           >
                             <Icon icon="proicons:more" size={14} />
                           </button>
@@ -429,7 +429,7 @@ export default function Step2Sidebar({
                               <button
                                 type="button"
                                 onClick={() => toggleModule(mod.id)}
-                                className="flex items-center gap-1 text-gray-400"
+                                className="flex items-center gap-1 text-gray-500"
                               >
                                 <Icon
                                   icon="lucide:chevron-down"
@@ -452,7 +452,7 @@ export default function Step2Sidebar({
                                   <div className="flex items-center gap-1">
                                     <span className="truncate text-sm font-medium text-gray-700">
                                       {mod.label || (
-                                        <span className="italic text-gray-400">
+                                        <span className="italic text-gray-500">
                                           Untitled module
                                         </span>
                                       )}
@@ -460,7 +460,7 @@ export default function Step2Sidebar({
                                     <button
                                       type="button"
                                       onClick={() => setRenamingId(mod.id)}
-                                      className="shrink-0 rounded p-0.5 text-gray-300 opacity-0 transition-opacity hover:text-gray-500 group-hover:opacity-100"
+                                      className="shrink-0 rounded p-0.5 text-gray-500 opacity-0 transition-opacity hover:text-gray-500 group-hover:opacity-100"
                                     >
                                       <Icon icon="lucide:pencil" size={11} />
                                     </button>
@@ -474,7 +474,7 @@ export default function Step2Sidebar({
                                   onClick={() =>
                                     deleteModule(topic.id, sub.id, mod.id)
                                   }
-                                  className="shrink-0 rounded p-1 text-gray-300 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
+                                  className="shrink-0 rounded p-1 text-gray-500 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
                                 >
                                   <Icon icon="lucide:trash-2" size={13} />
                                 </button>
@@ -517,7 +517,7 @@ export default function Step2Sidebar({
                             <button
                               type="button"
                               onClick={() => toggleQuiz(sub.id)}
-                              className="flex items-center gap-1 text-gray-400"
+                              className="flex items-center gap-1 text-gray-500"
                             >
                               <Icon
                                 icon="lucide:chevron-down"
@@ -533,7 +533,7 @@ export default function Step2Sidebar({
                             <button
                               type="button"
                               onClick={() => deleteQuiz(topic.id, sub.id)}
-                              className="shrink-0 rounded p-1 text-gray-300 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
+                              className="shrink-0 rounded p-1 text-gray-500 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
                             >
                               <Icon icon="lucide:trash-2" size={13} />
                             </button>
@@ -596,7 +596,7 @@ function MenuItem({
       <Icon
         icon={icon}
         size={15}
-        className={danger ? "text-red-400" : "text-gray-400"}
+        className={danger ? "text-red-400" : "text-gray-500"}
       />
       {label}
     </button>

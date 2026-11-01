@@ -1,7 +1,7 @@
 "use client";
 
 import {useEffect, useMemo, useState} from "react";
-import {AnimatePresence, Button, Icon, motion} from "@mcc/ui";
+import {AnimatePresence, Button, Icon, motion, BrainyMark} from "@mcc/ui";
 import type {AdditionalCourseTypes, CoursesFormValues} from "@/src/features/courses/types/types";
 import {youTubeEmbedUrl} from "@/src/features/courses/helper/video";
 import {
@@ -128,7 +128,7 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
 
   const aiPlaceholder = (
     <div className="rounded-2xl border border-dashed border-muted/30 p-6 text-center text-sm text-muted">
-      <Icon icon="mingcute:ai-fill" size={18} className="mx-auto mb-2 text-primary" />
+      <BrainyMark size={18} className="mx-auto mb-2" />
       Students ask Brainy questions about this course and lesson here.
     </div>
   );
@@ -277,7 +277,7 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
                       }`}
                     >
                       <span className="flex items-center gap-2">
-                        {tab === "ai" && <Icon icon="mingcute:ai-fill" size={14} />}
+                        {tab === "ai" && <BrainyMark size={18} />}
                         {tab === "ai" ? "AI Assistant" : tab === "content" ? "Course Content" : tab}
                       </span>
                     </Button>
@@ -346,7 +346,7 @@ export default function CourseStudentView({course}: CourseStudentViewProps) {
                           className={`text-nowrap py-1! ${sidePanel === tab ? "" : "opacity-60"}`}
                         >
                           <p className="flex items-center gap-2">
-                            {tab === "ai" && <Icon icon="mingcute:ai-fill" size={14} />}
+                            {tab === "ai" && <BrainyMark size={18} />}
                             <span>{tab === "course" ? "Course content" : "AI assistant"}</span>
                           </p>
                         </Button>

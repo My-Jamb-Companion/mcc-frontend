@@ -12,8 +12,8 @@ export function MutedList() {
 
   return (
     <div className="divide-y divide-gray-100">
-      {isLoading && <p className="py-6 text-sm text-neutral-400">Loading…</p>}
-      {mutes && mutes.length === 0 && <p className="py-6 text-sm text-neutral-400">Nobody is muted.</p>}
+      {isLoading && <p className="py-6 text-sm text-neutral-500">Loading…</p>}
+      {mutes && mutes.length === 0 && <p className="py-6 text-sm text-neutral-500">Nobody is muted.</p>}
       {mutes?.map((m) => (
         <div key={m.mute_id} className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
@@ -23,7 +23,7 @@ export function MutedList() {
                 <span className="ml-2 rounded-full bg-violet-50 px-2.5 py-0.5 text-xs font-medium text-violet-700">Muted automatically</span>
               )}
             </p>
-            <p className="mt-0.5 text-xs text-neutral-400">
+            <p className="mt-0.5 text-xs text-neutral-500">
               Muted {muteEnds(m.muted_until)}
               {m.user_email && m.user_name ? ` · ${m.user_email}` : ""}
             </p>

@@ -223,7 +223,7 @@ export default function CreateDetails({
                       onClick={() => field.onChange(lvl.id)}
                       className={`flex items-center justify-between rounded-xl border px-4 py-5 text-sm font-medium transition-colors ${selected
                         ? "border-violet-600 text-gray-900 ring-1 ring-violet-600"
-                        : "border-gray-200 text-gray-400 hover:border-gray-300"
+                        : "border-gray-200 text-gray-500 hover:border-gray-300"
                         }`}
                     >
                       <span className="flex items-center gap-2">
@@ -400,8 +400,8 @@ function ChipInput({
       <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-gray-900">
         <span className="text-red-500">*</span>
         {label}
-        <span className="font-normal text-gray-400">(Maximum {max})</span>
-        <Icon icon="lucide:help-circle" size={14} className="text-gray-300" />
+        <span className="font-normal text-gray-500">(Maximum {max})</span>
+        <Icon icon="lucide:help-circle" size={14} className="text-gray-500" />
       </label>
       <div
         className={`flex flex-wrap items-center gap-2 rounded-xl border px-3.5 py-2.5 ${error ? "border-red-400 ring-2 ring-red-200" : "border-gray-200"
@@ -435,7 +435,7 @@ function ChipInput({
           className="min-w-[60px] flex-1 bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400 disabled:cursor-not-allowed"
         />
         {chips.length === 0 && (
-          <span className="ml-auto shrink-0 text-xs text-gray-400">
+          <span className="ml-auto shrink-0 text-xs text-gray-500">
             Press enter to add
           </span>
         )}

@@ -74,7 +74,7 @@ export default function ViewProspectiveStudent({
                   onClick={onClose}
                   variant={"ghost"}
                   size={"fit"}
-                  className="rounded-full py-1 px-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                  className="rounded-full py-1 px-2 text-gray-500 hover:bg-gray-100 hover:text-gray-600 transition-colors"
                   aria-label="Close panel"
                 >
                   ✕
@@ -108,7 +108,7 @@ export default function ViewProspectiveStudent({
                       <h1 className="font-medium text-white text-xl">
                         {student.name}
                       </h1>
-                      <h1 className="flex items-center gap-1 text-gray-400 text-xs">
+                      <h1 className="flex items-center gap-1 text-gray-500 text-xs">
                         <div className="h-1.5 w-1.5  bg-gray-500 rounded-full" />
                         <span>Prospective student</span>
                       </h1>
@@ -116,7 +116,7 @@ export default function ViewProspectiveStudent({
 
                     <div className="flex flex-col gap-3 ">
                       <div className="flex items-center gap-6">
-                        <p className="text-gray-400 text-xs">
+                        <p className="text-gray-500 text-xs">
                           Onboarding level
                         </p>
                         <p className="text-white text-xs font-medium">

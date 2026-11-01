@@ -109,7 +109,7 @@ export function ReportRow({ report }: { report: ApiContentReport }) {
             </span>
           )}
         </div>
-        <div className="mt-0.5 text-xs text-neutral-400">
+        <div className="mt-0.5 text-xs text-neutral-500">
           {formatWhen(report.created_at)}
           {report.course_title ? ` · ${report.course_title}` : ""}
           {report.author_name ? ` · by ${report.author_name}` : ""}
@@ -124,7 +124,7 @@ export function ReportRow({ report }: { report: ApiContentReport }) {
           <span className="font-medium text-neutral-700">{automatic ? "Why: " : "Reason: "}</span>
           {report.reason}
         </p>
-        {history && <p className="mt-1 text-xs text-neutral-400">About the author: {history}</p>}
+        {history && <p className="mt-1 text-xs text-neutral-500">About the author: {history}</p>}
         {isPost && report.author_id && !report.author_muted && (
           <button type="button" onClick={() => setMuting(true)} className="mt-2 text-xs font-medium text-violet-700 hover:underline">
             Mute {report.author_name || "the author"}…

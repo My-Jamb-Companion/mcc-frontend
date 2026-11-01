@@ -1,6 +1,6 @@
 "use client";
 
-import {Icon, motion, showError} from "@mcc/ui";
+import {Icon, motion, showError, BrainyMark} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import {useCallback, useState, useRef, useMemo, useEffect} from "react";
 import DragImageOverlay, {useGlobalFileDrag} from "./DragFile";
@@ -237,6 +237,7 @@ export default function BrainyChats() {
                     : "flex w-full flex-col self-start py-1"
                 }
               >
+                {msg.sender === "ai" && <BrainyMark badge size={28} className="mb-1.5" alt="Brainy AI" />}
                 {msg.sender === "ai" && msg.degraded ? (
                   // Not an answer -- Brainy never got one. Say so plainly and
                   // make the retry one tap away, since the usual cause (the

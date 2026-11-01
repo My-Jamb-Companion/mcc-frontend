@@ -3,6 +3,7 @@ import {cleanup, fireEvent, render, screen} from "@testing-library/react";
 
 vi.mock("@mcc/ui", () => ({
   Icon: () => null,
+  BrainyMark: () => null,
   Button: ({children, onClick, disabled}: {children: React.ReactNode; onClick?: () => void; disabled?: boolean}) => (
     <button type="button" onClick={onClick} disabled={disabled}>{children}</button>
   ),

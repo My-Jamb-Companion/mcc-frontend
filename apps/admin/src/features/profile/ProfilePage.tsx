@@ -67,7 +67,7 @@ function ProfileCard({profile}: {profile: ApiProfile}) {
             {photo.isPending ? "Uploading…" : "Change photo"}
           </button>
           <input ref={fileInput} type="file" accept="image/*" aria-label="Profile photo" className="sr-only" onChange={(e) => onPhoto(e.target.files?.[0])} />
-          <p className="mt-1 text-xs text-neutral-400">An image up to 5 MB.</p>
+          <p className="mt-1 text-xs text-neutral-500">An image up to 5 MB.</p>
         </div>
       </div>
 
@@ -83,7 +83,7 @@ function ProfileCard({profile}: {profile: ApiProfile}) {
         <label className="flex flex-col gap-1.5 text-sm font-medium text-neutral-700">
           Email
           <input value={profile.email} disabled className={field} />
-          <span className="text-xs font-normal text-neutral-400">Your email is how you sign in, so it can&apos;t be changed here.</span>
+          <span className="text-xs font-normal text-neutral-500">Your email is how you sign in, so it can&apos;t be changed here.</span>
         </label>
         <label className="flex flex-col gap-1.5 text-sm font-medium text-neutral-700">
           Phone number
@@ -180,7 +180,7 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <h1 className="text-2xl font-semibold text-neutral-900">User profile</h1>
-      {profile.isLoading && <p className="text-sm text-neutral-400">Loading your profile…</p>}
+      {profile.isLoading && <p className="text-sm text-neutral-500">Loading your profile…</p>}
       {profile.isError && <p className="text-sm text-red-500">Couldn&apos;t load your profile. Please try again.</p>}
       {profile.data && (
         // Remount when the saved profile changes, so the form starts from what is stored.

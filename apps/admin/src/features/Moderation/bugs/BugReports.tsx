@@ -63,7 +63,7 @@ function BugCard({report}: {report: ApiBugReport}) {
       <div className="flex flex-wrap items-center gap-2">
         <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${URGENCY_STYLE[report.urgency]}`}>{URGENCY_LABEL[report.urgency]}</span>
         <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLE[report.status]}`}>{STATUS_LABEL[report.status]}</span>
-        <span className="text-xs text-neutral-400">
+        <span className="text-xs text-neutral-500">
           {reporterLabel(report)}
           {report.reporter_role ? ` · ${report.reporter_role}` : ""} · {when(report.created_at)}
         </span>
@@ -170,7 +170,7 @@ export default function BugReports() {
             className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-all ${status === tab.key ? "bg-white text-neutral-900 shadow-sm" : "text-neutral-500 hover:text-neutral-800"}`}
           >
             {tab.label}
-            {counts && <span className="ml-1.5 text-xs font-normal text-neutral-400">{tab.key ? counts[tab.key] : counts.total}</span>}
+            {counts && <span className="ml-1.5 text-xs font-normal text-neutral-500">{tab.key ? counts[tab.key] : counts.total}</span>}
           </button>
         ))}
       </div>
@@ -186,9 +186,9 @@ export default function BugReports() {
       </div>
 
       <div className="divide-y divide-gray-100">
-        {list.isLoading && <p className="py-6 text-sm text-neutral-400">Loading…</p>}
+        {list.isLoading && <p className="py-6 text-sm text-neutral-500">Loading…</p>}
         {list.isError && <p className="py-6 text-sm text-red-500">Couldn&apos;t load the bug reports. Please try again.</p>}
-        {list.data && list.data.reports.length === 0 && <p className="py-6 text-sm text-neutral-400">No bug reports here.</p>}
+        {list.data && list.data.reports.length === 0 && <p className="py-6 text-sm text-neutral-500">No bug reports here.</p>}
         {list.data?.reports.map((report) => <BugCard key={report.report_id} report={report} />)}
       </div>
 

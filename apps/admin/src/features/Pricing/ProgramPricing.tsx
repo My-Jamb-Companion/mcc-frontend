@@ -74,19 +74,19 @@ export default function ProgramPricing() {
         </div>
 
         {isLoading ? (
-          <p className="mt-6 text-sm text-neutral-400">Loading programs…</p>
+          <p className="mt-6 text-sm text-neutral-500">Loading programs…</p>
         ) : isError ? (
           <p className="mt-6 text-sm text-red-600">
             {pricingErrorMessage(error, "Couldn't load programs.")}{" "}
             <button type="button" onClick={() => refetch()} className="font-semibold underline">Try again</button>
           </p>
         ) : programs.length === 0 ? (
-          <p className="mt-6 text-sm text-neutral-400">No programs match.</p>
+          <p className="mt-6 text-sm text-neutral-500">No programs match.</p>
         ) : (
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
               <thead>
-                <tr className="border-b border-neutral-100 text-xs uppercase tracking-wide text-neutral-400">
+                <tr className="border-b border-neutral-100 text-xs uppercase tracking-wide text-neutral-500">
                   <th className="pb-2 pr-3 font-medium">Program</th>
                   <th className="pb-2 pr-3 text-right font-medium">Charged today</th>
                   <th className="pb-2 pr-3 font-medium">Formats · default tier price (published / formula)</th>
@@ -108,7 +108,7 @@ function ProgramRow({program}: {program: ApiProgramSummary}) {
     <tr className="align-top">
       <td className="py-3 pr-3">
         <p className="font-semibold text-neutral-900">{program.title}</p>
-        <p className="mt-0.5 text-xs text-neutral-400">
+        <p className="mt-0.5 text-xs text-neutral-500">
           {program.program_type === "course" ? "Course" : "Exam program"}
           {program.status ? ` · ${program.status}` : ""}
         </p>
@@ -134,7 +134,7 @@ function EditionChip({program, edition}: {program: ApiProgramSummary; edition: A
         edition.latest_version ? "border-neutral-200" : "border-dashed border-neutral-300"}`}>
       <span>
         <span className="block text-sm font-medium text-neutral-900">{name}</span>
-        <span className="block text-xs text-neutral-400">
+        <span className="block text-xs text-neutral-500">
           {edition.latest_version ? `Version ${edition.latest_version}` : "Not costed yet"}
         </span>
       </span>
@@ -145,7 +145,7 @@ function EditionChip({program, edition}: {program: ApiProgramSummary; edition: A
           </span>
         ) : null}
         <span className={`text-sm tabular-nums ${
-          edition.published_price ? "text-xs text-neutral-400" : edition.default_tier_price ? "font-semibold text-neutral-900" : "text-violet-700"}`}>
+          edition.published_price ? "text-xs text-neutral-500" : edition.default_tier_price ? "font-semibold text-neutral-900" : "text-violet-700"}`}>
           {edition.default_tier_price
             ? `${edition.published_price ? "formula " : ""}${naira(edition.default_tier_price)}`
             : edition.latest_version ? "—" : "Set up"}

@@ -93,7 +93,7 @@ export default function CatalogItemModal({kind, item, open, onClose, onCreated}:
             />
             <span>
               Active
-              <span className="block font-normal text-gray-400">
+              <span className="block font-normal text-gray-500">
                 Inactive {labels.plural.toLowerCase()} no longer appear when creating a program. Programs already
                 using one keep it.
               </span>

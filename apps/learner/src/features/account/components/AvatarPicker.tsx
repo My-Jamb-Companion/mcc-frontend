@@ -3,9 +3,9 @@
 import {useRef} from "react";
 import {Icon} from "@mcc/ui";
 import Image from "next/image";
+import {AVATARS} from "../constants/avatars";
 
-/** The built-in avatars: 1-7 male, 8-14 female (kept in this order so existing choices still match). */
-export const AVATARS = Array.from({length: 14}, (_, i) => `/assets/images/avatars/${i + 1}.png`);
+export {AVATARS};
 
 export default function AvatarPicker({
   setFile,
@@ -36,11 +36,11 @@ export default function AvatarPicker({
               onClick={() => setFile(avatar)}
               aria-label={`Avatar ${i + 1}`}
               aria-pressed={selected === avatar}
-              className={`relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-violet-400 transition hover:scale-110 ${
+              className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-violet-400 transition hover:scale-110 ${
                 selected === avatar ? "ring-2 ring-violet-600 ring-offset-2" : ""
               }`}
             >
-              <Image src={avatar} alt="" fill sizes="40px" className="object-cover" />
+              <Image src={avatar} alt="" fill sizes="48px" className="object-cover" />
             </button>
           ))}
         </div>

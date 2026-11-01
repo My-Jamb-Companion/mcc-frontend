@@ -34,7 +34,7 @@ const TrendBadge: React.FC<MetricBadgeProps> = ({
         <Icon className="h-3 w-3 stroke-[2.5]" />
         {change}
       </span>
-      <span className="text-[11px] text-gray-400">vs {timeframe}</span>
+      <span className="text-[11px] text-gray-500">vs {timeframe}</span>
     </div>
   );
 };
@@ -61,20 +61,20 @@ export const TeacherPerformanceDashboard: React.FC = () => {
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-12">
           <div className="flex flex-col">
-            <div className="flex items-center gap-1.5 font-mono text-xs text-gray-400">
+            <div className="flex items-center gap-1.5 font-mono text-xs text-gray-500">
               <span>Teacher applications waiting</span>
               <span title="Teachers who finished signing up and need an admin to approve them">
-                <Info className="h-3.5 w-3.5 text-gray-400" />
+                <Info className="h-3.5 w-3.5 text-gray-500" />
               </span>
             </div>
             <span className="mt-1 text-2xl font-bold text-gray-900">{show(data?.pending_teachers)}</span>
           </div>
 
           <div className="flex flex-col">
-            <div className="flex items-center gap-1.5 font-mono text-xs text-gray-400">
+            <div className="flex items-center gap-1.5 font-mono text-xs text-gray-500">
               <span>Live classes ({label})</span>
               <span title="Classes scheduled in the period that weren't cancelled">
-                <Info className="h-3.5 w-3.5 text-gray-400" />
+                <Info className="h-3.5 w-3.5 text-gray-500" />
               </span>
             </div>
             <div className="mt-1 flex items-end gap-2">
@@ -101,7 +101,7 @@ export const TeacherPerformanceDashboard: React.FC = () => {
         <div className="p-8">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
             <div className="flex flex-col items-center justify-center text-center md:col-span-5">
-              <span className="font-mono text-sm tracking-wide text-gray-400">
+              <span className="font-mono text-sm tracking-wide text-gray-500">
                 Teachers & Admin.
               </span>
               <span className="mt-3 text-6xl font-bold tracking-tight text-gray-900">
@@ -121,7 +121,7 @@ export const TeacherPerformanceDashboard: React.FC = () => {
                     <TrendBadge change={teacherTrend.label} isPositive={teacherTrend.isPositive} timeframe={previous} />
                   )}
                 </div>
-                <p className="text-[11px] text-gray-400">{show(data?.teachers.new_in_period)} joined in {label}</p>
+                <p className="text-[11px] text-gray-500">{show(data?.teachers.new_in_period)} joined in {label}</p>
               </div>
 
               <div className="flex flex-col justify-between space-y-3">
@@ -135,7 +135,7 @@ export const TeacherPerformanceDashboard: React.FC = () => {
                     <TrendBadge change={adminTrend.label} isPositive={adminTrend.isPositive} timeframe={previous} />
                   )}
                 </div>
-                <p className="text-[11px] text-gray-400">{show(data?.admins.new_in_period)} joined in {label}</p>
+                <p className="text-[11px] text-gray-500">{show(data?.admins.new_in_period)} joined in {label}</p>
               </div>
             </div>
           </div>

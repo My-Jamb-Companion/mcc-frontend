@@ -12,15 +12,15 @@ export const TeacherEffectiveness: React.FC = () => {
         <h2 className="font-mono text-base font-semibold text-gray-800">
           Teaching Effectiveness
         </h2>
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-gray-500">
           Mean student score across each teacher&apos;s courses and exam-prep programs.
         </p>
       </div>
 
       <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white">
-        {isLoading && <p className="p-8 text-sm text-gray-400">Loading…</p>}
+        {isLoading && <p className="p-8 text-sm text-gray-500">Loading…</p>}
         {teachers && teachers.length === 0 && (
-          <p className="p-8 text-sm text-gray-400">
+          <p className="p-8 text-sm text-gray-500">
             No teachers have measured student activity yet.
           </p>
         )}
@@ -39,7 +39,7 @@ export const TeacherEffectiveness: React.FC = () => {
                     <p className="text-sm font-semibold text-gray-900 truncate">
                       {teacher.teacher_name || "Unnamed teacher"}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-500">
                       {teacher.student_count} student{teacher.student_count === 1 ? "" : "s"} ·{" "}
                       {teacher.total_points} pts
                     </p>

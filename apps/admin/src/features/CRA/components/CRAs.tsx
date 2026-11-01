@@ -61,7 +61,7 @@ export default function CRAs() {
               <p className="font-semibold text-slate-900 leading-tight">
                 {user.full_name || "—"}
               </p>
-              <p className="text-xs text-slate-400 lowercase">{user.email}</p>
+              <p className="text-xs text-slate-500 lowercase">{user.email}</p>
             </div>
           </div>
         );
@@ -134,11 +134,11 @@ export default function CRAs() {
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold text-slate-900">All CRAs</h2>
-            {total > 0 && <span className="text-sm text-slate-400">{total}</span>}
+            {total > 0 && <span className="text-sm text-slate-500">{total}</span>}
           </div>
 
           <div className="relative w-72">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               placeholder="Search"
@@ -150,9 +150,9 @@ export default function CRAs() {
         </div>
 
         {isLoading ? (
-          <p className="py-10 text-center text-sm text-slate-400">Loading CRAs…</p>
+          <p className="py-10 text-center text-sm text-slate-500">Loading CRAs…</p>
         ) : filtered.length === 0 ? (
-          <p className="py-10 text-center text-sm text-slate-400">
+          <p className="py-10 text-center text-sm text-slate-500">
             {searchQuery.trim() ? "No CRAs found." : "No CRAs yet."}
           </p>
         ) : (

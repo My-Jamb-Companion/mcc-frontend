@@ -478,13 +478,13 @@ export default function ContentStep({
                 <Icon
                   icon="lucide:book-open"
                   size={24}
-                  className="text-gray-400"
+                  className="text-gray-500"
                 />
               </div>
               <p className="text-sm font-medium text-gray-500">
                 Add a topic to get started
               </p>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-500">
                 Use the sidebar to create topics and sub-topics
               </p>
             </div>
@@ -511,7 +511,7 @@ export default function ContentStep({
                     </div>
                   ) : (
                     <>
-                      <span className="text-gray-400">
+                      <span className="text-gray-500">
                         {activeContext?.topic?.label || "Select a topic"}
                       </span>
                       {activeContext?.topic && (
@@ -523,7 +523,7 @@ export default function ContentStep({
                           <Icon
                             icon="lucide:pencil"
                             size={14}
-                            className="text-gray-400"
+                            className="text-gray-500"
                           />
                         </button>
                       )}
@@ -547,7 +547,7 @@ export default function ContentStep({
                         <Icon
                           icon="lucide:pencil"
                           size={14}
-                          className="text-gray-400"
+                          className="text-gray-500"
                         />
                       </button>
                     )}
@@ -592,7 +592,7 @@ export default function ContentStep({
                   <span className="text-sm font-semibold text-gray-900">
                     {activeContext?.module?.label || "Module"}
                   </span>
-                  <span className="text-sm text-gray-400">
+                  <span className="text-sm text-gray-500">
                     / {activeContext?.label || "Content"}
                   </span>
                 </div>

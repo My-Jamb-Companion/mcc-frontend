@@ -67,7 +67,7 @@ export default function CostTemplateEditor({
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-neutral-400">Loading cost template…</p>
+        <p className="text-sm text-neutral-500">Loading cost template…</p>
       ) : isError || !data ? (
         <p className="text-sm text-red-600">
           {pricingErrorMessage(error, "Couldn't load this cost template.")}{" "}
@@ -302,7 +302,7 @@ function TemplateEditorForm({detail, programType, programId, initialEdition}: {
             className="mt-4 w-full rounded-full bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50">
             {save.isPending ? "Saving…" : unchanged ? "No changes to save" : `Save as version ${(detail.version?.version_number ?? 0) + 1}`}
           </button>
-          <p className="mt-2 text-xs text-neutral-400">Saves every format together. It doesn&apos;t change what students pay; prices apply once published.</p>
+          <p className="mt-2 text-xs text-neutral-500">Saves every format together. It doesn&apos;t change what students pay; prices apply once published.</p>
         </div>
       </aside>
     </div>
@@ -333,7 +333,7 @@ function DirectCostsEditor({lines, onChange, errors}: {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
-            <tr className="text-xs uppercase tracking-wide text-neutral-400">
+            <tr className="text-xs uppercase tracking-wide text-neutral-500">
               <th className="pb-2 pr-2 font-medium">Category</th>
               <th className="pb-2 pr-2 font-medium">Description</th>
               <th className="pb-2 pr-2 font-medium">Per enrolment</th>
@@ -374,7 +374,7 @@ function DirectCostsEditor({lines, onChange, errors}: {
                 </td>
                 <td className="py-1.5 pt-2">
                   <button type="button" onClick={() => onChange(lines.filter((x) => x.key !== l.key))}
-                    aria-label={`Remove direct cost ${i + 1}`} className="rounded-full p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-red-600">
+                    aria-label={`Remove direct cost ${i + 1}`} className="rounded-full p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-red-600">
                     <Icon icon="ph:trash" size={16} />
                   </button>
                 </td>
@@ -405,7 +405,7 @@ function VersionHistory({programType, programId, edition}: {programType: Program
               {i === 0 && <span className="ml-2 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">Current</span>}
             </p>
             <p className="mt-0.5 text-sm text-neutral-600 break-words">{v.change_reason}</p>
-            <p className="mt-0.5 text-xs text-neutral-400">
+            <p className="mt-0.5 text-xs text-neutral-500">
               {v.created_by_name ?? "Unknown admin"} · {new Date(v.created_at).toLocaleString("en-NG", {day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit"})}
             </p>
           </li>

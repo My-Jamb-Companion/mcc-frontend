@@ -70,7 +70,7 @@ function ProgramSiblingRow({
               <div className="mt-4 flex items-center gap-2 text-sm text-gray-700">
                 <Icon icon="solar:star-bold" size={14} className="text-amber-400" />
                 {program.rating}
-                <span className="text-gray-400"> • </span>
+                <span className="text-gray-500"> • </span>
                 {program.tags.join(", ") || "Uncategorized"}
               </div>
 
@@ -123,7 +123,7 @@ export default function ProgramSiblingsGrid({
   const siblings = programs.filter((p) => p.id !== currentProgramId);
 
   if (isLoading) {
-    return <p className="text-sm text-gray-400">Loading other programs…</p>;
+    return <p className="text-sm text-gray-500">Loading other programs…</p>;
   }
 
   if (siblings.length === 0) return null;

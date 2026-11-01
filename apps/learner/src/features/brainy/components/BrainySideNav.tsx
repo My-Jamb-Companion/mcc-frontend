@@ -3,6 +3,7 @@ import {Button, ConfirmModal, Icon, motion, AnimatePresence, showError, showSucc
 import {extractApiError} from "@mcc/api";
 import {useCallback, useMemo, useRef, useState} from "react";
 import {useRouter, usePathname} from "next/navigation";
+import {BrainyLogo} from "@/src/features/components/BrainyLogo";
 import {useBrainy, type StudySession} from "../contexts/BrainyContext";
 import {groupByDateBucket} from "../helper/DateBuckets";
 import {
@@ -181,9 +182,9 @@ export default function BrainySideNav() {
                 animate={{opacity: 1, x: 0}}
                 exit={{opacity: 0, x: -10}}
                 transition={{duration: 0.15}}
-                className="text-2xl font-semibold whitespace-nowrap max-sm:hidden"
+                className="whitespace-nowrap max-sm:hidden"
               >
-                Brainy<span className="text-primary">.AI</span>
+                <BrainyLogo height={32} />
               </motion.p>
             )}
           </AnimatePresence>
@@ -197,7 +198,7 @@ export default function BrainySideNav() {
               <Icon
                 icon="hugeicons:sidebar-left-01"
                 size={20}
-                className="text-muted/40 hover:text-muted dark:hover:text-white"
+                className="text-muted hover:text-foreground"
               />
             </button>
           )}

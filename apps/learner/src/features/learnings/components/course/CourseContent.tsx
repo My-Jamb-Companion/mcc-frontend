@@ -3,7 +3,7 @@
 import {useCallback, useState, useEffect} from "react";
 import Link from "next/link";
 import {useRouter, usePathname, useSearchParams} from "next/navigation";
-import {Button, Icon, motion, AnimatePresence, showError} from "@mcc/ui";
+import {Button, Icon, motion, AnimatePresence, showError, BrainyMark} from "@mcc/ui";
 import CoursePlayModules from "./CourseModules";
 import CoursePlayer from "./CoursePlayer";
 import BrainyCourseSidePanel from "./BrainyCourseSidePanel";
@@ -190,7 +190,7 @@ export default function CourseContent({
           Course
         </Link>
         <span className="text-subtle">/</span>
-        <span className="text-muted/50 cursor-default text-nowrap truncate">{title}</span>
+        <span className="text-subtle cursor-default text-nowrap truncate">{title}</span>
       </nav>
 
       <BookingSection purpose="course" targetId={courseId} />
@@ -326,7 +326,7 @@ export default function CourseContent({
                   onClick={() => handleTabChange("tab", tab)}
                 >
                   <span className="flex items-center gap-2">
-                    {tab === "ai" && <Icon icon={"mingcute:ai-fill"} size={14} />}
+                    {tab === "ai" && <BrainyMark size={18} />}
                     {tab === "ai" ? "AI Assistant" : tab === "content" ? "Course Content" : tab}
                   </span>
                 </Button>
@@ -419,7 +419,7 @@ export default function CourseContent({
                       className={`text-nowrap py-1!  ${sidePanel == tab ? "" : "opacity-60"}`}
                     >
                       <p className="flex items-center gap-2">
-                        {tab === "ai" && <Icon icon={"mingcute:ai-fill"} size={14} />}
+                        {tab === "ai" && <BrainyMark size={18} />}
                         <span>{tab === "course" ? "Course content" : "AI assistant"}</span>
                       </p>
                     </Button>

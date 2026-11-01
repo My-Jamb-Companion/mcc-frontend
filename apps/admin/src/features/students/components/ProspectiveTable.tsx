@@ -77,7 +77,7 @@ function MethodCell({method}: {method: Method}) {
   }
   return (
     <div className="flex items-center gap-2.5">
-      <div className="w-8 h-8 rounded-md overflow-hidden bg-gray-100 shrink-0 flex items-center justify-center text-gray-400 text-[10px] font-medium">
+      <div className="w-8 h-8 rounded-md overflow-hidden bg-gray-100 shrink-0 flex items-center justify-center text-gray-500 text-[10px] font-medium">
         {method.thumbnailLabel}
       </div>
       <div className="min-w-0">
@@ -316,7 +316,7 @@ export default function ProspectiveStudentsTable({
         cell: (info) => (
           <span className="text-sm text-gray-600 whitespace-nowrap">
             {info.getValue()}
-            <span className="text-gray-300 mx-1">|</span>
+            <span className="text-gray-500 mx-1">|</span>
             {info.row.original.time}
           </span>
         ),
@@ -359,11 +359,11 @@ export default function ProspectiveStudentsTable({
   });
 
   if (isLoading) {
-    return <p className="py-10 text-center text-sm text-gray-400">Loading students…</p>;
+    return <p className="py-10 text-center text-sm text-gray-500">Loading students…</p>;
   }
 
   if (students.length === 0) {
-    return <p className="py-10 text-center text-sm text-gray-400">No prospective students yet.</p>;
+    return <p className="py-10 text-center text-sm text-gray-500">No prospective students yet.</p>;
   }
 
   return <EnhancedTable table={table} enableSelection className="min-w-full" />;

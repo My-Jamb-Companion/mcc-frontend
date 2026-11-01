@@ -581,11 +581,11 @@ export default function TeachersTable({
   });
 
   if (isLoading) {
-    return <p className="py-10 text-center text-sm text-gray-400">Loading teachers…</p>;
+    return <p className="py-10 text-center text-sm text-gray-500">Loading teachers…</p>;
   }
 
   if (teachers.length === 0) {
-    return <p className="py-10 text-center text-sm text-gray-400">No teachers yet.</p>;
+    return <p className="py-10 text-center text-sm text-gray-500">No teachers yet.</p>;
   }
 
   return <EnhancedTable table={table} enableSelection className="min-w-full" />;

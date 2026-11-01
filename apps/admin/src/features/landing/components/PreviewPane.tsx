@@ -52,7 +52,7 @@ export default function PreviewPane({content, focusBlockId}: {content: LandingCo
   return (
     <div className="flex h-full min-h-[420px] flex-col rounded-2xl border border-gray-200 bg-gray-50">
       <div className="flex items-center justify-between gap-2 border-b border-gray-200 px-3 py-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">Live preview</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Live preview</span>
         <div className="flex gap-1 rounded-xl bg-gray-100 p-1">
           {tab("desktop", "Desktop", "lucide:monitor")}
           {tab("phone", "Phone", "lucide:smartphone")}
@@ -67,7 +67,7 @@ export default function PreviewPane({content, focusBlockId}: {content: LandingCo
           className={`h-full rounded-xl border border-gray-200 bg-white ${device === "phone" ? "w-[375px] max-w-full" : "w-full"}`}
         />
       </div>
-      {ready === 0 && <p className="px-3 pb-3 text-xs text-gray-400">Loading the preview… If it stays empty, check the landing site is running at {LANDING_URL}.</p>}
+      {ready === 0 && <p className="px-3 pb-3 text-xs text-gray-500">Loading the preview… If it stays empty, check the landing site is running at {LANDING_URL}.</p>}
     </div>
   );
 }

@@ -94,7 +94,7 @@ export default function PublishPanel({
           )}
 
           {preview.isLoading ? (
-            <p className="text-sm text-neutral-400">Working out what would be published…</p>
+            <p className="text-sm text-neutral-500">Working out what would be published…</p>
           ) : preview.isError || !proposal ? (
             <p className="text-sm text-red-600">
               {pricingErrorMessage(preview.error, "Couldn't work out the prices to publish.")}{" "}
@@ -105,7 +105,7 @@ export default function PublishPanel({
               <div className={`overflow-x-auto transition-opacity ${preview.isFetching ? "opacity-60" : ""}`}>
                 <table className="w-full min-w-[820px] text-left text-sm">
                   <thead>
-                    <tr className="text-xs uppercase tracking-wide text-neutral-400">
+                    <tr className="text-xs uppercase tracking-wide text-neutral-500">
                       <th className="pb-2 pr-3 font-medium">Tier</th>
                       <th className="pb-2 pr-3 text-right font-medium">{proposal.active_publication ? "In force" : "Flat price now"}</th>
                       <th className="pb-2 pr-3 text-right font-medium">Formula</th>
@@ -123,7 +123,7 @@ export default function PublishPanel({
                   </tbody>
                 </table>
               </div>
-              <p className="-mt-2 text-xs text-neutral-400">
+              <p className="-mt-2 text-xs text-neutral-500">
                 Built from cost template v{proposal.template_version} · parameters v{proposal.parameter_version} · tiers r{proposal.tier_revision}.
                 Hard floor {naira(proposal.hard_floor_student_pays)}
                 {proposal.market_ceiling ? ` · market ceiling ${naira(proposal.market_ceiling)}` : ""}. Amounts include VAT.
@@ -187,7 +187,7 @@ export default function PublishPanel({
                         ? "Submit for a second admin"
                         : "Publish prices"}
                 </button>
-                <span className="text-xs text-neutral-400">New purchases only. Checkouts already started keep their price.</span>
+                <span className="text-xs text-neutral-500">New purchases only. Checkouts already started keep their price.</span>
               </div>
             </>
           )}
@@ -212,7 +212,7 @@ function TierRow({tier, draft, onChange}: {
     <tr className="align-top">
       <td className="py-2.5 pr-3">
         <p className="font-medium text-neutral-900">{tier.tier_name}</p>
-        <p className="text-xs text-neutral-400">×{Number(tier.multiplier)}{tier.is_default ? " · default" : ""}</p>
+        <p className="text-xs text-neutral-500">×{Number(tier.multiplier)}{tier.is_default ? " · default" : ""}</p>
       </td>
       <td className="py-2.5 pr-3 text-right tabular-nums text-neutral-600">{tier.previous_price ? naira(tier.previous_price) : "—"}</td>
       <td className={`py-2.5 pr-3 text-right tabular-nums ${tier.above_market_ceiling ? "font-semibold text-red-600" : "text-neutral-600"}`}>
@@ -222,7 +222,7 @@ function TierRow({tier, draft, onChange}: {
       <td className="py-2 pr-3">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-1">
-            <span className="text-neutral-400">₦</span>
+            <span className="text-neutral-500">₦</span>
             <input aria-label={`Override price for ${tier.tier_name}`} inputMode="decimal" value={draft?.price ?? ""}
               onChange={(e) => onChange({price: e.target.value})} placeholder="Formula"
               className="w-28 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-sm tabular-nums outline-none focus:border-violet-500" />

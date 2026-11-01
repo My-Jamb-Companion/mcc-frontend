@@ -26,7 +26,7 @@ export default function PublicationHistory({
   emptyText?: string;
 }) {
   if (publications.length === 0) {
-    return emptyText ? <p className="text-sm text-neutral-400">{emptyText}</p> : null;
+    return emptyText ? <p className="text-sm text-neutral-500">{emptyText}</p> : null;
   }
   return (
     <div>
@@ -83,7 +83,7 @@ function PublicationItem({publication: p, showProgram}: {publication: ApiPublica
       {p.phase_in_reason && <p className="text-xs text-neutral-500 break-words">Phasing in: {p.phase_in_reason}</p>}
       {p.below_cost_reason && <p className="text-xs text-neutral-500 break-words">Unfunded discounts: {p.below_cost_reason}</p>}
       {p.cancel_reason && <p className="text-xs text-neutral-500 break-words">Cancelled: {p.cancel_reason}</p>}
-      <p className="mt-0.5 text-xs text-neutral-400">
+      <p className="mt-0.5 text-xs text-neutral-500">
         {p.created_by_name ?? "Unknown admin"} · {when(p.created_at)} · template v{p.template_version}, parameters v{p.parameter_version}
         {p.confirmed_by_name && p.confirmed_at ? ` · confirmed by ${p.confirmed_by_name}, ${when(p.confirmed_at)}` : ""}
         {p.cancelled_by_name && p.cancelled_at ? ` · cancelled by ${p.cancelled_by_name}, ${when(p.cancelled_at)}` : ""}
@@ -127,7 +127,7 @@ function PublicationItem({publication: p, showProgram}: {publication: ApiPublica
               </button>
             </div>
           )}
-          <p className="text-xs text-neutral-400">Only an admin other than the one who submitted it can confirm.</p>
+          <p className="text-xs text-neutral-500">Only an admin other than the one who submitted it can confirm.</p>
           {error && <p className="text-xs text-red-600">{error}</p>}
         </div>
       )}

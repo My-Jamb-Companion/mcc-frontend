@@ -85,7 +85,7 @@ export default function Users() {
               <p className="font-semibold text-slate-900 leading-tight">
                 {user.full_name || "—"}
               </p>
-              <p className="text-xs text-slate-400 lowercase">{user.email}</p>
+              <p className="text-xs text-slate-500 lowercase">{user.email}</p>
             </div>
           </div>
         );
@@ -194,7 +194,7 @@ export default function Users() {
 
             <div className="flex items-center gap-3">
               <div className="relative w-72">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
                 <input
                   type="text"
                   placeholder="Search"
@@ -205,16 +205,16 @@ export default function Users() {
               </div>
 
               <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50">
-                <SlidersHorizontal className="h-4 w-4 text-slate-400" />
+                <SlidersHorizontal className="h-4 w-4 text-slate-500" />
                 Filter
               </button>
             </div>
           </div>
 
           {isLoading ? (
-            <p className="py-10 text-center text-sm text-slate-400">Loading users…</p>
+            <p className="py-10 text-center text-sm text-slate-500">Loading users…</p>
           ) : filtered.length === 0 ? (
-            <p className="py-10 text-center text-sm text-slate-400">No users found.</p>
+            <p className="py-10 text-center text-sm text-slate-500">No users found.</p>
           ) : (
             <EnhancedTable
               table={table}

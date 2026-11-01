@@ -26,7 +26,7 @@ export default function StudySetList() {
           Brainy
         </Link>
         <span className="text-subtle">/</span>
-        <span className="text-sm text-muted/50">Study sets</span>
+        <span className="text-sm text-subtle">Study sets</span>
       </div>
 
       <h1 className="mb-6 text-2xl font-semibold">Your study sets</h1>

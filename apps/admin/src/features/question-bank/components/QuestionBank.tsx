@@ -135,9 +135,9 @@ export default function QuestionBank() {
         </div>
 
         {list.isLoading ? (
-          <p className="py-10 text-center text-sm text-slate-400">Loading the bank…</p>
+          <p className="py-10 text-center text-sm text-slate-500">Loading the bank…</p>
         ) : rows.length === 0 ? (
-          <p className="py-10 text-center text-sm text-slate-400">
+          <p className="py-10 text-center text-sm text-slate-500">
             {filtered ? "No questions match these filters." : "The bank is empty. Add a question, or save a set to it from any course or exam program."}
           </p>
         ) : (

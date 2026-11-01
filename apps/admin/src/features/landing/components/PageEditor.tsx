@@ -245,7 +245,7 @@ function Editor({config, state, readOnly, onReload, onDirtyChange}: {config: Pag
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <h2 className="text-base font-semibold text-gray-900">{config.describe(selectedBlock).title}</h2>
-                    <p className="truncate text-xs text-gray-400">{blockByType[selectedBlock.type]?.description ?? config.describe(selectedBlock).subtitle}</p>
+                    <p className="truncate text-xs text-gray-500">{blockByType[selectedBlock.type]?.description ?? config.describe(selectedBlock).subtitle}</p>
                   </div>
                   {!selectedBlock.visible && <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">Hidden</span>}
                 </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import {AnimatePresence, Icon, motion} from "@mcc/ui";
+import {AnimatePresence, BrainyMark, Icon, motion} from "@mcc/ui";
 import Link from "next/link";
 import {useEffect, useRef, useState} from "react";
 import {sideBarLinks} from "../dashboard/constants/NavLinks";
@@ -158,7 +158,11 @@ export default function SideNav({
                       whileHover={{scale: isMobile ? 1 : 1.08}}
                       transition={{type: "spring", stiffness: 400}}
                     >
-                      <Icon icon={String(link.icon)} size={20} />
+                      {link.label === "brainy" ? (
+                        <BrainyMark badge tone="dark" size={24} />
+                      ) : (
+                        <Icon icon={String(link.icon)} size={20} />
+                      )}
                     </motion.div>
 
                     <AnimatePresence initial={false}>

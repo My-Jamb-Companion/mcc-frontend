@@ -16,7 +16,7 @@ export default function LegalPreview({content, focusBlockId, slug}: {content: La
   return (
     <div className="flex h-full min-h-[420px] flex-col rounded-2xl border border-gray-200 bg-gray-50">
       <div className="border-b border-gray-200 px-3 py-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">Preview</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Preview</span>
       </div>
       <div ref={root} className="min-h-0 flex-1 overflow-y-auto p-3">
         <article className="mx-auto max-w-[780px] rounded-xl bg-white px-6 py-8 text-neutral-900">
@@ -46,7 +46,7 @@ export default function LegalPreview({content, focusBlockId, slug}: {content: La
               </section>
             ))}
           {page.blocks.every((b) => !b.visible || b.type !== LEGAL_SECTION_TYPE) && (
-            <p className="text-sm text-neutral-400">This page has no visible sections.</p>
+            <p className="text-sm text-neutral-500">This page has no visible sections.</p>
           )}
         </article>
       </div>

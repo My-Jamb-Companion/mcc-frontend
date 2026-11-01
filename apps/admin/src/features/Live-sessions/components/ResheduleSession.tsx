@@ -125,7 +125,7 @@ export default function RescheduleClass({
                       className={`flex items-center gap-1 px-3.5 py-2 rounded-full text-sm font-medium transition-colors focus:ring-2 focus:ring-primary focus:border-0 focus:outline-0 ${
                         isSelected
                           ? "bg-white border border-violet-600 text-gray-900"
-                          : "bg-gray-100 text-gray-400 border border-transparent hover:bg-gray-200"
+                          : "bg-gray-100 text-gray-500 border border-transparent hover:bg-gray-200"
                       }`}
                     >
                       {isSelected && (

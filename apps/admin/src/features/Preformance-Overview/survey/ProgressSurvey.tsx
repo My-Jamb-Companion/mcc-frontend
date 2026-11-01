@@ -56,7 +56,7 @@ function Ranking({options}: {options: RankOption[]}) {
       {options.map((o) => (
         <Bar key={o.value} label={o.label} value={o.points} max={max} tone="bg-emerald-500" trailing={`${o.points} pts · ${o.first_choice} first`} />
       ))}
-      <p className="mt-2 text-xs text-neutral-400">Points: 5 for a first pick down to 1 for a fifth. &ldquo;First&rdquo; counts how many put it top.</p>
+      <p className="mt-2 text-xs text-neutral-500">Points: 5 for a first pick down to 1 for a fifth. &ldquo;First&rdquo; counts how many put it top.</p>
     </div>
   );
 }
@@ -76,7 +76,7 @@ function Pairs({items}: {items: PairItem[]}) {
           </div>
           <Bar label="Before" value={item.mean_before ?? 0} max={5} tone="bg-neutral-300" trailing={item.mean_before?.toFixed(1) ?? "—"} />
           <Bar label="After" value={item.mean_after ?? 0} max={5} trailing={item.mean_after?.toFixed(1) ?? "—"} />
-          <p className="mt-1 text-xs text-neutral-400">{item.improved_percent}% rated themselves higher after · {item.n} answers</p>
+          <p className="mt-1 text-xs text-neutral-500">{item.improved_percent}% rated themselves higher after · {item.n} answers</p>
         </div>
       ))}
     </div>
@@ -88,7 +88,7 @@ function Tile({label, value, hint}: {label: string; value: string; hint?: string
     <div className="rounded-xl bg-neutral-50 p-4">
       <p className="text-xs text-neutral-500">{label}</p>
       <p className="mt-1 text-2xl font-semibold text-neutral-900">{value}</p>
-      {hint && <p className="text-xs text-neutral-400">{hint}</p>}
+      {hint && <p className="text-xs text-neutral-500">{hint}</p>}
     </div>
   );
 }
@@ -129,13 +129,13 @@ function Comments() {
   const comments = useSurveyComments(page);
   return (
     <Card title="In their own words" help="The free-text answers, newest first." answered={comments.data?.total}>
-      {comments.isLoading && <p className="text-sm text-neutral-400">Loading…</p>}
-      {comments.data && comments.data.comments.length === 0 && <p className="text-sm text-neutral-400">No comments yet.</p>}
+      {comments.isLoading && <p className="text-sm text-neutral-500">Loading…</p>}
+      {comments.data && comments.data.comments.length === 0 && <p className="text-sm text-neutral-500">No comments yet.</p>}
       <ul className="divide-y divide-neutral-100">
         {comments.data?.comments.map((c) => (
           <li key={c.response_id} className="py-3">
             <p className="whitespace-pre-wrap text-sm text-neutral-800">{c.comment}</p>
-            <p className="mt-1 text-xs text-neutral-400">{c.full_name || c.email || "A student"} · {shortDate(c.created_at)}</p>
+            <p className="mt-1 text-xs text-neutral-500">{c.full_name || c.email || "A student"} · {shortDate(c.created_at)}</p>
           </li>
         ))}
       </ul>
@@ -170,7 +170,7 @@ function Question({q}: {q: QuestionSummary}) {
               <ResultsTable rows={q.data.by_exam.map((s) => ({...s, name: s.label}))} bands={bands} firstColumn="Exam" />
             </>
           ) : (
-            <p className="text-sm text-neutral-400">No answers yet.</p>
+            <p className="text-sm text-neutral-500">No answers yet.</p>
           )}
         </Card>
       );
@@ -200,7 +200,7 @@ function Question({q}: {q: QuestionSummary}) {
 export default function ProgressSurvey() {
   const results = useSurveyResults();
 
-  if (results.isLoading) return <p className="py-10 text-center text-sm text-neutral-400">Loading survey results…</p>;
+  if (results.isLoading) return <p className="py-10 text-center text-sm text-neutral-500">Loading survey results…</p>;
   if (results.isError || !results.data) return <p className="py-10 text-center text-sm text-red-500">Couldn&apos;t load the survey results. Please try again.</p>;
   const data = results.data;
 
@@ -219,7 +219,7 @@ export default function ProgressSurvey() {
       </section>
 
       {data.responses === 0 ? (
-        <p className="rounded-2xl border border-dashed border-neutral-200 bg-white py-12 text-center text-sm text-neutral-400">
+        <p className="rounded-2xl border border-dashed border-neutral-200 bg-white py-12 text-center text-sm text-neutral-500">
           No one has answered yet. Results appear here as students submit.
         </p>
       ) : (

@@ -53,13 +53,13 @@ export default function BreadcrumbsTopNav({
           return (
             <Fragment key={crumb.href}>
               {index > 0 && (
-                <li className="text-gray-300" aria-hidden="true">
+                <li className="text-gray-500" aria-hidden="true">
                   /
                 </li>
               )}
               <li>
                 {isLast ? (
-                  <span className="text-gray-400">{crumb.label}</span>
+                  <span className="text-gray-500">{crumb.label}</span>
                 ) : (
                   <Link
                     href={crumb.href}

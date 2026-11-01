@@ -1,7 +1,7 @@
 "use client";
 
 import {useRef, useState} from "react";
-import {Icon} from "@mcc/ui";
+import {BrainyMark, Icon} from "@mcc/ui";
 import {mergeTranscript} from "@/src/features/brainy/helper/voice";
 import {useSpeechInput} from "@/src/features/brainy/hooks/useSpeechInput";
 
@@ -53,6 +53,7 @@ export default function AskAICard({onSubmit, onSurprise}: AskAICardProps) {
         </button>
 
         <div className="flex flex-col gap-2">
+          <BrainyMark badge size={44} alt="Brainy AI" />
           <h2 className="text-3xl font-medium leading-snug max-w-[75%] max-sm:text-lg">
             Hey, not sure about what you want to learn?
           </h2>
@@ -63,7 +64,7 @@ export default function AskAICard({onSubmit, onSurprise}: AskAICardProps) {
             onKeyDown={handleKey}
             aria-label="Ask Brainy anything"
             placeholder={speech.listening ? "Listening…" : "Just ask me anything about it"}
-            className=" min-w-0 bg-transparent text-3xl text-hint max-sm:text-xl placeholder:text-hint outline-none caret-muted"
+            className=" min-w-0 bg-transparent text-3xl text-foreground max-sm:text-xl placeholder:text-subtle outline-none caret-primary"
           />
           {speech.error && (
             <p role="alert" className="text-sm text-red-600">

@@ -259,7 +259,7 @@ export default function Teachers() {
                     <h1 className="font-medium text-white text-xl">
                       {teacher?.name}
                     </h1>
-                    <h1 className="flex items-center gap-1 text-gray-400 text-xs">
+                    <h1 className="flex items-center gap-1 text-gray-500 text-xs">
                       <div className="h-1.5 w-1.5  bg-green-500 rounded-full" />
                       <span>{teacher?.isActive === false ? "Disabled teacher" : "Active Teacher"}</span>
                     </h1>

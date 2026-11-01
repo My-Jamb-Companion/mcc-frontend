@@ -79,7 +79,7 @@ export function FinanceProgramOverviewTable({
                 <span className="font-semibold text-neutral-900">
                   {row.studentName}
                 </span>
-                <span className="text-xs text-neutral-400">
+                <span className="text-xs text-neutral-500">
                   {row.studentEmail}
                 </span>
               </div>
@@ -108,7 +108,7 @@ export function FinanceProgramOverviewTable({
                 <span className="truncate font-semibold text-neutral-900">
                   {row.programTitle}
                 </span>
-                <div className="flex items-center gap-1 text-xs text-neutral-400">
+                <div className="flex items-center gap-1 text-xs text-neutral-500">
                   {row.programBadgeIcon && (
                     <Icon
                       icon={row.programBadgeIcon}
@@ -166,7 +166,7 @@ export function FinanceProgramOverviewTable({
                 <span className="truncate font-semibold text-neutral-900">
                   {row.programTitle}
                 </span>
-                <div className="flex items-center gap-1 text-xs text-neutral-400">
+                <div className="flex items-center gap-1 text-xs text-neutral-500">
                   {row.programBadgeIcon && (
                     <Icon
                       icon={row.programBadgeIcon}
@@ -198,7 +198,7 @@ export function FinanceProgramOverviewTable({
               <span className="font-bold text-neutral-900">
                 {formatCurrency(row.revenuePrimary)}
               </span>
-              <span className="text-xs font-medium text-neutral-400">
+              <span className="text-xs font-medium text-neutral-500">
                 {formatCurrency(row.revenueSecondary)}
               </span>
             </div>
@@ -277,7 +277,7 @@ export function FinanceProgramOverviewTable({
           }
         }}
         rowActions={
-          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition-colors">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition-colors">
             <ChevronRight className="h-5 w-5" />
           </div>
         }

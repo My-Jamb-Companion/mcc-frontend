@@ -1,6 +1,6 @@
 import {useFormContext} from "@mcc/features";
 import {TileMultiStep} from "../types/formTypes";
-import {Icon} from "@mcc/ui";
+import {BrainyMark, Icon} from "@mcc/ui";
 
 export function TileMultiRenderer({step}: {step: TileMultiStep}) {
   const {setValue, watch, register} = useFormContext();
@@ -39,7 +39,7 @@ export function TileMultiRenderer({step}: {step: TileMultiStep}) {
               }`}
             >
               <span>
-                {opt.icon && <Icon icon={String(opt.icon)} size={24} />}
+                {opt.icon === "brainy" ? <BrainyMark size={28} tone={isSelected ? "white" : "auto"} /> : opt.icon && <Icon icon={String(opt.icon)} size={24} />}
               </span>
               <span>{opt.label}</span>
             </button>

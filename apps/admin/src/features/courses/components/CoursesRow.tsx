@@ -70,7 +70,7 @@ export function CourseListRow({
           />
         </div>
       ) : (
-        <div className="flex w-[108px] h-[108px] shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-400">
+        <div className="flex w-[108px] h-[108px] shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-500">
           <Icon icon="ph:image" className="h-6 w-6" />
         </div>
       )}
@@ -97,7 +97,7 @@ export function CourseListRow({
             </span>
           ))}
           {course.tags.length > 2 ? (
-            <span className="text-xs text-zinc-400">
+            <span className="text-xs text-zinc-500">
               +{course.tags.length - 2}
             </span>
           ) : null}

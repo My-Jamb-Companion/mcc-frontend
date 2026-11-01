@@ -80,6 +80,7 @@ const NAV_ENTRIES: NavEntry[] = [
       {key: "exam-catalog", label: "Exams & subjects", href: "/dashboard/exam-program/catalog"},
       {key: "categories", label: "Categories", href: "/dashboard/categories"},
       {key: "question-bank", label: "Question Bank", href: "/dashboard/question-bank"},
+      {key: "explore-slider", label: "Explore slider", href: "/dashboard/explore-slider"},
       {key: "landing", label: "Landing page", href: "/dashboard/landing"},
       {key: "legal", label: "Legal pages", href: "/dashboard/legal"},
     ],
@@ -225,7 +226,7 @@ function NavIcon({
               style={entry.flyoutUp && upwardAt ? {left: upwardAt.left, bottom: upwardAt.bottom} : undefined}
               className={`${entry.flyoutUp ? "fixed" : "absolute top-0 left-full ml-2"} z-50 w-48 overflow-hidden rounded-xl border border-muted/20 bg-white py-1 shadow-lg`}
             >
-              <p className="px-4 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+              <p className="px-4 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
                 {entry.label}
               </p>
               {entry.children.map((child) => {

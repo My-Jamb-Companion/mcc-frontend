@@ -1,7 +1,7 @@
 "use client";
 
 import {useEffect, useMemo, useRef, useState} from "react";
-import {AnimatePresence, Icon, motion} from "@mcc/ui";
+import {AnimatePresence, Icon, motion, BrainyMark} from "@mcc/ui";
 import type {StudentExamQuestion} from "@/src/features/Exam-program/helper/studentView";
 import {useCountdown} from "@/src/features/courses/hooks/useCountdown";
 import {formatCountdown, isCountdownLow} from "@/src/features/courses/helper/countdown";
@@ -224,7 +224,7 @@ export default function ExamQuizPreview({questions, label, timerMinutes, passing
                   title="Students can ask Brainy to explain"
                   className="flex items-center justify-center gap-1.5 rounded-full border border-primary/40 px-5 py-2.5 text-sm font-semibold text-primary opacity-60"
                 >
-                  <Icon icon="mingcute:ai-fill" size={14} />
+                  <BrainyMark size={18} />
                   Explain this
                 </button>
               )}
@@ -384,7 +384,7 @@ function Results({
         title="Students can get AI feedback"
         className="mt-6 flex items-center gap-1.5 rounded-full border border-primary/40 px-5 py-2.5 text-sm font-semibold text-primary opacity-60"
       >
-        <Icon icon="mingcute:ai-fill" size={14} />
+        <BrainyMark size={18} />
         Get AI feedback
       </button>
 

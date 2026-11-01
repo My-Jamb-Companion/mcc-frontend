@@ -54,14 +54,14 @@ export function Copilot() {
         <Icon icon="ph:sparkle-fill" size={18} className="text-violet-600" />
         <h3 className="text-lg font-bold text-neutral-900">Copilot</h3>
       </div>
-      <p className="text-sm text-neutral-400 mt-0.5">
+      <p className="text-sm text-neutral-500 mt-0.5">
         Ask anything about the platform — grounded in real, live analytics.
       </p>
 
       <div className="mt-4 rounded-xl border border-gray-100 bg-gray-50/50 p-4">
         {messages.length === 0 && (
           <div className="space-y-3">
-            <p className="text-sm text-neutral-400">Try one of these to get started:</p>
+            <p className="text-sm text-neutral-500">Try one of these to get started:</p>
             <div className="flex flex-wrap gap-2">
               {STARTER_PROMPTS.map((prompt) => (
                 <button
@@ -90,7 +90,7 @@ export function Copilot() {
               >
                 <p>{message.text}</p>
                 {message.role === "copilot" && message.generated === false && (
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-500 mt-1">
                     AI is currently unavailable — this is a placeholder reply.
                   </p>
                 )}

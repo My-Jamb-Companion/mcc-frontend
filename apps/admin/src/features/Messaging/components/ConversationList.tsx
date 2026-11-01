@@ -27,7 +27,7 @@ export default function ConversationList({selectedId, onSelect}: {selectedId: st
     <div className="flex h-full min-h-0 flex-col">
       <div className="space-y-2 border-b border-neutral-100 p-3">
         <div className="relative">
-          <Icon icon="mdi:magnify" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+          <Icon icon="mdi:magnify" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -43,14 +43,14 @@ export default function ConversationList({selectedId, onSelect}: {selectedId: st
       </div>
 
       <ul className="min-h-0 flex-1 divide-y divide-neutral-100 overflow-y-auto">
-        {isPending && !isError && <li className="px-4 py-8 text-center text-sm text-neutral-400">Loading…</li>}
+        {isPending && !isError && <li className="px-4 py-8 text-center text-sm text-neutral-500">Loading…</li>}
         {isError && (
           <li className="px-4 py-8 text-center text-sm text-red-500">
             The inbox couldn&apos;t be loaded. <button type="button" onClick={() => void refetch()} className="font-semibold underline">Try again</button>
           </li>
         )}
         {data && data.items.length === 0 && (
-          <li className="px-4 py-10 text-center text-sm text-neutral-400">
+          <li className="px-4 py-10 text-center text-sm text-neutral-500">
             {q || unreadOnly ? "No conversations match." : "No conversations yet. Send a message to start one."}
           </li>
         )}
@@ -66,7 +66,7 @@ export default function ConversationList({selectedId, onSelect}: {selectedId: st
               >
                 <span className="flex items-center justify-between gap-2">
                   <span className={`truncate text-sm ${waiting ? "font-semibold text-neutral-900" : "font-medium text-neutral-800"}`}>{displayName(c)}</span>
-                  <span className="shrink-0 text-xs text-neutral-400">{listTime(c.last_at)}</span>
+                  <span className="shrink-0 text-xs text-neutral-500">{listTime(c.last_at)}</span>
                 </span>
                 <span className="flex items-center justify-between gap-2">
                   <span className={`truncate text-xs ${waiting ? "text-neutral-700" : "text-neutral-500"}`}>{previewLine(c)}</span>
@@ -76,7 +76,7 @@ export default function ConversationList({selectedId, onSelect}: {selectedId: st
                     </span>
                   )}
                 </span>
-                <span className="text-[11px] capitalize text-neutral-400">{c.role}</span>
+                <span className="text-[11px] capitalize text-neutral-500">{c.role}</span>
               </button>
             </li>
           );

@@ -55,7 +55,7 @@ export default function QuotePanel({
       <div className="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm">
         <h2 className="text-base font-bold text-neutral-900">Price in each tier</h2>
         <p className="mt-0.5 text-xs text-neutral-500">{formatLabel}</p>
-        <p className={`mt-3 text-sm ${message ? "text-amber-700" : "text-neutral-400"}`}>
+        <p className={`mt-3 text-sm ${message ? "text-amber-700" : "text-neutral-500"}`}>
           {loading ? "Working out prices…" : message ?? "Fill in the figures to see prices."}
         </p>
       </div>
@@ -74,7 +74,7 @@ export default function QuotePanel({
           <h2 className="text-base font-bold text-neutral-900">Price in each tier</h2>
           <p className="mt-0.5 text-xs text-neutral-500">{formatLabel}</p>
         </div>
-        <span className="text-xs text-neutral-400">
+        <span className="text-xs text-neutral-500">
           Parameters v{quote.parameter_version} · tiers r{quote.tier_revision}
         </span>
       </div>
@@ -103,7 +103,7 @@ export default function QuotePanel({
 
       <table className="mt-5 w-full text-left text-sm">
         <thead>
-          <tr className="text-xs uppercase tracking-wide text-neutral-400">
+          <tr className="text-xs uppercase tracking-wide text-neutral-500">
             <th className="pb-2 font-medium">Tier</th>
             <th className="pb-2 text-right font-medium">Student pays</th>
             <th className="pb-2 text-right font-medium">vs today</th>
@@ -118,13 +118,13 @@ export default function QuotePanel({
                 className={`cursor-pointer border-t border-neutral-100 ${active ? "bg-violet-50/60" : "hover:bg-neutral-50"}`}>
                 <td className="py-2 pl-1">
                   <span className="font-medium text-neutral-900">{t.name}</span>
-                  <span className="ml-1.5 text-xs text-neutral-400">×{Number(t.multiplier)}{t.is_default ? " · default" : ""}</span>
+                  <span className="ml-1.5 text-xs text-neutral-500">×{Number(t.multiplier)}{t.is_default ? " · default" : ""}</span>
                 </td>
                 <td className={`py-2 text-right font-semibold tabular-nums ${t.above_market_ceiling ? "text-red-600" : "text-neutral-900"}`}>
                   {naira(t.student_pays)}
                   {t.above_market_ceiling && <span className="sr-only"> (above the market ceiling)</span>}
                 </td>
-                <td className={`py-2 pr-1 text-right text-xs tabular-nums ${diff === null ? "text-neutral-400" : diff >= 0 ? "text-neutral-600" : "text-amber-700"}`}>
+                <td className={`py-2 pr-1 text-right text-xs tabular-nums ${diff === null ? "text-neutral-500" : diff >= 0 ? "text-neutral-600" : "text-amber-700"}`}>
                   {diff === null ? "—" : `${diff >= 0 ? "+" : "−"}${Math.abs(diff * 100).toFixed(0)}%`}
                 </td>
               </tr>
@@ -132,7 +132,7 @@ export default function QuotePanel({
           })}
         </tbody>
       </table>
-      <p className="mt-1 text-xs text-neutral-400">
+      <p className="mt-1 text-xs text-neutral-500">
         &ldquo;vs today&rdquo; compares with the flat {currentPrice > 0 ? naira(currentPrice) : "price"} charged now.
         {weighted < 1 && ` Tier discounts are unfunded (weighted multiplier ${Number(weighted.toFixed(4))}).`}
       </p>
@@ -158,13 +158,13 @@ export default function QuotePanel({
                 {g.label}
               </span>
               <span className="tabular-nums text-neutral-900">
-                {naira(parts[g.key])} <span className="text-xs text-neutral-400">{total > 0 ? pct(parts[g.key] / total) : ""}</span>
+                {naira(parts[g.key])} <span className="text-xs text-neutral-500">{total > 0 ? pct(parts[g.key] / total) : ""}</span>
               </span>
             </li>
           ))}
         </ul>
         {Number(tier.breakdown.income_tax_provision) > 0 && (
-          <p className="mt-2 text-xs text-neutral-400">
+          <p className="mt-2 text-xs text-neutral-500">
             {naira(tier.breakdown.income_tax_provision)} of the profit is set aside for company tax.
           </p>
         )}
@@ -178,7 +178,7 @@ function Figure({label, value, note}: {label: string; value: string; note?: stri
     <div>
       <dt className="text-xs text-neutral-500">{label}</dt>
       <dd className="font-semibold tabular-nums text-neutral-900">{value}</dd>
-      {note && <p className="text-[11px] text-neutral-400">{note}</p>}
+      {note && <p className="text-[11px] text-neutral-500">{note}</p>}
     </div>
   );
 }

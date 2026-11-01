@@ -10,6 +10,7 @@ import {
   getWalletTransactions,
   purchaseGems,
   unlockCourseWithGems,
+  unlockProgramWithGems,
 } from "../services/wallet.service";
 
 export const useWalletBalance = () =>
@@ -62,6 +63,19 @@ export const useUnlockCourseWithGems = () => {
     onSuccess: () => {
       refresh();
       queryClient.invalidateQueries({queryKey: ["courses"]});
+    },
+  });
+};
+
+export const useUnlockProgramWithGems = () => {
+  const refresh = useRefreshBalances();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({programId, liveFormat}: {programId: string; liveFormat?: "self_paced"}) =>
+      unlockProgramWithGems(programId, liveFormat),
+    onSuccess: () => {
+      refresh();
+      queryClient.invalidateQueries({queryKey: ["exam-programs"]});
     },
   });
 };

@@ -29,13 +29,13 @@ export const AtRiskStudents: React.FC = () => {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-12">
           <div className="flex flex-col">
-            <span className="font-mono text-xs text-gray-400">Active students</span>
+            <span className="font-mono text-xs text-gray-500">Active students</span>
             <span className="mt-1 text-2xl font-bold text-gray-900">
               {isLoading ? "…" : data?.total_active_students ?? 0}
             </span>
           </div>
           <div className="flex flex-col">
-            <span className="font-mono text-xs text-gray-400">At risk</span>
+            <span className="font-mono text-xs text-gray-500">At risk</span>
             <span className="mt-1 text-2xl font-bold text-rose-600">
               {isLoading ? "…" : data?.at_risk_count ?? 0}
             </span>
@@ -54,9 +54,9 @@ export const AtRiskStudents: React.FC = () => {
       </div>
 
       <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white">
-        {isLoading && <p className="p-8 text-sm text-gray-400">Loading…</p>}
+        {isLoading && <p className="p-8 text-sm text-gray-500">Loading…</p>}
         {data && data.items.length === 0 && (
-          <p className="p-8 text-sm text-gray-400">No students inactive for {days}+ days.</p>
+          <p className="p-8 text-sm text-gray-500">No students inactive for {days}+ days.</p>
         )}
         {data && data.items.length > 0 && (
           <ul className="divide-y divide-gray-100">
@@ -68,14 +68,14 @@ export const AtRiskStudents: React.FC = () => {
                     <p className="text-sm font-semibold text-gray-900 truncate">
                       {student.full_name || student.email}
                     </p>
-                    <p className="text-xs text-gray-400 truncate">{student.email}</p>
+                    <p className="text-xs text-gray-500 truncate">{student.email}</p>
                   </div>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-medium text-gray-700">
                     {daysInactive(student.last_activity_at)} days inactive
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-500">
                     Last active {formatWhen(student.last_activity_at)}
                   </p>
                 </div>

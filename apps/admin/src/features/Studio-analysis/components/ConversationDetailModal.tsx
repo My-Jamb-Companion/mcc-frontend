@@ -35,7 +35,7 @@ export default function ConversationDetailModal({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors shrink-0"
+            className="rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-600 transition-colors shrink-0"
           >
             <Icon icon="lucide:x" size={18} />
           </button>
@@ -59,7 +59,7 @@ export default function ConversationDetailModal({
                     {message.ai_response}
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-[11px] text-gray-400">
+                <div className="flex items-center gap-2 text-[11px] text-gray-500">
                   <Icon icon="lucide:clock" size={12} />
                   {formatDateTime(message.timestamp)}
                   {message.total_tokens != null && (

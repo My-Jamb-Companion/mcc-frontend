@@ -209,7 +209,7 @@ function MockPaperEditor({programId, paperId, pool, onClose}: {
         <label className="flex flex-col gap-1">
           <span className="text-sm font-medium text-gray-700">Time allowed (minutes)</span>
           <input type="number" min={1} max={360} value={form.duration} onChange={(e) => set("duration", e.target.value)} className={inputClass} />
-          <span className="text-xs text-gray-400">The server keeps the clock; the exam is submitted for the student when it runs out.</span>
+          <span className="text-xs text-gray-500">The server keeps the clock; the exam is submitted for the student when it runs out.</span>
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-sm font-medium text-gray-700">Pass mark (%)</span>
@@ -280,7 +280,7 @@ function MockPaperEditor({programId, paperId, pool, onClose}: {
               <label className="flex flex-col gap-1">
                 <span className="text-sm font-medium text-gray-700">Questions per attempt</span>
                 <input type="number" min={1} max={300} value={form.questionCount} onChange={(e) => set("questionCount", e.target.value)} className={`${inputClass} w-32`} />
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-gray-500">
                   {form.poolSource === "program"
                     ? "Spread across the program's modules in proportion to how many questions each has."
                     : "Picked at random from the pool each attempt, so add more questions than this."}

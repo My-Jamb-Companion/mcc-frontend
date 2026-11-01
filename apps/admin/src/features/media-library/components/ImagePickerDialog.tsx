@@ -180,7 +180,7 @@ export default function ImagePickerDialog({open, uploading, onClose, onPick, onU
                             </span>
                             <span className="flex flex-col px-2 py-1.5">
                               <span className="truncate text-xs font-medium text-gray-800">{image.name}</span>
-                              <span className="truncate text-[11px] text-gray-400">{formatSize(image.size_bytes)} · {formatUploaded(image.uploaded_at)}</span>
+                              <span className="truncate text-[11px] text-gray-500">{formatSize(image.size_bytes)} · {formatUploaded(image.uploaded_at)}</span>
                             </span>
                           </button>
                         </li>

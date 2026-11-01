@@ -70,17 +70,17 @@ export function CustomSelect({
           onClick={() => setOpen((o) => !o)}
           className={`w-full flex items-center justify-between px-3.5 py-2.5 text-sm border rounded-${selectRadius} bg-white dark:bg-hint dark:border-0 dark:text-white outline-none focus:ring-2 ring-primary/50 focus:ring-primary/30
           ${open ? " border-zinc-300 shadow-md" : " border-zinc-200"}
-          ${(mode === "date" ? value : selected) ? "text-zinc-900" : "text-zinc-400"}
+          ${(mode === "date" ? value : selected) ? "text-zinc-900" : "text-zinc-500"}
           ${className}`}
         >
           <span className="flex items-center gap-2.5">
-            {icon && <Icon icon={icon} size={16} className="text-zinc-400" />}
+            {icon && <Icon icon={icon} size={16} className="text-zinc-500" />}
             {triggerLabel}
           </span>
           <Icon
             icon="line-md:chevron-up"
             size={15}
-            className={`text-zinc-400 transition-transform duration-200 ${open ? "" : "rotate-180"}`}
+            className={`text-zinc-500 transition-transform duration-200 ${open ? "" : "rotate-180"}`}
           />
         </button>
       </div>
@@ -159,7 +159,7 @@ export function CustomSelect({
               {WEEKDAYS.map((wd) => (
                 <span
                   key={wd}
-                  className="text-xs text-zinc-400 dark:text-zinc-500 py-1"
+                  className="text-xs text-zinc-500 dark:text-zinc-500 py-1"
                 >
                   {wd}
                 </span>
@@ -180,7 +180,7 @@ export function CustomSelect({
                       setOpen(false);
                     }}
                     className={`text-sm rounded-md py-1.5 transition-colors
-                      ${inMonth ? "text-zinc-800 dark:text-white" : "text-zinc-300 dark:text-zinc-600"}
+                      ${inMonth ? "text-zinc-800 dark:text-white" : "text-zinc-500 dark:text-zinc-600"}
                       ${isSelected ? "bg-primary text-white" : "hover:bg-zinc-50 dark:hover:bg-muted/80"}
                       ${isToday && !isSelected ? "ring-1 ring-primary/40" : ""}`}
                   >

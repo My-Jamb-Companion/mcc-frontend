@@ -283,7 +283,7 @@ function QuestionCard({
                     onDrop={handleOptionDrop}
                     className="flex items-center gap-4 group"
                   >
-                    <div className="option-drag-handle cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+                    <div className="option-drag-handle cursor-grab active:cursor-grabbing text-gray-500 hover:text-gray-600">
                       <Icon icon="lucide:grip-vertical" size={18} />
                     </div>
 
@@ -317,7 +317,7 @@ function QuestionCard({
                         updateField("options", newOptions);
                       }}
                       aria-label={`Remove option ${letter}`}
-                      className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 transition-opacity"
+                      className="opacity-0 group-hover:opacity-100 p-2 text-gray-500 hover:text-red-500 transition-opacity"
                     >
                       <Icon icon="lucide:x" size={16} />
                     </button>

@@ -50,16 +50,16 @@ export default function LocationAudit() {
       }
     >
       {!open ? null : isLoading ? (
-        <p className="text-sm text-neutral-400">Loading…</p>
+        <p className="text-sm text-neutral-500">Loading…</p>
       ) : !data?.length ? (
-        <p className="text-sm text-neutral-400">No changes recorded yet.</p>
+        <p className="text-sm text-neutral-500">No changes recorded yet.</p>
       ) : (
         <ul className="divide-y divide-neutral-100">
           {data.map((e) => (
             <li key={e.audit_id} className="py-3">
               <p className="text-sm text-neutral-900">{describe(e)}</p>
               {e.reason && <p className="mt-0.5 text-sm text-neutral-600 break-words">&ldquo;{e.reason}&rdquo;</p>}
-              <p className="mt-0.5 text-xs text-neutral-400">{e.actor_name ?? "Unknown admin"} · {when(e.created_at)}</p>
+              <p className="mt-0.5 text-xs text-neutral-500">{e.actor_name ?? "Unknown admin"} · {when(e.created_at)}</p>
             </li>
           ))}
         </ul>

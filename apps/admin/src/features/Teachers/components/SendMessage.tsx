@@ -46,13 +46,13 @@ function TeacherSelect({
         onClick={() => setOpen((prev) => !prev)}
         className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-left"
       >
-        <span className={value ? "text-gray-900" : "text-gray-400"}>
+        <span className={value ? "text-gray-900" : "text-gray-500"}>
           {value ? value.name : "Select teacher"}
         </span>
         <Icon
           icon="mdi:chevron-down"
           size={16}
-          className={`text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`text-gray-500 transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -84,7 +84,7 @@ function TeacherSelect({
               </li>
             ))}
             {results.length === 0 && (
-              <li className="px-4 py-2.5 text-sm text-gray-400">
+              <li className="px-4 py-2.5 text-sm text-gray-500">
                 No teachers found
               </li>
             )}
@@ -210,7 +210,7 @@ export default function SendMessage({
               )}
 
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400">Step {step} of 2</span>
+                <span className="text-xs text-gray-500">Step {step} of 2</span>
                 <div className="w-24 h-1.5 rounded-full bg-gray-200 overflow-hidden">
                   <div
                     className="h-full bg-violet-600 rounded-full transition-all duration-300"
@@ -233,7 +233,7 @@ export default function SendMessage({
               <label className="text-sm font-medium text-gray-900 block mb-2">
                 Message{" "}
                 {teacher ? (
-                  <span className="text-gray-400 font-normal">
+                  <span className="text-gray-500 font-normal">
                     to {teacher.name}
                   </span>
                 ) : null}

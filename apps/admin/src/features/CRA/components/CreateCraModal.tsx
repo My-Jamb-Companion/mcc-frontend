@@ -80,7 +80,7 @@ export default function CreateCraModal({
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
-            Phone number <span className="text-gray-400">(optional)</span>
+            Phone number <span className="text-gray-500">(optional)</span>
           </label>
           <input
             value={phone}

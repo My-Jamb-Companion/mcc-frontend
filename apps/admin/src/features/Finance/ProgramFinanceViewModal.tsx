@@ -19,7 +19,7 @@ export default function ProgramFinanceViewModal({
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
           <button
             onClick={onClose}
-            className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+            className="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-600 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -103,7 +103,7 @@ function ProgramDetailCard({
             <p className="mt-1 text-2xl font-extrabold text-neutral-900">
               {formatCurrency(revenuePrimary)}
             </p>
-            <p className="mt-0.5 text-sm font-semibold text-neutral-400">
+            <p className="mt-0.5 text-sm font-semibold text-neutral-500">
               {formatCurrency(revenueSecondary)}
             </p>
           </div>
@@ -120,7 +120,7 @@ function ProgramDetailCard({
         </h3>
 
         {teachers.length === 0 ? (
-          <p className="mt-3 text-sm text-neutral-400">No teacher assigned.</p>
+          <p className="mt-3 text-sm text-neutral-500">No teacher assigned.</p>
         ) : (
           <div className="mt-4 grid grid-cols-2 gap-y-4 gap-x-6">
             {teachers.map((teacher) => (
@@ -139,7 +139,7 @@ function ProgramDetailCard({
                     {teacher.name}
                   </span>
                   {teacher.roleOrEmail && (
-                    <span className="truncate text-xs font-medium text-neutral-400">
+                    <span className="truncate text-xs font-medium text-neutral-500">
                       {teacher.roleOrEmail}
                     </span>
                   )}

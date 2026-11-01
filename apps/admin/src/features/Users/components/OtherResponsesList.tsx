@@ -26,18 +26,18 @@ export default function OtherResponsesList({title, items, isLoading}: OtherRespo
       <h3 className="mb-4 text-lg font-semibold text-neutral-900">{title}</h3>
 
       {isLoading ? (
-        <p className="py-8 text-center text-sm text-slate-400">Loading…</p>
+        <p className="py-8 text-center text-sm text-slate-500">Loading…</p>
       ) : items.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-8 text-center">
-          <Icon icon="ri:chat-quote-line" size={24} className="text-neutral-300" />
-          <p className="text-sm text-slate-400">No &ldquo;Others&rdquo; responses yet.</p>
+          <Icon icon="ri:chat-quote-line" size={24} className="text-neutral-500" />
+          <p className="text-sm text-slate-500">No &ldquo;Others&rdquo; responses yet.</p>
         </div>
       ) : (
         <ul className="divide-y divide-neutral-100">
           {items.map((item) => (
             <li key={`${item.user_id}-${item.created_at}`} className="flex flex-col gap-1 py-3">
               <p className="text-sm text-neutral-800">&ldquo;{item.text}&rdquo;</p>
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-neutral-500">
                 {item.full_name || item.email} &middot; {formatDate(item.created_at)}
               </p>
             </li>
