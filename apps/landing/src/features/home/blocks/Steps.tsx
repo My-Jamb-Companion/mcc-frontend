@@ -20,7 +20,7 @@ function Scene({ step, active }: { step: number; active: boolean }) {
           <span style={{ fontWeight: 700, fontSize: 13 }}>Create your account</span>
           <span style={{ padding: "8px 10px", borderRadius: 8, border: "1.5px solid #E7E2F3", color: "#404040" }}>Tolu Adeyemi</span>
           <span style={{ padding: "8px 10px", borderRadius: 8, border: "1.5px solid #6B26FF", color: "#404040" }}>+234 801 •••• •••</span>
-          <span style={{ padding: "8px 10px", borderRadius: 8, background: "#6717DE", color: "#fff", fontWeight: 700 }}>Get started free</span>
+          <span style={{ padding: "8px 10px", borderRadius: 8, background: "#6717DE", color: "#fff", fontWeight: 700 }}>Get Started for Free</span>
         </div>
         <span style={{ ...badge, right: 12, top: 14, background: "#E9F8EF", color: "#13703D", ...FLOAT(4) }}>No card needed</span>
       </div>

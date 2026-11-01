@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { list, str } from "@mcc/landing-content";
 import type { FieldData } from "@mcc/landing-content";
-import { A, DISPLAY, Eyebrow, Lead } from "../ui";
+import { A, DISPLAY, Eyebrow, FRAME, Lead } from "../ui";
 
 /** The sample test the phone plays. Illustration only: three real-looking questions. */
 const QUESTIONS = [
@@ -90,7 +90,7 @@ function QuizPhone({ ctaLabel, ctaHref }: { ctaLabel: string; ctaHref: string })
   };
 
   return (
-    <div ref={root} style={{ position: "relative", width: 300, maxWidth: "92%", height: 600, borderRadius: 44, background: "#0A0A0A", padding: 9, boxShadow: "0 30px 60px -24px rgba(60,20,140,.5)" }}>
+    <div ref={root} style={{ position: "relative", width: 300, maxWidth: "92%", height: 600, borderRadius: 44, ...FRAME, padding: 9, boxShadow: "0 30px 60px -24px rgba(60,20,140,.5)" }}>
       <div style={{ position: "relative", height: "100%", borderRadius: 36, background: "#fff", overflow: "hidden", fontSize: 13, display: "flex", flexDirection: "column" }}>
         {phase === "quiz" && (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "20px 14px 16px", gap: 12 }}>
@@ -209,7 +209,7 @@ export function Practice({ data, blockId }: { data: FieldData; blockId: string }
         <div style={{ flex: "1 1 420px", minWidth: 0, display: "flex", justifyContent: "center" }}>
           <div style={{ position: "relative", width: "100%", maxWidth: 460, display: "flex", justifyContent: "center", padding: "10px 0 40px" }}>
             <div aria-hidden="true" style={{ position: "absolute", inset: "6% 4% 12%", borderRadius: 40, background: "#F4EFFF", transform: "rotate(-4deg)" }} />
-            <QuizPhone ctaLabel={str(data, "cta_label") || "Get the full mock free"} ctaHref={str(data, "cta_href") || "/signup"} />
+            <QuizPhone ctaLabel={str(data, "cta_label") || "Get the full mock free"} ctaHref={str(data, "cta_href") || "/go/learner/signup"} />
             <div aria-hidden="true" style={{ position: "absolute", left: 0, bottom: 0, display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 16, background: "#fff", boxShadow: "0 18px 36px -16px rgba(40,10,100,.4)", fontSize: 13, animation: "slhqFloat 5s ease-in-out infinite" }}>
               <span style={{ width: 40, height: 40, borderRadius: "50%", background: "conic-gradient(#6B26FF 0 60%,#EEE8FB 60% 100%)", display: "grid", placeItems: "center" }}><span style={{ width: 28, height: 28, borderRadius: "50%", background: "#fff" }} /></span>
               <span><span style={{ display: "block", fontWeight: 700 }}>Module 3 test</span><span style={{ display: "block", color: "#5C5C5C", fontSize: 12 }}>Pass mark 60%</span></span>
