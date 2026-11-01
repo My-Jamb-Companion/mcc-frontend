@@ -1,6 +1,6 @@
 "use client";
 
-import {useMemo, useState} from "react";
+import {useMemo, useRef, useState} from "react";
 import BannerCarousel from "@/src/features/components/BannerCarousel";
 import CourseCard from "@/src/features/components/CourseCard";
 import CourseCardSkeleton from "@/src/features/components/CourseCardSkeleton";
@@ -13,6 +13,7 @@ import {usePrograms} from "@/src/features/exams/hooks/useExams";
 import {fromApiExamProgram} from "@/src/features/exams/helper/exam.mapper";
 import DiscoverCourses from "@/src/features/brainy/components/DiscoverCourses";
 import RecTopics from "@/src/features/dashboard/components/RecTopics";
+import {useTopics} from "@/src/features/explore/hooks/useTopics";
 import DiscoveryFilters, {SelectOption} from "@/src/features/learnings/components/DiscoveryFilters";
 import {COURSE_LEVEL_OPTIONS, EXAM_LEVEL_OPTIONS} from "@/src/features/learnings/constants/levelOptions";
 import {useDebouncedValue} from "@/src/features/learnings/hooks/useDebouncedValue";
@@ -53,6 +54,13 @@ export default function Explore() {
   const [courseCategory, setCourseCategory] = useState("");
   const [courseLevel, setCourseLevel] = useState("");
   const courseSearch = useDebouncedValue(courseSearchInput);
+  const {data: topics = []} = useTopics();
+  const browseCoursesRef = useRef<HTMLDivElement>(null);
+  // Picking a topic filters the course list below and takes the reader to it.
+  const pickTopic = (topic: {category_id: string}) => {
+    setCourseCategory((current) => (current === topic.category_id ? "" : topic.category_id));
+    browseCoursesRef.current?.scrollIntoView({behavior: "smooth", block: "start"});
+  };
   const courseFiltersActive = !!(courseSearch || courseCategory || courseLevel);
   const {courses: filteredCourses, isLoading: filteredCoursesLoading} = useCourses({
     search: courseSearch || undefined,
@@ -92,7 +100,7 @@ export default function Explore() {
 
       <DiscoverCourses />
 
-      <RecTopics />
+      <RecTopics topics={topics} selectedId={courseCategory} onSelect={pickTopic} />
 
       <ScrollRow
         variant="card"
@@ -107,7 +115,7 @@ export default function Explore() {
         ))}
       </ScrollRow>
 
-      <div className="flex flex-col gap-4 pt-4">
+      <div ref={browseCoursesRef} className="flex flex-col gap-4 pt-4 scroll-mt-4">
         <h2 className="text-lg font-semibold">Browse all courses</h2>
         <DiscoveryFilters
           search={courseSearchInput}
