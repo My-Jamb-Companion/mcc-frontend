@@ -1,11 +1,11 @@
 import { list, str } from "@mcc/landing-content";
 import type { FieldData } from "@mcc/landing-content";
-import { A, Button, DISPLAY, Lead, H2 } from "../ui";
+import { A, Button, DISPLAY, FRAME, Lead, H2 } from "../ui";
 
 function ParentPhone() {
   const bars = [40, 70, 55, 90, 30, 65, 20];
   return (
-    <div style={{ position: "relative", width: "min(290px,88%)", borderRadius: 44, background: "#0A0A0A", padding: 9, boxShadow: "0 30px 60px -24px rgba(60,20,140,.45)" }} aria-hidden="true">
+    <div style={{ position: "relative", width: "min(290px,88%)", borderRadius: 44, ...FRAME, padding: 9, boxShadow: "0 30px 60px -24px rgba(60,20,140,.45)" }} aria-hidden="true">
       <div style={{ borderRadius: 36, background: "#fff", overflow: "hidden", display: "flex", flexDirection: "column", fontSize: 13, padding: "20px 14px 16px", gap: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".08em", color: "#6717DE" }}>PARENT APP</span><span style={{ fontSize: 11, color: "#5C5C5C" }}>This week</span></div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

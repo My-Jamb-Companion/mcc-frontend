@@ -1,6 +1,6 @@
 "use client";
 
-import { DISPLAY } from "../ui";
+import { DISPLAY, FRAME } from "../ui";
 import { useCycle } from "../hooks/useCycle";
 
 const SCREEN_LABELS = ["Show home screen", "Show flashcards", "Show quiz"];
@@ -32,11 +32,11 @@ export function HeroPhone() {
   const { index, pick } = useCycle(3, 3200);
   return (
     <div className="mcc-hero-phone" style={{ position: "absolute", left: 0, bottom: 0 }}>
-      <div style={{ position: "relative", width: 230, height: 476, borderRadius: 38, background: "#0A0A0A", padding: 8, boxShadow: "0 40px 70px -28px rgba(60,20,140,.6)" }}>
+      <div style={{ position: "relative", width: 230, height: 476, borderRadius: 38, ...FRAME, padding: 8, boxShadow: "0 40px 70px -28px rgba(60,20,140,.6)" }}>
         <div style={{ position: "relative", height: "100%", borderRadius: 30, background: "#FAF8FF", overflow: "hidden", fontSize: 12, color: "#171717" }}>
           <Screen on={index === 0}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 18px 2px", fontSize: 11, fontWeight: 700 }}>
-              <span>9:41</span><span style={{ width: 60, height: 18, borderRadius: 10, background: "#0A0A0A" }} /><span>4G</span>
+              <span>9:41</span><span>4G</span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px 4px" }}>
               <div>

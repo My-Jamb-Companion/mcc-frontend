@@ -116,11 +116,16 @@ export function Intro({ eyebrow, headline, body, maxWidth = 640 }: { eyebrow?: s
   );
 }
 
-/** The dark phone frame the app mockups sit in. */
-export function Phone({ width, children, radius = 44, shadow = "0 30px 60px -24px rgba(60,20,140,.45)", background = "#0A0A0A", pad = 9, style }: {
-  width: string; children: ReactNode; radius?: number; shadow?: string; background?: string; pad?: number; style?: CSSProperties;
+/**
+ * The frame the mobile views sit in: a light grey edge, not a black bezel, so they read as the app on a phone-sized
+ * screen rather than as a phone mock-up.
+ */
+export const FRAME = { background: "#F1F1F5", border: "1px solid #D9D9E1" } as const;
+
+export function Phone({ width, children, radius = 44, shadow = "0 30px 60px -24px rgba(60,20,140,.45)", pad = 9, style }: {
+  width: string; children: ReactNode; radius?: number; shadow?: string; pad?: number; style?: CSSProperties;
 }) {
-  return <div style={{ position: "relative", width, borderRadius: radius, background, padding: pad, boxShadow: shadow, ...style }}>{children}</div>;
+  return <div style={{ position: "relative", width, borderRadius: radius, ...FRAME, padding: pad, boxShadow: shadow, ...style }}>{children}</div>;
 }
 
 export const Pill = ({ children, style }: { children: ReactNode; style?: CSSProperties }) => (
