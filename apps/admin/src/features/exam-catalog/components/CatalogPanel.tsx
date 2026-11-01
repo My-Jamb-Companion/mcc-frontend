@@ -84,7 +84,7 @@ export default function CatalogPanel({kind}: {kind: CatalogKind}) {
     <div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
             placeholder="Search"
@@ -105,13 +105,13 @@ export default function CatalogPanel({kind}: {kind: CatalogKind}) {
       </div>
 
       {isLoading ? (
-        <p className="py-10 text-center text-sm text-slate-400">Loading {labels.plural.toLowerCase()}…</p>
+        <p className="py-10 text-center text-sm text-slate-500">Loading {labels.plural.toLowerCase()}…</p>
       ) : isError ? (
         <p className="py-10 text-center text-sm text-red-600">
           Couldn&apos;t load {labels.plural.toLowerCase()}. Please refresh.
         </p>
       ) : filtered.length === 0 ? (
-        <p className="py-10 text-center text-sm text-slate-400">
+        <p className="py-10 text-center text-sm text-slate-500">
           {items.length === 0 ? `No ${labels.plural.toLowerCase()} yet.` : `No ${labels.plural.toLowerCase()} match.`}
         </p>
       ) : (

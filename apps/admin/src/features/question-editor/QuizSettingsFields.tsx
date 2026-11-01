@@ -57,7 +57,7 @@ export default function QuizSettingsFields({
             </button>
           ))}
         </div>
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-gray-500">
           The student&apos;s {noun} shows a countdown with a tick in the last 10 seconds and an alarm at zero, and is
           submitted automatically when time runs out.
         </span>
@@ -75,7 +75,7 @@ export default function QuizSettingsFields({
           placeholder="Optional: no pass/fail if empty"
           className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-400"
         />
-        <span className="text-xs text-gray-400">Students see Passed or Not passed against this mark.</span>
+        <span className="text-xs text-gray-500">Students see Passed or Not passed against this mark.</span>
       </label>
       )}
     </div>

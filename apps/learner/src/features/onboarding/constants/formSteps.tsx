@@ -133,7 +133,7 @@ export const formSteps: FormSteps = [
       {
         value: "brainy",
         label: "Study with brainy",
-        icon: "mingcute:ai-fill",
+        icon: "brainy",
       },
       {
         value: "skill",

@@ -76,7 +76,7 @@ export default function ConversationThread({userId, onBack}: {userId: string; on
       </div>
 
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4" aria-live="polite">
-        {isPending && !isError && <p className="py-10 text-center text-sm text-neutral-400">Loading…</p>}
+        {isPending && !isError && <p className="py-10 text-center text-sm text-neutral-500">Loading…</p>}
         {isError && (
           <p className="py-10 text-center text-sm text-red-500">
             This conversation couldn&apos;t be loaded.{" "}

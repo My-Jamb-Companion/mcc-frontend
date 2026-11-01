@@ -61,7 +61,7 @@ export default function EditCategoryModal({
               className="h-4 w-4 rounded border-gray-300 text-violet-600 focus:ring-violet-400"
             />
             Active
-            <span className="font-normal text-gray-400">
+            <span className="font-normal text-gray-500">
               (inactive categories no longer appear as a choice when creating a course or exam program)
             </span>
           </label>

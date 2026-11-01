@@ -17,7 +17,7 @@ export const Overview: React.FC = () => {
       <div className="w-full rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
           <div className="flex flex-col items-center justify-center text-center md:col-span-5">
-            <span className="font-mono text-sm tracking-wide text-gray-400">
+            <span className="font-mono text-sm tracking-wide text-gray-500">
               Total Users
             </span>
             <span className="mt-2 text-6xl font-bold tracking-tight text-gray-900">

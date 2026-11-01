@@ -1,7 +1,7 @@
 "use client";
 
 import {useEffect, useMemo, useRef, useState} from "react";
-import {AnimatePresence, motion, Variants, Icon, confettiCelebrate, showError} from "@mcc/ui";
+import {AnimatePresence, motion, Variants, Icon, confettiCelebrate, showError, BrainyMark} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import {shuffleArray} from "@/src/features/learnings/helper/helper";
 import {ApiModuleGradedAnswer, ApiModuleQuestion, ApiModuleQuizResult} from "@/src/features/learnings/services/moduleQuiz.service";
@@ -529,7 +529,7 @@ export function CoursePractice({
                     disabled={questionHelp.isPending}
                     className="flex items-center justify-center gap-1.5 border rounded-full text-sm font-semibold text-primary border-primary/40 disabled:opacity-50 px-5 py-2.5 transition-all cursor-pointer hover:bg-primary/5"
                   >
-                    <Icon icon="mingcute:ai-fill" className="h-3.5 w-3.5" />
+                    <BrainyMark size={18} />
                     {questionHelp.isPending ? "Asking Brainy…" : "Explain this"}
                   </motion.button>
                 )}
@@ -612,7 +612,7 @@ export function CoursePractice({
                 >
                   <motion.div layout className="p-6">
                     <p className="flex items-center gap-1.5 text-sm font-semibold text-primary mb-1">
-                      <Icon icon="mingcute:ai-fill" className="h-3.5 w-3.5" />
+                      <BrainyMark size={18} />
                       Brainy explains
                     </p>
                     <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -819,7 +819,7 @@ function QuizResults({
           {feedback ? (
             <div className="rounded-2xl bg-primary/5 p-5 text-left">
               <p className="flex items-center gap-1.5 text-sm font-semibold text-primary mb-1">
-                <Icon icon="mingcute:ai-fill" className="h-3.5 w-3.5" />
+                <BrainyMark size={18} />
                 Brainy&apos;s feedback
               </p>
               <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{feedback}</p>
@@ -833,7 +833,7 @@ function QuizResults({
               disabled={analysis.isPending}
               className="flex items-center justify-center gap-1.5 mx-auto rounded-full border border-primary/40 px-5 py-2.5 text-sm font-semibold text-primary disabled:opacity-50 cursor-pointer hover:bg-primary/5"
             >
-              <Icon icon="mingcute:ai-fill" className="h-3.5 w-3.5" />
+              <BrainyMark size={18} />
               {analysis.isPending ? "Asking Brainy…" : "Get AI feedback"}
             </motion.button>
           )}

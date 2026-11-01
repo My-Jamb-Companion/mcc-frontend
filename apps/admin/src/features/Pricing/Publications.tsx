@@ -52,7 +52,7 @@ export default function Publications() {
 
         <div className="mt-4">
           {isLoading ? (
-            <p className="text-sm text-neutral-400">Loading publications…</p>
+            <p className="text-sm text-neutral-500">Loading publications…</p>
           ) : isError ? (
             <p className="text-sm text-red-600">
               {pricingErrorMessage(error, "Couldn't load publications.")}{" "}

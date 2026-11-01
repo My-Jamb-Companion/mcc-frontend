@@ -1,6 +1,6 @@
 "use client";
 import {useMemo, useState} from "react";
-import {Icon, showError} from "@mcc/ui";
+import {Icon, showError, BrainyMark} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import {useQuestionHelp} from "@/src/features/brainy/hooks/useAiFeedback";
 import PointsEarnedCard from "@/src/features/rewards/components/PointsEarnedCard";
@@ -191,7 +191,7 @@ function ReviewItem({row, number, samePassageAsAbove}: {row: ApiMockResult["resu
       {explained ? (
         <p className="mt-3 rounded-xl bg-primary/5 p-3 text-sm leading-relaxed text-subtle">
           <span className="mb-1 flex items-center gap-1.5 font-semibold text-primary">
-            <Icon icon="mingcute:ai-fill" size={14} />
+            <BrainyMark size={18} />
             Brainy explains
           </span>
           {explained}
@@ -199,7 +199,7 @@ function ReviewItem({row, number, samePassageAsAbove}: {row: ApiMockResult["resu
       ) : (
         <button type="button" onClick={explain} disabled={help.isPending}
           className="mt-3 flex items-center gap-1.5 rounded-full border border-primary/40 px-4 py-1.5 text-xs font-semibold text-primary disabled:opacity-50">
-          <Icon icon="mingcute:ai-fill" size={13} />
+          <BrainyMark size={18} />
           {help.isPending ? "Asking Brainy…" : "Explain this"}
         </button>
       )}

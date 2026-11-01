@@ -114,7 +114,7 @@ function SymbolPicker({onInsert}: {onInsert: (symbol: string) => void}) {
             >
               {SYMBOL_GROUPS.map((group) => (
                 <div key={group.label} className="mb-2 last:mb-0">
-                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
                     {group.label}
                   </p>
                   <div className="flex flex-wrap gap-1">
@@ -284,7 +284,7 @@ export default function LessonHtmlEditor({
       <div className="flex items-center gap-2 border-t border-gray-100 bg-gray-50/60 px-3 py-2">
         <SymbolPicker onInsert={insertSymbol} />
         {uploadingImage && (
-          <span className="flex items-center gap-1.5 text-xs text-gray-400">
+          <span className="flex items-center gap-1.5 text-xs text-gray-500">
             <Icon icon="lucide:loader-2" size={12} className="animate-spin" />
             Uploading image…
           </span>

@@ -120,7 +120,7 @@ export default function OverheadLinesEditor({
                         type="button"
                         onClick={() => onChange(lines.filter((l) => l.key !== line.key))}
                         aria-label={`Remove cost ${index + 1}`}
-                        className="rounded-full p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-red-600"
+                        className="rounded-full p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-red-600"
                       >
                         <Icon icon="ph:trash" size={16} />
                       </button>

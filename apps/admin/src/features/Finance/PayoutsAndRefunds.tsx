@@ -91,7 +91,7 @@ function PayoutRow({ payout }: { payout: ApiPayoutRequest }) {
     <div className="flex items-center justify-between py-4 gap-4">
       <div className="min-w-0">
         <div className="text-sm font-semibold text-neutral-900">{formatCurrency(payout.amount)}</div>
-        <div className="text-xs text-neutral-400 mt-0.5">
+        <div className="text-xs text-neutral-500 mt-0.5">
           Teacher {payout.teacher_id.slice(0, 8)}… · {formatWhen(payout.requested_at)}
         </div>
       </div>
@@ -136,7 +136,7 @@ function PaymentRow({ payment }: { payment: ApiPaymentIntent }) {
     <div className="flex items-center justify-between py-4 gap-4">
       <div className="min-w-0">
         <div className="text-sm font-semibold text-neutral-900">{formatCurrency(payment.amount)}</div>
-        <div className="text-xs text-neutral-400 mt-0.5 capitalize">
+        <div className="text-xs text-neutral-500 mt-0.5 capitalize">
           {payment.purpose.replace("_", " ")} · {formatWhen(payment.created_at)}
         </div>
       </div>
@@ -199,9 +199,9 @@ export function PayoutsAndRefunds() {
 
       {activeTab === "Payouts" && (
         <div className="divide-y divide-gray-100">
-          {payoutsLoading && <p className="py-6 text-sm text-neutral-400">Loading…</p>}
+          {payoutsLoading && <p className="py-6 text-sm text-neutral-500">Loading…</p>}
           {payouts && payouts.length === 0 && (
-            <p className="py-6 text-sm text-neutral-400">No payout requests yet.</p>
+            <p className="py-6 text-sm text-neutral-500">No payout requests yet.</p>
           )}
           {payouts?.map((payout) => <PayoutRow key={payout.id} payout={payout} />)}
         </div>
@@ -209,9 +209,9 @@ export function PayoutsAndRefunds() {
 
       {activeTab === "Payments" && (
         <div className="divide-y divide-gray-100">
-          {paymentsLoading && <p className="py-6 text-sm text-neutral-400">Loading…</p>}
+          {paymentsLoading && <p className="py-6 text-sm text-neutral-500">Loading…</p>}
           {payments && payments.length === 0 && (
-            <p className="py-6 text-sm text-neutral-400">No payments yet.</p>
+            <p className="py-6 text-sm text-neutral-500">No payments yet.</p>
           )}
           {payments?.map((payment) => <PaymentRow key={payment.tx_ref} payment={payment} />)}
         </div>

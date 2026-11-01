@@ -43,13 +43,13 @@ function RecipientSelect({
         onClick={() => setOpen((prev) => !prev)}
         className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-left"
       >
-        <span className={value ? "text-gray-900" : "text-gray-400"}>
+        <span className={value ? "text-gray-900" : "text-gray-500"}>
           {value ? value.name : "Find student or teacher"}
         </span>
         <Icon
           icon="mdi:chevron-down"
           size={16}
-          className={`text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`text-gray-500 transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -77,14 +77,14 @@ function RecipientSelect({
                   className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-50 transition-colors"
                 >
                   <span>{recipient.name}</span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-500">
                     {recipient.role}
                   </span>
                 </button>
               </li>
             ))}
             {results.length === 0 && (
-              <li className="px-4 py-2.5 text-sm text-gray-400">
+              <li className="px-4 py-2.5 text-sm text-gray-500">
                 No results found
               </li>
             )}
@@ -141,7 +141,7 @@ export default function ShareSessionLink({
             or copy link
           </label>
           <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-gray-200 bg-white">
-            <span className="flex-1 text-sm text-gray-400 truncate">
+            <span className="flex-1 text-sm text-gray-500 truncate">
               {sessionLink}
             </span>
             <button

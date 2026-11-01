@@ -10,6 +10,7 @@ export * from "./components/Modal";
 export * from "./components/ConfirmModal";
 export * from "./components/LegalLink";
 export * from "./components/BrandLogo";
+export * from "./components/BrainyMark";
 export * from "./lib/cn";
 export * from "./lib/cva";
 export * from "./lib/confetti";

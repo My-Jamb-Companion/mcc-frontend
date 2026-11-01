@@ -9,6 +9,8 @@ import {useRegisterForProgram} from "@/src/features/exams/hooks/useExams";
 import {ApiExamProgram} from "@/src/features/exams/services/exam.service";
 import {FormatPicker} from "@/src/features/components/FormatPicker";
 import {WhatYouGet} from "@/src/features/components/WhatYouGet";
+import {GemUnlockCard} from "@/src/features/components/GemUnlockCard";
+import {useUnlockProgramWithGems} from "@/src/features/wallet/hooks/useWallet";
 import {defaultFormat, defaultTierId, priceOf, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
 import {coverFallback} from "@/src/features/components/coverFallback";
 
@@ -24,6 +26,7 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
   const router = useRouter();
   const email = useAuthStore((s) => s.user?.email);
   const registerForProgram = useRegisterForProgram();
+  const unlock = useUnlockProgramWithGems();
   const [error, setError] = useState<string | null>(null);
 
   const title = [program.exam_name, program.subject_name].filter(Boolean).join(" — ") ||
@@ -36,6 +39,17 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
   // Buyers do not choose a tier: every purchase is charged the admin's default tier, in whichever format they pick.
   const tierId = defaultTierId(formats, program.tier_prices, price);
   const selectedPrice = priceOf(tiersFor(formats, format, program.tier_prices), tierId, price);
+
+  const handleUnlock = () => {
+    setError(null);
+    unlock.mutate(
+      {programId: program.program_id, liveFormat: format ? "self_paced" : undefined},
+      {
+        onSuccess: () => router.push("/learnings/exams"),
+        onError: (err) => setError(extractApiError(err, "Couldn't unlock the program. Please try again.")),
+      },
+    );
+  };
 
   const handleRegister = () => {
     setError(null);
@@ -69,7 +83,7 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
 
         <span className="text-subtle">/</span>
 
-        <span className="text-muted/50 cursor-default text-nowrap truncate">
+        <span className="text-subtle cursor-default text-nowrap truncate">
           {title}
         </span>
       </nav>
@@ -125,6 +139,10 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
               </p>
             </Button>
           </div>
+
+          {!isFree && (
+            <GemUnlockCard price={Number(selectedPrice)} format={format} noun="program" pending={unlock.isPending} onUnlock={handleUnlock} />
+          )}
         </div>
       </div>
     </section>

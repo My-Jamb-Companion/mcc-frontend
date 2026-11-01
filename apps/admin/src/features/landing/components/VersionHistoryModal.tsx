@@ -31,7 +31,7 @@ export default function VersionHistoryModal({open, onClose, onRestored, disabled
                   {v.note || "No note"}{" "}
                   {v.status === "published" && <span className="ml-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Live</span>}
                 </p>
-                <p className="text-xs text-gray-400">{when(v.published_at)}{v.published_by_name ? ` · ${v.published_by_name}` : ""}</p>
+                <p className="text-xs text-gray-500">{when(v.published_at)}{v.published_by_name ? ` · ${v.published_by_name}` : ""}</p>
               </div>
               <button
                 type="button"

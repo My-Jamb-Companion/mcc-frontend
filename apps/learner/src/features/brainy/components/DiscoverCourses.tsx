@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {Icon} from "@mcc/ui";
+import {BrainyMark} from "@mcc/ui";
 import {useDiscoverContent} from "../hooks/useDiscover";
 
 /** GET /brainy/discover -- a published-catalogue sample, no embedding
@@ -23,7 +23,7 @@ export default function DiscoverCourses() {
             className="flex w-64 shrink-0 flex-col gap-2 rounded-2xl border border-muted/20 p-4 transition-colors hover:bg-muted/5"
           >
             <div className="flex items-center gap-2">
-              <Icon icon="mingcute:ai-fill" size={14} className="text-primary" />
+              <BrainyMark size={18} />
               <span className="text-xs font-medium text-primary">Suggested for you</span>
             </div>
             <p className="text-sm font-semibold">{course.title}</p>

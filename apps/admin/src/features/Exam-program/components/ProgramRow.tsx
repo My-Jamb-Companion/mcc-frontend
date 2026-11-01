@@ -131,7 +131,7 @@ export function ProgramListRow({
           />
         </div>
       ) : (
-        <div className="flex w-[108px] h-[108px] shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-400">
+        <div className="flex w-[108px] h-[108px] shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-500">
           <Icon icon="ph:image" className="h-6 w-6" />
         </div>
       )}
@@ -158,7 +158,7 @@ export function ProgramListRow({
             </span>
           ))}
           {program.extraTagsCount ? (
-            <span className="text-xs text-zinc-400">
+            <span className="text-xs text-zinc-500">
               +{program.extraTagsCount}
             </span>
           ) : null}

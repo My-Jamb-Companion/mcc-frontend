@@ -42,7 +42,7 @@ export default function Messaging() {
             <ConversationThread key={selectedId} userId={selectedId} onBack={() => setSelectedId(null)} />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-2 p-8 text-center">
-              <Icon icon="mdi:message-text-outline" size={32} className="text-neutral-300" />
+              <Icon icon="mdi:message-text-outline" size={32} className="text-neutral-500" />
               <p className="text-sm text-neutral-500">Pick a conversation to read it and reply, or start a new message.</p>
             </div>
           )}

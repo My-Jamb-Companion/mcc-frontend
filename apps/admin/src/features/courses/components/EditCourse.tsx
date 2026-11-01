@@ -489,7 +489,7 @@ export default function CreateCourseForm() {
                       </span>
                       <span
                         className={`text-sm font-medium ${
-                          i === activeIndex ? "text-gray-900" : "text-gray-400"
+                          i === activeIndex ? "text-gray-900" : "text-gray-500"
                         }`}
                       >
                         {step.label}

@@ -216,7 +216,7 @@ export default function UploadQuestionsModal({
                 {questions.map((q) => (
                   <li key={q.row} className="px-4 py-2.5 text-sm">
                     <p className="font-medium text-gray-900">
-                      <span className="mr-2 text-xs font-normal text-gray-400">Row {q.row}</span>
+                      <span className="mr-2 text-xs font-normal text-gray-500">Row {q.row}</span>
                       {q.question_text}
                     </p>
                     <p className="mt-0.5 text-xs text-gray-500">
@@ -236,7 +236,7 @@ export default function UploadQuestionsModal({
                       </p>
                     )}
                     {(q.subject_name || q.topic || q.difficulty) && (
-                      <p className="mt-0.5 text-xs text-gray-400">
+                      <p className="mt-0.5 text-xs text-gray-500">
                         {[q.subject_name, q.topic, q.difficulty].filter(Boolean).join(" · ")}
                       </p>
                     )}

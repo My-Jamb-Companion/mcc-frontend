@@ -22,7 +22,7 @@ interface DiscoveryFiltersProps {
   secondaryOptions: SelectOption[];
 }
 
-/** Search + two selects, wired to real query-string filters on the
+/** A compact search with its two selects beside it (stacked on a phone: search first, then the selects side by side), wired to real query-string filters on the
  * catalogue it's placed above -- reused for both courses (category) and
  * exam-prep programs (subject), which is why the second dropdown's label
  * and options are passed in rather than hardcoded. */
@@ -39,8 +39,8 @@ export default function DiscoveryFilters({
   secondaryOptions,
 }: DiscoveryFiltersProps) {
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <div className="relative flex-1 min-w-52">
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="relative w-full sm:w-72">
         <Icon
           icon="ph:magnifying-glass"
           size={16}
@@ -58,7 +58,7 @@ export default function DiscoveryFilters({
       <select
         value={secondaryValue}
         onChange={(e) => onSecondaryChange(e.target.value)}
-        className="rounded-full border border-muted/30 bg-transparent py-2 px-4 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+        className="min-w-0 flex-1 sm:flex-none rounded-full border border-muted/30 bg-transparent py-2 px-4 text-sm outline-none focus:ring-2 focus:ring-primary/30"
       >
         <option value="">{secondaryAllLabel}</option>
         {secondaryOptions.map((opt) => (
@@ -71,7 +71,7 @@ export default function DiscoveryFilters({
       <select
         value={level}
         onChange={(e) => onLevelChange(e.target.value)}
-        className="rounded-full border border-muted/30 bg-transparent py-2 px-4 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+        className="min-w-0 flex-1 sm:flex-none rounded-full border border-muted/30 bg-transparent py-2 px-4 text-sm outline-none focus:ring-2 focus:ring-primary/30"
       >
         <option value="">All levels</option>
         {levelOptions.map((opt) => (

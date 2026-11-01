@@ -13,7 +13,7 @@ function Row({block, def, title, sub, index, total, selected, disabled, onSelect
   onSelect: () => void; onToggle: () => void; onMove: (to: number) => void; onDuplicate: () => void; onRemove: () => void;
   dragging: boolean; onDragStart: () => void; onDragOver: () => void; onDragEnd: () => void;
 }) {
-  const small = "flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-30 disabled:hover:bg-transparent";
+  const small = "flex h-7 w-7 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-30 disabled:hover:bg-transparent";
   return (
     <li
       draggable={!disabled}
@@ -23,15 +23,15 @@ function Row({block, def, title, sub, index, total, selected, disabled, onSelect
       className={`rounded-xl border bg-white ${selected ? "border-violet-400 ring-2 ring-violet-100" : "border-gray-200"} ${dragging ? "opacity-40" : ""}`}
     >
       <div className="flex items-center gap-1 pr-1.5">
-        <span className="cursor-grab px-1.5 text-gray-300" aria-hidden="true"><Icon icon="lucide:grip-vertical" size={16} /></span>
+        <span className="cursor-grab px-1.5 text-gray-500" aria-hidden="true"><Icon icon="lucide:grip-vertical" size={16} /></span>
         <button type="button" onClick={onSelect} aria-current={selected} className="flex min-w-0 flex-1 items-center gap-2.5 py-2.5 text-left">
-          <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${block.visible ? "bg-violet-50 text-violet-600" : "bg-gray-100 text-gray-400"}`}>
+          <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${block.visible ? "bg-violet-50 text-violet-600" : "bg-gray-100 text-gray-500"}`}>
             <Icon icon={def?.icon ?? "lucide:square"} size={16} />
           </span>
           <span className="min-w-0">
-            <span className={`block truncate text-sm font-medium ${block.visible ? "text-gray-800" : "text-gray-400"}`}>{title}</span>
+            <span className={`block truncate text-sm font-medium ${block.visible ? "text-gray-800" : "text-gray-500"}`}>{title}</span>
             {(sub || !block.visible) && (
-              <span className="block truncate text-xs text-gray-400">{block.visible ? sub : `Hidden${sub ? ` · ${sub}` : ""}`}</span>
+              <span className="block truncate text-xs text-gray-500">{block.visible ? sub : `Hidden${sub ? ` · ${sub}` : ""}`}</span>
             )}
           </span>
         </button>
@@ -83,11 +83,11 @@ export default function BlockList({
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500"><Icon icon="lucide:settings-2" size={16} /></span>
         <span>
           <span className="block text-sm font-medium text-gray-800">{siteTitle}</span>
-          <span className="block text-xs text-gray-400">{siteHint}</span>
+          <span className="block text-xs text-gray-500">{siteHint}</span>
         </span>
       </button>
 
-      <p className="mt-2 px-1 text-xs font-semibold uppercase tracking-wide text-gray-400">Sections</p>
+      <p className="mt-2 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Sections</p>
       <ul className="flex flex-col gap-1.5">
         {blocks.map((block, i) => (
           <Row

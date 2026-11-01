@@ -118,7 +118,7 @@ export default function AssignProgram({teacher, isOpen, onClose}: AssignProgramP
                 </h2>
                 <button
                   onClick={onClose}
-                  className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                  className="rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-600 transition-colors"
                   aria-label="Close panel"
                 >
                   <Icon icon="lucide:x" size={18} />
@@ -149,7 +149,7 @@ export default function AssignProgram({teacher, isOpen, onClose}: AssignProgramP
                     <Icon
                       icon="lucide:mail"
                       size={14}
-                      className="text-gray-400"
+                      className="text-gray-500"
                     />
                     {/* No invented fallbacks: an admin reading a made-up
                         email or phone number would take it as real. */}
@@ -160,7 +160,7 @@ export default function AssignProgram({teacher, isOpen, onClose}: AssignProgramP
                     <Icon
                       icon="lucide:phone"
                       size={14}
-                      className="text-gray-400"
+                      className="text-gray-500"
                     />
                     {phone ? (
                       <>
@@ -176,7 +176,7 @@ export default function AssignProgram({teacher, isOpen, onClose}: AssignProgramP
                         </button>
                       </>
                     ) : (
-                      <span className="text-gray-400">No phone on file</span>
+                      <span className="text-gray-500">No phone on file</span>
                     )}
                   </div>
 
@@ -229,7 +229,7 @@ export default function AssignProgram({teacher, isOpen, onClose}: AssignProgramP
 
                 <div className="space-y-3">
                   {activeList.length === 0 && (
-                    <p className="text-xs text-gray-400 py-1">
+                    <p className="text-xs text-gray-500 py-1">
                       No {activeTab === "courses" ? "courses" : "exam programs"} assigned yet.
                     </p>
                   )}
@@ -245,7 +245,7 @@ export default function AssignProgram({teacher, isOpen, onClose}: AssignProgramP
                             {item.program_name}
                           </h4>
                           {item.students_count > 0 && (
-                            <p className="text-gray-400 text-[11px]">
+                            <p className="text-gray-500 text-[11px]">
                               {item.students_count} student{item.students_count === 1 ? "" : "s"}
                             </p>
                           )}
@@ -289,7 +289,7 @@ export default function AssignProgram({teacher, isOpen, onClose}: AssignProgramP
                         <Icon
                           icon="lucide:search"
                           size={14}
-                          className="text-gray-400 mr-2"
+                          className="text-gray-500 mr-2"
                         />
                         <input
                           type="text"
@@ -303,11 +303,11 @@ export default function AssignProgram({teacher, isOpen, onClose}: AssignProgramP
 
                       <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
                         {!searchQuery.trim() ? (
-                          <p className="text-center text-xs text-gray-400 py-2">
+                          <p className="text-center text-xs text-gray-500 py-2">
                             Start typing to search
                           </p>
                         ) : isSearching ? (
-                          <p className="text-center text-xs text-gray-400 py-2">
+                          <p className="text-center text-xs text-gray-500 py-2">
                             Searching…
                           </p>
                         ) : availableItems.length > 0 ? (
@@ -323,7 +323,7 @@ export default function AssignProgram({teacher, isOpen, onClose}: AssignProgramP
                                     {item.program_name}
                                   </h5>
                                   {item.teacher_id && (
-                                    <p className="text-gray-400 text-[10px]">
+                                    <p className="text-gray-500 text-[10px]">
                                       Already has a teacher
                                     </p>
                                   )}
@@ -342,7 +342,7 @@ export default function AssignProgram({teacher, isOpen, onClose}: AssignProgramP
                             </div>
                           ))
                         ) : (
-                          <p className="text-center text-xs text-gray-400 py-2">
+                          <p className="text-center text-xs text-gray-500 py-2">
                             No available programs found
                           </p>
                         )}
@@ -355,7 +355,7 @@ export default function AssignProgram({teacher, isOpen, onClose}: AssignProgramP
                             setIsSearchOpen(false);
                             setSearchQuery("");
                           }}
-                          className="text-xs text-gray-400 hover:text-gray-600 transition"
+                          className="text-xs text-gray-500 hover:text-gray-600 transition"
                         >
                           Close
                         </button>

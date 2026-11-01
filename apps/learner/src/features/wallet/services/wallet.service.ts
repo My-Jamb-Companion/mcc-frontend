@@ -94,6 +94,13 @@ export interface ApiReceipt {
   paid_at: string | null;
 }
 
+export interface ApiGemProgramUnlock {
+  access_id: string;
+  program_id: string;
+  gems_spent: number;
+  gems_balance: number;
+}
+
 export interface ApiGemUnlock {
   enrollment_id: string;
   course_id: string;
@@ -140,4 +147,10 @@ export const getReceipt = async (txRef: string): Promise<ApiReceipt> =>
 export const unlockCourseWithGems = async (courseId: string, tierId?: string, liveFormat?: "self_paced"): Promise<ApiGemUnlock> =>
   (await apiClient.post<{data: ApiGemUnlock}>("/payments/gems/unlock-course", {
     course_id: courseId, tier_id: tierId, live_format: liveFormat,
+  })).data.data;
+
+/** Endpoint: POST /payments/gems/unlock-program -- spends purchased gems on a paid exam-prep program. */
+export const unlockProgramWithGems = async (programId: string, liveFormat?: "self_paced"): Promise<ApiGemProgramUnlock> =>
+  (await apiClient.post<{data: ApiGemProgramUnlock}>("/payments/gems/unlock-program", {
+    program_id: programId, live_format: liveFormat,
   })).data.data;

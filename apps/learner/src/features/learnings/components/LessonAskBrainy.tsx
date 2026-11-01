@@ -1,7 +1,7 @@
 "use client";
 
 import {useState} from "react";
-import {Button, Icon} from "@mcc/ui";
+import {Button, Icon, BrainyMark} from "@mcc/ui";
 import {chatReplyText, sendChatMessage} from "@/src/features/brainy/services/brainy.service";
 
 interface LessonAskBrainyProps {
@@ -45,7 +45,7 @@ export default function LessonAskBrainy({lessonTitle, heading, className = "rela
         onClick={() => setOpen((v) => !v)}
         className="w-full text-primary border-primary/40 bg-background sm:w-auto"
       >
-        <Icon icon="mingcute:ai-fill" size={14} />
+        <BrainyMark size={18} />
         Ask Brainy
       </Button>
 

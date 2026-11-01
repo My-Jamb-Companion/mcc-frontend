@@ -264,13 +264,13 @@ function TeacherMultiSelect({
           ${open ? "border-primary ring-2 ring-primary/20" : "border-gray-200"}`}
       >
         <span
-          className={`truncate ${value.length > 0 ? "text-gray-900 font-medium" : "text-gray-400"}`}
+          className={`truncate ${value.length > 0 ? "text-gray-900 font-medium" : "text-gray-500"}`}
         >
           {triggerLabel(value, placeholder)}
         </span>
         <Icon
           icon="mdi:chevron-down"
-          className={`h-4 w-4 shrink-0 text-gray-400 transition-transform ml-2 ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 shrink-0 text-gray-500 transition-transform ml-2 ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -279,7 +279,7 @@ function TeacherMultiSelect({
           <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
             <Icon
               icon="mdi:magnify"
-              className="h-4 w-4 shrink-0 text-gray-400"
+              className="h-4 w-4 shrink-0 text-gray-500"
             />
             <input
               autoFocus
@@ -334,7 +334,7 @@ function TeacherMultiSelect({
               );
             })}
             {results.length === 0 && (
-              <li className="px-4 py-2.5 text-sm text-gray-400">
+              <li className="px-4 py-2.5 text-sm text-gray-500">
                 No results found
               </li>
             )}

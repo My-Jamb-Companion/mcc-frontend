@@ -1,6 +1,6 @@
 "use client";
 import {useMemo, useState} from "react";
-import {Icon, showError} from "@mcc/ui";
+import {Icon, showError, BrainyMark} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import {useAnalysis, useQuestionHelp} from "@/src/features/brainy/hooks/useAiFeedback";
 import PointsEarnedCard from "@/src/features/rewards/components/PointsEarnedCard";
@@ -165,7 +165,7 @@ function FeedbackButton({result, right}: {result: ApiExamSubmissionResult; right
   return feedback ? (
     <div className="mt-6 w-full max-w-md rounded-2xl bg-primary/5 p-5 text-left">
       <p className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-primary">
-        <Icon icon="mingcute:ai-fill" size={14} />
+        <BrainyMark size={18} />
         Brainy&apos;s feedback
       </p>
       <p className="text-sm leading-relaxed text-subtle">{feedback}</p>
@@ -173,7 +173,7 @@ function FeedbackButton({result, right}: {result: ApiExamSubmissionResult; right
   ) : (
     <button type="button" onClick={ask} disabled={analysis.isPending}
       className="mt-6 flex items-center gap-1.5 rounded-full border border-primary/40 px-5 py-2.5 text-sm font-semibold text-primary disabled:opacity-50">
-      <Icon icon="mingcute:ai-fill" size={14} />
+      <BrainyMark size={18} />
       {analysis.isPending ? "Asking Brainy…" : "Get AI feedback"}
     </button>
   );
@@ -228,13 +228,13 @@ function ReviewList({result, questions}: {result: ApiExamSubmissionResult; quest
             {r.explanation && <p className="mt-2 text-sm leading-relaxed text-subtle">{r.explanation}</p>}
             {explained[r.question_id] ? (
               <p className="mt-3 rounded-xl bg-primary/5 p-3 text-sm leading-relaxed text-subtle">
-                <span className="mb-1 flex items-center gap-1.5 font-semibold text-primary"><Icon icon="mingcute:ai-fill" size={14} />Brainy explains</span>
+                <span className="mb-1 flex items-center gap-1.5 font-semibold text-primary"><BrainyMark size={18} />Brainy explains</span>
                 {explained[r.question_id]}
               </p>
             ) : (
               <button type="button" onClick={() => explain(r.question_id)} disabled={help.isPending}
                 className="mt-3 flex items-center gap-1.5 rounded-full border border-primary/40 px-4 py-1.5 text-xs font-semibold text-primary disabled:opacity-50">
-                <Icon icon="mingcute:ai-fill" size={13} />
+                <BrainyMark size={18} />
                 {help.isPending ? "Asking Brainy…" : "Explain this"}
               </button>
             )}

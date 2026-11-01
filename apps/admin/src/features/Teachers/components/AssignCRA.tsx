@@ -74,7 +74,7 @@ export default function AssignCRAModal({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-full p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+            className="rounded-full p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-600"
           >
             <Icon icon="mdi:close" size={20} />
           </button>
@@ -118,7 +118,7 @@ export default function AssignCRAModal({
               className="flex w-full items-center justify-between rounded-2xl border border-neutral-200 px-4 py-3 text-left"
             >
               <span
-                className={selected ? "text-sm text-neutral-900" : "text-sm text-neutral-400"}
+                className={selected ? "text-sm text-neutral-900" : "text-sm text-neutral-500"}
               >
                 {selected
                   ? selected.student_name || selected.student_email
@@ -127,7 +127,7 @@ export default function AssignCRAModal({
               <Icon
                 icon="mdi:chevron-down"
                 size={20}
-                className={`text-neutral-400 transition-transform ${open ? "rotate-180" : ""}`}
+                className={`text-neutral-500 transition-transform ${open ? "rotate-180" : ""}`}
               />
             </button>
 

@@ -111,7 +111,7 @@ export default function Categories() {
           </div>
 
           <div className="relative w-72">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               placeholder="Search"
@@ -123,9 +123,9 @@ export default function Categories() {
         </div>
 
         {isLoading ? (
-          <p className="py-10 text-center text-sm text-slate-400">Loading categories…</p>
+          <p className="py-10 text-center text-sm text-slate-500">Loading categories…</p>
         ) : filtered.length === 0 ? (
-          <p className="py-10 text-center text-sm text-slate-400">
+          <p className="py-10 text-center text-sm text-slate-500">
             {categories.length === 0 ? "No categories yet." : "No categories found."}
           </p>
         ) : (

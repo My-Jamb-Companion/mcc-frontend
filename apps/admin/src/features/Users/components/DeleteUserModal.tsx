@@ -39,7 +39,7 @@ export default function DeleteUserModal({user, onClose}: {user: ApiUser | null; 
     <Modal open={!!user} title="Delete account permanently" maxWidth="max-w-md">
       {user && (
         <div className="flex flex-col gap-4">
-          {check.isLoading && <p className="py-6 text-center text-sm text-gray-400">Checking this account…</p>}
+          {check.isLoading && <p className="py-6 text-center text-sm text-gray-500">Checking this account…</p>}
           {check.isError && <p className="text-sm text-red-500">Couldn&apos;t check this account. Please try again.</p>}
 
           {check.data && !check.data.can_delete && (

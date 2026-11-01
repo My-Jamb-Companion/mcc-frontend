@@ -119,12 +119,12 @@ export default function ContentReorderPanel({
               Reorder content
             </p>
             {/* Line 165: displays the module label */}
-            <p className="text-xs text-gray-400">{module.label || "Module"}</p>
+            <p className="text-xs text-gray-500">{module.label || "Module"}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100"
             aria-label="Close"
           >
             <Icon icon="lucide:x" size={16} />
@@ -133,7 +133,7 @@ export default function ContentReorderPanel({
 
         <div className="flex-1 overflow-y-auto px-3 py-3">
           {items.length === 0 ? (
-            <p className="px-2 py-6 text-center text-sm text-gray-400">
+            <p className="px-2 py-6 text-center text-sm text-gray-500">
               Nothing to reorder yet — add a lesson, practice, or quiz first.
             </p>
           ) : (
@@ -178,7 +178,7 @@ export default function ContentReorderPanel({
                       </div>
                     ) : (
                       <>
-                        <span className="shrink-0 cursor-grab text-gray-300 active:cursor-grabbing">
+                        <span className="shrink-0 cursor-grab text-gray-500 active:cursor-grabbing">
                           <Icon icon="lucide:grip-vertical" size={15} />
                         </span>
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
@@ -190,7 +190,7 @@ export default function ContentReorderPanel({
                         <button
                           type="button"
                           onClick={() => setConfirmDeleteId(item.id)}
-                          className="shrink-0 rounded p-1.5 text-gray-300 hover:bg-red-50 hover:text-red-500"
+                          className="shrink-0 rounded p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-500"
                           aria-label={`Delete ${item.label}`}
                         >
                           <Icon icon="lucide:trash-2" size={14} />
@@ -205,7 +205,7 @@ export default function ContentReorderPanel({
         </div>
 
         <div className="border-t border-gray-100 px-5 py-3">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-500">
             Drag items to change the order students go through them.
           </p>
         </div>

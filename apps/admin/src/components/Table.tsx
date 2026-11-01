@@ -149,7 +149,7 @@ export default function EnhancedTable<TData extends RowData>({
                                 ) : (
                                   <ChevronDown
                                     size={16}
-                                    className="text-gray-400"
+                                    className="text-gray-500"
                                   />
                                 )}
                               </button>

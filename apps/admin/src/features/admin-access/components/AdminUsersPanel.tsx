@@ -56,7 +56,7 @@ export default function AdminUsersPanel() {
       </div>
 
       {admins.isLoading ? (
-        <p className="py-10 text-center text-sm text-slate-400">Loading admins…</p>
+        <p className="py-10 text-center text-sm text-slate-500">Loading admins…</p>
       ) : admins.isError ? (
         <p className="py-10 text-center text-sm text-red-500">Couldn&apos;t load the admins. Please try again.</p>
       ) : (
@@ -80,7 +80,7 @@ export default function AdminUsersPanel() {
                       <p className="font-semibold text-slate-900">
                         {a.full_name || "—"} {itsMe && <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">You</span>}
                       </p>
-                      <p className="text-xs text-slate-400">{a.email}</p>
+                      <p className="text-xs text-slate-500">{a.email}</p>
                     </td>
                     <td className="py-3 pr-4">
                       <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${a.level === "super" ? "bg-violet-100 text-violet-700" : "bg-slate-100 text-slate-700"}`}>

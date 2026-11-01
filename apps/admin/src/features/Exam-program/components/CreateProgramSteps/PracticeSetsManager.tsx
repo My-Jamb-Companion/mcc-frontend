@@ -63,7 +63,7 @@ export default function PracticeSetsManager({
       </div>
 
       {sets.length === 0 ? (
-        <p className="text-sm text-gray-400">No practices yet. Click &ldquo;Add practice&rdquo; to create one.</p>
+        <p className="text-sm text-gray-500">No practices yet. Click &ldquo;Add practice&rdquo; to create one.</p>
       ) : (
         <div className="flex flex-wrap gap-2" role="tablist" aria-label="Practices">
           {sets.map((set) => {
@@ -95,11 +95,11 @@ export default function PracticeSetsManager({
               >
                 <button type="button" role="tab" aria-selected={isSelected} onClick={() => setSelectedId(set.id)} className="flex items-center gap-1.5">
                   <span>{displayName(set.name)}</span>
-                  <span className="text-xs text-gray-400">({set.questions.length})</span>
+                  <span className="text-xs text-gray-500">({set.questions.length})</span>
                 </button>
                 <span className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                   <button type="button" onClick={() => startRename(set)} aria-label={`Rename ${displayName(set.name)}`}>
-                    <Icon icon="lucide:pencil" size={11} className="text-gray-400" />
+                    <Icon icon="lucide:pencil" size={11} className="text-gray-500" />
                   </button>
                   <button type="button" onClick={() => remove(set)} aria-label={`Delete ${displayName(set.name)}`}>
                     <Icon icon="lucide:trash-2" size={11} className="text-red-400" />
@@ -113,7 +113,7 @@ export default function PracticeSetsManager({
 
       {selected && (
         <div className="mt-2 border-t border-gray-100 pt-4">
-          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">Questions in {displayName(selected.name)}</p>
+          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500">Questions in {displayName(selected.name)}</p>
           <PracticeQuestions
             key={selected.id}
             withResponses

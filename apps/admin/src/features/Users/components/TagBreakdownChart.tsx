@@ -65,11 +65,11 @@ export default function TagBreakdownChart({
       </div>
 
       {isLoading ? (
-        <p className="py-16 text-center text-sm text-slate-400">Loading…</p>
+        <p className="py-16 text-center text-sm text-slate-500">Loading…</p>
       ) : data.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-16 text-center">
-          <Icon icon="ri:bar-chart-2-line" size={28} className="text-neutral-300" />
-          <p className="text-sm text-slate-400">{emptyMessage}</p>
+          <Icon icon="ri:bar-chart-2-line" size={28} className="text-neutral-500" />
+          <p className="text-sm text-slate-500">{emptyMessage}</p>
         </div>
       ) : (
         <div className="w-full" style={{height: Math.max(data.length * 44, 200)}}>

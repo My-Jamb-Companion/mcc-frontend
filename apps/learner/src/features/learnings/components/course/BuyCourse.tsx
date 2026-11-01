@@ -9,9 +9,9 @@ import {useInitializeCoursePayment} from "@/src/features/courses/hooks/useCourse
 import {ApiCourse} from "@/src/features/courses/services/course.service";
 import {FormatPicker} from "@/src/features/components/FormatPicker";
 import {WhatYouGet} from "@/src/features/components/WhatYouGet";
-import {defaultFormat, defaultTierId, gemsApply, priceOf, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
-import {useGemPacks, useUnlockCourseWithGems, useWalletBalance} from "@/src/features/wallet/hooks/useWallet";
-import {courseGemCost} from "@/src/features/wallet/helper/wallet";
+import {defaultFormat, defaultTierId, priceOf, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
+import {useUnlockCourseWithGems} from "@/src/features/wallet/hooks/useWallet";
+import {GemUnlockCard} from "@/src/features/components/GemUnlockCard";
 import {coverFallback} from "@/src/features/components/coverFallback";
 
 const FALLBACK_IMAGE = "/assets/images/tower.jpg";
@@ -39,11 +39,6 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
   const selectedPrice = priceOf(tiersFor(formats, format, course.tier_prices), tierId, price);
 
   const unlock = useUnlockCourseWithGems();
-  const {data: balance} = useWalletBalance();
-  const {data: packs} = useGemPacks();
-  const gemCost = !isFree && gemsApply(format) && packs ? courseGemCost(Number(selectedPrice), packs.naira_per_gem) : 0;
-  const purchasedGems = balance?.purchased_gems ?? 0;
-  const canUnlock = gemCost > 0 && purchasedGems >= gemCost;
 
   const handleUnlock = () => {
     setError(null);
@@ -89,7 +84,7 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
 
         <span className="text-subtle">/</span>
 
-        <span className="text-muted/50 cursor-default text-nowrap truncate">
+        <span className="text-subtle cursor-default text-nowrap truncate">
           {course.title}
         </span>
       </nav>
@@ -146,26 +141,8 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
             </Button>
           </div>
 
-          {gemCost > 0 && (
-            <div className="flex flex-col gap-2 rounded-2xl border border-muted/25 p-4">
-              <p className="flex items-center gap-2 text-sm font-semibold">
-                <Icon icon="ri:vip-diamond-fill" size={16} className="text-sky-500" />
-                Or unlock it with {gemCost.toLocaleString()} gems
-              </p>
-              <p className="text-xs text-subtle">
-                Only gems you bought can unlock a course. You have {purchasedGems.toLocaleString()} bought gem
-                {purchasedGems === 1 ? "" : "s"}.
-              </p>
-              {canUnlock ? (
-                <Button onClick={handleUnlock} disabled={unlock.isPending} width="fit" variant="outline">
-                  <span className="px-4">{unlock.isPending ? "Unlocking…" : `Unlock for ${gemCost.toLocaleString()} gems`}</span>
-                </Button>
-              ) : (
-                <Link href="/wallet" className="text-sm font-semibold text-violet-600 underline underline-offset-2">
-                  Buy gems
-                </Link>
-              )}
-            </div>
+          {!isFree && (
+            <GemUnlockCard price={Number(selectedPrice)} format={format} noun="course" pending={unlock.isPending} onUnlock={handleUnlock} />
           )}
         </div>
       </div>

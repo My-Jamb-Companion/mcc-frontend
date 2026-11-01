@@ -1,7 +1,7 @@
 "use client";
 
 import {useMemo, useState} from "react";
-import {Button, Icon} from "@mcc/ui";
+import {Button, Icon, BrainyMark} from "@mcc/ui";
 import {splitIntoBlocks} from "@/src/features/courses/helper/lessonBlocks";
 import {normalizeLessonHtml, relaxSpaces} from "@/src/features/courses/helper/lessonHtml";
 import {LESSON_CONTENT_CSS} from "@/src/features/courses/helper/lessonCss";
@@ -67,7 +67,7 @@ export default function InteractiveLesson({
           title="Students can ask Brainy about this section"
           className="order-last w-full text-primary border-primary/40 sm:order-none sm:w-auto"
         >
-          <Icon icon="mingcute:ai-fill" size={14} />
+          <BrainyMark size={18} />
           Ask Brainy
         </Button>
 

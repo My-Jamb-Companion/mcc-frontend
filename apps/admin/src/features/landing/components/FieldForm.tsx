@@ -14,7 +14,7 @@ function Label({htmlFor, children, help}: {htmlFor?: string; children: React.Rea
   return (
     <div className="flex flex-col gap-0.5">
       <label htmlFor={htmlFor} className="text-sm font-medium text-gray-700">{children}</label>
-      {help && <span className="text-xs text-gray-400">{help}</span>}
+      {help && <span className="text-xs text-gray-500">{help}</span>}
     </div>
   );
 }
@@ -27,7 +27,7 @@ function IconButton({label, icon, onClick, disabled, danger}: {label: string; ic
       title={label}
       onClick={onClick}
       disabled={disabled}
-      className={`flex h-7 w-7 items-center justify-center rounded-md ${danger ? "text-gray-400 hover:bg-red-50 hover:text-red-600" : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"} disabled:opacity-30 disabled:hover:bg-transparent`}
+      className={`flex h-7 w-7 items-center justify-center rounded-md ${danger ? "text-gray-500 hover:bg-red-50 hover:text-red-600" : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"} disabled:opacity-30 disabled:hover:bg-transparent`}
     >
       <Icon icon={icon} size={15} />
     </button>
@@ -103,7 +103,7 @@ function ListEditor({field, value, onChange, disabled}: {field: ListField; value
                 onClick={() => setOpen(isOpen ? null : i)}
                 className="flex min-w-0 flex-1 items-center gap-2 px-3 py-2.5 text-left"
               >
-                <Icon icon={isOpen ? "lucide:chevron-down" : "lucide:chevron-right"} size={15} className="shrink-0 text-gray-400" />
+                <Icon icon={isOpen ? "lucide:chevron-down" : "lucide:chevron-right"} size={15} className="shrink-0 text-gray-500" />
                 <span className="truncate text-sm font-medium text-gray-800">{title || `${field.itemLabel} ${i + 1}`}</span>
               </button>
               <IconButton label="Move up" icon="lucide:chevron-up" disabled={disabled || i === 0} onClick={() => move(i, i - 1)} />
@@ -207,7 +207,7 @@ function FieldControl({field, data, onChange, disabled, id}: {field: Field; data
           <input type="checkbox" checked={raw === true} disabled={disabled} onChange={(e) => set(e.target.checked)} className="mt-0.5 h-4 w-4 accent-violet-600" />
           <span className="flex flex-col">
             <span className="text-sm font-medium text-gray-700">{field.label}</span>
-            {field.help && <span className="text-xs text-gray-400">{field.help}</span>}
+            {field.help && <span className="text-xs text-gray-500">{field.help}</span>}
           </span>
         </label>
       );

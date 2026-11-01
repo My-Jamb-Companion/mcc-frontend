@@ -257,7 +257,7 @@ export default function AdminAccessModal({
   return (
     <Modal open={open} title={promote ? "Make admin" : existing ? `Edit access: ${existing.full_name || existing.email}` : "Create an admin"} maxWidth="max-w-3xl">
       {open && catalog.data && <Form key={promote?.user_id ?? existing?.user_id ?? "new"} catalog={catalog.data} existing={existing} promote={promote} onClose={onClose} />}
-      {open && catalog.isLoading && <p className="py-8 text-center text-sm text-gray-400">Loading…</p>}
+      {open && catalog.isLoading && <p className="py-8 text-center text-sm text-gray-500">Loading…</p>}
       {open && catalog.isError && <p className="py-8 text-center text-sm text-red-500">Couldn&apos;t load the access options. Please try again.</p>}
     </Modal>
   );

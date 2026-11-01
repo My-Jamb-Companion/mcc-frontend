@@ -33,7 +33,7 @@ export default function ExamHistoryList() {
           Exam prep
         </Link>
         <span className="text-subtle">/</span>
-        <span className="text-sm text-muted/50">History</span>
+        <span className="text-sm text-subtle">History</span>
       </div>
 
       <h1 className="mb-6 text-2xl font-semibold">Your testing history</h1>

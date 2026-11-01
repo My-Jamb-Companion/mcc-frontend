@@ -89,7 +89,7 @@ export default function FinancialOverview() {
               <Pair label="Exam prep" value={cards?.income.exam ?? "—"} accent="border-blue-500" />
               <Pair label="Gems" value={cards?.income.gems ?? "—"} accent="border-sky-400" />
             </div>
-            <p className="pt-3 text-[11px] text-gray-400">Before VAT, payment fees and costs.</p>
+            <p className="pt-3 text-[11px] text-gray-500">Before VAT, payment fees and costs.</p>
           </Card>
 
           <Card title="Teachers">

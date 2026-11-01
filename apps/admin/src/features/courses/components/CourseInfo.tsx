@@ -55,13 +55,13 @@ function ModuleAccordionItem({module}: {module: MakeModule}) {
       >
         <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">
           {module.label || (
-            <span className="italic text-gray-400">Untitled module</span>
+            <span className="italic text-gray-500">Untitled module</span>
           )}
         </span>
         <Icon
           icon={isOpen ? "ri:close-line" : "ri:add-line"}
           size={18}
-          className="text-gray-400"
+          className="text-gray-500"
         />
       </button>
 
@@ -155,7 +155,7 @@ export default function CourseInfo({
           </p>
 
           {topics.length === 0 ? (
-            <p className="text-sm text-gray-400 italic">
+            <p className="text-sm text-gray-500 italic">
               No topics available for this course.
             </p>
           ) : (
@@ -174,7 +174,7 @@ export default function CourseInfo({
                         <ModuleAccordionItem key={mod.id} module={mod} />
                       ))
                     ) : (
-                      <p className="py-4 text-xs text-gray-400 italic">
+                      <p className="py-4 text-xs text-gray-500 italic">
                         No modules in this topic.
                       </p>
                     )}

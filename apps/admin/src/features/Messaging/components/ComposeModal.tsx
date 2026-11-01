@@ -66,7 +66,7 @@ export default function ComposeModal({open, onClose, onSent}: {open: boolean; on
         {templates.length > 0 && (
           <div>
             <label htmlFor="msg-template" className="mb-1.5 block text-sm font-medium text-neutral-900">
-              Template <span className="font-normal text-neutral-400">(optional)</span>
+              Template <span className="font-normal text-neutral-500">(optional)</span>
             </label>
             <select
               id="msg-template"
@@ -92,7 +92,7 @@ export default function ComposeModal({open, onClose, onSent}: {open: boolean; on
 
         <div>
           <label htmlFor="msg-subject" className="mb-1.5 block text-sm font-medium text-neutral-900">
-            Subject <span className="font-normal text-neutral-400">(optional)</span>
+            Subject <span className="font-normal text-neutral-500">(optional)</span>
           </label>
           <input id="msg-subject" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Subject" className={field} />
         </div>

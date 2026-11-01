@@ -49,7 +49,7 @@ export default function Moderation() {
         {view === "muted" ? (
           <>
             <h1 className="text-lg font-bold text-neutral-900">Muted from course discussions</h1>
-            <p className="mb-4 mt-0.5 text-sm text-neutral-400">
+            <p className="mb-4 mt-0.5 text-sm text-neutral-500">
               People who can&apos;t post in course discussions right now. A mute ends by itself on its date, or when you lift it.
             </p>
             <MutedList />
@@ -57,7 +57,7 @@ export default function Moderation() {
         ) : view === "bugs" ? (
           <>
             <h1 className="text-lg font-bold text-neutral-900">Bug reports</h1>
-            <p className="mb-4 mt-0.5 text-sm text-neutral-400">Problems students and staff report from the apps, most urgent first.</p>
+            <p className="mb-4 mt-0.5 text-sm text-neutral-500">Problems students and staff report from the apps, most urgent first.</p>
             <BugReports />
           </>
         ) : (
@@ -65,7 +65,7 @@ export default function Moderation() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-lg font-bold text-neutral-900">Content reports</h1>
-            <p className="text-sm text-neutral-400 mt-0.5">
+            <p className="text-sm text-neutral-500 mt-0.5">
               Reports on community posts and instructor Q&amp;A messages, and posts the automatic check held for review.
             </p>
           </div>
@@ -94,9 +94,9 @@ export default function Moderation() {
         </div>
 
         <div className="divide-y divide-gray-100">
-          {isLoading && <p className="py-6 text-sm text-neutral-400">Loading…</p>}
+          {isLoading && <p className="py-6 text-sm text-neutral-500">Loading…</p>}
           {reports && reports.length === 0 && (
-            <p className="py-6 text-sm text-neutral-400">No reports here.</p>
+            <p className="py-6 text-sm text-neutral-500">No reports here.</p>
           )}
           {reports?.map((report) => <ReportRow key={report.id} report={report} />)}
         </div>

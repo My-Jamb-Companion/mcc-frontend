@@ -49,7 +49,7 @@ function NotificationRow({
       {notification.body && (
         <p className="mt-0.5 text-sm text-muted line-clamp-2">{notification.body}</p>
       )}
-      <p className="mt-1 text-xs text-muted/70">{formatWhen(notification.created_at)}</p>
+      <p className="mt-1 text-xs text-muted">{formatWhen(notification.created_at)}</p>
     </button>
   );
 }

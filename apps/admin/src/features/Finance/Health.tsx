@@ -100,7 +100,7 @@ export function FinancialHealthCard({
             {currencySymbol}
             {whole}
           </span>
-          <span className="text-lg font-medium text-neutral-400">
+          <span className="text-lg font-medium text-neutral-500">
             .{decimals}
           </span>
         </div>
@@ -123,7 +123,7 @@ export function FinancialHealthCard({
           <span className="text-neutral-500">{changeComparisonLabel}</span>
         </div>
 
-        <p className="mt-auto max-w-55 text-sm text-neutral-400 pt-30">
+        <p className="mt-auto max-w-55 text-sm text-neutral-500 pt-30">
           {footnote}
         </p>
       </div>

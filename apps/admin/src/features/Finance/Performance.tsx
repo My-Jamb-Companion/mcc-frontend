@@ -243,9 +243,9 @@ function EmptyState() {
       <Icon
         icon="mdi:chart-bar-stacked"
         size={28}
-        className="text-neutral-300"
+        className="text-neutral-500"
       />
-      <p className="text-sm font-medium text-neutral-400">
+      <p className="text-sm font-medium text-neutral-500">
         No program data to show yet
       </p>
     </div>

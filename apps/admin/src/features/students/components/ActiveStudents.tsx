@@ -324,7 +324,7 @@ export default function ActiveStudents() {
                     <h1 className="font-medium text-white text-xl">
                       {student?.name}
                     </h1>
-                    <h1 className="flex items-center gap-1 text-gray-400 text-xs">
+                    <h1 className="flex items-center gap-1 text-gray-500 text-xs">
                       <div className="h-1.5 w-1.5  bg-green-500 rounded-full" />
                       <span>Active student</span>
                     </h1>
@@ -332,7 +332,7 @@ export default function ActiveStudents() {
 
                   <div className="flex flex-col gap-3 ">
                     <div className="flex items-center gap-6">
-                      <p className="text-gray-400 text-xs">Onboarding level</p>
+                      <p className="text-gray-500 text-xs">Onboarding level</p>
                       <p className="text-white text-xs font-medium">94%</p>
                     </div>
 

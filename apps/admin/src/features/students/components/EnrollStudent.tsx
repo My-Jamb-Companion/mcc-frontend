@@ -132,7 +132,7 @@ export default function EnrollStudentModal({
                 </h2>
                 <button
                   onClick={onClose}
-                  className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                  className="rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-600 transition-colors"
                   aria-label="Close panel"
                 >
                   <Icon icon="lucide:x" size={18} />
@@ -165,7 +165,7 @@ export default function EnrollStudentModal({
                     <Icon
                       icon="lucide:mail"
                       size={14}
-                      className="text-gray-400"
+                      className="text-gray-500"
                     />
                     <span>{student.email || "bright@gmail.com"}</span>
                   </div>
@@ -174,7 +174,7 @@ export default function EnrollStudentModal({
                     <Icon
                       icon="lucide:phone"
                       size={14}
-                      className="text-gray-400"
+                      className="text-gray-500"
                     />
                     <span>
                       {isPhoneRevealed
@@ -194,7 +194,7 @@ export default function EnrollStudentModal({
                     <Icon
                       icon="lucide:user"
                       size={14}
-                      className="text-gray-400"
+                      className="text-gray-500"
                     />
                     <span>{student.username || "mac"}</span>
                   </div>
@@ -248,7 +248,7 @@ export default function EnrollStudentModal({
 
                 <div className="space-y-3">
                   {activeEnrolled.length === 0 && (
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-500">
                       Not enrolled in any {activeTab === "courses" ? "courses" : "exam programs"} yet.
                     </p>
                   )}
@@ -287,7 +287,7 @@ export default function EnrollStudentModal({
                               {item.program_name}
                             </h4>
                             {item.level && (
-                              <p className="text-gray-400 text-[11px]">{item.level} level</p>
+                              <p className="text-gray-500 text-[11px]">{item.level} level</p>
                             )}
                           </div>
                         </div>
@@ -338,7 +338,7 @@ export default function EnrollStudentModal({
                         <Icon
                           icon="lucide:search"
                           size={14}
-                          className="text-gray-400 mr-2"
+                          className="text-gray-500 mr-2"
                         />
                         <input
                           type="text"
@@ -381,7 +381,7 @@ export default function EnrollStudentModal({
                                   <h5 className="font-semibold text-gray-800 text-[11px] truncate">
                                     {item.title}
                                   </h5>
-                                  <p className="text-gray-400 text-[10px]">
+                                  <p className="text-gray-500 text-[10px]">
                                     {item.subtitle}
                                   </p>
                                 </div>
@@ -401,7 +401,7 @@ export default function EnrollStudentModal({
                             </div>
                           ))
                         ) : (
-                          <p className="text-center text-xs text-gray-400 py-2">
+                          <p className="text-center text-xs text-gray-500 py-2">
                             No available programs found
                           </p>
                         )}
@@ -414,7 +414,7 @@ export default function EnrollStudentModal({
                             setIsSearchOpen(false);
                             setSearchQuery("");
                           }}
-                          className="text-xs text-gray-400 hover:text-gray-600 transition"
+                          className="text-xs text-gray-500 hover:text-gray-600 transition"
                         >
                           Close
                         </button>

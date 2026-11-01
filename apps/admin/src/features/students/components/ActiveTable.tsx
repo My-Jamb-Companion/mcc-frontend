@@ -470,7 +470,7 @@ export default function ActiveTable({
         cell: (info) => (
           <span className="text-sm text-gray-600 whitespace-nowrap">
             {info.getValue()}
-            <span className="text-gray-300 mx-1">|</span>
+            <span className="text-gray-500 mx-1">|</span>
             {info.row.original.dateJoinedTime}
           </span>
         ),
@@ -483,7 +483,7 @@ export default function ActiveTable({
             {info.getValue() ?? "—"}
             {info.row.original.lastLoginTime && (
               <>
-                <span className="text-gray-300 mx-1">|</span>
+                <span className="text-gray-500 mx-1">|</span>
                 {info.row.original.lastLoginTime}
               </>
             )}
@@ -496,7 +496,7 @@ export default function ActiveTable({
         cell: (info) => (
           <span className="text-sm text-gray-600 whitespace-nowrap">
             {info.getValue()}
-            <span className="text-gray-300 mx-1">|</span>
+            <span className="text-gray-500 mx-1">|</span>
             {info.row.original.dateOnboardedTime}
           </span>
         ),
@@ -545,11 +545,11 @@ export default function ActiveTable({
   });
 
   if (isLoading) {
-    return <p className="py-10 text-center text-sm text-gray-400">Loading students…</p>;
+    return <p className="py-10 text-center text-sm text-gray-500">Loading students…</p>;
   }
 
   if (students.length === 0) {
-    return <p className="py-10 text-center text-sm text-gray-400">No active students yet.</p>;
+    return <p className="py-10 text-center text-sm text-gray-500">No active students yet.</p>;
   }
 
   return <EnhancedTable table={table} enableSelection className="min-w-full" />;

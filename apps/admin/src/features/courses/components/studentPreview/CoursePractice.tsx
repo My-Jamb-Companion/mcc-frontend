@@ -197,7 +197,7 @@ export function CoursePractice({
             transition={{
               duration: 0.25,
             }}
-            className="text-[11px] font-semibold tracking-widest text-gray-400 uppercase mb-0.5"
+            className="text-[11px] font-semibold tracking-widest text-gray-500 uppercase mb-0.5"
           >
             {label} - Question {currentIndex + 1} of {questions.length}
             {isMulti && " (Select all that apply)"}

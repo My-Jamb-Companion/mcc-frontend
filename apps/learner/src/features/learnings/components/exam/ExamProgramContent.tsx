@@ -217,7 +217,7 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
           Exam prep
         </Link>
         <span className="text-subtle">/</span>
-        <span className="text-muted/50 cursor-default text-nowrap truncate">{title}</span>
+        <span className="text-subtle cursor-default text-nowrap truncate">{title}</span>
       </nav>
 
       <BookingSection purpose="exam" targetId={programId} />

@@ -90,7 +90,7 @@ export default function ViewActiveStudent({
                   onClick={onClose}
                   variant={"ghost"}
                   size={"fit"}
-                  className="rounded-full py-1 px-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                  className="rounded-full py-1 px-2 text-gray-500 hover:bg-gray-100 hover:text-gray-600 transition-colors"
                   aria-label="Close panel"
                 >
                   ✕
@@ -123,7 +123,7 @@ export default function ViewActiveStudent({
                       <h1 className="font-medium text-white text-xl">
                         {student.name}
                       </h1>
-                      <h1 className="flex items-center gap-1 text-gray-400 text-xs">
+                      <h1 className="flex items-center gap-1 text-gray-500 text-xs">
                         <div className="h-1.5 w-1.5  bg-green-500 rounded-full" />
                         <span>Active student</span>
                       </h1>
@@ -131,7 +131,7 @@ export default function ViewActiveStudent({
 
                     <div className="flex flex-col gap-3 ">
                       <div className="flex items-center gap-6">
-                        <p className="text-gray-400 text-xs">
+                        <p className="text-gray-500 text-xs">
                           Onboarding level
                         </p>
                         <p className="text-white text-xs font-medium">
@@ -293,9 +293,9 @@ function ProgramOfChoice({
       </h2>
 
       {isLoading ? (
-        <p className="text-xs text-gray-400 py-4">Loading…</p>
+        <p className="text-xs text-gray-500 py-4">Loading…</p>
       ) : programs.length === 0 ? (
-        <p className="text-xs text-gray-400 py-4">Not enrolled in any programs.</p>
+        <p className="text-xs text-gray-500 py-4">Not enrolled in any programs.</p>
       ) : (
         <div className="divide-y divide-gray-100">
           {programs.map((program) => (
@@ -352,7 +352,7 @@ function LevelAndBadges({
     <div className="w-full border-t border-muted/30 mt-6 pt-4">
       <h2 className="text-sm font-semibold text-subtle mb-2">Level and badges</h2>
       {isLoading ? (
-        <p className="text-xs text-gray-400 py-2">Loading…</p>
+        <p className="text-xs text-gray-500 py-2">Loading…</p>
       ) : (
         <>
           <p className="text-sm font-semibold text-gray-900">
@@ -360,7 +360,7 @@ function LevelAndBadges({
             <span className="ml-2 text-xs font-normal text-gray-500">{(detail?.xp ?? 0).toLocaleString()} XP</span>
           </p>
           {badges.length === 0 ? (
-            <p className="text-xs text-gray-400 py-3">No badges earned yet.</p>
+            <p className="text-xs text-gray-500 py-3">No badges earned yet.</p>
           ) : (
             <ul className="mt-3 flex flex-wrap gap-2">
               {badges.map((badge) => (
@@ -410,7 +410,7 @@ function LearningInformation({
               {isLoading ? "…" : joined.date}
               {joined.time && (
                 <>
-                  <span className="mx-1 text-gray-300">|</span>
+                  <span className="mx-1 text-gray-500">|</span>
                   {joined.time}
                 </>
               )}
@@ -462,7 +462,7 @@ function LearningInformation({
               {isLoading ? "…" : onboarded.date}
               {onboarded.time && (
                 <>
-                  <span className="mx-1 text-gray-300">|</span>
+                  <span className="mx-1 text-gray-500">|</span>
                   {onboarded.time}
                 </>
               )}
@@ -474,7 +474,7 @@ function LearningInformation({
               Leaderboard position
             </p>
             {isLoading ? (
-              <p className="text-xs text-gray-400">…</p>
+              <p className="text-xs text-gray-500">…</p>
             ) : detail?.leaderboard_position ? (
               <div className="flex items-center gap-3">
                 <div
@@ -490,7 +490,7 @@ function LearningInformation({
                 </span>
               </div>
             ) : (
-              <p className="text-xs text-gray-400">Not ranked yet.</p>
+              <p className="text-xs text-gray-500">Not ranked yet.</p>
             )}
           </div>
         </div>
@@ -518,9 +518,9 @@ function UpcomingSessions({
       </h3>
 
       {isLoading ? (
-        <p className="text-xs text-gray-400">Loading…</p>
+        <p className="text-xs text-gray-500">Loading…</p>
       ) : sessions.length === 0 ? (
-        <p className="text-xs text-gray-400">No upcoming sessions.</p>
+        <p className="text-xs text-gray-500">No upcoming sessions.</p>
       ) : (
         <div className="flex flex-col gap-3">
           {sessions.slice(0, 3).map((session) => {
@@ -584,9 +584,9 @@ function ProgramTeachers({
       </h3>
 
       {isLoading ? (
-        <p className="text-xs text-gray-400">Loading…</p>
+        <p className="text-xs text-gray-500">Loading…</p>
       ) : teachers.length === 0 ? (
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-gray-500">
           No teachers for this student&apos;s programs yet.
         </p>
       ) : (

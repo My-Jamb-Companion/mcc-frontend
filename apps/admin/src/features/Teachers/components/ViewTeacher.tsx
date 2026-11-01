@@ -135,7 +135,7 @@ export default function ViewTeacher({
                   onClick={onClose}
                   variant={"ghost"}
                   size={"fit"}
-                  className="rounded-full py-1 px-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                  className="rounded-full py-1 px-2 text-gray-500 hover:bg-gray-100 hover:text-gray-600 transition-colors"
                   aria-label="Close panel"
                 >
                   ✕
@@ -187,7 +187,7 @@ export default function ViewTeacher({
                   <div className="flex items-center justify-between">
                     <div>
                       <h1 className="font-medium text-white text-xl">{name}</h1>
-                      <h1 className="flex items-center gap-1 text-gray-400 text-xs">
+                      <h1 className="flex items-center gap-1 text-gray-500 text-xs">
                         <div
                           className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-green-500" : "bg-gray-400"}`}
                         />
@@ -700,7 +700,7 @@ function PayoutDetailsSection({teacherId}: {teacherId: string}) {
           Show bank details
         </button>
       ) : isLoading ? (
-        <p className="text-xs text-gray-400">Loading…</p>
+        <p className="text-xs text-gray-500">Loading…</p>
       ) : isError ? (
         <p className="text-xs text-red-600">Couldn&apos;t load the bank details.</p>
       ) : !data?.account_number ? (

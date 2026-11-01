@@ -24,7 +24,7 @@ export default function StudentFinanceViewModal({
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
           <button
             onClick={onClose}
-            className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+            className="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-600 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -57,7 +57,7 @@ export default function StudentFinanceViewModal({
                   <h1 className="font-medium text-white text-xl">
                     {student.studentName}
                   </h1>
-                  <h1 className="flex items-center gap-1 text-gray-400 text-xs pt-2">
+                  <h1 className="flex items-center gap-1 text-gray-500 text-xs pt-2">
                     <div className="h-1.5 w-1.5  bg-green-500 rounded-full" />
                     <span>Active student</span>
                   </h1>
@@ -181,7 +181,7 @@ function StudentOverviewHeader({
             <h3 className="truncate font-bold text-neutral-900 text-sm sm:text-base">
               {title}
             </h3>
-            <div className="flex items-center gap-1 text-xs text-neutral-400">
+            <div className="flex items-center gap-1 text-xs text-neutral-500">
               {badgeIcon && (
                 <Icon
                   icon={badgeIcon}
@@ -198,7 +198,7 @@ function StudentOverviewHeader({
           <span className="font-bold text-neutral-900 text-sm sm:text-base">
             {formatCurrency(amount)}
           </span>
-          <span className="text-xs font-medium text-neutral-400">
+          <span className="text-xs font-medium text-neutral-500">
             {dateOnboarded}
           </span>
         </div>
@@ -215,7 +215,7 @@ function StudentOverviewHeader({
           <p className="mt-1 text-3xl font-extrabold text-neutral-900 tracking-tight">
             {formatCurrency(revenuePrimary)}
           </p>
-          <p className="mt-1 text-sm font-semibold text-neutral-400 line-through">
+          <p className="mt-1 text-sm font-semibold text-neutral-500 line-through">
             {formatCurrency(revenueSecondary)}
           </p>
         </div>
