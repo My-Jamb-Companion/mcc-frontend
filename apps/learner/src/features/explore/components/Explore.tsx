@@ -15,7 +15,7 @@ import DiscoverCourses from "@/src/features/brainy/components/DiscoverCourses";
 import RecTopics from "@/src/features/dashboard/components/RecTopics";
 import {useTopics} from "@/src/features/explore/hooks/useTopics";
 import DiscoveryFilters, {SelectOption} from "@/src/features/learnings/components/DiscoveryFilters";
-import {COURSE_LEVEL_OPTIONS, EXAM_LEVEL_OPTIONS} from "@/src/features/learnings/constants/levelOptions";
+import {COURSE_LEVEL_OPTIONS} from "@/src/features/learnings/constants/levelOptions";
 import {useDebouncedValue} from "@/src/features/learnings/hooks/useDebouncedValue";
 
 function uniqueOptions(pairs: Array<[string | null | undefined, string | null | undefined]>): SelectOption[] {
@@ -45,10 +45,6 @@ export default function Explore() {
     () => uniqueOptions(allCourses.map((c) => [c.category_id, c.category_name])),
     [allCourses],
   );
-  const subjectOptions = useMemo(
-    () => uniqueOptions(programs.map((p) => [p.subject_id, p.subject_name])),
-    [programs],
-  );
 
   const [courseSearchInput, setCourseSearchInput] = useState("");
   const [courseCategory, setCourseCategory] = useState("");
@@ -66,17 +62,6 @@ export default function Explore() {
     search: courseSearch || undefined,
     category_id: courseCategory || undefined,
     level: courseLevel || undefined,
-  });
-
-  const [examSearchInput, setExamSearchInput] = useState("");
-  const [examSubject, setExamSubject] = useState("");
-  const [examLevel, setExamLevel] = useState("");
-  const examSearch = useDebouncedValue(examSearchInput);
-  const examFiltersActive = !!(examSearch || examSubject || examLevel);
-  const {programs: filteredPrograms, isLoading: filteredProgramsLoading} = usePrograms({
-    search: examSearch || undefined,
-    subject_id: examSubject || undefined,
-    level: examLevel || undefined,
   });
 
   return (
@@ -141,36 +126,6 @@ export default function Explore() {
           )}
           {filteredCourses.map((course) => (
             <CourseCard key={course.course_id} {...fromApiCourse(course)} />
-          ))}
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-4 pt-4">
-        <h2 className="text-lg font-semibold">Browse exam-prep programs</h2>
-        <DiscoveryFilters
-          search={examSearchInput}
-          onSearchChange={setExamSearchInput}
-          searchPlaceholder="Search exam-prep programs…"
-          level={examLevel}
-          onLevelChange={setExamLevel}
-          levelOptions={EXAM_LEVEL_OPTIONS}
-          secondaryAllLabel="All subjects"
-          secondaryValue={examSubject}
-          onSecondaryChange={setExamSubject}
-          secondaryOptions={subjectOptions}
-        />
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-          {filteredProgramsLoading &&
-            Array.from({length: 4}).map((_, i) => <ExamCardSkeleton key={i} />)}
-          {!filteredProgramsLoading && filteredPrograms.length === 0 && (
-            <p className="col-span-full text-sm text-muted py-8 text-center">
-              {examFiltersActive
-                ? "No exam-prep programs match those filters."
-                : "No exam-prep programs available yet."}
-            </p>
-          )}
-          {filteredPrograms.map((program) => (
-            <ExamCard key={program.program_id} exam={fromApiExamProgram(program)} />
           ))}
         </div>
       </div>
