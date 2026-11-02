@@ -54,7 +54,11 @@ export default function CourseContent({
   const totalDuration = useLessonsDuration(allLessons);
   const certificate = certificates.find((c) => c.course_id === courseId) ?? null;
 
+  // "Mobile" here is whatever shows the Course Content and AI Assistant as tabs rather than in the side panel: the side
+  // panel only exists from the `lg` breakpoint (1024px), so a tablet needs the tabs too.
   const [isMobile, setIsMobile] = useState(false);
+  // Until the screen has been measured, isMobile is only a guess, so nothing may act on it.
+  const [measured, setMeasured] = useState(false);
   const [sidePanel, setSidePanel] = useState<"course" | "ai">("course");
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
@@ -170,16 +174,18 @@ export default function CourseContent({
   };
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
     handleResize();
+    setMeasured(true);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
-    if (!isMobile) handleTabChange("tab", "overview");
+    // On a wide screen those two tabs do not exist (they live in the side panel), so leave them.
+    if (measured && !isMobile && (activeTab === "content" || activeTab === "ai")) handleTabChange("tab", "overview");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMobile]);
+  }, [isMobile, measured]);
 
   const kind = activeLesson ? lessonKind(activeLesson) : null;
 
@@ -358,7 +364,7 @@ export default function CourseContent({
                 />
               )}
               {activeTab === "ai" && isMobile && (
-                <div className="h-[550px] w-full">
+                <div className="h-[75dvh] max-h-[680px] min-h-[420px] w-full">
                   <BrainyCourseSidePanel className="h-full" onSend={handleBrainySend} />
                 </div>
               )}

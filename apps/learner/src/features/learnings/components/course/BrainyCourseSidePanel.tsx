@@ -33,7 +33,7 @@ export default function BrainyCourseSidePanel({
   suggestions: suggestionsProp,
   onSend,
   placeholder = "Ask Brainy about this course",
-  className = "h-screen",
+  className = "h-dvh",
 }: AIChatProps) {
   const {suggestions: apiSuggestions} = usePromptSuggestions();
   const suggestions = suggestionsProp ?? apiSuggestions;

@@ -1,4 +1,5 @@
 "use client";
+import {BrainyLogo} from "@/src/features/components/BrainyLogo";
 import {useEffect, useRef, useState} from "react";
 import {AnimatePresence, Icon, motion, showError} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
@@ -219,7 +220,7 @@ export function HeadUnit() {
   const chatIndex = pathNameArray.indexOf("chat");
   const isChatPage = chatIndex !== -1 && pathNameArray[chatIndex + 1];
   return (
-    <header className="sm:hidden absolute left-0 top-5 w-full flex items-center justify-between py-2 z-10 bg-background backdrop-blur-md">
+    <header className="sm:hidden absolute left-0 top-0 w-full flex items-center justify-between px-4 py-3 z-10 bg-background backdrop-blur-md">
       <div className="flex items-center gap-3">
         {isChatPage && (
           <Link
@@ -229,9 +230,7 @@ export function HeadUnit() {
             <Icon icon="ep:back" size={22} />
           </Link>
         )}
-        <p className="text-2xl font-semibold whitespace-nowrap">
-          Brainy<span className="text-primary">.AI</span>{" "}
-        </p>
+        <BrainyLogo height={30} />
       </div>
       <button
         onClick={() => toggleSidebar()}

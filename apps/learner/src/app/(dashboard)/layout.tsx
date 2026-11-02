@@ -16,7 +16,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const {isAuthenticated, hydrated, user} = useAuth();
-  const [sideNav, setSideNav] = useState(true);
+  // Closed to start: the menu opens on hover (desktop) or from the header button (phone), never over the page on load.
+  const [sideNav, setSideNav] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const isMobile = useIsMobile();
@@ -38,7 +39,7 @@ export default function DashboardLayout({
   const isAccount = pathname.includes("/account");
   return (
     <RoleLayout allowedRoles={["student"]}>
-      <div className="flex flex-col h-screen scrollbar-hide">
+      <div className="flex flex-col h-dvh scrollbar-hide">
         <Header open={sideNav} setOpen={setSideNav} />
         <ConsentBanner />
 
@@ -50,7 +51,7 @@ export default function DashboardLayout({
             style={{gridTemplateColumns: "auto 1fr"}}
           >
             <SideNav open={sideNav} setOpen={setSideNav} />
-            <div className="flex flex-col w-full overflow-y-auto col-start-2 max-sm:pl-0  scrollbar-hide">
+            <div className="flex flex-col w-full overflow-y-auto col-start-2 max-sm:pl-0 max-sm:pb-24 scrollbar-hide">
               {children}
             </div>
           </div>
@@ -60,13 +61,13 @@ export default function DashboardLayout({
             style={{gridTemplateColumns: "auto 1fr"}}
           >
             <SideNav open={sideNav} setOpen={setSideNav} />
-            <div className="flex flex-col w-full overflow-y-auto col-start-2 pl-30 max-sm:pl-0 max-w-[2500px] mx-auto scrollbar-hide">
+            <div className="flex flex-col w-full overflow-y-auto col-start-2 pl-30 max-sm:pl-0 max-sm:pb-24 max-w-[2500px] mx-auto scrollbar-hide">
               {children}
             </div>
           </div>
         )}
 
-        <Help />
+        <Help hideOnPhone={pathname.startsWith("/brainy")} />
       </div>
     </RoleLayout>
   );

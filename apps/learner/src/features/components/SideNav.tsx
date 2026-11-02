@@ -107,7 +107,10 @@ export default function SideNav({
           duration: 0.25,
           ease: "easeInOut",
         }}
-        className="pl-3 max-sm:px-4 max-sm:pt-6 flex flex-col pb-5 h-full absolute left-0 top-0 w-fit max-sm:w-full max-sm:bg-white z-20"
+        // On a phone the menu is a drawer. The server cannot know the screen size, so it must start shut in CSS
+        // (data-closed), not wait for the script to move it, or it covers the page until the page wakes up.
+        data-closed={!open}
+        className="pl-3 max-sm:px-4 max-sm:pt-6 flex flex-col pb-5 h-full absolute left-0 top-0 w-fit max-sm:w-full max-sm:bg-white z-20 max-sm:data-[closed=true]:-translate-x-full max-sm:transition-[translate] max-sm:duration-200"
       >
         <motion.div
           animate={{width: isMobile ? "100%" : linksHovering ? 220 : 80}}
