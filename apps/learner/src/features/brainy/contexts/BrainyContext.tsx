@@ -144,7 +144,12 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
   >({});
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Shut until the screen is measured: the server cannot tell a phone from a desktop, and an open drawer on a phone
+  // covers the whole chat until the page wakes up.
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  useEffect(() => {
+    setIsSidebarOpen(!window.matchMedia("(max-width: 639px)").matches);
+  }, []);
 
   const queryClient = useQueryClient();
   const {sessions: remoteSessions, isLoading: sessionsLoading} = useSessions();

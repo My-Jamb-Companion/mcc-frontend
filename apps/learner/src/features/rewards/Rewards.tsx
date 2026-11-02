@@ -42,7 +42,7 @@ function TopNav({
     {key: "invite", label: "Invite Friends", icon: "ri:user-add-fill"},
   ];
   return (
-    <div className="flex justify-center gap-6 py-4 mb-7 max-md:overflow-x-auto max-md:pl-30">
+    <div className="flex gap-6 py-4 mb-7 md:justify-center max-md:overflow-x-auto scrollbar-hide">
       {items.map(({key, label, icon}) => {
         const isActive = active === key;
         return (

@@ -19,7 +19,7 @@ export default function Layout({children}: {children: React.ReactNode}) {
   if (!hydrated || !isAuthenticated) return null;
 
   return (
-    <section className="flex flex-col h-screen">
+    <section className="flex flex-col h-dvh">
       <div className="py-6 px-8 max-sm:hidden">
         <h4>
           <BrandLogo height={32} />

@@ -36,13 +36,13 @@ export default function RecTopics({title = "Browse by topic", topics, selectedId
         type="button"
         onClick={() => onSelect(topic)}
         aria-pressed={selected}
-        className={`flex w-full items-center gap-2 whitespace-nowrap rounded-xl border px-4 py-3 text-sm font-medium shadow-sm transition-colors cursor-pointer ${
+        className={`flex w-full min-w-0 items-center gap-2 whitespace-nowrap rounded-xl border px-4 py-3 text-sm font-medium shadow-sm transition-colors cursor-pointer ${
           selected ? "border-primary bg-primary/10 text-primary" : "border-muted/40 hover:bg-muted/10"
         }`}
       >
-        <Icon icon="ri:instance-fill" size={16} />
-        {topic.name}
-        <span className="ml-auto pl-2 text-xs font-normal text-subtle">{topic.course_count}</span>
+        <Icon icon="ri:instance-fill" size={16} className="shrink-0" />
+        <span className="truncate">{topic.name}</span>
+        <span className="ml-auto shrink-0 pl-2 text-xs font-normal text-subtle">{topic.course_count}</span>
       </button>
     );
   };

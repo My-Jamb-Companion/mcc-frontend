@@ -288,7 +288,7 @@ export default function BrainyChats() {
         </div>
       </div>
 
-      <div className="absolute bottom-8 w-full max-sm:bottom-3">
+      <div className="absolute bottom-0 w-full bg-background pt-2 pb-8 max-sm:pb-3">
         <div className={CHAT_COLUMN}>
           <AiUsageLog messages={activeSession?.messages ?? []} />
           <AllowanceMeter className="w-full" />

@@ -6,7 +6,8 @@ import CompleteProfileForm from "./CompleteProfileForm";
 import Image from "next/image";
 import {useProfileProgressStore} from "@mcc/store";
 
-export default function Help() {
+/** `hideOnPhone` lifts it out of the way on screens where it would sit on top of the page's own controls (the Brainy chat). */
+export default function Help({hideOnPhone = false}: {hideOnPhone?: boolean}) {
   const [open, setOpen] = useState(false);
   const modalRef = useRef<ModalRef>(null);
 
@@ -24,7 +25,7 @@ export default function Help() {
             ease: [0.22, 1, 0.36, 1],
           },
         }}
-        className="fixed right-10 max-sm:right-5 bottom-5  flex flex-col items-end z-50"
+        className={`fixed right-10 max-sm:right-5 bottom-5 flex flex-col items-end z-50 ${hideOnPhone ? "max-sm:hidden" : ""}`}
       >
         <AnimatePresence mode="popLayout">
           {open && (

@@ -185,7 +185,7 @@ function WeeklyGoalCalendar({
   days: {day: string; date: string; status: "completed" | "failed" | "current" | "upcoming"}[];
 }) {
   return (
-    <div className="mt-6 overflow-x-auto">
+    <div className="mt-6 overflow-x-auto scrollbar-hide">
       <div className="flex w-max items-center gap-2">
         {days.map((day) => (
           <div
