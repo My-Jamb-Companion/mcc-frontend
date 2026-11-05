@@ -68,7 +68,7 @@ export default function LessonAudioModal({open, onClose, kind, parentId, name}: 
       <div className="flex flex-col gap-4">
         <p className="text-sm text-muted">
           Make the spoken audio for <span className="font-medium text-foreground">{name}</span> now, so learners can press Listen
-          and hear it straight away. Audio that is not made yet is made the first time a learner asks for it.
+          and hear it straight away. Audio that is not made yet is made the first time a learner asks for it. It uses the lessons as last saved, so save your changes first.
         </p>
 
         {isLoading && <p className="py-8 text-center text-sm text-muted">Checking the lessons…</p>}

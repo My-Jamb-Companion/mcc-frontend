@@ -21,6 +21,7 @@ import {
   unpublishExamProgram,
 } from "../services/exam.service";
 import {useExamProgramEdit} from "../hooks/useExamPrograms";
+import LessonAudioModal from "@/src/features/lesson-audio/components/LessonAudioModal";
 import {useSaveProgramContent} from "../hooks/useSaveProgramContent";
 import {isContentChanged} from "../helper/contentSave";
 import ExamStudentView from "./studentPreview/ExamStudentView";
@@ -185,6 +186,7 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
   const [contentChanged, setContentChanged] = useState(false);
   const [pricingBannerDismissed, setPricingBannerDismissed] = useState(false);
   const programId = methods.watch("id");
+  const [audioOpen, setAudioOpen] = useState(false);
 
   // Load the program into the form once. Without the guard, a background
   // refetch (e.g. window focus after a file picker) would reset the form and
@@ -398,6 +400,7 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
   return (
     <FormProvider {...methods}>
       <div className="flex flex-col h-full">
+        <LessonAudioModal open={audioOpen} onClose={() => setAudioOpen(false)} kind="exam" parentId={programId ?? ""} name={methods.getValues("exam") || "this program"} />
         {programId && !editId && !pricingBannerDismissed && (
           <div className="mb-4 flex items-center justify-between rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-800">
             <div className="flex items-center gap-2">
@@ -494,6 +497,19 @@ export default function CreateExamProgramForm({editId}: {editId?: string}) {
               onClick={() => window.open(`/dashboard/exam-program/mocks?id=${programId}`, "_blank")}
             >
               Mock exams
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="text-nowrap"
+              shadow={"sm"}
+              size={"sm"}
+              leftIcon={<Icon icon="ph:headphones" size={16} />}
+              disabled={!programId}
+              title={programId ? "Make the spoken audio for this program's text lessons" : "Save the details first"}
+              onClick={() => setAudioOpen(true)}
+            >
+              Lesson audio
             </Button>
             {isLive ? (
               <>
