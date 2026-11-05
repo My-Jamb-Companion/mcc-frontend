@@ -16,6 +16,10 @@ interface LessonSwipePagerProps {
   lessonTitle: string;
   /** Called when the student taps Continue on the closing page, the same completion path the desktop "Next" uses. */
   onComplete: () => void;
+  /** Told whenever the page being read changes. */
+  onPageChange?: (page: number) => void;
+  /** A request (from the lesson audio) to take the reader to a page; a new `id` is a new request. */
+  goToRequest?: {page: number; id: number} | null;
 }
 
 /**
@@ -24,7 +28,7 @@ interface LessonSwipePagerProps {
  * feels like the device's own, needs no gesture code, and a section taller than the screen still scrolls inside
  * itself before the next one snaps in. A closing page holds the Continue button.
  */
-export default function LessonSwipePager({blocks, lessonTitle, onComplete}: LessonSwipePagerProps) {
+export default function LessonSwipePager({blocks, lessonTitle, onComplete, onPageChange, goToRequest}: LessonSwipePagerProps) {
   const scroller = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<(HTMLElement | null)[]>([]);
   const [page, setPage] = useState(0);
@@ -65,6 +69,18 @@ export default function LessonSwipePager({blocks, lessonTitle, onComplete}: Less
   function goTo(index: number) {
     pageRefs.current[index]?.scrollIntoView({behavior: "smooth", block: "start"});
   }
+
+  useEffect(() => {
+    onPageChange?.(page);
+    // Only the page matters here, not the callback's identity.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
+  useEffect(() => {
+    if (goToRequest) goTo(goToRequest.page);
+    // A new request is a new id; the helper itself does not change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [goToRequest?.id]);
 
   const card = (
     <div

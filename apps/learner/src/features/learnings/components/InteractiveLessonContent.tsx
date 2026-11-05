@@ -8,6 +8,7 @@ import {LESSON_CONTENT_CSS} from "@/src/features/learnings/helper/lessonCss";
 import {useSwipeMode} from "@/src/features/learnings/hooks/useSwipeMode";
 import LessonAskBrainy from "./LessonAskBrainy";
 import LessonSwipePager from "./LessonSwipePager";
+import LessonListen, {type ListenTarget} from "./LessonListen";
 
 interface InteractiveLessonContentProps {
   html: string;
@@ -15,6 +16,8 @@ interface InteractiveLessonContentProps {
   /** Called once the student finishes the last block -- the caller's own
    * "lesson watched" completion path (same one video onEnded uses). */
   onComplete: () => void;
+  /** Where this lesson lives, to offer "Listen to this lesson". Omit it and no audio is offered. */
+  listen?: ListenTarget;
 }
 
 /**
@@ -25,9 +28,9 @@ export default function InteractiveLessonContent({
   html,
   lessonTitle,
   onComplete,
+  listen,
 }: InteractiveLessonContentProps) {
   const blocks = useMemo(() => splitIntoBlocks(html), [html]);
-  const swipe = useSwipeMode();
 
   if (blocks.length === 0) {
     return (
@@ -37,24 +40,53 @@ export default function InteractiveLessonContent({
     );
   }
 
-  if (swipe) {
-    // Keyed on the lesson so moving to another one starts at its first section.
-    return <LessonSwipePager key={html} blocks={blocks} lessonTitle={lessonTitle} onComplete={onComplete} />;
-  }
+  // Keyed on the lesson so moving to another one starts at its first section, with its own audio.
+  return <LessonView key={html} blocks={blocks} lessonTitle={lessonTitle} onComplete={onComplete} listen={listen} />;
+}
 
-  return <ButtonLesson key={html} blocks={blocks} lessonTitle={lessonTitle} onComplete={onComplete} />;
+function LessonView({
+  blocks,
+  lessonTitle,
+  onComplete,
+  listen,
+}: {
+  blocks: ReturnType<typeof splitIntoBlocks>;
+  lessonTitle: string;
+  onComplete: () => void;
+  listen?: ListenTarget;
+}) {
+  const swipe = useSwipeMode();
+  // The page being read, and a request from the audio to take the swipe pager to another page.
+  const [page, setPage] = useState(0);
+  const [goTo, setGoTo] = useState<{page: number; id: number} | null>(null);
+  const goToPage = (next: number) => (swipe ? setGoTo({page: next, id: Date.now()}) : setPage(next));
+
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-3">
+      {listen && <LessonListen {...listen} pages={blocks.length} page={page} onGoToPage={goToPage} />}
+      {swipe ? (
+        <LessonSwipePager blocks={blocks} lessonTitle={lessonTitle} onComplete={onComplete} onPageChange={setPage} goToRequest={goTo} />
+      ) : (
+        <ButtonLesson blocks={blocks} lessonTitle={lessonTitle} onComplete={onComplete} index={page} onIndexChange={setPage} />
+      )}
+    </div>
+  );
 }
 
 function ButtonLesson({
   blocks,
   lessonTitle,
   onComplete,
+  index,
+  onIndexChange,
 }: {
   blocks: ReturnType<typeof splitIntoBlocks>;
   lessonTitle: string;
   onComplete: () => void;
+  index: number;
+  onIndexChange: (index: number) => void;
 }) {
-  const [index, setIndex] = useState(0);
+  const setIndex = (update: (i: number) => number) => onIndexChange(update(index));
 
   const block = blocks[index];
   // Quill's lists need rebuilding to show bullets and numbers without Quill's stylesheet.

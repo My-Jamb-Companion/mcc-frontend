@@ -258,6 +258,7 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
               html={activeLecture.content}
               lessonTitle={activeLecture.title}
               onComplete={() => finishLecture(activeLecture.lecture_id)}
+              listen={{kind: "exam", parentId: programId, lectureId: activeLecture.lecture_id}}
             />
           ) : youTubeEmbedUrl(activeLecture.video_url) ? (
             <iframe

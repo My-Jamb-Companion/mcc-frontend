@@ -294,6 +294,7 @@ export default function CourseContent({
                 html={activeLesson.content ?? ""}
                 lessonTitle={activeLesson.title}
                 onComplete={handleLessonEnded}
+                listen={{kind: "course", parentId: courseId, lectureId: activeLesson.id}}
               />
             ) : (
               <CoursePlayer
