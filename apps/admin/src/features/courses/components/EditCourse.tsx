@@ -22,6 +22,7 @@ import {
 import {useCourse} from "../hooks/useCourses";
 import {nextVersion, withCourseVersion} from "../helper/contentVersion";
 import {useQueryClient} from "@tanstack/react-query";
+import LessonAudioModal from "@/src/features/lesson-audio/components/LessonAudioModal";
 import {
   getApiErrorMessage,
   publishCourse,
@@ -127,6 +128,7 @@ export default function CreateCourseForm() {
   const [activeStep, setActiveStep] = useState<Step>("details");
   const [isPublished, setIsPublished] = useState(false);
   const [previewView, setPreviewView] = useState(false);
+  const [audioOpen, setAudioOpen] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -369,6 +371,7 @@ export default function CreateCourseForm() {
 
   return (
     <>
+      <LessonAudioModal open={audioOpen} onClose={() => setAudioOpen(false)} kind="course" parentId={editId ?? ""} name={methods.watch("courseName") || "this course"} />
       {previewView ? (
         <>
           <div className="flex items-center justify-between mb-5">
@@ -503,6 +506,18 @@ export default function CreateCourseForm() {
               </div>
 
               <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  shadow={"sm"}
+                  size={"sm"}
+                  leftIcon={<Icon icon="ph:headphones" size={16} />}
+                  disabled={!editId}
+                  title="Make the spoken audio for this course's text lessons"
+                  onClick={() => setAudioOpen(true)}
+                >
+                  Lesson audio
+                </Button>
                 <Button
                   type="button"
                   variant={!canPublish ? "secondary" : "outline"}
