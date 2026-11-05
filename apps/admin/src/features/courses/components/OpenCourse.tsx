@@ -1,6 +1,7 @@
 "use client";
 import {useRouter} from "next/navigation";
 import {Button, Icon, showError, showSuccess} from "@mcc/ui";
+import LessonAudioModal from "@/src/features/lesson-audio/components/LessonAudioModal";
 import {FormInputs} from "@mcc/features";
 import {useEffect, useRef, useState} from "react";
 import CourseSideDetail from "./CourseSideDetails";
@@ -34,6 +35,7 @@ export default function OpenCourse({id}: {id: string}) {
     | undefined;
 
   const [filter, setFilter] = useState("last 7 days");
+  const [audioOpen, setAudioOpen] = useState(false);
   const status = STATUS_STYLES[item?.status || "draft"];
 
   if (isLoadingCourse) {
@@ -117,6 +119,13 @@ export default function OpenCourse({id}: {id: string}) {
 
               <Button
                 variant="outline"
+                leftIcon={<Icon icon="ph:headphones" size={18} />}
+                onClick={() => setAudioOpen(true)}
+              >
+                Lesson audio
+              </Button>
+              <Button
+                variant="outline"
                 leftIcon={<Icon icon="ri:edit-circle-line" size={18} />}
                 onClick={() =>
                   router.push(`/dashboard/courses/edit-course?id=${id}`)
@@ -178,6 +187,7 @@ export default function OpenCourse({id}: {id: string}) {
           </div>
         </div>
       </div>
+      <LessonAudioModal open={audioOpen} onClose={() => setAudioOpen(false)} kind="course" parentId={id ?? ""} name={item?.courseName ?? "this course"} />
     </section>
   );
 }
