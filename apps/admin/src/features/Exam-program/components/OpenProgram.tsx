@@ -2,6 +2,7 @@
 import {useRouter, useSearchParams} from "next/navigation";
 import type {ProgramFeatures, ProgramStats} from "./ProgramRow";
 import {Button, Icon, showError, showSuccess} from "@mcc/ui";
+import LessonAudioModal from "@/src/features/lesson-audio/components/LessonAudioModal";
 import {FormInputs} from "@mcc/features";
 import {useState} from "react";
 import ProgramSideDetail from "./ProgramSideDetail";
@@ -59,6 +60,7 @@ export default function OpenProgram() {
 
   const [filter, setFilter] = useState("last 7 days");
   const [exporting, setExporting] = useState(false);
+  const [audioOpen, setAudioOpen] = useState(false);
 
   const handleExport = async () => {
     if (!id || !item) return;
@@ -156,6 +158,13 @@ export default function OpenProgram() {
           </Button>
           <Button
             variant="outline"
+            leftIcon={<Icon icon="ph:headphones" size={18} />}
+            onClick={() => setAudioOpen(true)}
+          >
+            Lesson audio
+          </Button>
+          <Button
+            variant="outline"
             leftIcon={<Icon icon="ri:edit-circle-line" size={18} />}
             onClick={() =>
               router.push(`/dashboard/exam-program/edit-program?id=${id}`)
@@ -229,6 +238,7 @@ export default function OpenProgram() {
           </div>
         </div>
       </div>
+      <LessonAudioModal open={audioOpen} onClose={() => setAudioOpen(false)} kind="exam" parentId={id ?? ""} name={item.title} />
     </section>
   );
 }
