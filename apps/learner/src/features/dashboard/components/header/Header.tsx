@@ -5,6 +5,7 @@ import Link from "next/link";
 import {useEffect, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import {useAuth} from "@mcc/features";
+import {useIsQaTester} from "@/src/features/account/hooks/useProfile";
 import {useRewardsBalance} from "@/src/features/rewards/hooks/useRewards";
 
 export default function Header({
@@ -15,6 +16,8 @@ export default function Header({
   setOpen: (v: boolean) => void;
 }) {
   const [isMobile, setIsMobile] = useState(false);
+  // A QA tester earns nothing, so the points and gems chip is left out.
+  const isTester = useIsQaTester();
   const pathname = usePathname();
   const isBrainy = pathname.includes("brainy");
   const router = useRouter();
@@ -54,14 +57,14 @@ export default function Header({
         </Link>
       </div>
       <div className="flex shrink-0 items-center gap-5 max-sm:gap-1.5">
-        <Link
+        {!isTester && <Link
           href="/wallet"
           aria-label={`Wallet: ${balance?.total_points ?? 0} points, ${balance?.total_gems ?? 0} gems`}
           className="flex items-center gap-2.5 max-sm:gap-1.5 rounded-full border border-muted/30 px-3 max-sm:px-2 py-1.5 text-xs font-semibold text-foreground hover:bg-muted/10"
         >
           <span className="flex items-center gap-1"><Icon icon="solar:medal-star-bold" size={14} className="text-amber-500" />{(balance?.total_points ?? 0).toLocaleString()}</span>
           <span className="flex items-center gap-1"><Icon icon="ri:vip-diamond-fill" size={14} className="text-sky-500" />{(balance?.total_gems ?? 0).toLocaleString()}</span>
-        </Link>
+        </Link>}
         <Notifications />
         <ThemeButton />
         <button

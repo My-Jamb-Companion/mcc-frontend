@@ -21,6 +21,8 @@ export interface ApiProfile {
   profile_photo_url?: string | null;
   notification_prefs?: Record<string, boolean>;
   address?: ApiProfileAddress;
+  /** A QA tester: enrols for free, earns no rewards, and is left out of company numbers. */
+  is_qa_tester?: boolean;
 }
 
 export interface ProfileUpdatePayload {

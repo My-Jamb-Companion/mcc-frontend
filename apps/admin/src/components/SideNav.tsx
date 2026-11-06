@@ -12,10 +12,14 @@ interface NavChild {
   key: string;
   label: string;
   href: string;
+  /** Shown to super admins only (the server refuses everyone else regardless). */
+  superOnly?: boolean;
 }
 
 interface NavEntry {
   key: string;
+  /** Shown to super admins only. */
+  superOnly?: boolean;
   icon: string;
   label: string;
   /** Leaf item: clicking the icon navigates straight there. */
@@ -131,6 +135,13 @@ const NAV_ENTRIES: NavEntry[] = [
     icon: "ri:group-line",
     label: "Users",
     href: "/users",
+  },
+  {
+    key: "people-qa",
+    icon: "ri:test-tube-line",
+    label: "QA testers",
+    href: "/dashboard/qa-testers",
+    superOnly: true,
   },
 ];
 
@@ -277,7 +288,9 @@ export default function SideNav() {
   // Only what this admin can open. Unknown access (still loading, or the server can't say) shows everything.
   const visibleEntries = NAV_ENTRIES.map((entry) =>
     entry.children ? {...entry, children: entry.children.filter((c) => canOpen(access, c.href))} : entry,
-  ).filter((entry) => (entry.children ? entry.children.length > 0 : canOpen(access, entry.href)));
+  )
+    .filter((entry) => !entry.superOnly || access?.is_super === true)
+    .filter((entry) => (entry.children ? entry.children.length > 0 : canOpen(access, entry.href)));
   // The gear always has the profile; Settings only for admins who can open it.
   const bottomEntry = {...BOTTOM_ENTRY, children: BOTTOM_ENTRY.children!.filter((c) => canOpen(access, c.href))};
   const containerRef = useRef<HTMLDivElement>(null);

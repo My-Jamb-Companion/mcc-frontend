@@ -94,9 +94,14 @@ export default function Users() {
     {
       accessorKey: "role",
       header: "User Role",
-      cell: ({getValue}) => (
-        <span className="font-medium text-slate-700 capitalize">
+      cell: ({getValue, row}) => (
+        <span className="inline-flex items-center gap-2 font-medium text-slate-700 capitalize">
           {getValue() as string}
+          {row.original.is_qa_tester && (
+            <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-violet-700">
+              QA
+            </span>
+          )}
         </span>
       ),
     },

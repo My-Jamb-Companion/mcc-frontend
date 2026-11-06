@@ -10,6 +10,7 @@ import {ApiCourse} from "@/src/features/courses/services/course.service";
 import {FormatPicker} from "@/src/features/components/FormatPicker";
 import {WhatYouGet} from "@/src/features/components/WhatYouGet";
 import {defaultFormat, defaultTierId, priceOf, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
+import {useIsQaTester} from "@/src/features/account/hooks/useProfile";
 import {useUnlockCourseWithGems} from "@/src/features/wallet/hooks/useWallet";
 import {GemUnlockCard} from "@/src/features/components/GemUnlockCard";
 import {coverFallback} from "@/src/features/components/coverFallback";
@@ -38,6 +39,7 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
   const tierId = defaultTierId(formats, course.tier_prices, price);
   const selectedPrice = priceOf(tiersFor(formats, format, course.tier_prices), tierId, price);
 
+  const isTester = useIsQaTester();
   const unlock = useUnlockCourseWithGems();
 
   const handleUnlock = () => {
@@ -120,6 +122,10 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
             )}
           </p>
 
+          {isTester && !isFree && (
+            <p className="text-sm text-muted">QA tester: this is free for you. Nothing is charged and no points are earned.</p>
+          )}
+
           {!isFree && <FormatPicker formats={formats} selected={format} tierId={tierId} onSelect={setFormat} />}
 
           <WhatYouGet kind="course" formats={formats} format={format} />
@@ -135,7 +141,9 @@ export default function BuyCourse({course}: {course: ApiCourse}) {
                     ? "Starting enrollment…"
                     : isFree
                       ? "Enroll for free"
-                      : "Enroll course"}
+                      : isTester
+                        ? "Enroll as QA tester (free)"
+                        : "Enroll course"}
                 </span>
               </p>
             </Button>

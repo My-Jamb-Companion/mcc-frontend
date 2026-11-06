@@ -10,6 +10,7 @@ import {ApiExamProgram} from "@/src/features/exams/services/exam.service";
 import {FormatPicker} from "@/src/features/components/FormatPicker";
 import {WhatYouGet} from "@/src/features/components/WhatYouGet";
 import {GemUnlockCard} from "@/src/features/components/GemUnlockCard";
+import {useIsQaTester} from "@/src/features/account/hooks/useProfile";
 import {useUnlockProgramWithGems} from "@/src/features/wallet/hooks/useWallet";
 import {defaultFormat, defaultTierId, priceOf, tiersFor, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
 import {coverFallback} from "@/src/features/components/coverFallback";
@@ -26,6 +27,7 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
   const router = useRouter();
   const email = useAuthStore((s) => s.user?.email);
   const registerForProgram = useRegisterForProgram();
+  const isTester = useIsQaTester();
   const unlock = useUnlockProgramWithGems();
   const [error, setError] = useState<string | null>(null);
 
@@ -119,6 +121,10 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
             )}
           </p>
 
+          {isTester && !isFree && (
+            <p className="text-sm text-muted">QA tester: this is free for you. Nothing is charged and no points are earned.</p>
+          )}
+
           {!isFree && <FormatPicker formats={formats} selected={format} tierId={tierId} onSelect={setFormat} />}
 
           <WhatYouGet kind="exam" formats={formats} format={format} />
@@ -134,7 +140,9 @@ export default function BuyExam({program}: {program: ApiExamProgram}) {
                     ? "Starting registration…"
                     : isFree
                       ? "Register for free"
-                      : "Register"}
+                      : isTester
+                        ? "Register as QA tester (free)"
+                        : "Register"}
                 </span>
               </p>
             </Button>
