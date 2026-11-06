@@ -1,5 +1,6 @@
 "use client";
 
+import {useIsQaTester} from "@/src/features/account/hooks/useProfile";
 import {useAssignmentForTarget} from "../hooks/useAssignment";
 import {SlotPicker} from "./SlotPicker";
 import {AssignmentStatusCard} from "./AssignmentStatusCard";
@@ -21,8 +22,10 @@ interface BookingSectionProps {
  */
 export function BookingSection({purpose, targetId}: BookingSectionProps) {
   const {assignment, isLoading} = useAssignmentForTarget(purpose, targetId);
+  // QA testers have no onboarding call: the server refuses to book one for them.
+  const isTester = useIsQaTester();
 
-  if (isLoading) return null;
+  if (isTester || isLoading) return null;
   if (assignment?.status === "active") return null;
 
   return (

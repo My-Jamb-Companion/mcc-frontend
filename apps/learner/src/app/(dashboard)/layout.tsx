@@ -9,6 +9,7 @@ import SideNav from "@/src/features/components/SideNav";
 import Help from "@/src/features/dashboard/components/Help";
 import {useIsMobile} from "@/src/features/hooks/isMobile";
 import {ConsentBanner} from "@/src/features/consent/components/ConsentBanner";
+import {QaTesterBanner} from "@/src/features/account/components/QaTesterBanner";
 
 export default function DashboardLayout({
   children,
@@ -41,6 +42,7 @@ export default function DashboardLayout({
     <RoleLayout allowedRoles={["student"]}>
       <div className="flex flex-col h-dvh scrollbar-hide">
         <Header open={sideNav} setOpen={setSideNav} />
+        <QaTesterBanner />
         <ConsentBanner />
 
         {isClassroom && !isMobile ? (

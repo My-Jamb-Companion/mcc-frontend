@@ -13,6 +13,8 @@ export interface ApiUser {
   created_at: string;
   /** Most recent sign-in; null if the account has none on record. */
   last_login_at?: string | null;
+  /** A QA tester account (free enrolment, no rewards, not counted in company numbers). */
+  is_qa_tester?: boolean;
 }
 
 interface ListUsersParams {

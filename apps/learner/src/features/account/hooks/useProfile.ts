@@ -17,6 +17,12 @@ export const useProfile = () => {
   });
 };
 
+/** Whether the signed-in learner is a QA tester (false until the profile has loaded). */
+export const useIsQaTester = (): boolean => {
+  const {data} = useProfile();
+  return data?.is_qa_tester === true;
+};
+
 export const useLinkedParent = () =>
   useQuery({queryKey: ["linked-parent"], queryFn: getLinkedParent});
 

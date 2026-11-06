@@ -33,6 +33,7 @@ export default function Dashboard() {
   const {suggestions} = usePromptSuggestions();
   const [reschedulingSessionId, setReschedulingSessionId] = useState<string | null>(null);
   const {data: profile} = useProfile();
+  const isTester = profile?.is_qa_tester === true;
   const {courses: enrolledCourses, isLoading: enrolledCoursesLoading} = useEnrolledCourses();
   const {programs: enrolledPrograms, isLoading: enrolledProgramsLoading} = useEnrolledPrograms();
   const {sessions} = useUpcomingSessions();
@@ -66,7 +67,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <GamificationStrip />
+      {!isTester && <GamificationStrip />}
 
       {nextSession && (
         <div className="mt-7 mx-auto w-[70%] max-sm:w-full">

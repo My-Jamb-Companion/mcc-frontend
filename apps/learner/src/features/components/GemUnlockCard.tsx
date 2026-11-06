@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {Button, Icon} from "@mcc/ui";
+import {useIsQaTester} from "@/src/features/account/hooks/useProfile";
 import {gemsApply, type LiveFormat} from "@/src/features/courses/helper/liveFormats";
 import {courseGemCost} from "@/src/features/wallet/helper/wallet";
 import {useGemPacks, useWalletBalance} from "@/src/features/wallet/hooks/useWallet";
@@ -24,7 +25,9 @@ interface GemUnlockCardProps {
 export function GemUnlockCard({price, format, noun, pending, onUnlock}: GemUnlockCardProps) {
   const {data: balance} = useWalletBalance();
   const {data: packs} = useGemPacks();
-  if (!(price > 0) || !packs) return null;
+  // A QA tester enrols for free, so there is nothing to unlock with gems.
+  const isTester = useIsQaTester();
+  if (isTester || !(price > 0) || !packs) return null;
 
   const cost = courseGemCost(price, packs.naira_per_gem);
   const owned = balance?.purchased_gems ?? 0;
