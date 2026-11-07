@@ -7,6 +7,7 @@ import {shuffleArray} from "@/src/features/learnings/helper/helper";
 import {ApiModuleGradedAnswer, ApiModuleQuestion, ApiModuleQuizResult} from "@/src/features/learnings/services/moduleQuiz.service";
 import {useSubmitModuleAnswers} from "@/src/features/learnings/hooks/useModuleQuiz";
 import {useAnalysis, useQuestionHelp} from "@/src/features/brainy/hooks/useAiFeedback";
+import MarkdownMessage from "@/src/features/brainy/components/MarkdownMessage";
 import {useCountdown} from "@/src/features/learnings/hooks/useCountdown";
 import {formatCountdown, isCountdownLow} from "@/src/features/learnings/helper/countdown";
 import {isChosenCorrect, responsesForChosen} from "@/src/features/learnings/helper/practiceFeedback";
@@ -615,9 +616,7 @@ export function CoursePractice({
                       <BrainyMark size={18} />
                       Brainy explains
                     </p>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                      {aiHelp[currentQuestion.question_id]}
-                    </p>
+                    <MarkdownMessage content={aiHelp[currentQuestion.question_id]} />
                   </motion.div>
                 </motion.div>
               )}
@@ -822,7 +821,7 @@ function QuizResults({
                 <BrainyMark size={18} />
                 Brainy&apos;s feedback
               </p>
-              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{feedback}</p>
+              <MarkdownMessage content={feedback} />
             </div>
           ) : (
             <motion.button

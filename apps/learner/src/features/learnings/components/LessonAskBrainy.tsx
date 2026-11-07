@@ -3,6 +3,7 @@
 import {useState} from "react";
 import {Button, Icon, BrainyMark} from "@mcc/ui";
 import {chatReplyText, sendChatMessage} from "@/src/features/brainy/services/brainy.service";
+import MarkdownMessage from "@/src/features/brainy/components/MarkdownMessage";
 
 interface LessonAskBrainyProps {
   lessonTitle: string;
@@ -50,7 +51,7 @@ export default function LessonAskBrainy({lessonTitle, heading, className = "rela
       </Button>
 
       {open && (
-        <div className={`absolute bottom-full z-20 mb-3 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-muted/30 bg-background p-4 shadow-xl ${align === "right" ? "right-0" : "left-1/2 -translate-x-1/2 max-sm:left-auto max-sm:right-0 max-sm:translate-x-0"}`}>
+        <div className={`absolute bottom-full z-20 mb-3 w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-muted/30 bg-background p-4 shadow-xl ${align === "right" ? "right-0" : "left-1/2 -translate-x-1/2 max-sm:left-auto max-sm:right-0 max-sm:translate-x-0"}`}>
           <div className="mb-2 flex items-center justify-between">
             <p className="text-xs font-medium text-subtle">Ask about this section</p>
             <button type="button" onClick={() => setOpen(false)} aria-label="Close" className="text-subtle hover:text-foreground">
@@ -58,7 +59,9 @@ export default function LessonAskBrainy({lessonTitle, heading, className = "rela
             </button>
           </div>
           {reply && (
-            <div className="mb-3 max-h-40 overflow-y-auto rounded-xl bg-muted/10 p-3 text-sm text-foreground">{reply}</div>
+            <div className="mb-3 max-h-[40dvh] overflow-y-auto overscroll-contain rounded-xl bg-muted/10 p-3 text-sm text-foreground">
+              <MarkdownMessage content={reply} />
+            </div>
           )}
           <div className="flex items-center gap-2">
             <input

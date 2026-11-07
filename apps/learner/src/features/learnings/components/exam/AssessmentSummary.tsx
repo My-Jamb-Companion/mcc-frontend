@@ -3,6 +3,7 @@ import {useMemo, useState} from "react";
 import {Icon, showError, BrainyMark} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import {useAnalysis, useQuestionHelp} from "@/src/features/brainy/hooks/useAiFeedback";
+import MarkdownMessage from "@/src/features/brainy/components/MarkdownMessage";
 import PointsEarnedCard from "@/src/features/rewards/components/PointsEarnedCard";
 import type {ApiAssessmentQuestion, ApiExamSubmissionResult} from "@/src/features/exams/services/exam.service";
 import {leveledUpText} from "@/src/features/learnings/helper/readiness";
@@ -168,7 +169,7 @@ function FeedbackButton({result, right}: {result: ApiExamSubmissionResult; right
         <BrainyMark size={18} />
         Brainy&apos;s feedback
       </p>
-      <p className="text-sm leading-relaxed text-subtle">{feedback}</p>
+      <MarkdownMessage content={feedback} />
     </div>
   ) : (
     <button type="button" onClick={ask} disabled={analysis.isPending}
@@ -227,10 +228,10 @@ function ReviewList({result, questions}: {result: ApiExamSubmissionResult; quest
             </p>
             {r.explanation && <p className="mt-2 text-sm leading-relaxed text-subtle">{r.explanation}</p>}
             {explained[r.question_id] ? (
-              <p className="mt-3 rounded-xl bg-primary/5 p-3 text-sm leading-relaxed text-subtle">
-                <span className="mb-1 flex items-center gap-1.5 font-semibold text-primary"><BrainyMark size={18} />Brainy explains</span>
-                {explained[r.question_id]}
-              </p>
+              <div className="mt-3 rounded-xl bg-primary/5 p-3">
+                <span className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-primary"><BrainyMark size={18} />Brainy explains</span>
+                <MarkdownMessage content={explained[r.question_id]} />
+              </div>
             ) : (
               <button type="button" onClick={() => explain(r.question_id)} disabled={help.isPending}
                 className="mt-3 flex items-center gap-1.5 rounded-full border border-primary/40 px-4 py-1.5 text-xs font-semibold text-primary disabled:opacity-50">
