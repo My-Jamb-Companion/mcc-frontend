@@ -11,6 +11,7 @@ import MarkdownMessage from "@/src/features/brainy/components/MarkdownMessage";
 import {useCountdown} from "@/src/features/learnings/hooks/useCountdown";
 import {formatCountdown, isCountdownLow} from "@/src/features/learnings/helper/countdown";
 import {isChosenCorrect, responsesForChosen} from "@/src/features/learnings/helper/practiceFeedback";
+import {isMultipleChoice} from "@/src/features/learnings/helper/questionType";
 import PointsEarnedCard from "@/src/features/rewards/components/PointsEarnedCard";
 import PracticeFeedbackCard from "@/src/features/learnings/components/PracticeFeedbackCard";
 import CourseTestIntro from "./CourseTestIntro";
@@ -128,7 +129,7 @@ export function CoursePractice({
 
   const currentQuestion = randomizedQuestions[currentIndex];
   const currentAnswer = answers[currentQuestion?.question_id] ?? [];
-  const isMultiChoice = currentQuestion?.question_type === "multiple_choice";
+  const isMultiChoice = !!currentQuestion && isMultipleChoice(currentQuestion.question_type, currentQuestion.correct_answers);
   const isFreeText = currentQuestion?.question_type === "long_short_answer";
   const isAnswered = currentAnswer.some((a) => a.trim());
 

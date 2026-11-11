@@ -13,6 +13,7 @@ import {formatCountdown, secondsLeft} from "@/src/features/learnings/helper/coun
 import MarkedText from "./MarkedText";
 import QuestionContext from "./QuestionContext";
 import {interpretKey} from "@/src/features/learnings/helper/mockKeys";
+import {isMultipleChoice} from "@/src/features/learnings/helper/questionType";
 import {
   addSpent,
   applyUpdate,
@@ -211,7 +212,7 @@ export default function MockExamPlayer({session, onFinished}: MockExamPlayerProp
     return <p className="rounded-2xl bg-muted/10 p-6 text-sm text-subtle">This mock exam has no questions.</p>;
   }
 
-  const multiple = question.question_type === "multiple_choice";
+  const multiple = isMultipleChoice(question.question_type);
   const picked = state.answers[question.question_id];
   const isPicked = (option: string) => (Array.isArray(picked) ? picked.includes(option) : picked === option);
   const flagged = state.flagged.includes(question.question_id);

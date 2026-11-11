@@ -69,3 +69,35 @@ export const submitModuleAnswers = async (
   );
   return res.data.data;
 };
+
+export interface ApiQuizAttempt {
+  attempt_id: string;
+  score_percent: number;
+  correct: number;
+  total: number;
+  passed: boolean | null;
+  taken_at: string;
+}
+
+/** The learner's grades on one Practice quiz, Smart Zone or Test. */
+export interface ApiQuizGrade {
+  module_id: string;
+  /** practice | exercise (Smart Zone) | quiz (Test). */
+  kind: "practice" | "exercise" | "quiz";
+  /** Empty for a module's Practice quiz. */
+  set_name: string;
+  passing_score: number | null;
+  attempts: number;
+  best_percent: number;
+  last_percent: number;
+  last_at: string;
+  passed: boolean | null;
+  /** Newest first, up to ten. */
+  history: ApiQuizAttempt[];
+}
+
+/** Endpoint: GET /courses/<course_id>/quiz-grades -- every Practice quiz, Smart Zone and Test taken in the course. */
+export const getQuizGrades = async (courseId: string): Promise<ApiQuizGrade[]> => {
+  const res = await apiClient.get<{data: {items: ApiQuizGrade[]}}>(`/courses/${courseId}/quiz-grades`);
+  return res.data.data.items;
+};

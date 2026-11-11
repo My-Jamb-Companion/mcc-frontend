@@ -15,9 +15,12 @@ import ReadinessPanel from "./ReadinessPanel";
 import MockExamsPanel from "./MockExamsPanel";
 import MockExamPlayer from "./MockExamPlayer";
 import MockExamResult from "./MockExamResult";
+import QuizGradesCard from "../QuizGradesCard";
+import {gradeKey, indexGrades} from "@/src/features/learnings/helper/quizGrades";
 import {BookingSection} from "@/src/features/booking/components/BookingSection";
 import {
   useProgramContent,
+  useProgramGrades,
   useProgramReadiness,
   useStartAssessment,
   useCompleteProgramLecture,
@@ -56,6 +59,21 @@ function findLecture(topics: ApiExamTopic[], lectureId: string): ApiExamLecture 
   return null;
 }
 
+/** What a grades card is about: the module or sub-topic and which kind of thing was taken. */
+function gradesTitle(node: ActiveNode, topics: ApiExamTopic[], setName: string): string {
+  const modules = topics.flatMap((t) => t.sub_topics.flatMap((s) => s.modules));
+  if (node.kind === "unit-exercise") {
+    const sub = topics.flatMap((t) => t.sub_topics).find((s) => s.sub_topic_id === node.subTopicId);
+    return `Smart Zone · ${sub?.title ?? "Unit"}`;
+  }
+  if (node.kind === "exercise" || node.kind === "practice") {
+    const mod = modules.find((m) => m.module_id === node.moduleId);
+    const what = node.kind === "exercise" ? "Smart Zone" : setName ? `Practice · ${setName}` : "Practice";
+    return mod ? `${what} · ${mod.title}` : what;
+  }
+  return "";
+}
+
 /**
  * The exam-prep equivalent of ../course/CourseContent.tsx, one level deeper
  * (topic -> sub-topic -> module -> lecture) and without the course version's
@@ -70,6 +88,10 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
   const {data: savedProgress} = useProgramProgress(programId);
   const startAssessment = useStartAssessment();
   const {data: readiness} = useProgramReadiness(programId);
+  const {grades: gradeList} = useProgramGrades(programId);
+  const grades = useMemo(() => indexGrades(gradeList, (g) => gradeKey(g.node_id, g.activity_type, g.set_name)), [gradeList]);
+  // Choosing something already finished shows its grades first; "Take it again" starts it.
+  const [viewingGrades, setViewingGrades] = useState<ActiveNode | null>(null);
 
   const title = [program.exam_name, program.subject_name].filter(Boolean).join(" — ") ||
     "Exam prep program";
@@ -127,7 +149,35 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
     );
   };
 
+  /** Where a Practice or Smart Zone sits in `grades`. */
+  const nodeKey = (node: ActiveNode): string | null => {
+    switch (node.kind) {
+      case "practice":
+        return gradeKey(node.moduleId, "practice", node.setName ?? "");
+      case "exercise":
+        return gradeKey(node.moduleId, "exercise", "");
+      case "unit-exercise":
+        return gradeKey(node.subTopicId, "exercise", "");
+      default:
+        return null;
+    }
+  };
+
+  /** From the content list: something already finished shows its grades, anything else starts. */
   const handleSelect = (node: ActiveNode) => {
+    const key = nodeKey(node);
+    if (key && grades.has(key)) {
+      setActive(node);
+      setSession(null);
+      setSessionError(null);
+      setViewingGrades(node);
+      return;
+    }
+    start(node);
+  };
+
+  const start = (node: ActiveNode) => {
+    setViewingGrades(null);
     setActive(node);
     setSession(null);
     setSessionError(null);
@@ -149,15 +199,16 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
 
   // A tile or a weak topic from the readiness panel: the practice or exercise that is there for it.
   const practiseNode = (node: {node_type: "module" | "sub_topic"; node_id: string}) => {
-    if (node.node_type === "sub_topic") return handleSelect({kind: "unit-exercise", subTopicId: node.node_id});
+    if (node.node_type === "sub_topic") return start({kind: "unit-exercise", subTopicId: node.node_id});
     const mod = topics.flatMap((t) => t.sub_topics.flatMap((s) => s.modules)).find((m) => m.module_id === node.node_id);
     if (!mod) return;
-    if (mod.practice_count > 0) handleSelect({kind: "practice", moduleId: mod.module_id});
-    else handleSelect({kind: "exercise", moduleId: mod.module_id});
+    if (mod.practice_count > 0) start({kind: "practice", moduleId: mod.module_id});
+    else start({kind: "exercise", moduleId: mod.module_id});
   };
 
   // From a recommended lesson in the summary: leave the session and open the lecture.
   const openLecture = (lectureId: string) => {
+    setViewingGrades(null);
     setSession(null);
     setSessionError(null);
     setActive({kind: "lecture", lectureId});
@@ -233,12 +284,18 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
             <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
               Loading…
             </div>
+          ) : viewingGrades && nodeKey(viewingGrades) && grades.get(nodeKey(viewingGrades)!) ? (
+            <QuizGradesCard
+              title={gradesTitle(viewingGrades, topics, grades.get(nodeKey(viewingGrades)!)!.set_name)}
+              grade={grades.get(nodeKey(viewingGrades)!)!}
+              onRetake={() => start(viewingGrades)}
+            />
           ) : session ? (
             <AssessmentPlayer
               key={session.session_id}
               session={session}
               onDone={() => setSession(null)}
-              onRestart={() => active && handleSelect(active)}
+              onRestart={() => active && start(active)}
               onOpenLecture={openLecture}
             />
           ) : sessionError ? (
@@ -306,6 +363,7 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
               topics={topics}
               active={active}
               completedLectureIds={completedLectureIds}
+              grades={grades}
               onSelect={handleSelect}
             />
           )}

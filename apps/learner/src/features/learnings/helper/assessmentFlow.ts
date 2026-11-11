@@ -11,8 +11,10 @@ export type QuestionStatus = "idle" | "wrong" | "solved" | "revealed";
 
 export interface QuestionState {
   status: QuestionStatus;
-  /** The option currently picked. */
+  /** The option currently picked. For a multiple-answer question, a key made of every option picked (see `pickOption`). */
   answer: string;
+  /** The options picked so far on a multiple-answer question. */
+  picks: string[];
   /** Answers checked so far. */
   attempts: number;
   /** Hint steps shown so far, oldest first. */
@@ -29,12 +31,21 @@ export interface QuestionState {
 }
 
 export const newQuestionState = (): QuestionState => ({
-  status: "idle", answer: "", attempts: 0, hints: [], hintTotal: null,
+  status: "idle", answer: "", picks: [], attempts: 0, hints: [], hintTotal: null,
   correctAnswer: null, explanation: null, optionFeedback: null, firstTry: false,
 });
 
-export const pickOption = (state: QuestionState, option: string): QuestionState =>
-  state.status === "solved" || state.status === "revealed" ? state : {...state, answer: option};
+/** Picks an option; on a multiple-answer question each tap adds or removes that option, and `answer` becomes a key of all of them. */
+export function pickOption(state: QuestionState, option: string, multiple = false): QuestionState {
+  if (state.status === "solved" || state.status === "revealed") return state;
+  if (!multiple) return {...state, answer: option, picks: []};
+  const picks = state.picks.includes(option) ? state.picks.filter((p) => p !== option) : [...state.picks, option];
+  return {...state, picks, answer: picks.length ? JSON.stringify([...picks].sort()) : ""};
+}
+
+/** What to send to be checked: the one option, or the list of options on a multiple-answer question. */
+export const answerToCheck = (state: QuestionState, multiple: boolean): string | string[] =>
+  multiple ? state.picks : state.answer;
 
 /** After checking an answer: wrong leaves the question open, right closes it. */
 export const afterCheck = (state: QuestionState, result: ApiCheckResult): QuestionState => ({
