@@ -1,6 +1,6 @@
 "use client";
 
-import {useCallback, useState, useEffect} from "react";
+import {useCallback, useMemo, useState, useEffect} from "react";
 import Link from "next/link";
 import {useRouter, usePathname, useSearchParams} from "next/navigation";
 import {Button, Icon, motion, AnimatePresence, showError, BrainyMark} from "@mcc/ui";
@@ -20,7 +20,9 @@ import {afterLesson} from "@/src/features/learnings/helper/lessonOrder";
 import {youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import {useAllLessons, useLessonsDuration, formatDuration} from "@/src/features/learnings/hooks/useLesson";
 import {useCertificates, useCompleteLecture, useCourseProgress} from "@/src/features/courses/hooks/useCourses";
-import {useModuleQuestions} from "@/src/features/learnings/hooks/useModuleQuiz";
+import {useModuleQuestions, useQuizGrades} from "@/src/features/learnings/hooks/useModuleQuiz";
+import {gradeKey, indexGrades} from "@/src/features/learnings/helper/quizGrades";
+import QuizGradesCard from "../QuizGradesCard";
 import {testLabel} from "@/src/features/learnings/helper/testLabel";
 import {smartZoneLabel} from "@/src/features/smart-zone/label";
 import {chatReplyText, sendChatMessage} from "@/src/features/brainy/services/brainy.service";
@@ -70,6 +72,10 @@ export default function CourseContent({
   const [activeExercise, setActiveExercise] = useState<{moduleId: string; name: string} | null>(null);
   const [activeQuizSet, setActiveQuizSet] = useState<{moduleId: string; name: string} | null>(null);
   const [currentVideoTime, setCurrentVideoTime] = useState(0);
+  const {grades: gradeList} = useQuizGrades(courseId);
+  const grades = useMemo(() => indexGrades(gradeList, (g) => gradeKey(g.module_id, g.kind, g.set_name)), [gradeList]);
+  // Choosing something already taken shows its grades first; "Take it again" (or taking it for the first time) plays it.
+  const [playingKey, setPlayingKey] = useState<string | null>(null);
   const quizQuestions = useModuleQuestions(courseId, activeQuizModuleId);
   const exerciseQuestions = useModuleQuestions(
     courseId,
@@ -109,19 +115,30 @@ export default function CourseContent({
     setCurrentVideoTime(0);
   };
 
+  /** The grade to show in place of the quiz, until the learner chooses to take it again. */
+  const gradeToShow = (moduleId: string, kind: string, name: string) => {
+    const key = gradeKey(moduleId, kind, name);
+    return playingKey === key ? undefined : grades.get(key);
+  };
+
+  const choose = (key: string) => setPlayingKey(grades.has(key) ? null : key);
+
   const handleSelectQuiz = (moduleId: string) => {
+    choose(gradeKey(moduleId, "practice", ""));
     setActiveExercise(null);
     setActiveQuizSet(null);
     setActiveQuizModuleId(moduleId);
   };
 
   const handleSelectExercise = (moduleId: string, name: string) => {
+    choose(gradeKey(moduleId, "exercise", name));
     setActiveQuizModuleId(null);
     setActiveQuizSet(null);
     setActiveExercise({moduleId, name});
   };
 
   const handleSelectQuizSet = (moduleId: string, name: string) => {
+    choose(gradeKey(moduleId, "quiz", name));
     setActiveQuizModuleId(null);
     setActiveExercise(null);
     setActiveQuizSet({moduleId, name});
@@ -214,7 +231,25 @@ export default function CourseContent({
             </div>
           )}
           <div className="w-full min-w-0 overflow-hidden">
-            {activeQuizSet ? (
+            {activeQuizSet && gradeToShow(activeQuizSet.moduleId, "quiz", activeQuizSet.name) ? (
+              <QuizGradesCard
+                title={testLabel(activeQuizSet.name)}
+                grade={gradeToShow(activeQuizSet.moduleId, "quiz", activeQuizSet.name)!}
+                onRetake={() => setPlayingKey(gradeKey(activeQuizSet.moduleId, "quiz", activeQuizSet.name))}
+              />
+            ) : activeExercise && gradeToShow(activeExercise.moduleId, "exercise", activeExercise.name) ? (
+              <QuizGradesCard
+                title={smartZoneLabel(activeExercise.name)}
+                grade={gradeToShow(activeExercise.moduleId, "exercise", activeExercise.name)!}
+                onRetake={() => setPlayingKey(gradeKey(activeExercise.moduleId, "exercise", activeExercise.name))}
+              />
+            ) : activeQuizModuleId && gradeToShow(activeQuizModuleId, "practice", "") ? (
+              <QuizGradesCard
+                title="Practice quiz"
+                grade={gradeToShow(activeQuizModuleId, "practice", "")!}
+                onRetake={() => setPlayingKey(gradeKey(activeQuizModuleId, "practice", ""))}
+              />
+            ) : activeQuizSet ? (
               quizSetQuestions.isLoading ? (
                 <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
                   Loading test…
@@ -354,6 +389,7 @@ export default function CourseContent({
                 <CoursePlayModules
                   modules={modules}
                   completedLessonIds={completedLessonIds}
+                  grades={grades}
                   activeLesson={activeLesson?.id ?? null}
                   activeQuizModuleId={activeQuizModuleId}
                   activeExercise={activeExercise}
@@ -449,6 +485,7 @@ export default function CourseContent({
                 <CoursePlayModules
                   modules={modules}
                   completedLessonIds={completedLessonIds}
+                  grades={grades}
                   activeLesson={activeLesson?.id ?? null}
                   activeQuizModuleId={activeQuizModuleId}
                   activeExercise={activeExercise}

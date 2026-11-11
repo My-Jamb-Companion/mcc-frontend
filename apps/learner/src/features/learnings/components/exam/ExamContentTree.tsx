@@ -1,10 +1,16 @@
 "use client";
-import {useState} from "react";
+import {createContext, useContext, useState} from "react";
 import {Icon} from "@mcc/ui";
 import {ApiExamModule, ApiExamSubTopic, ApiExamTopic} from "@/src/features/exams/services/exam.service";
 import BookmarkButton from "@/src/features/bookmarks/BookmarkButton";
 import DownloadButton from "../DownloadButton";
 import {practiceRows} from "@/src/features/learnings/helper/practiceSets";
+import {gradeKey} from "@/src/features/learnings/helper/quizGrades";
+import type {ApiExamGrade} from "@/src/features/exams/services/exam.service";
+import GradeBadge from "../GradeBadge";
+
+/** The learner's grades by `gradeKey`, for the green tick on a Practice or Smart Zone already taken. */
+const GradesContext = createContext<Map<string, ApiExamGrade>>(new Map());
 
 export type ActiveNode =
   | {kind: "lecture"; lectureId: string}
@@ -17,6 +23,7 @@ interface ExamContentTreeProps {
   topics: ApiExamTopic[];
   active: ActiveNode | null;
   completedLectureIds: Set<string>;
+  grades?: Map<string, ApiExamGrade>;
   onSelect: (node: ActiveNode) => void;
 }
 
@@ -25,8 +32,11 @@ interface ExamContentTreeProps {
  * deeper: topic -> sub-topic -> module -> lecture, with a "Practice" and an
  * "Smart Zone" action on each module and a unit "Smart Zone" on each sub-topic.
  */
-export default function ExamContentTree({topics, active, completedLectureIds, onSelect}: ExamContentTreeProps) {
+const NO_GRADES = new Map<string, ApiExamGrade>();
+
+export default function ExamContentTree({topics, active, completedLectureIds, grades = NO_GRADES, onSelect}: ExamContentTreeProps) {
   return (
+    <GradesContext.Provider value={grades}>
     <div className="flex flex-col gap-3">
       {topics.map((topic) => (
         <TopicAccordion
@@ -38,6 +48,7 @@ export default function ExamContentTree({topics, active, completedLectureIds, on
         />
       ))}
     </div>
+    </GradesContext.Provider>
   );
 }
 
@@ -82,6 +93,7 @@ function SubTopicAccordion({
   onSelect: (node: ActiveNode) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const grades = useContext(GradesContext);
   const isUnitExerciseActive = active?.kind === "unit-exercise" && active.subTopicId === subTopic.sub_topic_id;
   const unitExerciseCount = subTopic.exercise_count ?? subTopic.test_count;
 
@@ -115,6 +127,7 @@ function SubTopicAccordion({
             >
               <Icon icon="material-symbols:fact-check-outline" size={16} className="text-orange-500" />
               <span className="text-sm">Smart Zone ({unitExerciseCount})</span>
+              <GradeBadge grade={grades.get(gradeKey(subTopic.sub_topic_id, "exercise", ""))} />
             </button>
           )}
         </div>
@@ -130,6 +143,7 @@ function ModuleAccordion({
   onSelect: (node: ActiveNode) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const grades = useContext(GradesContext);
   const allWatched = mod.lectures.length > 0 && mod.lectures.every((l) => completedLectureIds.has(l.lecture_id));
   const isExerciseActive = active?.kind === "exercise" && active.moduleId === mod.module_id;
   const exerciseCount = mod.exercise_count ?? mod.quiz_count;
@@ -195,6 +209,7 @@ function ModuleAccordion({
                 <span className={`text-sm ${isPracticeActive ? "text-primary" : "text-subtle"}`}>
                   {row.label} ({row.count})
                 </span>
+                <GradeBadge grade={grades.get(gradeKey(mod.module_id, "practice", row.setName ?? ""))} />
               </button>
             );
           })}
@@ -210,6 +225,7 @@ function ModuleAccordion({
               <span className={`text-sm ${isExerciseActive ? "text-primary" : "text-subtle"}`}>
                 Smart Zone ({exerciseCount})
               </span>
+              <GradeBadge grade={grades.get(gradeKey(mod.module_id, "exercise", ""))} />
             </button>
           )}
         </div>

@@ -12,6 +12,7 @@ import {
   ProgramListFilters,
   AssessmentMode,
   checkAssessmentAnswer,
+  getProgramGrades,
   getAssessmentHint,
   getMockAttempts,
   getMockPapers,
@@ -120,7 +121,7 @@ export const useStartAssessment = () =>
 /** Checks one answer; the server says whether it is right and nothing more until it is. */
 export const useCheckAnswer = () =>
   useMutation({
-    mutationFn: ({sessionId, questionId, answer}: {sessionId: string; questionId: string; answer: string}) =>
+    mutationFn: ({sessionId, questionId, answer}: {sessionId: string; questionId: string; answer: string | string[]}) =>
       checkAssessmentAnswer(sessionId, questionId, answer),
   });
 
@@ -147,8 +148,19 @@ export const useSubmitAssessment = () => {
     onSuccess: () => {
       refreshGamification();
       queryClient.invalidateQueries({queryKey: ["exam-readiness"]});
+      queryClient.invalidateQueries({queryKey: ["exam-grades"]});
     },
   });
+};
+
+/** The learner's grades on this program's Practice and Smart Zone sessions (empty until one is finished). */
+export const useProgramGrades = (programId: string) => {
+  const query = useQuery({
+    queryKey: ["exam-grades", programId],
+    queryFn: () => getProgramGrades(programId),
+    enabled: !!programId,
+  });
+  return {...query, grades: query.data ?? []};
 };
 
 /** How ready the student is in one program: topic levels, Exam Readiness and the predicted range. */

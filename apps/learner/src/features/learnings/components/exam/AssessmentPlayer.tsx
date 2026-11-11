@@ -18,11 +18,13 @@ import {
   canCheck,
   canTakeHint,
   isFinished,
+  answerToCheck,
   newQuestionState,
   pickOption,
   primaryLabel,
   QuestionState,
 } from "@/src/features/learnings/helper/assessmentFlow";
+import {isMultipleChoice, isRightAnswerOption} from "@/src/features/learnings/helper/questionType";
 import AssessmentIntro from "./AssessmentIntro";
 import AssessmentSummary from "./AssessmentSummary";
 import SmartZoneTimer from "@/src/features/smart-zone/components/SmartZoneTimer";
@@ -74,6 +76,7 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
   const submit = useSubmitAssessment();
 
   const question = questions[index];
+  const multiple = isMultipleChoice(question?.question_type);
   const state = states[index] ?? newQuestionState();
   const isLast = index === questions.length - 1;
   const busy = check.isPending || hint.isPending || reveal.isPending || submit.isPending;
@@ -115,14 +118,15 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
   const totalSeconds = (session.time_limit_minutes ?? 0) * 60;
 
   const doCheck = () => {
-    const answer = state.answer;
+    const answer = answerToCheck(state, multiple);
+    const key = state.answer;
     const at = index;
     if (zone) playSound("enter");
     check.mutate(
       {sessionId: session.session_id, questionId: question.question_id, answer},
       {
         onSuccess: (res) => {
-          setLastChecked((prev) => ({...prev, [question.question_id]: answer}));
+          setLastChecked((prev) => ({...prev, [question.question_id]: key}));
           update(at, (s) => afterCheck(s, res));
           if (!zone) return;
           const run = nextStreak(streak, res.is_correct && res.first_try);
@@ -183,7 +187,7 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
 
   const choose = (option: string) => {
     if (zone) playSound("select");
-    update(index, (s) => pickOption(s, option));
+    update(index, (s) => pickOption(s, option, multiple));
   };
 
   const progressLabel = `${index + 1} of ${questions.length}`;
@@ -287,6 +291,7 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
       <div className="p-6">
         <h3 className="text-base font-bold">{question.question_text}</h3>
         {question.description && <p className="mt-1 text-sm text-subtle">{question.description}</p>}
+        {multiple && <p className="mt-1 text-xs font-medium text-blue-600">Select all that apply.</p>}
 
         <motion.div
           key={`answers-${question.question_id}-${state.attempts}`}
@@ -297,9 +302,10 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
           aria-label="Answers"
         >
           {question.options.map((option, i) => {
-            const selected = state.answer === option;
-            const isRight = isFinished(state) && option === state.correctAnswer;
-            const isMiss = state.status === "wrong" && selected && lastChecked[question.question_id] === option;
+            const selected = multiple ? state.picks.includes(option) : state.answer === option;
+            const isRight = isFinished(state) && isRightAnswerOption(state.correctAnswer, option);
+            const justChecked = lastChecked[question.question_id] === state.answer;
+            const isMiss = state.status === "wrong" && selected && justChecked;
             let style = "border-muted/20 text-foreground hover:bg-muted/5";
             if (isRight) style = "border-success bg-success/10 text-success";
             else if (isMiss) style = "border-amber-500 bg-amber-50 text-amber-700";

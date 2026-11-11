@@ -1,3 +1,4 @@
+import {isMultipleChoice} from "./questionType";
 import type {ApiMockQuestion, ApiMockState, ApiMockStateUpdate} from "@/src/features/exams/services/exam.service";
 
 export type PaletteStatus = "current" | "flagged" | "answered" | "unanswered";
@@ -35,7 +36,7 @@ export function mockCounts(questions: ApiMockQuestion[], state: ApiMockState): M
 export function pickAnswer(state: ApiMockState, question: ApiMockQuestion, option: string): ApiMockState {
   const current = state.answers[question.question_id];
   let next: string | string[] | undefined;
-  if (question.question_type === "multiple_choice") {
+  if (isMultipleChoice(question.question_type)) {
     const picked = Array.isArray(current) ? current : current ? [current] : [];
     const list = picked.includes(option) ? picked.filter((o) => o !== option) : [...picked, option];
     next = list.length ? list : undefined;

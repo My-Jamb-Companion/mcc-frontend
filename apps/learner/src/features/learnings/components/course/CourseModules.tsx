@@ -6,11 +6,16 @@ import {describeDuration} from "@/src/features/learnings/helper/countdown";
 import {testLabel} from "@/src/features/learnings/helper/testLabel";
 import {smartZoneLabel} from "@/src/features/smart-zone/label";
 import BookmarkButton from "@/src/features/bookmarks/BookmarkButton";
+import {gradeKey} from "@/src/features/learnings/helper/quizGrades";
+import GradeBadge from "../GradeBadge";
+import type {ApiQuizGrade} from "@/src/features/learnings/services/moduleQuiz.service";
 import DownloadButton from "../DownloadButton";
 
 interface CourseModulesProps {
   modules: Module[];
   completedLessonIds: Set<string>;
+  /** The learner's grades by `gradeKey`, for the ticks on Practice quizzes, Smart Zones and Tests. */
+  grades?: Map<string, ApiQuizGrade>;
   onSelectLesson: (lesson: Lesson) => void;
   onSelectQuiz: (moduleId: string) => void;
   onSelectExercise: (moduleId: string, name: string) => void;
@@ -31,6 +36,7 @@ const kindIconMap: Record<LessonKind, {icon: string; className: string}> = {
 export default function CoursePlayModules({
   modules,
   completedLessonIds,
+  grades,
   onSelectLesson,
   onSelectQuiz,
   onSelectExercise,
@@ -52,6 +58,7 @@ export default function CoursePlayModules({
           <ModuleAccordion
             module={module}
             completedLessonIds={completedLessonIds}
+            grades={grades}
             activeLesson={activeLesson}
             activeQuizModuleId={activeQuizModuleId}
             activeExercise={activeExercise}
@@ -70,6 +77,7 @@ export default function CoursePlayModules({
 function ModuleAccordion({
   module,
   completedLessonIds,
+  grades,
   activeLesson,
   activeQuizModuleId,
   activeExercise,
@@ -81,6 +89,7 @@ function ModuleAccordion({
 }: {
   module: Module;
   completedLessonIds: Set<string>;
+  grades?: Map<string, ApiQuizGrade>;
   activeLesson: string | null;
   activeQuizModuleId: string | null;
   activeExercise: {moduleId: string; name: string} | null;
@@ -203,6 +212,7 @@ function ModuleAccordion({
                     Practice quiz
                   </p>
                 </div>
+                <GradeBadge grade={grades?.get(gradeKey(module.id, "practice", ""))} />
               </motion.button>
 
               {module.quizSets.map((set, i) => {
@@ -231,6 +241,7 @@ function ModuleAccordion({
                       <p className={`text-sm truncate ${isActive ? "text-primary" : "text-subtle"}`}>{testLabel(set.name)}</p>
                       <p className="text-sm mt-0.5 text-muted">{meta.join(" · ")}</p>
                     </div>
+                    <GradeBadge grade={grades?.get(gradeKey(module.id, "quiz", set.name))} />
                   </motion.button>
                 );
               })}
@@ -261,6 +272,7 @@ function ModuleAccordion({
                         {set.timerMinutes ? ` · ${describeDuration(set.timerMinutes)}` : ""}
                       </p>
                     </div>
+                    <GradeBadge grade={grades?.get(gradeKey(module.id, "exercise", set.name))} />
                   </motion.button>
                 );
               })}

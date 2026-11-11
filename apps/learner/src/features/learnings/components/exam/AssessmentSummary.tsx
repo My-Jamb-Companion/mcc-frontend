@@ -3,6 +3,7 @@ import {useMemo, useState} from "react";
 import {Icon, showError, BrainyMark} from "@mcc/ui";
 import {extractApiError} from "@mcc/api";
 import {useAnalysis, useQuestionHelp} from "@/src/features/brainy/hooks/useAiFeedback";
+import {isRightAnswerOption, parseStoredAnswer} from "@/src/features/learnings/helper/questionType";
 import MarkdownMessage from "@/src/features/brainy/components/MarkdownMessage";
 import PointsEarnedCard from "@/src/features/rewards/components/PointsEarnedCard";
 import type {ApiAssessmentQuestion, ApiExamSubmissionResult} from "@/src/features/exams/services/exam.service";
@@ -205,8 +206,8 @@ function ReviewList({result, questions}: {result: ApiExamSubmissionResult; quest
             </p>
             <ul className="mt-3 flex flex-col gap-2">
               {(q?.options ?? []).map((option, index) => {
-                const isRight = option === r.correct_answer;
-                const isYours = option === r.your_answer;
+                const isRight = isRightAnswerOption(r.correct_answer, option);
+                const isYours = parseStoredAnswer(r.your_answer).includes(option);
                 const response = r.option_feedback?.[index];
                 return (
                   <li key={option} className={`rounded-xl border px-3 py-2 text-sm ${

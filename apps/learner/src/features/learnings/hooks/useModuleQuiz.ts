@@ -1,6 +1,6 @@
-import {useMutation, useQuery} from "@tanstack/react-query";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {useGamificationRefresh} from "@/src/features/rewards/hooks/useGamificationRefresh";
-import {getModuleQuestions, submitModuleAnswers} from "../services/moduleQuiz.service";
+import {getModuleQuestions, getQuizGrades, submitModuleAnswers} from "../services/moduleQuiz.service";
 
 export const useModuleQuestions = (
   courseId: string,
@@ -17,12 +17,25 @@ export const useModuleQuestions = (
 
 export const useSubmitModuleAnswers = (courseId: string, moduleId: string) => {
   const refreshGamification = useGamificationRefresh();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (answers: Record<string, string[]>) =>
       submitModuleAnswers(courseId, moduleId, answers),
     // A passed quiz can earn points, a level or a badge.
     onSuccess: (result) => {
       if (result.gamification) refreshGamification();
+      // The grade was just kept, so the content list shows it as done.
+      queryClient.invalidateQueries({queryKey: ["courses", courseId, "quiz-grades"]});
     },
   });
+};
+
+/** The learner's grades on this course's Practice quizzes, Smart Zones and Tests (empty until one is taken). */
+export const useQuizGrades = (courseId: string) => {
+  const query = useQuery({
+    queryKey: ["courses", courseId, "quiz-grades"],
+    queryFn: () => getQuizGrades(courseId),
+    enabled: !!courseId,
+  });
+  return {...query, grades: query.data ?? []};
 };

@@ -272,7 +272,7 @@ export const startAssessment = async (
 export const checkAssessmentAnswer = async (
   sessionId: string,
   questionId: string,
-  answer: string,
+  answer: string | string[],
 ): Promise<ApiCheckResult> => {
   const res = await apiClient.post<{data: ApiCheckResult}>(`/exams/assessments/${sessionId}/check`, {
     question_id: questionId,
@@ -578,4 +578,27 @@ export const submitMockExam = async (sessionId: string, update?: ApiMockStateUpd
 export const getMockAttempts = async (paperId: string): Promise<ApiMockAttempt[]> => {
   const res = await apiClient.get<{data: {attempts: ApiMockAttempt[]}}>(`/exams/mocks/${paperId}/attempts`);
   return res.data.data.attempts;
+};
+
+export interface ApiExamGrade {
+  node_type: "module" | "sub_topic";
+  node_id: string;
+  /** practice | exercise (Smart Zone). */
+  activity_type: "practice" | "exercise";
+  /** A named Practice set; empty for a module's whole Practice. */
+  set_name: string;
+  passing_score: number | null;
+  attempts: number;
+  best_percent: number;
+  last_percent: number;
+  last_at: string;
+  passed: boolean | null;
+  /** Newest first, up to ten. */
+  history: {session_id: string; score_percent: number; taken_at: string}[];
+}
+
+/** Endpoint: GET /exams/<program_id>/grades -- every Practice and Smart Zone finished in the program. */
+export const getProgramGrades = async (programId: string): Promise<ApiExamGrade[]> => {
+  const res = await apiClient.get<{data: {items: ApiExamGrade[]}}>(`/exams/${programId}/grades`);
+  return res.data.data.items;
 };

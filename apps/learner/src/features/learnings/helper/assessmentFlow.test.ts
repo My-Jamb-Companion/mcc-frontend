@@ -1,7 +1,7 @@
 import {describe, expect, it} from "vitest";
 import {
   afterCheck, afterHint, afterReveal, canCheck, canTakeHint, finishedCount, firstTryCount, isFinished,
-  minutesLabel, newQuestionState, pickOption, primaryLabel, starParts,
+  answerToCheck, minutesLabel, newQuestionState, pickOption, primaryLabel, starParts,
 } from "./assessmentFlow";
 
 const wrong = {is_correct: false, attempt_no: 1, first_try: false, hints_used: 0, correct_answer: null, explanation: null, option_feedback: null, already_solved: false};
@@ -103,5 +103,31 @@ describe("labels", () => {
     expect(starParts(0)).toEqual({full: 0, half: false, empty: 5});
     expect(starParts(5)).toEqual({full: 5, half: false, empty: 0});
     expect(starParts(9)).toEqual({full: 5, half: false, empty: 0});
+  });
+});
+
+describe("a multiple-answer question", () => {
+  it("adds and removes options as they are tapped, and sends the whole list to be checked", () => {
+    let s = pickOption(newQuestionState(), "A", true);
+    s = pickOption(s, "C", true);
+    expect(s.picks).toEqual(["A", "C"]);
+    expect(answerToCheck(s, true)).toEqual(["A", "C"]);
+    s = pickOption(s, "A", true);
+    expect(s.picks).toEqual(["C"]);
+    expect(answerToCheck(pickOption(newQuestionState(), "B"), false)).toBe("B");
+  });
+
+  it("can be checked once something is picked, and not again until the picks change", () => {
+    const s = pickOption(newQuestionState(), "A", true);
+    expect(canCheck(s, null)).toBe(true);
+    expect(canCheck(s, s.answer)).toBe(false);
+    expect(canCheck(pickOption(s, "B", true), s.answer)).toBe(true);
+    expect(canCheck(pickOption(s, "A", true), null)).toBe(false);
+  });
+
+  it("picks the same set in any order as the same answer", () => {
+    const ab = pickOption(pickOption(newQuestionState(), "A", true), "B", true);
+    const ba = pickOption(pickOption(newQuestionState(), "B", true), "A", true);
+    expect(ab.answer).toBe(ba.answer);
   });
 });
