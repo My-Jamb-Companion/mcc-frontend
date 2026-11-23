@@ -117,13 +117,13 @@ export default function OpenProgram() {
   }
 
   return (
-    <section className="flex flex-col gap-6 ">
+    <section className="flex min-w-0 flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">{item.title}</h1>
       </div>
 
-      <div className="flex flex-col h-full border border-muted/20 rounded-2xl px-6 py-8 flex-1 ">
-        <div className="flex items-center justify-between gap-4">
+      <div className="flex h-full min-w-0 flex-1 flex-col rounded-2xl border border-muted/20 px-4 py-6 sm:px-6 sm:py-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="text-2xl font-semibold">Program Overview</p>
           <div className="grid grid-cols-2 w-full max-w-75 gap-2">
             <FormInputs
@@ -148,7 +148,7 @@ export default function OpenProgram() {
 
         <hr className="border-muted/20 my-10" />
 
-        <div className="flex items-center gap-3 max-w-95 ml-auto">
+        <div className="mb-5 flex flex-wrap items-center justify-end gap-3">
           <Button
             variant="outline"
             leftIcon={<Icon icon="solar:clipboard-check-linear" size={18} />}
@@ -191,7 +191,7 @@ export default function OpenProgram() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-[1.5fr_1fr] gap-5 justify-between ">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
           <div className="flex flex-col gap-3">
             <Hero
               rating={Number(item.rating || 0)}

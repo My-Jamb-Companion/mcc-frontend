@@ -2,6 +2,7 @@ import {useEffect, useRef, useState} from "react";
 import {ConfirmModal, Icon, Modal} from "@mcc/ui";
 import {InlineRename} from "./Step2";
 import LessonHtmlEditor from "@/src/components/LessonHtmlEditor";
+import MoveButtons, {moveItem} from "@/src/components/MoveButtons";
 import {relaxSpaces} from "@/src/features/courses/helper/lessonHtml";
 import {uploadMedia} from "@/src/features/courses/services/media.service";
 import {LESSON_FILE_ACCEPT, LESSON_FILE_CAPTION, splitLessonFiles} from "@/src/features/courses/helper/lessonFiles";
@@ -49,10 +50,8 @@ function FileRowItem({
   onRetry,
   onEditContent,
   index,
-  onDragStart,
-  onDragEnter,
-  onDragEnd,
-  onDrop,
+  count,
+  onMove,
 }: {
   file: FileRow;
   error?: string;
@@ -61,10 +60,9 @@ function FileRowItem({
   onRetry?: (id: string) => void;
   onEditContent?: (id: string) => void;
   index: number;
-  onDragStart?: (e: React.DragEvent, index: number) => void;
-  onDragEnter?: (e: React.DragEvent, index: number) => void;
-  onDragEnd?: (e: React.DragEvent) => void;
-  onDrop?: (e: React.DragEvent) => void;
+  count: number;
+  /** Move this lesson to a new position in the list. */
+  onMove?: (to: number) => void;
 }) {
   const uploading = file.progress !== undefined;
   const [isRenaming, setIsRenaming] = useState(false);
@@ -72,16 +70,10 @@ function FileRowItem({
 
   return (
     <div
-      draggable={!uploading}
-      onDragStart={(e) => onDragStart?.(e, index)}
-      onDragEnter={(e) => onDragEnter?.(e, index)}
-      onDragEnd={onDragEnd}
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={onDrop}
       className={`relative flex items-center gap-3 overflow-hidden rounded-xl border px-4 py-3 ${
         uploading
           ? "border-violet-200 bg-violet-50/60"
-          : "border-gray-100 bg-white cursor-grab active:cursor-grabbing"
+          : "border-gray-100 bg-white"
       }`}
     >
       {uploading && (
@@ -90,8 +82,14 @@ function FileRowItem({
           style={{width: `${file.progress}%`}}
         />
       )}
-      <span className="relative z-10 text-gray-500 cursor-grab active:cursor-grabbing">
-        <Icon icon="lucide:grip-vertical" size={16} />
+      <span className="relative z-10">
+        <MoveButtons
+          index={index}
+          count={count}
+          label={file.title || "lesson"}
+          disabled={uploading}
+          onMove={(to) => onMove?.(to)}
+        />
       </span>
       <span
         className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100 ${
@@ -210,12 +208,6 @@ export default function LessonsCreate({
     onFilePatchRef.current = onFilePatch;
   }, [onFilePatch]);
 
-  // Drag & drop reorder state
-  const [dragItemIndex, setDragItemIndex] = useState<number | null>(null);
-  const [dragOverItemIndex, setDragOverItemIndex] = useState<number | null>(
-    null,
-  );
-
   /** Sends the file to storage; the row's `src` becomes its real URL when it lands. */
   function uploadRow(id: string, file: File) {
     setUploadsProgress((prev) => ({...prev, [id]: 0}));
@@ -276,19 +268,8 @@ export default function LessonsCreate({
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  function handleDrop(_e: React.DragEvent) {
-    if (
-      dragItemIndex !== null &&
-      dragOverItemIndex !== null &&
-      dragItemIndex !== dragOverItemIndex
-    ) {
-      const copy = [...files];
-      const [dragged] = copy.splice(dragItemIndex, 1);
-      copy.splice(dragOverItemIndex, 0, dragged);
-      onFilesChange(copy);
-    }
-    setDragItemIndex(null);
-    setDragOverItemIndex(null);
+  function handleMove(from: number, to: number) {
+    onFilesChange(moveItem(files, from, to));
   }
 
   function handleRenameFile(id: string, newTitle: string) {
@@ -376,13 +357,8 @@ export default function LessonsCreate({
           onRemove={(id) => setRemoving(files.find((f) => f.id === id) ?? null)}
           onRename={handleRenameFile}
           onEditContent={openExistingContentEditor}
-          onDragStart={(e, idx) => setDragItemIndex(idx)}
-          onDragEnter={(e, idx) => setDragOverItemIndex(idx)}
-          onDragEnd={() => {
-            setDragItemIndex(null);
-            setDragOverItemIndex(null);
-          }}
-          onDrop={handleDrop}
+          count={displayFiles.length}
+          onMove={(to) => handleMove(index, to)}
         />
       ))}
 

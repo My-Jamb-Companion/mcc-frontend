@@ -1,5 +1,6 @@
 import {useRef, useState, useMemo} from "react";
 import {Icon} from "@mcc/ui";
+import MoveButtons, {moveItem} from "@/src/components/MoveButtons";
 import {MakeModule, ModuleContent} from "@/src/features/courses/types/types";
 
 type ReorderItem = {
@@ -70,7 +71,6 @@ export default function ContentReorderPanel({
   onModuleChange: (module: MakeModule) => void;
 }) {
   const items = useMemo(() => buildItems(module), [module]);
-  const [draggedId, setDraggedId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -78,24 +78,8 @@ export default function ContentReorderPanel({
     onModuleChange(applyItemsToModule(module, next));
   }
 
-  function handleDrop(targetId: string) {
-    if (!draggedId || draggedId === targetId) {
-      setDraggedId(null);
-      return;
-    }
-    const draggedIndex = items.findIndex((i) => i.id === draggedId);
-    const targetItem = items.find((i) => i.id === targetId);
-    if (draggedIndex === -1 || !targetItem) {
-      setDraggedId(null);
-      return;
-    }
-
-    const next = [...items];
-    const [moved] = next.splice(draggedIndex, 1);
-    const insertAt = next.findIndex((i) => i.id === targetId);
-    next.splice(insertAt, 0, moved);
-    persistOrder(next);
-    setDraggedId(null);
+  function handleMove(from: number, to: number) {
+    persistOrder(moveItem(items, from, to));
   }
 
   function handleDelete(item: ReorderItem) {
@@ -138,21 +122,12 @@ export default function ContentReorderPanel({
             </p>
           ) : (
             <div className="flex flex-col gap-1.5">
-              {items.map((item) => {
+              {items.map((item, index) => {
                 const isConfirming = confirmDeleteId === item.id;
                 return (
                   <div
                     key={item.id}
-                    draggable={!isConfirming}
-                    onDragStart={() => setDraggedId(item.id)}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={() => handleDrop(item.id)}
-                    onDragEnd={() => setDraggedId(null)}
-                    className={`flex items-center gap-2 rounded-xl border px-2.5 py-2.5 transition-colors ${
-                      draggedId === item.id
-                        ? "border-violet-300 bg-violet-50/60"
-                        : "border-gray-100 bg-white"
-                    }`}
+                    className="flex items-center gap-2 rounded-xl border border-gray-100 bg-white px-2.5 py-2"
                   >
                     {isConfirming ? (
                       <div className="flex w-full items-center justify-between gap-2">
@@ -178,9 +153,12 @@ export default function ContentReorderPanel({
                       </div>
                     ) : (
                       <>
-                        <span className="shrink-0 cursor-grab text-gray-500 active:cursor-grabbing">
-                          <Icon icon="lucide:grip-vertical" size={15} />
-                        </span>
+                        <MoveButtons
+                          index={index}
+                          count={items.length}
+                          label={item.label}
+                          onMove={(to) => handleMove(index, to)}
+                        />
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                           <Icon icon={ICON_BY_KIND[item.kind]} size={14} />
                         </span>
@@ -206,7 +184,7 @@ export default function ContentReorderPanel({
 
         <div className="border-t border-gray-100 px-5 py-3">
           <p className="text-xs text-gray-500">
-            Drag items to change the order students go through them.
+            Use the arrows to change the order students go through them.
           </p>
         </div>
       </div>
