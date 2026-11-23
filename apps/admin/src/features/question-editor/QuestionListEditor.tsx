@@ -3,6 +3,7 @@
 import {ReactNode, useState} from "react";
 import {FormInputs} from "@mcc/features";
 import {Button, Icon} from "@mcc/ui";
+import MoveButtons, {moveItem} from "@/src/components/MoveButtons";
 import BankTools from "@/src/features/question-bank/components/BankTools";
 import SaveToBankModal from "@/src/features/question-bank/components/SaveToBankModal";
 import {setSharedText, sharedWith} from "./bank";
@@ -20,10 +21,8 @@ function QuestionCard({
   onDelete,
   onCopy,
   onSaveToBank,
-  onDragStart,
-  onDragEnter,
-  onDragEnd,
-  onDrop,
+  count,
+  onMove,
 }: {
   question: CreatPracticeQuestionType;
   index: number;
@@ -39,13 +38,10 @@ function QuestionCard({
   onDelete?: () => void;
   onCopy?: () => void;
   onSaveToBank?: () => void;
-  onDragStart: () => void;
-  onDragEnter: () => void;
-  onDragEnd: () => void;
-  onDrop: (e: React.DragEvent) => void;
+  /** How many questions the set holds, and a way to move this one to another position. */
+  count: number;
+  onMove: (to: number) => void;
 }) {
-  const [dragOptionIndex, setDragOptionIndex] = useState<number | null>(null);
-  const [dragOverOptionIndex, setDragOverOptionIndex] = useState<number | null>(null);
   const multiple = isMultiple(question.type);
 
   function updateField<K extends keyof CreatPracticeQuestionType>(field: K, value: CreatPracticeQuestionType[K]) {
@@ -90,49 +86,18 @@ function QuestionCard({
     onChange({...question, type: next, options});
   }
 
-  function handleOptionDrop(e: React.DragEvent) {
-    e.stopPropagation();
-    if (dragOptionIndex !== null && dragOverOptionIndex !== null && dragOptionIndex !== dragOverOptionIndex) {
-      const copy = [...question.options];
-      const [dragged] = copy.splice(dragOptionIndex, 1);
-      copy.splice(dragOverOptionIndex, 0, dragged);
-      updateField("options", copy);
-    }
-    setDragOptionIndex(null);
-    setDragOverOptionIndex(null);
+  function handleOptionMove(from: number, to: number) {
+    updateField("options", moveItem(question.options, from, to));
   }
 
   return (
     <div
-      draggable
-      onDragStart={(e) => {
-        const target = e.target as HTMLElement;
-        if (
-          target.closest(".option-drag-handle") ||
-          target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.tagName === "SELECT"
-        ) {
-          e.preventDefault();
-          return;
-        }
-        onDragStart();
-      }}
-      onDragEnter={(e) => {
-        if ((e.target as HTMLElement).closest(".option-drag-handle")) return;
-        onDragEnter();
-      }}
-      onDragEnd={onDragEnd}
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={onDrop}
       className="flex items-start gap-5 border border-muted/20 rounded-3xl px-5.5 pt-3.5 pb-5 bg-white"
     >
       <div className="w-full">
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-5">
-            <div className="w-fit! p-0! cursor-grab active:cursor-grabbing text-muted/40 hover:text-muted/60">
-              <Icon icon="lucide:grip-vertical" size={20} />
-            </div>
+            <MoveButtons direction="row" index={index} count={count} label={`question ${index + 1}`} onMove={onMove} />
             <h2 className="text-sm text-subtle font-medium">Question {index + 1}</h2>
           </div>
 
@@ -262,30 +227,9 @@ function QuestionCard({
               return (
                 <div key={opt.id} className="flex flex-col gap-2">
                   <div
-                    draggable
-                    onDragStart={(e) => {
-                      e.stopPropagation();
-                      setDragOptionIndex(optIdx);
-                    }}
-                    onDragEnter={(e) => {
-                      e.stopPropagation();
-                      setDragOverOptionIndex(optIdx);
-                    }}
-                    onDragEnd={(e) => {
-                      e.stopPropagation();
-                      setDragOptionIndex(null);
-                      setDragOverOptionIndex(null);
-                    }}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    onDrop={handleOptionDrop}
                     className="flex items-center gap-4 group"
                   >
-                    <div className="option-drag-handle cursor-grab active:cursor-grabbing text-gray-500 hover:text-gray-600">
-                      <Icon icon="lucide:grip-vertical" size={18} />
-                    </div>
+                    <MoveButtons index={optIdx} count={question.options.length} label={`option ${letter}`} onMove={(to) => handleOptionMove(optIdx, to)} />
 
                     <input
                       type={multiple ? "checkbox" : "radio"}
@@ -396,20 +340,6 @@ export default function QuestionListEditor({
   single?: boolean;
 }) {
   const [savingOne, setSavingOne] = useState<CreatPracticeQuestionType | null>(null);
-  const [dragItemIndex, setDragItemIndex] = useState<number | null>(null);
-  const [dragOverItemIndex, setDragOverItemIndex] = useState<number | null>(null);
-
-  function handleDrop() {
-    if (dragItemIndex !== null && dragOverItemIndex !== null && dragItemIndex !== dragOverItemIndex) {
-      const copy = [...questions];
-      const [dragged] = copy.splice(dragItemIndex, 1);
-      copy.splice(dragOverItemIndex, 0, dragged);
-      onChange(copy);
-    }
-    setDragItemIndex(null);
-    setDragOverItemIndex(null);
-  }
-
   return (
     <section className="mt-4">
       {withResponses && (
@@ -442,13 +372,8 @@ export default function QuestionListEditor({
             onDelete={single ? undefined : () => onChange(questions.filter((_, i) => i !== idx))}
             onCopy={single ? undefined : () => navigator.clipboard.writeText(JSON.stringify(q, null, 2))}
             onSaveToBank={single ? undefined : () => setSavingOne(q)}
-            onDragStart={() => setDragItemIndex(idx)}
-            onDragEnter={() => setDragOverItemIndex(idx)}
-            onDragEnd={() => {
-              setDragItemIndex(null);
-              setDragOverItemIndex(null);
-            }}
-            onDrop={handleDrop}
+            count={questions.length}
+            onMove={(to) => onChange(moveItem(questions, idx, to))}
           />
         ))}
       </div>
