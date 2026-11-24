@@ -25,6 +25,7 @@ export default function Wallet() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("paid")) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reads the ?paid= flag the payment callback put in the address, which only the browser has
       setJustPaid(true);
       setTab("history");
       window.history.replaceState(null, "", "/wallet");

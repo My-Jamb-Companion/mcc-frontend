@@ -19,6 +19,7 @@ const FormInputs = ({
   inputProps,
   selectRadius = "lg",
   selectClassName,
+  searchable,
 }: inputProps) => {
   const [show, setShow] = useState(false);
   const id = registration?.name;
@@ -53,6 +54,7 @@ const FormInputs = ({
           icon={typeof icon === "string" ? icon : undefined}
           selectRadius={selectRadius}
           className={selectClassName}
+          searchable={searchable}
         />
       );
     }
@@ -150,7 +152,9 @@ type inputProps = {
     | "textarea"
     | "select"
     | "date";
-  options?: {label: string; value: string}[];
+  options?: {label: string; value: string; shortLabel?: string; searchText?: string}[];
+  /** For a select: a search box above the options (long lists such as countries). */
+  searchable?: boolean;
   placeholder?: string;
   /** Rendered icon element for text/password/etc. fields, or an Iconify icon name string for "select" fields */
   icon?: React.ReactNode | string;

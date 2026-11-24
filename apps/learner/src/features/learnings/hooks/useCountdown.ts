@@ -24,10 +24,17 @@ export function useCountdown(
     onExpireRef.current = onExpire;
   });
 
+  // A new attempt (or a new limit) starts the clock again. The shown time is reset while rendering; the
+  // bookkeeping the timer keeps outside React is reset once the screen has been updated.
+  const resetKey = `${attempt}:${total}`;
+  const [seenReset, setSeenReset] = useState(resetKey);
+  if (seenReset !== resetKey) {
+    setSeenReset(resetKey);
+    setRemaining(total);
+  }
   useEffect(() => {
     deadline.current = null;
     expired.current = false;
-    setRemaining(total);
   }, [attempt, total]);
 
   useEffect(() => {

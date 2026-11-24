@@ -106,7 +106,9 @@ export default function PdfViewer({src, title}: PdfViewerProps) {
   const pageNow = useRef(1);
   const frame = useRef(0);
   const {focus, enter, leave} = useFullScreen();
-  pageNow.current = page;
+  useEffect(() => {
+    pageNow.current = page;
+  }, [page]);
 
   useEffect(() => {
     let cancelled = false;

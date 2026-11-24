@@ -332,7 +332,7 @@ function LockedModulePanel({limit, opening, onOpen}: {limit?: ApiDailyLimit; ope
         <>
           <p className="font-medium">Locked until tomorrow</p>
           <p className="mt-1 text-muted">
-            You've already opened today's module. Come back in {timeUntil(limit?.unlocks_at ?? null)} to open another, or{" "}
+            You&apos;ve already opened today&apos;s module. Come back in {timeUntil(limit?.unlocks_at ?? null)} to open another, or{" "}
             <Link href="/explore" className="text-primary underline">
               sign up for a paid course
             </Link>{" "}

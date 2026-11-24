@@ -1,15 +1,16 @@
 "use client";
 
-import {useRef, useState} from "react";
-import {AnimatePresence, motion, Icon, Modal, ModalRef} from "@mcc/ui";
-import CompleteProfileForm from "./CompleteProfileForm";
+import {useState} from "react";
+import {useRouter} from "next/navigation";
+import {AnimatePresence, motion, Icon} from "@mcc/ui";
 import Image from "next/image";
-import {useProfileProgressStore} from "@mcc/store";
+import {useProfile} from "@/src/features/account/hooks/useProfile";
+import {profileSteps} from "@/src/features/account/helper/profileProgress";
 
 /** `hideOnPhone` lifts it out of the way on screens where it would sit on top of the page's own controls (the Brainy chat). */
 export default function Help({hideOnPhone = false}: {hideOnPhone?: boolean}) {
   const [open, setOpen] = useState(false);
-  const modalRef = useRef<ModalRef>(null);
+  const router = useRouter();
 
   return (
     <>
@@ -57,7 +58,11 @@ export default function Help({hideOnPhone = false}: {hideOnPhone?: boolean}) {
               className="origin-bottom-right max-sm:w-full max-sm:pl-5 max-sm:pr-3"
             >
               <CompleteProfileCard
-                onResume={() => modalRef.current?.openDialog()}
+                // The same page, with the same form, as Account > Profile: there is one place to fill these in.
+                onResume={() => {
+                  setOpen(false);
+                  router.push("/account");
+                }}
               />
             </motion.div>
           )}
@@ -85,46 +90,23 @@ export default function Help({hideOnPhone = false}: {hideOnPhone?: boolean}) {
           </motion.div>
         </motion.button>
       </motion.div>
-
-      <Modal ref={modalRef} maxWidth="max-w-lg">
-        <CompleteProfileForm close={() => modalRef.current?.closeDialog()} />
-      </Modal>
     </>
   );
 }
 
 export function CompleteProfileCard({onResume}: {onResume: () => void}) {
   const [open, setOpen] = useState(true);
-  const {step, completedSteps} = useProfileProgressStore();
+  const {data: profile} = useProfile();
 
-  const steps = [
-    {
-      title: "Personal details",
-      status: completedSteps.includes(1)
-        ? "complete"
-        : step === 1
-          ? "loading"
-          : "pending",
-    },
-
-    {
-      title: "Your location",
-      status: completedSteps.includes(2)
-        ? "complete"
-        : step === 2
-          ? "loading"
-          : "pending",
-    },
-
-    {
-      title: "Profile photo",
-      status: completedSteps.includes(3)
-        ? "complete"
-        : step === 3
-          ? "loading"
-          : "pending",
-    },
-  ];
+  // Judged from the profile the server holds, so it always agrees with the Account page. The first step still to do
+  // shows as the one in progress.
+  const checklist = profileSteps(profile);
+  const firstTodo = checklist.findIndex((s) => !s.done);
+  const steps = checklist.map((s, i) => ({
+    title: s.title,
+    status: s.done ? "complete" : i === firstTodo ? "loading" : "pending",
+  }));
+  const completedSteps = checklist.filter((s) => s.done);
 
   const progressIconMap = {
     0: "hugeicons:progress-01",

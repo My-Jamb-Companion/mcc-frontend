@@ -63,9 +63,10 @@ export default function MockExamPlayer({session, onFinished}: MockExamPlayerProp
   const savingRef = useRef(false);
   const finishingRef = useRef(false);
   // When the question on screen came up, so time spent on it can be counted when the student leaves it.
-  const enteredAt = useRef(Date.now());
+  const [openedAt] = useState(() => Date.now());
+  const enteredAt = useRef(openedAt);
   // The deadline, by the server's clock as of when the page loaded: the device's clock never decides it.
-  const deadline = useRef(Date.now() + session.remaining_seconds * 1000);
+  const deadline = useRef(openedAt + session.remaining_seconds * 1000);
 
   const index = state.current;
   const question = questions[index];

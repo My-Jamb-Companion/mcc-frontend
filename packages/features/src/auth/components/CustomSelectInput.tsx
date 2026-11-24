@@ -6,6 +6,10 @@ import {useState, useRef, useEffect} from "react";
 export interface SelectOption {
   value: string;
   label: string;
+  /** What the closed select shows for this option, when the full label is too long for it (a phone code: "🇳🇬 +234"). */
+  shortLabel?: string;
+  /** Extra words the search matches besides the label. */
+  searchText?: string;
 }
 
 export interface CustomSelectProps {
@@ -18,6 +22,8 @@ export interface CustomSelectProps {
   selectRadius?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "full";
   icon?: string;
   className?: string;
+  /** Adds a search box above the options, for long lists such as countries. */
+  searchable?: boolean;
 }
 
 export function CustomSelect({
@@ -30,14 +36,20 @@ export function CustomSelect({
   icon,
   selectRadius = "lg",
   className,
+  searchable = false,
 }: CustomSelectProps) {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const ref = useRef<HTMLDivElement>(null);
   const [viewDate, setViewDate] = useState(() =>
     value && mode === "date" ? fromISODate(value) : new Date(),
   );
 
   const selected = options?.find((o) => o.value === value);
+  const needle = query.trim().toLowerCase();
+  const visibleOptions = needle
+    ? options?.filter((o) => `${o.label} ${o.searchText ?? ""}`.toLowerCase().includes(needle))
+    : options;
   const today = new Date();
 
   useEffect(() => {
@@ -50,13 +62,18 @@ export function CustomSelect({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // A fresh search every time the list is opened.
+  useEffect(() => {
+    if (!open) setQuery("");
+  }, [open]);
+
   const triggerLabel =
     mode === "date"
       ? value
         ? formatDisplayDate(value)
         : placeholder
       : selected
-        ? selected.label
+        ? (selected.shortLabel ?? selected.label)
         : placeholder;
 
   return (
@@ -95,9 +112,24 @@ export function CustomSelect({
               duration: 0.25,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="bg-white dark:bg-zinc-800 border border-hint/30  rounded-lg overflow-hidden shadow-lg absolute left-0 top-full mt-2 w-full z-20"
+            className="bg-white dark:bg-zinc-800 border border-hint/30 rounded-lg max-h-64 overflow-y-auto overscroll-contain shadow-lg absolute left-0 top-full mt-2 w-full min-w-56 z-20"
           >
-            {options?.map((opt) => (
+            {searchable && (
+              <li className="sticky top-0 bg-white p-2 dark:bg-zinc-800">
+                <input
+                  autoFocus
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search…"
+                  aria-label="Search the list"
+                  className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 ring-primary/40 dark:border-white/20 dark:bg-zinc-900 dark:text-white"
+                />
+              </li>
+            )}
+            {searchable && visibleOptions?.length === 0 && (
+              <li className="px-3.5 py-2.5 text-sm text-zinc-500">No matches</li>
+            )}
+            {visibleOptions?.map((opt) => (
               <li
                 key={opt.value}
                 onClick={() => {

@@ -1,14 +1,17 @@
 import {useForm, Controller, FormInputs} from "@mcc/features";
-import {Icon} from "@mcc/ui";
+import {Icon, showError} from "@mcc/ui";
 import {ProfileUser} from "../constants/types";
 import {useLinkedParent} from "../hooks/useProfile";
+import {COUNTRY_OPTIONS, PHONE_CODE_OPTIONS} from "../constants/countries";
+import {composePhone} from "../helper/phone";
 
 export interface PersonalInformationFormValues {
   fullName: string;
   username: string;
   parentName: string;
   email: string;
-  phoneCountryCode: string;
+  /** ISO code of the phone number's country ("NG"). */
+  phoneCountry: string;
   phoneNumber: string;
   gender: string;
   country: string;
@@ -20,34 +23,25 @@ export interface PersonalInformationFormValues {
 interface PersonalInformationFormProps {
   user: ProfileUser;
   onSave?: (values: PersonalInformationFormValues) => void;
+  /** A save is in progress: the button says so and cannot be pressed again. */
+  saving?: boolean;
 }
 
 const GENDER_OPTIONS = [
   {label: "Male", value: "Male"},
   {label: "Female", value: "Female"},
-  {label: "Prefer not to say", value: "Prefer not to say"},
-];
-
-const COUNTRY_OPTIONS = [
-  {label: "🇳🇬 Nigeria", value: "Nigeria"},
-  {label: "Ghana", value: "Ghana"},
-  {label: "Kenya", value: "Kenya"},
-];
-
-const PHONE_CODE_OPTIONS = [
-  {label: "🇳🇬 +234", value: "+234"},
-  {label: "🇬🇭 +233", value: "+233"},
-  {label: "🇰🇪 +254", value: "+254"},
 ];
 
 export function AccountPersonalInformationForm({
   user,
   onSave,
+  saving = false,
 }: PersonalInformationFormProps) {
   const {
     register,
     control,
     handleSubmit,
+    getValues,
     formState: {errors},
   } = useForm<PersonalInformationFormValues>({
     defaultValues: {
@@ -55,9 +49,10 @@ export function AccountPersonalInformationForm({
       username: user.username,
       parentName: user.parentName,
       email: user.email,
-      phoneCountryCode: user.phoneCountryCode,
+      phoneCountry: user.phoneCountry,
       phoneNumber: user.phoneNumber,
-      gender: user.gender,
+      // An option that is no longer offered ("Prefer not to say") shows as unchosen.
+      gender: GENDER_OPTIONS.some((o) => o.value === user.gender) ? user.gender : "",
       country: user.country,
       state: user.state,
       city: user.city,
@@ -65,7 +60,11 @@ export function AccountPersonalInformationForm({
     },
   });
 
-  const submit = handleSubmit((values) => onSave?.(values));
+  // On a phone the field that is wrong may be off screen, so a save that cannot go ahead says so.
+  const submit = handleSubmit(
+    (values) => onSave?.(values),
+    () => showError("Some details are missing or not valid. Please check the highlighted fields."),
+  );
   const {data: linkedParent} = useLinkedParent();
 
   return (
@@ -118,16 +117,17 @@ export function AccountPersonalInformationForm({
 
         <div className="grid grid-cols-[auto_1fr] gap-2">
           <Controller
-            name="phoneCountryCode"
+            name="phoneCountry"
             control={control}
             render={({field}) => (
               <FormInputs
                 label="Code"
                 type="select"
+                searchable
                 options={PHONE_CODE_OPTIONS}
                 value={field.value}
                 onChange={(v) => field.onChange(v)}
-                className="w-24"
+                className="w-32"
               />
             )}
           />
@@ -137,6 +137,8 @@ export function AccountPersonalInformationForm({
             type="tel"
             registration={register("phoneNumber", {
               required: "Phone number is required",
+              validate: (v) =>
+                composePhone(getValues("phoneCountry"), v) !== null || "Enter a valid phone number",
             })}
             errors={errors.phoneNumber}
           />
@@ -169,6 +171,7 @@ export function AccountPersonalInformationForm({
             <FormInputs
               label="Your Country"
               type="select"
+              searchable
               options={COUNTRY_OPTIONS}
               value={field.value}
               onChange={(v) => field.onChange(v)}
@@ -201,9 +204,10 @@ export function AccountPersonalInformationForm({
 
       <button
         type="submit"
-        className="mt-6 w-full rounded-lg bg-linear-to-r from-violet-600 to-fuchsia-500 py-3 text-sm font-semibold text-white shadow-sm hover:opacity-95"
+        disabled={saving}
+        className="mt-6 w-full rounded-lg bg-linear-to-r from-violet-600 to-fuchsia-500 py-3 text-sm font-semibold text-white shadow-sm hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Save Changes
+        {saving ? "Saving…" : "Save Changes"}
       </button>
     </form>
   );

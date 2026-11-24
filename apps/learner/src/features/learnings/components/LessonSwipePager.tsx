@@ -36,7 +36,9 @@ export default function LessonSwipePager({blocks, lessonTitle, onComplete, onPag
   const {focus, enter, leave} = useFullScreen();
   const pageNow = useRef(0);
   const pages = blocks.length + 1; // the sections, then the closing page
-  pageNow.current = page;
+  useEffect(() => {
+    pageNow.current = page;
+  }, [page]);
 
   const sections = useMemo(
     () => blocks.map((b) => ({heading: b.heading, html: normalizeLessonHtml(b.html)})),

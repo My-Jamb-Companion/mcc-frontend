@@ -5,7 +5,8 @@ export interface ProfileUser {
   username: string;
   parentName: string;
   email: string;
-  phoneCountryCode: string;
+  /** ISO code of the phone number's country ("NG"); its dial code is looked up from the country list. */
+  phoneCountry: string;
   phoneNumber: string;
   gender: string;
   country: string;

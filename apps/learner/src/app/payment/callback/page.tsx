@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState, useSyncExternalStore} from "react";
 import {useRouter} from "next/navigation";
 import {Button, Icon} from "@mcc/ui";
 import {usePaymentStatus} from "@/src/features/payments/usePaymentStatus";
@@ -25,21 +25,20 @@ const RETRY_PATH: Record<PaymentStatus["purpose"], string> = {
 
 export default function PaymentCallbackPage() {
   const router = useRouter();
-  const [txRef, setTxRef] = useState<string | null | undefined>(undefined);
-  const startedAt = useRef(Date.now());
   const [timedOut, setTimedOut] = useState(false);
-
-  useEffect(() => {
-    setTxRef(new URLSearchParams(window.location.search).get("tx_ref"));
-  }, []);
+  // The reference the payment provider put in the address. Only the browser knows it, so it is undefined while
+  // the page is rendered on the server.
+  const txRef = useSyncExternalStore(
+    () => () => {},
+    () => new URLSearchParams(window.location.search).get("tx_ref"),
+    () => undefined,
+  );
 
   const {data, error, isLoading} = usePaymentStatus(txRef ?? null);
 
   useEffect(() => {
     if (data?.status !== "pending") return;
-    const timer = setTimeout(() => {
-      if (Date.now() - startedAt.current >= MAX_WAIT_MS) setTimedOut(true);
-    }, MAX_WAIT_MS);
+    const timer = setTimeout(() => setTimedOut(true), MAX_WAIT_MS);
     return () => clearTimeout(timer);
   }, [data?.status]);
 

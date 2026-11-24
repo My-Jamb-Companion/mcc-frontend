@@ -34,7 +34,9 @@ export function useLessonReader({kind, parentId, lectureId, manifest, onSection}
   const run = useRef(0);
   const speedRef = useRef(DEFAULT_SPEED);
   const onSectionRef = useRef(onSection);
-  onSectionRef.current = onSection;
+  useEffect(() => {
+    onSectionRef.current = onSection;
+  });
 
   const [status, setStatus] = useState<ReaderStatus>("idle");
   const [section, setSection] = useState<number | null>(null);
@@ -50,6 +52,7 @@ export function useLessonReader({kind, parentId, lectureId, manifest, onSection}
     }
     const saved = readSpeed(stored);
     speedRef.current = saved;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reads the remembered speed from localStorage, which only exists in the browser
     setSpeedState(saved);
   }, []);
 
