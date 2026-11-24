@@ -10,6 +10,8 @@ import {
   enrollCourse,
   getCertificates,
   getCourseContent,
+  openCourseModule,
+  NO_DAILY_LIMIT,
   getCourses,
   getEnrolledCourses,
   initializeCoursePayment,
@@ -47,7 +49,20 @@ export const useCourseContent = (courseId: string | null | undefined) => {
     enabled: !!courseId,
   });
 
-  return {...query, content: query.data ?? []};
+  return {
+    ...query,
+    content: query.data?.rows ?? [],
+    dailyLimit: query.data?.dailyLimit ?? NO_DAILY_LIMIT,
+  };
+};
+
+/** A free learner chooses a module as today's one; the course content is fetched again so it unlocks. */
+export const useOpenModule = (courseId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (moduleId: string) => openCourseModule(courseId, moduleId),
+    onSettled: () => queryClient.invalidateQueries({queryKey: ["courses", courseId, "content"]}),
+  });
 };
 
 export const useCertificates = () => {

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { FormInputs, useForm } from "@mcc/features";
-import { Button, LegalLink } from "@mcc/ui";
+import { Button, LegalLink, TurnstileWidget } from "@mcc/ui";
 import { extractApiError } from "@mcc/api";
 import { useTeacherRegistration } from "../hooks/useTeacherRegistration";
 import { TeacherRegistrationInputs } from "../types";
@@ -16,9 +16,20 @@ export function TeacherSignUpForm() {
   const errors = formState.errors;
   const { registerMutation } = useTeacherRegistration();
   const password = watch("password");
+  // The "are you a person?" check. Without a site key (not set up yet) the form works as before.
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
 
   const onSubmit = (data: TeacherRegistrationInputs) => {
-    registerMutation.mutate(data, { onSuccess: () => setSubmitted(true) });
+    registerMutation.mutate(
+      { ...data, captcha_token: captchaToken },
+      {
+        onSuccess: () => setSubmitted(true),
+        // A token works once, so after a failed attempt the check runs again.
+        onError: () => setCaptchaReset((n) => n + 1),
+      },
+    );
   };
 
   if (submitted) {
@@ -115,6 +126,8 @@ export function TeacherSignUpForm() {
           <p className="text-red-400 text-xs">{errors.agree_to_terms.message}</p>
         )}
 
+        <TurnstileWidget siteKey={siteKey} onToken={setCaptchaToken} resetSignal={captchaReset} />
+
         {registerMutation.isError && (
           <p className="text-red-500 text-sm text-center">
             {extractApiError(registerMutation.error, "Something went wrong. Please try again.")}
@@ -126,6 +139,7 @@ export function TeacherSignUpForm() {
           variant="primary"
           width="full"
           loading={registerMutation.isPending}
+          disabled={!!siteKey && !captchaToken}
           loadingText="Submitting…"
         >
           Submit application

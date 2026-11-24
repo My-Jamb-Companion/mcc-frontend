@@ -2,9 +2,9 @@ import {describe, expect, it} from "vitest";
 import {afterLesson} from "./lessonOrder";
 import type {Lesson, Module} from "./content.mapper";
 
-const lesson = (id: string): Lesson => ({id, title: id, videoUrl: null, duration: 0, thumbnailUrl: null, format: null, content: null} as Lesson);
+const lesson = (id: string): Lesson => ({id, title: id, videoUrl: null, duration: 0, thumbnailUrl: null, format: null, content: null, locked: false} as Lesson);
 const mod = (id: string, lessons: string[], practiceCount?: number): Module => ({
-  id, title: id, lessons: lessons.map(lesson), exerciseSets: [], quizSets: [], practiceCount,
+  id, title: id, lessons: lessons.map(lesson), exerciseSets: [], quizSets: [], practiceCount, locked: false,
 });
 
 describe("afterLesson", () => {

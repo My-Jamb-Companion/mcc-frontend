@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Controller, FormInputs, useForm } from "@mcc/features";
-import { Button, LegalLink } from "@mcc/ui";
+import { Button, LegalLink, TurnstileWidget } from "@mcc/ui";
 import { extractApiError } from "@mcc/api";
 import { useSignupParentAndChild } from "./useSignupParentAndChild";
 import { ParentChildSignupInput } from "./signup.service";
@@ -20,9 +20,16 @@ export const SignUpForm = () => {
     defaultValues: { relationship: "parent", guardian_consent: false },
   });
 
+  // The "are you a person?" check. Without a site key (not set up yet) the form works as before.
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
+
   const onSubmit = (data: ParentChildSignupInput) => {
-    signup.mutate(data, {
+    signup.mutate({ ...data, captcha_token: captchaToken }, {
       onSuccess: () => setSubmitted({ parentEmail: data.parent_email }),
+      // A token works once, so after a failed attempt the check runs again.
+      onError: () => setCaptchaReset((n) => n + 1),
     });
   };
 
@@ -133,6 +140,8 @@ export const SignUpForm = () => {
         <p role="alert" className="text-xs text-red-500">{formState.errors.guardian_consent.message}</p>
       )}
 
+      <TurnstileWidget siteKey={siteKey} onToken={setCaptchaToken} resetSignal={captchaReset} />
+
       {signup.isError && (
         <p className="text-red-500 text-sm text-center">
           {extractApiError(signup.error, "Something went wrong. Please try again.")}
@@ -145,7 +154,7 @@ export const SignUpForm = () => {
         <LegalLink doc="privacy">Privacy Policy</LegalLink>, for you and your child.
       </p>
 
-      <Button type="submit" width="full" loading={signup.isPending}>
+      <Button type="submit" width="full" loading={signup.isPending} disabled={!!siteKey && !captchaToken}>
         Create accounts
       </Button>
     </form>

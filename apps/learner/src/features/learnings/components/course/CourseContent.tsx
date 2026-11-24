@@ -5,6 +5,7 @@ import Link from "next/link";
 import {useRouter, usePathname, useSearchParams} from "next/navigation";
 import {Button, Icon, motion, AnimatePresence, showError, BrainyMark} from "@mcc/ui";
 import CoursePlayModules from "./CourseModules";
+import DailyLimitBanner from "./DailyLimitBanner";
 import CoursePlayer from "./CoursePlayer";
 import BrainyCourseSidePanel from "./BrainyCourseSidePanel";
 import InteractiveLessonContent from "../InteractiveLessonContent";
@@ -19,7 +20,10 @@ import {Lesson, Module, lessonKind} from "@/src/features/learnings/helper/conten
 import {afterLesson} from "@/src/features/learnings/helper/lessonOrder";
 import {youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import {useAllLessons, useLessonsDuration, formatDuration} from "@/src/features/learnings/hooks/useLesson";
-import {useCertificates, useCompleteLecture, useCourseProgress} from "@/src/features/courses/hooks/useCourses";
+import {useCertificates, useCompleteLecture, useCourseProgress, useOpenModule} from "@/src/features/courses/hooks/useCourses";
+import {extractApiError} from "@mcc/api";
+import type {ApiDailyLimit} from "@/src/features/courses/services/course.service";
+import {limitState, timeUntil} from "@/src/features/learnings/helper/dailyLimit";
 import {useModuleQuestions, useQuizGrades} from "@/src/features/learnings/hooks/useModuleQuiz";
 import {gradeKey, indexGrades} from "@/src/features/learnings/helper/quizGrades";
 import QuizGradesCard from "../QuizGradesCard";
@@ -33,6 +37,8 @@ interface CourseContentProps {
   description?: string | null;
   coverImageUrl?: string | null;
   modules: Module[];
+  /** The free-course daily limit (one module a day) for this learner in this course. */
+  dailyLimit: ApiDailyLimit;
 }
 
 // The order the tabs appear in. Course Content and AI Assistant only show below the lg breakpoint, where the side panel is hidden.
@@ -44,6 +50,7 @@ export default function CourseContent({
   description,
   coverImageUrl,
   modules,
+  dailyLimit,
 }: CourseContentProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -66,8 +73,11 @@ export default function CourseContent({
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
   const lectureParam = searchParams.get("lecture");
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(
-    (lectureParam && allLessons.find((l) => l.id === lectureParam)) || allLessons[0] || null,
+    (lectureParam && allLessons.find((l) => l.id === lectureParam)) || allLessons.find((l) => !l.locked) || allLessons[0] || null,
   );
+  // A free learner opens one module a day; opening a locked one unlocks it, then its first lesson is shown.
+  const openModule = useOpenModule(courseId);
+  const [pendingModuleId, setPendingModuleId] = useState<string | null>(null);
   const [activeQuizModuleId, setActiveQuizModuleId] = useState<string | null>(null);
   const [activeExercise, setActiveExercise] = useState<{moduleId: string; name: string} | null>(null);
   const [activeQuizSet, setActiveQuizSet] = useState<{moduleId: string; name: string} | null>(null);
@@ -144,6 +154,21 @@ export default function CourseContent({
     setActiveQuizSet({moduleId, name});
   };
 
+  const handleOpenModule = (moduleId: string) => {
+    openModule.mutate(moduleId, {
+      onSuccess: () => setPendingModuleId(moduleId),
+      onError: (error) => showError(extractApiError(error, "Couldn't open this module. Please try again.")),
+    });
+  };
+
+  useEffect(() => {
+    if (!pendingModuleId) return;
+    const opened = modules.find((m) => m.id === pendingModuleId);
+    if (!opened || opened.locked) return;
+    if (opened.lessons[0]) handleSelectLesson(opened.lessons[0]);
+    setPendingModuleId(null);
+  }, [modules, pendingModuleId]);
+
   // The lessons already finished, as the server recorded them: a reload keeps its ticks.
   useEffect(() => {
     if (!savedProgress?.completed_lecture_ids.length) return;
@@ -161,13 +186,13 @@ export default function CourseContent({
         {
           onSuccess: (result) =>
             setCompletedLessonIds((prev) => new Set([...prev, ...result.completed_lecture_ids])),
-          onError: () => {
+          onError: (error) => {
             setCompletedLessonIds((prev) => {
               const next = new Set(prev);
               next.delete(lessonId);
               return next;
             });
-            showError("Couldn't save your progress. Please try again.");
+            showError(extractApiError(error, "Couldn't save your progress. Please try again."));
           },
         },
       );
@@ -216,13 +241,15 @@ export default function CourseContent({
         <span className="text-subtle cursor-default text-nowrap truncate">{title}</span>
       </nav>
 
+      <DailyLimitBanner limit={dailyLimit} modules={modules} />
+
       <BookingSection purpose="course" targetId={courseId} />
 
       <div
         className={`grid grid-cols-1 ${isSidePanelOpen ? "lg:grid-cols-[minmax(0,1fr)_17rem] xl:grid-cols-[minmax(0,1fr)_20rem]" : "lg:grid-cols-[minmax(0,1fr)_2rem]"} gap-6 transition-[grid-template-columns] duration-400 ease-in-out`}
       >
         <motion.div layout transition={{type: "spring", stiffness: 120, damping: 20}} className="min-w-0 pb-8">
-          {!activeQuizModuleId && !activeExercise && !activeQuizSet && activeLesson && (
+          {!activeQuizModuleId && !activeExercise && !activeQuizSet && activeLesson && !activeLesson.locked && (
             <div className="mb-3 px-1">
               <p className="text-lg font-semibold">{activeLesson.title}</p>
               {!!activeLesson.duration && (
@@ -315,6 +342,26 @@ export default function CourseContent({
               <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-muted/10 text-sm text-muted">
                 This course has no lessons yet.
               </div>
+            ) : activeLesson.locked ? (
+              <div className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-2xl bg-muted/10 px-8 text-center">
+                <Icon icon="solar:lock-keyhole-bold" size={28} className="text-muted" />
+                {limitState(dailyLimit, modules.map((m) => m.id)) === "choose" ? (
+                  <>
+                    <p className="text-sm font-medium">Choose today's module</p>
+                    <p className="text-sm text-muted">
+                      Open a module from the course content to start learning. The others unlock tomorrow.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-medium">Locked until tomorrow</p>
+                    <p className="text-sm text-muted">
+                      Come back in {timeUntil(dailyLimit.unlocks_at)} to continue learning, or sign up for a paid course to
+                      learn without a daily limit.
+                    </p>
+                  </>
+                )}
+              </div>
             ) : kind === "youtube" ? (
               <iframe
                 src={youTubeEmbedUrl(activeLesson.videoUrl) ?? undefined}
@@ -341,7 +388,7 @@ export default function CourseContent({
             )}
           </div>
 
-          {!activeQuizModuleId && !activeExercise && !activeQuizSet && activeLesson && kind !== "html" && (
+          {!activeQuizModuleId && !activeExercise && !activeQuizSet && activeLesson && !activeLesson.locked && kind !== "html" && (
             <div className="mt-4 flex items-center justify-end px-1">
               <Button
                 variant={completedLessonIds.has(activeLesson.id) ? "outline" : "primary"}
@@ -398,6 +445,9 @@ export default function CourseContent({
                   onSelectQuiz={handleSelectQuiz}
                   onSelectExercise={handleSelectExercise}
                   onSelectQuizSet={handleSelectQuizSet}
+                  limit={dailyLimit}
+                  onOpenModule={handleOpenModule}
+                  openingModuleId={openModule.isPending ? openModule.variables : null}
                 />
               )}
               {activeTab === "ai" && isMobile && (
@@ -494,6 +544,9 @@ export default function CourseContent({
                   onSelectQuiz={handleSelectQuiz}
                   onSelectExercise={handleSelectExercise}
                   onSelectQuizSet={handleSelectQuizSet}
+                  limit={dailyLimit}
+                  onOpenModule={handleOpenModule}
+                  openingModuleId={openModule.isPending ? openModule.variables : null}
                 />
               )}
 

@@ -70,7 +70,33 @@ export interface ApiCourseContentRow {
   exercise_sets?: {name: string; count: number; timer_minutes?: number | null}[];
   /** The module's named quiz sets (timed entries), in authored order. */
   quiz_sets?: {name: string; count: number; timer_minutes?: number | null; passing_score?: number | null}[];
+  /** True when the free-course daily limit has this module closed today; its video, text and thumbnail are then null. */
+  locked?: boolean;
 }
+
+/** The free-course daily limit (one module a day) as it stands for the learner in a course. */
+export interface ApiDailyLimit {
+  /** Whether the limit applies to this learner here. False for a learner with a paid enrolment. */
+  restricted: boolean;
+  /** The module opened today; null until one is chosen. It may belong to another free course. */
+  unlocked_module_id: string | null;
+  unlocked_course_id: string | null;
+  /** ISO time (Lagos midnight) when another module can be opened. */
+  unlocks_at: string | null;
+}
+
+export interface CourseContentResult {
+  rows: ApiCourseContentRow[];
+  dailyLimit: ApiDailyLimit;
+}
+
+/** What a course looks like when nothing limits the learner. */
+export const NO_DAILY_LIMIT: ApiDailyLimit = {
+  restricted: false,
+  unlocked_module_id: null,
+  unlocked_course_id: null,
+  unlocks_at: null,
+};
 /**
  * Endpoint: GET /courses/ (public catalogue)
  *
@@ -109,9 +135,26 @@ export const getEnrolledCourses = async (): Promise<ApiEnrolledCourse[]> => {
 /** Endpoint: GET /courses/<course_id>/content */
 export const getCourseContent = async (
   courseId: string,
-): Promise<ApiCourseContentRow[]> => {
-  const res = await apiClient.get<{data: ApiCourseContentRow[]}>(
-    `/courses/${courseId}/content`,
+): Promise<CourseContentResult> => {
+  const res = await apiClient.get<{
+    data: ApiCourseContentRow[];
+    meta?: {daily_limit?: ApiDailyLimit};
+  }>(`/courses/${courseId}/content`);
+  return {rows: res.data.data, dailyLimit: res.data.meta?.daily_limit ?? NO_DAILY_LIMIT};
+};
+
+/**
+ * Endpoint: POST /courses/<course_id>/modules/<module_id>/open
+ *
+ * A free learner chooses this module as today's one. 403 DAILY_MODULE_LIMIT when another module was already
+ * opened today (`error.details.unlocks_at` says when the limit resets).
+ */
+export const openCourseModule = async (
+  courseId: string,
+  moduleId: string,
+): Promise<ApiDailyLimit> => {
+  const res = await apiClient.post<{data: ApiDailyLimit}>(
+    `/courses/${courseId}/modules/${moduleId}/open`,
   );
   return res.data.data;
 };

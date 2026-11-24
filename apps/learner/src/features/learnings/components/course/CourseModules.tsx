@@ -1,5 +1,8 @@
 import {useState} from "react";
-import {Icon, motion, AnimatePresence} from "@mcc/ui";
+import Link from "next/link";
+import {Button, Icon, motion, AnimatePresence} from "@mcc/ui";
+import type {ApiDailyLimit} from "@/src/features/courses/services/course.service";
+import {timeUntil} from "@/src/features/learnings/helper/dailyLimit";
 import {useLessonsDuration, useModuleProgress} from "@/src/features/learnings/hooks/useLesson";
 import {Lesson, LessonKind, Module, lessonKind} from "@/src/features/learnings/helper/content.mapper";
 import {describeDuration} from "@/src/features/learnings/helper/countdown";
@@ -24,6 +27,12 @@ interface CourseModulesProps {
   activeQuizModuleId?: string | null;
   activeExercise?: {moduleId: string; name: string} | null;
   activeQuizSet?: {moduleId: string; name: string} | null;
+  /** The free-course daily limit; a locked module offers to be opened today, or says when it unlocks. */
+  limit?: ApiDailyLimit;
+  /** Choose a locked module as today's one. */
+  onOpenModule?: (moduleId: string) => void;
+  /** The module being opened right now, if any. */
+  openingModuleId?: string | null;
 }
 
 const kindIconMap: Record<LessonKind, {icon: string; className: string}> = {
@@ -45,6 +54,9 @@ export default function CoursePlayModules({
   activeQuizModuleId = null,
   activeExercise = null,
   activeQuizSet = null,
+  limit,
+  onOpenModule,
+  openingModuleId = null,
 }: CourseModulesProps) {
   return (
     <div className="flex flex-col gap-3">
@@ -67,6 +79,9 @@ export default function CoursePlayModules({
             onSelectQuiz={onSelectQuiz}
             onSelectExercise={onSelectExercise}
             onSelectQuizSet={onSelectQuizSet}
+            limit={limit}
+            onOpenModule={onOpenModule}
+            opening={openingModuleId === module.id}
           />
         </motion.div>
       ))}
@@ -86,7 +101,13 @@ function ModuleAccordion({
   onSelectQuiz,
   onSelectExercise,
   onSelectQuizSet,
+  limit,
+  onOpenModule,
+  opening,
 }: {
+  limit?: ApiDailyLimit;
+  onOpenModule?: (moduleId: string) => void;
+  opening: boolean;
   module: Module;
   completedLessonIds: Set<string>;
   grades?: Map<string, ApiQuizGrade>;
@@ -114,15 +135,19 @@ function ModuleAccordion({
         className="border border-muted/20 rounded-2xl flex items-center justify-between w-full px-3.5 py-5.5 hover:bg-muted/5 transition-colors text-left gap-2"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <div
-            className={`rounded-md h-4 w-4 flex items-center justify-center shrink-0 ${
-              isCompleted
-                ? "bg-primary text-white"
-                : "border border-muted/20 text-transparent"
-            }`}
-          >
-            <Icon icon="ci:check" size={16} />
-          </div>
+          {module.locked ? (
+            <Icon icon="solar:lock-keyhole-bold" size={16} className="shrink-0 text-muted" aria-label="Locked" />
+          ) : (
+            <div
+              className={`rounded-md h-4 w-4 flex items-center justify-center shrink-0 ${
+                isCompleted
+                  ? "bg-primary text-white"
+                  : "border border-muted/20 text-transparent"
+              }`}
+            >
+              <Icon icon="ci:check" size={16} />
+            </div>
+          )}
           <span className="text-sm font-medium truncate">{module.title}</span>
         </div>
 
@@ -146,6 +171,9 @@ function ModuleAccordion({
             transition={{duration: 0.25, ease: "easeInOut"}}
             className="overflow-hidden"
           >
+            {module.locked ? (
+              <LockedModulePanel limit={limit} opening={opening} onOpen={() => onOpenModule?.(module.id)} />
+            ) : (
             <div className="pl-4 pt-6 pb-4 flex flex-col gap-4">
               {module.lessons.map((lesson, i) => {
                 const isActive = activeLesson === lesson.id;
@@ -277,9 +305,41 @@ function ModuleAccordion({
                 );
               })}
             </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+/** What a module closed by the free-course daily limit shows in place of its lessons. */
+function LockedModulePanel({limit, opening, onOpen}: {limit?: ApiDailyLimit; opening: boolean; onOpen: () => void}) {
+  const canChoose = !limit?.unlocked_module_id;
+  return (
+    <div className="mx-1 mt-3 mb-2 rounded-2xl bg-muted/5 p-4 text-sm">
+      {canChoose ? (
+        <>
+          <p className="font-medium">Open this module today?</p>
+          <p className="mt-1 text-muted">
+            Free courses open one module a day. Once you open this one, the others unlock tomorrow.
+          </p>
+          <Button className="mt-3" width="fit" size="sm" onClick={onOpen} disabled={opening}>
+            {opening ? "Opening…" : "Open this module"}
+          </Button>
+        </>
+      ) : (
+        <>
+          <p className="font-medium">Locked until tomorrow</p>
+          <p className="mt-1 text-muted">
+            You've already opened today's module. Come back in {timeUntil(limit?.unlocks_at ?? null)} to open another, or{" "}
+            <Link href="/explore" className="text-primary underline">
+              sign up for a paid course
+            </Link>{" "}
+            to learn without a daily limit.
+          </p>
+        </>
+      )}
     </div>
   );
 }

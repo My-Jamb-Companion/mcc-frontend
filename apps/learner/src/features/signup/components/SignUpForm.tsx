@@ -2,7 +2,7 @@
 
 import FormInputs from "./FormInputs";
 // import Link from "next/link";
-import {motion, Icon} from "@mcc/ui";
+import {motion, Icon, TurnstileWidget} from "@mcc/ui";
 import EmailVerify from "./EmailVerify";
 import {useState} from "react";
 import {useForm, useSignup} from "@mcc/features";
@@ -14,11 +14,19 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
   const [emailVerify, setEmailVerify] = useState(false);
   const errors = formState.errors;
   const {signupMutation} = useSignup();
+  // The "are you a person?" check. Without a site key (not set up yet) the form works as before.
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
 
   const onSubmit = (data: SignUpFormInputs) => {
     signupMutation.mutate(
-      {email: data.email, password: data.password},
-      {onSuccess: () => setEmailVerify(true)},
+      {email: data.email, password: data.password, captchaToken},
+      {
+        onSuccess: () => setEmailVerify(true),
+        // A token works once, so after a failed attempt the check runs again.
+        onError: () => setCaptchaReset((n) => n + 1),
+      },
     );
   };
 
@@ -83,6 +91,8 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
                 isPassword
               /> */}
 
+              <TurnstileWidget siteKey={siteKey} onToken={setCaptchaToken} resetSignal={captchaReset} />
+
               {signupMutation.isError && (
                 <p className="text-red-500 text-sm text-center">
                   {extractApiError(
@@ -94,7 +104,7 @@ export default function SignupForm({back}: {back: (value: boolean) => void}) {
 
               <motion.button
                 type="submit"
-                disabled={signupMutation.isPending}
+                disabled={signupMutation.isPending || (!!siteKey && !captchaToken)}
                 layoutId="auth-button"
                 className="bg-primary text-white border-muted/50 border shadow-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/90 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
               >
