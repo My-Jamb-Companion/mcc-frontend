@@ -45,6 +45,7 @@ export default function Course() {
         description={catalogueMatch?.description}
         coverImageUrl={enrolledCourse.cover_image_url}
         modules={groupContentRows(content.content)}
+        dailyLimit={content.dailyLimit}
       />
     );
   }

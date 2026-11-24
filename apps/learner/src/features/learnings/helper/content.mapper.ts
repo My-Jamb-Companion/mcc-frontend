@@ -19,6 +19,8 @@ export interface Lesson {
   /** Admin-authored lesson HTML. Mutually exclusive with videoUrl -- a
    * lesson is either media or text, never both. */
   content: string | null;
+  /** True when the free-course daily limit has this lesson's module closed today: it has no video or text to show. */
+  locked: boolean;
 }
 
 export interface ExerciseSet {
@@ -47,6 +49,8 @@ export interface Module {
   quizSets: QuizSet[];
   /** How many questions the module's Practice quiz has; undefined when the server does not say. */
   practiceCount?: number;
+  /** True when the free-course daily limit has the module closed today (one module a day, until midnight in Lagos). */
+  locked: boolean;
 }
 
 export type LessonKind = "video" | "youtube" | "pdf" | "html";
@@ -74,6 +78,7 @@ export function groupContentRows(rows: ApiCourseContentRow[]): Module[] {
         title: row.module_title,
         lessons: [],
         practiceCount: row.practice_count,
+        locked: row.locked ?? false,
         exerciseSets: (row.exercise_sets ?? []).map((e) => ({name: e.name, count: e.count, timerMinutes: e.timer_minutes ?? null})),
         quizSets: (row.quiz_sets ?? []).map((q) => ({
           name: q.name,
@@ -99,6 +104,7 @@ export function groupContentRows(rows: ApiCourseContentRow[]): Module[] {
       thumbnailUrl: row.thumbnail_url ?? null,
       format: row.file_format ?? null,
       content: row.content ?? null,
+      locked: row.locked ?? false,
     });
   }
 

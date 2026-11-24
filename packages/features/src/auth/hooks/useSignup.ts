@@ -12,8 +12,8 @@ export const useSignup = () => {
   }, []);
 
   const signupMutation = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
-      signupApi(email, password, captureReferralCode()),
+    mutationFn: ({ email, password, captchaToken }: { email: string; password: string; captchaToken?: string | null }) =>
+      signupApi(email, password, captureReferralCode(), captchaToken),
   });
 
   const resendMutation = useMutation({

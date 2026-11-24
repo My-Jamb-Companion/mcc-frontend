@@ -24,11 +24,14 @@ export const signupApi = async (
   email: string,
   password: string,
   referralCode?: string,
+  captchaToken?: string | null,
 ): Promise<void> => {
   await apiClient.post("/auth/signup", {
     email,
     password,
     ...(referralCode ? { referral_code: referralCode } : {}),
+    // The Cloudflare Turnstile token from the sign-up form's human check (the server requires it once it has keys).
+    ...(captchaToken ? { captcha_token: captchaToken } : {}),
   });
 };
 

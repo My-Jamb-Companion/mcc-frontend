@@ -16,3 +16,4 @@ export * from "./lib/cva";
 export * from "./lib/confetti";
 export * from "recharts";
 // export * from "./lib/iconify";
+export * from "./components/TurnstileWidget";

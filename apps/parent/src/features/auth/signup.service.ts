@@ -12,6 +12,8 @@ export interface ParentChildSignupInput {
   child_date_of_birth: string;
   /** Must be true: the parent consents for the child. */
   guardian_consent: boolean;
+  /** The one-time token from the sign-up form's human check; the server requires it once it has keys. */
+  captcha_token?: string | null;
 }
 
 export const signupParentAndChild = async (input: ParentChildSignupInput): Promise<void> => {

@@ -66,3 +66,28 @@ describe("groupContentRows", () => {
     expect(groupContentRows([row({})])[0].quizSets).toEqual([]);
   });
 });
+
+describe("groupContentRows and the free-course daily limit", () => {
+  const row = (module: string, lesson: string, locked?: boolean) => ({
+    module_id: module,
+    module_title: module,
+    lesson_id: lesson,
+    lesson_title: lesson,
+    video_url: locked ? null : `https://v/${lesson}.mp4`,
+    content: null,
+    locked,
+  });
+
+  it("marks a module and its lessons locked when the server says so", () => {
+    const [open, closed] = groupContentRows([row("m1", "l1", false), row("m2", "l2", true)]);
+    expect(open.locked).toBe(false);
+    expect(open.lessons[0].locked).toBe(false);
+    expect(closed.locked).toBe(true);
+    expect(closed.lessons[0]).toMatchObject({locked: true, videoUrl: null});
+  });
+
+  it("treats a server that does not send the flag as unlocked", () => {
+    const [module] = groupContentRows([row("m1", "l1")]);
+    expect(module.locked).toBe(false);
+  });
+});
