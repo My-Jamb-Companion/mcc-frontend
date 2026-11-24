@@ -49,7 +49,11 @@ export default function CoursePlayer({
 
   // Get active media element ref dynamically
   // A different lesson's file gets a fresh chance.
-  useEffect(() => setLoadFailed(false), [src]);
+  const [triedSrc, setTriedSrc] = useState(src);
+  if (src !== triedSrc) {
+    setTriedSrc(src);
+    setLoadFailed(false);
+  }
 
   const getActiveMedia = () => (isAudio ? audioRef.current : videoRef.current);
 

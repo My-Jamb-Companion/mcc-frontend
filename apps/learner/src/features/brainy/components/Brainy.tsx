@@ -44,9 +44,13 @@ export default function Brainy() {
   const router = useRouter();
 
   const [examView, setExamView] = useState<"actions" | MaterialSource>("actions");
-  useEffect(() => {
+  // Leaving the exam tab puts its panel back on the action cards. Adjusted while rendering, so there is no effect
+  // and no flash of the old panel.
+  const [seenMode, setSeenMode] = useState(mode);
+  if (seenMode !== mode) {
+    setSeenMode(mode);
     if (mode !== "exam") setExamView("actions");
-  }, [mode]);
+  }
 
   // Shared by the composer below and by the dashboard hand-off (?q=). `origin`
   // lets the hand-off start a plain research chat regardless of which mode

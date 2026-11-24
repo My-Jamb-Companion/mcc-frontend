@@ -1,18 +1,22 @@
 import {ApiProfile} from "../services/profile.service";
 import {ProfileUser} from "../constants/types";
+import {countryByName} from "../constants/countries";
+import {splitPhone} from "./phone";
 
 export function fromApiProfile(
   api: ApiProfile,
   extras: {rank?: number; points?: number; diamonds?: number; coins?: number; lessons?: number} = {},
 ): ProfileUser {
+  // The phone is stored with its international code ("+2348012345678"); show it as a country and the rest.
+  const phone = splitPhone(api.phone_number || "", countryByName(api.address?.country || "")?.iso2);
   return {
     fullName: api.full_name || "",
     displayName: displayName(api),
     username: api.username || "",
     parentName: api.parent_name || "",
     email: api.email,
-    phoneCountryCode: "+234",
-    phoneNumber: api.phone_number || "",
+    phoneCountry: phone.iso2,
+    phoneNumber: phone.number,
     gender: api.gender || "",
     country: api.address?.country || "",
     state: api.address?.state || "",

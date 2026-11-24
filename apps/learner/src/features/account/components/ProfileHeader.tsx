@@ -6,6 +6,7 @@ import type {ProfileUser} from "../constants/types";
 import {RankBadge} from "./RankBadge";
 import ProfileAvatar from "./ProfileAvatar";
 import {locationLine} from "../helper/profile.mapper";
+import {countryByName, flagOf} from "../constants/countries";
 
 export default function ProfileHeader({
   user,
@@ -22,6 +23,7 @@ export default function ProfileHeader({
     [avatar],
   );
   const location = locationLine(user);
+  const country = countryByName(user.country);
   return (
     <header className="relative">
       <div className="relative">
@@ -82,9 +84,11 @@ export default function ProfileHeader({
             <div className="mt-2 flex items-center gap-2 text-subtle font-medium">
               {location && <span className="text-sm md:text-xl">{location}</span>}
 
-              <span className="flex gap-1">
-                <Icon icon="twemoji:flag-nigeria" size={20} />
-              </span>
+              {country && (
+                <span className="flex gap-1 text-lg leading-none md:text-2xl" role="img" aria-label={country.name}>
+                  {flagOf(country.iso2)}
+                </span>
+              )}
             </div>
 
             <button

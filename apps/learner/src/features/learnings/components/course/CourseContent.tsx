@@ -1,6 +1,7 @@
 "use client";
 
-import {useCallback, useMemo, useState, useEffect} from "react";
+import {useCallback, useMemo, useState, useEffect, useSyncExternalStore} from "react";
+import {useQueryClient} from "@tanstack/react-query";
 import Link from "next/link";
 import {useRouter, usePathname, useSearchParams} from "next/navigation";
 import {Button, Icon, motion, AnimatePresence, showError, BrainyMark} from "@mcc/ui";
@@ -16,13 +17,13 @@ import FacilitatorTab from "./tabs/FacilitatorTab";
 import OverviewTab from "./tabs/OverviewTab";
 import {CoursePractice} from "./CoursePractice";
 import {BookingSection} from "@/src/features/booking/components/BookingSection";
-import {Lesson, Module, lessonKind} from "@/src/features/learnings/helper/content.mapper";
+import {Lesson, Module, groupContentRows, lessonKind} from "@/src/features/learnings/helper/content.mapper";
 import {afterLesson} from "@/src/features/learnings/helper/lessonOrder";
 import {youTubeEmbedUrl} from "@/src/features/learnings/helper/video";
 import {useAllLessons, useLessonsDuration, formatDuration} from "@/src/features/learnings/hooks/useLesson";
 import {useCertificates, useCompleteLecture, useCourseProgress, useOpenModule} from "@/src/features/courses/hooks/useCourses";
 import {extractApiError} from "@mcc/api";
-import type {ApiDailyLimit} from "@/src/features/courses/services/course.service";
+import type {ApiDailyLimit, CourseContentResult} from "@/src/features/courses/services/course.service";
 import {limitState, timeUntil} from "@/src/features/learnings/helper/dailyLimit";
 import {useModuleQuestions, useQuizGrades} from "@/src/features/learnings/hooks/useModuleQuiz";
 import {gradeKey, indexGrades} from "@/src/features/learnings/helper/quizGrades";
@@ -41,6 +42,14 @@ interface CourseContentProps {
   dailyLimit: ApiDailyLimit;
 }
 
+// The screen width, from the browser: false on the server, and a change of width re-renders. The "measured" flag is
+// false until the page is in the browser, so nothing acts on a guess.
+const subscribeToResize = (notify: () => void) => {
+  window.addEventListener("resize", notify);
+  return () => window.removeEventListener("resize", notify);
+};
+const noSubscription = () => () => {};
+
 // The order the tabs appear in. Course Content and AI Assistant only show below the lg breakpoint, where the side panel is hidden.
 const TABS = ["overview", "content", "ai", "community", "notes", "facilitator"];
 
@@ -56,7 +65,6 @@ export default function CourseContent({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const completeLecture = useCompleteLecture();
-  const {data: savedProgress} = useCourseProgress(courseId);
   const {certificates} = useCertificates();
 
   const allLessons = useAllLessons(modules);
@@ -65,19 +73,25 @@ export default function CourseContent({
 
   // "Mobile" here is whatever shows the Course Content and AI Assistant as tabs rather than in the side panel: the side
   // panel only exists from the `lg` breakpoint (1024px), so a tablet needs the tabs too.
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useSyncExternalStore(subscribeToResize, () => window.innerWidth < 1024, () => false);
   // Until the screen has been measured, isMobile is only a guess, so nothing may act on it.
-  const [measured, setMeasured] = useState(false);
+  const measured = useSyncExternalStore(noSubscription, () => true, () => false);
   const [sidePanel, setSidePanel] = useState<"course" | "ai">("course");
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
-  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
+  // The lessons finished this visit, on top of the ones the server already has recorded.
+  const [finishedHere, setFinishedHere] = useState<Set<string>>(new Set());
+  const {data: savedProgress} = useCourseProgress(courseId);
+  const completedLessonIds = useMemo(
+    () => new Set([...(savedProgress?.completed_lecture_ids ?? []), ...finishedHere]),
+    [savedProgress, finishedHere],
+  );
   const lectureParam = searchParams.get("lecture");
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(
     (lectureParam && allLessons.find((l) => l.id === lectureParam)) || allLessons.find((l) => !l.locked) || allLessons[0] || null,
   );
   // A free learner opens one module a day; opening a locked one unlocks it, then its first lesson is shown.
   const openModule = useOpenModule(courseId);
-  const [pendingModuleId, setPendingModuleId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [activeQuizModuleId, setActiveQuizModuleId] = useState<string | null>(null);
   const [activeExercise, setActiveExercise] = useState<{moduleId: string; name: string} | null>(null);
   const [activeQuizSet, setActiveQuizSet] = useState<{moduleId: string; name: string} | null>(null);
@@ -154,40 +168,32 @@ export default function CourseContent({
     setActiveQuizSet({moduleId, name});
   };
 
-  const handleOpenModule = (moduleId: string) => {
-    openModule.mutate(moduleId, {
-      onSuccess: () => setPendingModuleId(moduleId),
-      onError: (error) => showError(extractApiError(error, "Couldn't open this module. Please try again.")),
-    });
+  const handleOpenModule = async (moduleId: string) => {
+    try {
+      // Resolves once the course content has been fetched again, so the module's lessons are there to show.
+      await openModule.mutateAsync(moduleId);
+    } catch (error) {
+      showError(extractApiError(error, "Couldn't open this module. Please try again."));
+      return;
+    }
+    const fresh = queryClient.getQueryData<CourseContentResult>(["courses", courseId, "content"]);
+    const opened = fresh && groupContentRows(fresh.rows).find((m) => m.id === moduleId);
+    if (opened && !opened.locked && opened.lessons[0]) handleSelectLesson(opened.lessons[0]);
   };
-
-  useEffect(() => {
-    if (!pendingModuleId) return;
-    const opened = modules.find((m) => m.id === pendingModuleId);
-    if (!opened || opened.locked) return;
-    if (opened.lessons[0]) handleSelectLesson(opened.lessons[0]);
-    setPendingModuleId(null);
-  }, [modules, pendingModuleId]);
-
-  // The lessons already finished, as the server recorded them: a reload keeps its ticks.
-  useEffect(() => {
-    if (!savedProgress?.completed_lecture_ids.length) return;
-    setCompletedLessonIds((prev) => new Set([...prev, ...savedProgress.completed_lecture_ids]));
-  }, [savedProgress]);
 
   // Finishing a lesson is the server's to record and count: the tick appears at once, and is taken
   // back if the server refuses.
   const markComplete = useCallback(
     (lessonId: string) => {
       if (completedLessonIds.has(lessonId)) return;
-      setCompletedLessonIds((prev) => new Set(prev).add(lessonId));
+      setFinishedHere((prev) => new Set(prev).add(lessonId));
       completeLecture.mutate(
         {courseId, lectureId: lessonId},
         {
           onSuccess: (result) =>
-            setCompletedLessonIds((prev) => new Set([...prev, ...result.completed_lecture_ids])),
+            setFinishedHere((prev) => new Set([...prev, ...result.completed_lecture_ids])),
           onError: (error) => {
-            setCompletedLessonIds((prev) => {
+            setFinishedHere((prev) => {
               const next = new Set(prev);
               next.delete(lessonId);
               return next;
@@ -214,14 +220,6 @@ export default function CourseContent({
     });
     return chatReplyText(result);
   };
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
-    handleResize();
-    setMeasured(true);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   useEffect(() => {
     // On a wide screen those two tabs do not exist (they live in the side panel), so leave them.
@@ -347,7 +345,7 @@ export default function CourseContent({
                 <Icon icon="solar:lock-keyhole-bold" size={28} className="text-muted" />
                 {limitState(dailyLimit, modules.map((m) => m.id)) === "choose" ? (
                   <>
-                    <p className="text-sm font-medium">Choose today's module</p>
+                    <p className="text-sm font-medium">Choose today&apos;s module</p>
                     <p className="text-sm text-muted">
                       Open a module from the course content to start learning. The others unlock tomorrow.
                     </p>

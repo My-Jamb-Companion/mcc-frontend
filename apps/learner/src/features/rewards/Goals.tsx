@@ -1,5 +1,6 @@
 "use client";
 
+import {useState} from "react";
 import {Icon} from "@mcc/ui";
 import {Coins} from "lucide-react";
 import {
@@ -48,7 +49,8 @@ function GoalsSummary() {
   const {data: stats} = useRewardsStats();
 
   // The backend's calendar is Lagos time (UTC+1), not the browser's or UTC.
-  const todayIso = new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 10);
+  const [now] = useState(() => Date.now());
+  const todayIso = new Date(now + 60 * 60 * 1000).toISOString().slice(0, 10);
   const days: {day: string; date: string; status: "completed" | "failed" | "current" | "upcoming"}[] =
     (milestonesData?.milestones ?? []).map((m) => ({
       day: m.day,

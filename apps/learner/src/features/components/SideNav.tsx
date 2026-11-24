@@ -383,7 +383,7 @@ export default function SideNav({
           <button
             type="button"
             onClick={() => setAccountMenuOpen((prev) => !prev)}
-            className="px-2 py-2.5 rounded-2xl bg-[#222225] flex items-center gap-2 dark:border dark:border-muted/40 dark:shadow-md w-full text-left cursor-pointer hover:bg-[#2a2a2e] transition-colors"
+            className="px-2 py-2.5 rounded-2xl bg-[#222225] max-sm:bg-neutral-100 flex items-center gap-2 dark:border dark:border-muted/40 dark:shadow-md w-full text-left cursor-pointer hover:bg-[#2a2a2e] max-sm:hover:bg-neutral-200 transition-colors"
           >
             <ProfileAvatar
               src={profile?.profile_photo_url}

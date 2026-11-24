@@ -84,6 +84,7 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
   const update = (i: number, change: (s: QuestionState) => QuestionState) =>
     setStates((prev) => prev.map((s, n) => (n === i ? change(s) : s)));
 
+  const timedOutRef = useRef(false);
   const finish = () => {
     setSubmitError(null);
     submit.mutate(session.session_id, {
@@ -100,7 +101,6 @@ export default function AssessmentPlayer({session, onDone, onRestart, onOpenLect
     });
   };
   const finishRef = useRef(finish);
-  const timedOutRef = useRef(false);
   useEffect(() => {
     finishRef.current = finish;
   });

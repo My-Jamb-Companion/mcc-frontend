@@ -71,9 +71,9 @@ export function groupContentRows(rows: ApiCourseContentRow[]): Module[] {
   const byId = new Map<string, Module>();
 
   for (const row of rows) {
-    let module = byId.get(row.module_id);
-    if (!module) {
-      module = {
+    let mod = byId.get(row.module_id);
+    if (!mod) {
+      mod = {
         id: row.module_id,
         title: row.module_title,
         lessons: [],
@@ -87,16 +87,16 @@ export function groupContentRows(rows: ApiCourseContentRow[]): Module[] {
           passingScore: q.passing_score ?? null,
         })),
       };
-      byId.set(row.module_id, module);
-      modules.push(module);
+      byId.set(row.module_id, mod);
+      modules.push(mod);
     }
 
-    // A module with no lectures of its own (e.g. quiz-only) still produces
+    // A mod with no lectures of its own (e.g. quiz-only) still produces
     // one row from the backend's LEFT JOIN, with every lecture field null --
     // that's what creates the Module above; there's no lesson to add.
     if (!row.lesson_id) continue;
 
-    module.lessons.push({
+    mod.lessons.push({
       id: row.lesson_id,
       title: row.lesson_title ?? "Untitled lesson",
       videoUrl: row.video_url ?? null,

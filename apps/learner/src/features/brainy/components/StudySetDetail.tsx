@@ -23,13 +23,17 @@ export default function StudySetDetail() {
   const [cards, setCards] = useState<EditableCard[]>([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  useEffect(() => {
+  // Take the set's contents when it arrives or changes on the server. Adjusted while rendering, so there is no effect
+  // and no frame showing the old text.
+  const [syncedSet, setSyncedSet] = useState(set);
+  if (set !== syncedSet) {
+    setSyncedSet(set);
     if (set) {
       setTitle(set.title);
       setDescription(set.description ?? "");
       setCards(set.content);
     }
-  }, [set]);
+  }
 
   const dirty =
     !!set &&

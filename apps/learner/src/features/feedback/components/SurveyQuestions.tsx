@@ -172,7 +172,7 @@ function Rank({q, value, onChange}: {q: Extract<Question, {kind: "rank"}>; value
   return (
     <div>
       <ol className="mb-3 flex min-h-16 flex-col gap-2 rounded-2xl border border-dashed border-muted/40 p-3" aria-label="Your ranking">
-        {value.length === 0 && <li className="py-2 text-center text-xs text-subtle">Pick features below. They'll show up here in rank order.</li>}
+        {value.length === 0 && <li className="py-2 text-center text-xs text-subtle">Pick features below. They&apos;ll show up here in rank order.</li>}
         {value.map((v, i) => (
           <li key={v} className="flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-2 text-sm">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">{i + 1}</span>

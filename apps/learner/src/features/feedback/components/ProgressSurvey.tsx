@@ -46,6 +46,7 @@ export default function ProgressSurvey() {
     if (!definition || restored === definition.key) return;
     const draft = readDraft(definition.key);
     if (draft) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- restores a draft from localStorage, which only exists in the browser, once the questions are known
       setAnswers(draft.answers);
       setStep(Math.min(draft.step, definition.steps.length - 1));
     }

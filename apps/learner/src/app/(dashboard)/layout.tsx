@@ -69,7 +69,8 @@ export default function DashboardLayout({
           </div>
         )}
 
-        <Help hideOnPhone={pathname.startsWith("/brainy")} />
+        {/* Lifted off a phone while the menu is open (it would sit on top of the menu's user card) and on the Brainy chat. */}
+        <Help hideOnPhone={sideNav || pathname.startsWith("/brainy")} />
       </div>
     </RoleLayout>
   );

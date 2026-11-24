@@ -17,6 +17,9 @@ import {useProfile, useUpdatePassword, useUpdateProfile, useUploadProfilePhoto} 
 import {fromApiProfile} from "../helper/profile.mapper";
 import {useMyLeaderboardStanding, useRewardsBalance} from "@/src/features/rewards/hooks/useRewards";
 import {useDashboardStats} from "@/src/features/dashboard/hooks/useDashboard";
+import {showError, showSuccess} from "@mcc/ui";
+import {extractApiError} from "@mcc/api";
+import {composePhone} from "../helper/phone";
 
 export default function AccountSettingsPage() {
   const router = useRouter();
@@ -51,19 +54,26 @@ export default function AccountSettingsPage() {
     : null;
 
   const handleFieldChange = (values: PersonalInformationFormValues) => {
-    updateProfile.mutate({
-      full_name: values.fullName,
-      username: values.username,
-      parent_name: values.parentName,
-      phone_number: values.phoneNumber,
-      gender: values.gender,
-      address: {
-        country: values.country,
-        state: values.state,
-        city: values.city,
-        street: values.street,
+    updateProfile.mutate(
+      {
+        full_name: values.fullName,
+        username: values.username,
+        parent_name: values.parentName,
+        // Kept with its international code, so the country chosen for it is not lost.
+        phone_number: composePhone(values.phoneCountry, values.phoneNumber) ?? values.phoneNumber,
+        ...(values.gender ? {gender: values.gender} : {}),
+        address: {
+          country: values.country,
+          state: values.state,
+          city: values.city,
+          street: values.street,
+        },
       },
-    });
+      {
+        onSuccess: () => showSuccess("Your profile has been updated."),
+        onError: (error) => showError(extractApiError(error, "Couldn't save your changes. Please try again.")),
+      },
+    );
   };
 
   useEffect(() => {
@@ -123,6 +133,7 @@ export default function AccountSettingsPage() {
                 <AccountPersonalInformationForm
                   user={user}
                   onSave={handleFieldChange}
+                  saving={updateProfile.isPending}
                 />
               ) : (
                 <div className="flex-1 text-sm text-muted">

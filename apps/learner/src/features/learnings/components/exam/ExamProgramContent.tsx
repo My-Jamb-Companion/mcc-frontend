@@ -98,8 +98,13 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
 
   const allLectures = useMemo(() => flattenLectures(topics), [topics]);
 
-  const [completedLectureIds, setCompletedLectureIds] = useState<Set<string>>(new Set());
-  const [active, setActive] = useState<ActiveNode | null>(null);
+  // The lectures finished this visit, on top of the ones the server already has recorded.
+  const [finishedHere, setFinishedHere] = useState<Set<string>>(new Set());
+  const completedLectureIds = useMemo(
+    () => new Set([...(savedProgress?.completed_lecture_ids ?? []), ...finishedHere]),
+    [savedProgress, finishedHere],
+  );
+  const [picked, setActive] = useState<ActiveNode | null>(null);
   const [session, setSession] = useState<ApiAssessmentSession | null>(null);
   const [sessionError, setSessionError] = useState<string | null>(null);
   // A mock exam takes the whole page while it is on: the attempt, then its result.
@@ -113,32 +118,28 @@ export default function ExamProgramContent({programId, program}: ExamProgramCont
     if (mockScreen) window.scrollTo({top: 0});
   }, [mockScreen, mockResult]);
 
-  // The lectures already finished, as the server recorded them: a reload keeps its ticks.
-  useEffect(() => {
-    if (!savedProgress?.completed_lecture_ids.length) return;
-    setCompletedLectureIds((prev) => new Set([...prev, ...savedProgress.completed_lecture_ids]));
-  }, [savedProgress]);
-
-  useEffect(() => {
-    if (active || !allLectures.length) return;
-    const lectureParam = searchParams.get("lecture");
-    const matched = lectureParam && allLectures.find((l) => l.lecture_id === lectureParam);
-    setActive({kind: "lecture", lectureId: matched ? matched.lecture_id : allLectures[0].lecture_id});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allLectures.length]);
+  // What is open: whatever the student picked, until they pick something, the lecture named in the address
+  // (?lecture=) or else the first one.
+  const lectureParam = searchParams.get("lecture");
+  const firstNode = useMemo<ActiveNode | null>(() => {
+    if (!allLectures.length) return null;
+    const matched = lectureParam ? allLectures.find((l) => l.lecture_id === lectureParam) : undefined;
+    return {kind: "lecture", lectureId: (matched ?? allLectures[0]).lecture_id};
+  }, [allLectures, lectureParam]);
+  const active = picked ?? firstNode;
 
   // Finishing a lecture is the server's to record and count: the tick appears at once, and is
   // taken back if the server refuses.
   const markLectureComplete = (lectureId: string) => {
     if (completedLectureIds.has(lectureId)) return;
-    setCompletedLectureIds((prev) => new Set(prev).add(lectureId));
+    setFinishedHere((prev) => new Set(prev).add(lectureId));
     completeLecture.mutate(
       {programId, lectureId},
       {
         onSuccess: (result) =>
-          setCompletedLectureIds((prev) => new Set([...prev, ...result.completed_lecture_ids])),
+          setFinishedHere((prev) => new Set([...prev, ...result.completed_lecture_ids])),
         onError: () => {
-          setCompletedLectureIds((prev) => {
+          setFinishedHere((prev) => {
             const next = new Set(prev);
             next.delete(lectureId);
             return next;

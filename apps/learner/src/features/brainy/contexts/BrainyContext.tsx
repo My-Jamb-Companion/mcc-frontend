@@ -148,6 +148,7 @@ export function BrainyProvider({children}: {children: React.ReactNode}) {
   // covers the whole chat until the page wakes up.
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the screen size can only be read in the browser, and the server render is deliberately shut
     setIsSidebarOpen(!window.matchMedia("(max-width: 639px)").matches);
   }, []);
 

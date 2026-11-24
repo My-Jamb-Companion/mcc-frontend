@@ -10,8 +10,8 @@ export function afterLesson(modules: Module[], lessonId: string): AfterLesson {
   const lessons = modules.flatMap((m) => m.lessons);
   const index = lessons.findIndex((l) => l.id === lessonId);
   if (index < 0) return null;
-  const module = modules.find((m) => m.lessons.some((l) => l.id === lessonId));
-  const isLastOfModule = module?.lessons[module.lessons.length - 1]?.id === lessonId;
-  if (module && isLastOfModule && module.practiceCount !== 0) return {kind: "quiz", moduleId: module.id};
+  const owner = modules.find((m) => m.lessons.some((l) => l.id === lessonId));
+  const isLastOfModule = owner?.lessons[owner.lessons.length - 1]?.id === lessonId;
+  if (owner && isLastOfModule && owner.practiceCount !== 0) return {kind: "quiz", moduleId: owner.id};
   return index < lessons.length - 1 ? {kind: "lesson", lesson: lessons[index + 1]} : null;
 }

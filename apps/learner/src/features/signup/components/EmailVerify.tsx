@@ -3,9 +3,11 @@
 import {Icon} from "@mcc/ui";
 import { useSignup } from "@mcc/features";
 import { extractApiError } from "@mcc/api";
+import { mailTarget } from "../helper/mailApp";
 
 export default function EmailVerify({email}: {email: string}) {
   const { resendMutation } = useSignup();
+  const mail = mailTarget(email);
 
   return (
     <div className="space-y-4">
@@ -41,9 +43,13 @@ export default function EmailVerify({email}: {email: string}) {
       </p>
 
       <div className="space-y-4 mt-4">
-        <button className="bg-btn-primary text-white hover:bg-primary/90 shadow-sm flex items-center justify-center gap-2 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300">
+        <a
+          href={mail.href}
+          {...(mail.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+          className="bg-btn-primary text-white hover:bg-primary/90 shadow-sm flex items-center justify-center gap-2 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300"
+        >
           Open email app
-        </button>
+        </a>
         <a
           href="/login"
           className="bg-none border border-muted hover:bg-muted/10 shadow-sm flex items-center justify-center gap-2 mx-auto rounded-full py-2.5 w-full font-medium active:scale-95 outline-primary/50 focus:outline transition-all duration-300"
