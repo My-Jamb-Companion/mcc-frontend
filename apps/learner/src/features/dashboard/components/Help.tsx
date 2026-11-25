@@ -5,12 +5,17 @@ import {useRouter} from "next/navigation";
 import {AnimatePresence, motion, Icon} from "@mcc/ui";
 import Image from "next/image";
 import {useProfile} from "@/src/features/account/hooks/useProfile";
-import {profileSteps} from "@/src/features/account/helper/profileProgress";
+import {isProfileComplete, profileSteps} from "@/src/features/account/helper/profileProgress";
 
 /** `hideOnPhone` lifts it out of the way on screens where it would sit on top of the page's own controls (the Brainy chat). */
 export default function Help({hideOnPhone = false}: {hideOnPhone?: boolean}) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const {data: profile} = useProfile();
+
+  // The button only invites someone to finish their profile, so once it is complete (and while the profile is still
+  // loading, so it never flashes up for someone who is already done) there is nothing to show.
+  if (!profile || isProfileComplete(profile)) return null;
 
   return (
     <>

@@ -1,5 +1,5 @@
 import {describe, expect, it} from "vitest";
-import {profileSteps} from "./profileProgress";
+import {isProfileComplete, profileSteps} from "./profileProgress";
 import type {ApiProfile} from "../services/profile.service";
 
 const base: ApiProfile = {user_id: "u", email: "a@b.co", role: "student", is_active: true};
@@ -23,5 +23,28 @@ describe("profileSteps", () => {
 
   it("ticks the photo when there is one", () => {
     expect(done({...base, profile_photo_url: "https://x/y.png"})).toEqual([false, false, true]);
+  });
+});
+
+describe("isProfileComplete", () => {
+  const complete: ApiProfile = {
+    ...base,
+    full_name: "Ada Obi",
+    phone_number: "+2348012345678",
+    gender: "Female",
+    address: {country: "Nigeria", state: "Lagos", city: "Ikeja"},
+    profile_photo_url: "https://x/y.png",
+  };
+
+  it("is true only when all three steps are done", () => {
+    expect(isProfileComplete(complete)).toBe(true);
+    expect(isProfileComplete({...complete, profile_photo_url: null})).toBe(false);
+    expect(isProfileComplete({...complete, address: {country: "Nigeria", state: "Lagos"}})).toBe(false);
+    expect(isProfileComplete({...complete, gender: ""})).toBe(false);
+  });
+
+  it("is false for a missing profile", () => {
+    expect(isProfileComplete(null)).toBe(false);
+    expect(isProfileComplete(undefined)).toBe(false);
   });
 });
