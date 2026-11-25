@@ -24,3 +24,8 @@ export function profileSteps(profile?: ApiProfile | null): ProfileStep[] {
     {title: "Profile photo", done: filled(profile?.profile_photo_url)},
   ];
 }
+
+/** Whether every step of the checklist is done, so there is nothing left to ask for. */
+export function isProfileComplete(profile?: ApiProfile | null): boolean {
+  return profileSteps(profile).every((step) => step.done);
+}
