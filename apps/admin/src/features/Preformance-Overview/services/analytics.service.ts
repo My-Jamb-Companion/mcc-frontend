@@ -119,12 +119,30 @@ export interface ApiEnrollmentGroup {
   items: ApiEnrollmentItem[];
 }
 
+export interface ApiEnrollmentTrendPoint {
+  /** First day (YYYY-MM-DD, Lagos) of this bar. */
+  start: string;
+  courses: number;
+  exam_programs: number;
+  /** How many of the new ones were paid. */
+  paid: number;
+  /** All enrollments up to the end of this bar, counting those still active today. */
+  total: number;
+}
+
+export interface ApiEnrollmentTrend {
+  bucket: "day" | "week" | "month";
+  points: ApiEnrollmentTrendPoint[];
+}
+
 export interface ApiEnrollmentReport {
   days: number;
   learners: number;
   paying_learners: number;
   courses: ApiEnrollmentGroup;
   exam_programs: ApiEnrollmentGroup;
+  /** Missing from a server that has not been updated yet. */
+  trend?: ApiEnrollmentTrend;
 }
 
 /** Endpoint: GET /admin/analytics/enrollments */

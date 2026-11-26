@@ -3,14 +3,15 @@
 import React from "react";
 import Link from "next/link";
 import {UserCheck, Users, TrendingUp} from "lucide-react";
-import {usePlatformOverview, useStudentPopulationCounts} from "./hooks/useAnalytics";
+import {useEnrollmentReport, usePlatformOverview, useStudentPopulationCounts} from "./hooks/useAnalytics";
 
 export const StudentPerformanceDashboard: React.FC = () => {
   const {data: overview, isLoading: overviewLoading} = usePlatformOverview();
-  const {activeTotal, prospectiveTotal, isLoading: countsLoading} =
-    useStudentPopulationCounts();
-
-  const totalEnrolled = activeTotal + prospectiveTotal;
+  const {prospectiveTotal, isLoading: countsLoading} = useStudentPopulationCounts();
+  // Enrolled means holding an active course or exam program enrollment: the same figures as the Enrolments tab.
+  // "Prospective" is the onboarding status the CRA team keeps, which does not change when a student enrols, so it
+  // overlaps with the enrolled total and is shown beside it, never added to it.
+  const {data: enrollments, isLoading: enrollmentsLoading} = useEnrollmentReport(30);
 
   return (
     <div className="w-full">
@@ -48,7 +49,7 @@ export const StudentPerformanceDashboard: React.FC = () => {
                 Total Enrolled <br /> student.
               </span>
               <span className="mt-3 text-6xl font-bold tracking-tight text-gray-900">
-                {countsLoading ? "…" : totalEnrolled}
+                {enrollmentsLoading ? "…" : (enrollments?.learners ?? 0)}
               </span>
             </div>
 
@@ -66,10 +67,10 @@ export const StudentPerformanceDashboard: React.FC = () => {
               <div className="flex flex-col justify-between space-y-3">
                 <div className="flex items-center gap-2 text-xs font-medium text-gray-700">
                   <Users className="h-4 w-4 text-gray-600" />
-                  <span>Active</span>
+                  <span>Paying</span>
                 </div>
                 <span className="text-3xl font-bold text-gray-900">
-                  {countsLoading ? "…" : activeTotal}
+                  {enrollmentsLoading ? "…" : (enrollments?.paying_learners ?? 0)}
                 </span>
               </div>
 
