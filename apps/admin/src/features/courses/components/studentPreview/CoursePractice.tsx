@@ -220,7 +220,7 @@ export function CoursePractice({
       <motion.div
         layout
         variants={fadeUp}
-        className="border-t border-gray-200 dark:border-gray-600 mb-5"
+        className="border-t border-gray-200 dark:border-[#4a5565] mb-5"
       />
 
       <AnimatePresence mode="wait">
@@ -321,7 +321,7 @@ export function CoursePractice({
                   const checkedWrong = isChecked && isSelected && !isCorrectOption;
 
                   let optionStyle =
-                    "border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200";
+                    "border-gray-200 dark:border-[#4a5565] text-gray-800 dark:text-[#e5e7eb]";
 
                   if (reviewMode) {
                     if (isCorrectOption) {
@@ -384,7 +384,7 @@ export function CoursePractice({
                                 ? "border-danger bg-danger text-white"
                                 : isSelected
                                   ? "border-blue-600 bg-blue-600 text-white"
-                                  : "border-gray-300 dark:border-gray-500 dark:text-gray-300"
+                                  : "border-gray-300 dark:border-[#6a7282] dark:text-[#d1d5dc]"
                           }
                         `}
                       >
@@ -435,7 +435,7 @@ export function CoursePractice({
                       isFirstQuestion ||
                       (submittedAnswers.length > 0 && !reviewMode)
                     }
-                    className="flex items-center gap-2 border rounded-full text-sm font-semibold text-gray-700 disabled:text-gray-300 disabled:bg-gray-100 dark:text-gray-300 dark:disabled:text-gray-600 dark:disabled:bg-neutral-800 px-5 py-2.5 transition-all cursor-pointer hover:bg-gray-100 dark:hover:bg-neutral-800"
+                    className="flex items-center gap-2 border rounded-full text-sm font-semibold text-gray-700 disabled:text-gray-300 disabled:bg-gray-100 dark:text-[#d1d5dc] dark:disabled:text-[#4a5565] dark:disabled:bg-[#262626] px-5 py-2.5 transition-all cursor-pointer hover:bg-gray-100 dark:hover:bg-[#262626]"
                   >
                     Prev
                   </motion.button>
@@ -462,11 +462,11 @@ export function CoursePractice({
                     type="button"
                     onClick={() => setShowExplanation(true)}
                     disabled={showExplanation}
-                    className={`flex items-center gap-2 border rounded-full text-sm font-semibold text-gray-700 disabled:text-gray-300 disabled:bg-gray-100 dark:text-gray-300 dark:disabled:text-gray-600 dark:disabled:bg-neutral-800 px-5 py-2.5 transition-all text-nowrap
+                    className={`flex items-center gap-2 border rounded-full text-sm font-semibold text-gray-700 disabled:text-gray-300 disabled:bg-gray-100 dark:text-[#d1d5dc] dark:disabled:text-[#4a5565] dark:disabled:bg-[#262626] px-5 py-2.5 transition-all text-nowrap
                       ${
                         showExplanation
                           ? "cursor-not-allowed opacity-60"
-                          : "cursor-pointer hover:bg-gray-100 dark:hover:bg-neutral-800"
+                          : "cursor-pointer hover:bg-gray-100 dark:hover:bg-[#262626]"
                       }
                     `}
                   >
@@ -536,7 +536,7 @@ export function CoursePractice({
                         Explanation
                       </p>
 
-                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                      <p className="text-sm text-gray-700 dark:text-[#d1d5dc] leading-relaxed">
                         {currentQuestion.explanation}
                       </p>
                     </motion.div>
@@ -588,7 +588,7 @@ export function CoursePractice({
                                 ? "bg-danger"
                                 : hasAnswer
                                   ? "bg-primary/50"
-                                  : "bg-gray-200 dark:bg-gray-600"
+                                  : "bg-gray-200 dark:bg-[#4a5565]"
                         }`}
                       />
                     );

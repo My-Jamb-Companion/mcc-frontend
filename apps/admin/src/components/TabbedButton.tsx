@@ -45,15 +45,10 @@ export default function TabbedButton({
                 }
               />
             )}
-            <motion.span
-              animate={{
-                color: isActive ? "#111827" : "#9CA3AF",
-              }}
-              transition={{duration: 0.2}}
-              className="relative z-10"
-            >
+            {/* Colour classes, not an inline colour, so the label follows the theme. */}
+            <span className={`relative z-10 transition-colors duration-200 ${isActive ? "text-gray-900" : "text-gray-400"}`}>
               {t.label}
-            </motion.span>
+            </span>
           </button>
         );
       })}

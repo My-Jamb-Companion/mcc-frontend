@@ -248,7 +248,7 @@ export function CustomSelect({
               duration: 0.25,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="bg-white dark:bg-zinc-800 border border-hint/30  rounded-lg overflow-hidden shadow-lg absolute left-0 top-full mt-2 w-full z-20"
+            className="bg-white dark:bg-[#27272a] border border-hint/30  rounded-lg overflow-hidden shadow-lg absolute left-0 top-full mt-2 w-full z-20"
           >
             {options?.map((opt) => (
               <li
@@ -275,7 +275,7 @@ export function CustomSelect({
               duration: 0.25,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="bg-white dark:bg-zinc-800 border border-hint/30 rounded-lg shadow-lg absolute left-0 top-full mt-2 w-72 z-20 p-3"
+            className="bg-white dark:bg-[#27272a] border border-hint/30 rounded-lg shadow-lg absolute left-0 top-full mt-2 w-72 z-20 p-3"
           >
             <div className="flex items-center justify-between mb-2 px-1">
               <button
@@ -312,7 +312,7 @@ export function CustomSelect({
               {WEEKDAYS.map((wd) => (
                 <span
                   key={wd}
-                  className="text-xs text-zinc-500 dark:text-zinc-500 py-1"
+                  className="text-xs text-zinc-500 dark:text-[#71717b] py-1"
                 >
                   {wd}
                 </span>
@@ -333,7 +333,7 @@ export function CustomSelect({
                       setOpen(false);
                     }}
                     className={`text-sm rounded-md py-1.5 transition-colors
-                      ${inMonth ? "text-zinc-800 dark:text-white" : "text-zinc-500 dark:text-zinc-600"}
+                      ${inMonth ? "text-zinc-800 dark:text-white" : "text-zinc-500 dark:text-[#52525c]"}
                       ${isSelected ? "bg-primary text-white" : "hover:bg-zinc-50 dark:hover:bg-muted/80"}
                       ${isToday && !isSelected ? "ring-1 ring-primary/40" : ""}`}
                   >

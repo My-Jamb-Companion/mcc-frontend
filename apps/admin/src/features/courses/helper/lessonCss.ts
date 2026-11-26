@@ -90,4 +90,19 @@ export const LESSON_CONTENT_CSS = `
   .lesson-block-content .ql-indent-7, .lesson-block-content .ql-indent-8 { padding-left: 1.25rem; }
   .lesson-block-content table { display: block; overflow-x: auto; }
 }
+
+/* Dark mode: the colours above are for a white page. */
+.dark .lesson-block-content { color: #dcdce3; }
+.dark .lesson-block-content h1, .dark .lesson-block-content h2, .dark .lesson-block-content h3,
+.dark .lesson-block-content h4, .dark .lesson-block-content h5, .dark .lesson-block-content h6 { color: #f4f4f5; }
+.dark .lesson-block-content a { color: #a78bfa; }
+.dark .lesson-block-content blockquote { border-left-color: #45454d; color: #b6b6c0; }
+.dark .lesson-block-content pre, .dark .lesson-block-content .ql-code-block-container { background: #18181b; border: 1px solid #2e2e34; }
+.dark .lesson-block-content :not(pre) > code { background: #27272a; }
+.dark .lesson-block-content hr { border-top-color: #2e2e34; }
+.dark .lesson-block-content th, .dark .lesson-block-content td { border-color: #3f3f46; }
+.dark .lesson-block-content th { background: #1f1f23; }
+/* Colours an author typed into the text: black stays readable, and a highlighted passage keeps dark text on its highlight. */
+.dark .lesson-block-content [style^="color: rgb(0, 0, 0)"], .dark .lesson-block-content [style*="; color: rgb(0, 0, 0)"] { color: inherit !important; }
+.dark .lesson-block-content [style*="background-color"] { color: #111827; }
 `;

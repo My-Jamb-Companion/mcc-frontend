@@ -53,7 +53,7 @@ function ModuleAccordionItem({module}: {module: MakeModule}) {
         onClick={() => setIsOpen((prev) => !prev)}
         className="w-full flex items-center justify-between text-left group"
       >
-        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">
+        <span className="text-sm font-semibold text-gray-800 dark:text-[#e5e7eb] group-hover:text-primary transition-colors">
           {module.label || (
             <span className="italic text-gray-500">Untitled module</span>
           )}
@@ -70,25 +70,25 @@ function ModuleAccordionItem({module}: {module: MakeModule}) {
           {/* Summary counts badge list */}
           <div className="flex flex-wrap items-center gap-2 text-xs text-subtle">
             {lessonCount > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-1 font-medium">
+              <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 dark:bg-[#1e2939] px-2 py-1 font-medium">
                 <Icon icon="lucide:play-circle" size={13} /> {lessonCount}{" "}
                 Lessons
               </span>
             )}
             {practiceCount > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-1 font-medium">
+              <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 dark:bg-[#1e2939] px-2 py-1 font-medium">
                 <Icon icon="lucide:list-checks" size={13} /> {practiceCount}{" "}
                 Practice
               </span>
             )}
             {exerciseCount > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-1 font-medium">
+              <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 dark:bg-[#1e2939] px-2 py-1 font-medium">
                 <Icon icon="lucide:dumbbell" size={13} /> {exerciseCount}{" "}
                 Smart Zones
               </span>
             )}
             {quizCount > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-1 font-medium">
+              <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 dark:bg-[#1e2939] px-2 py-1 font-medium">
                 <Icon icon="lucide:help-circle" size={13} /> {quizCount} Tests
               </span>
             )}

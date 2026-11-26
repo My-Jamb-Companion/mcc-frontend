@@ -491,7 +491,7 @@ function LevelDial({fill}: {fill: number}) {
           cy="9"
           r={r}
           fill="none"
-          stroke="#111827"
+          style={{stroke: "var(--color-gray-900)"}}
           strokeWidth={2}
           strokeDasharray={`${c * fill} ${c}`}
           strokeLinecap="round"

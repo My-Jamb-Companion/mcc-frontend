@@ -112,17 +112,17 @@ export function CustomSelect({
               duration: 0.25,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="bg-white dark:bg-zinc-800 border border-hint/30 rounded-lg max-h-64 overflow-y-auto overscroll-contain shadow-lg absolute left-0 top-full mt-2 w-full min-w-56 z-20"
+            className="bg-white dark:bg-[#27272a] border border-hint/30 rounded-lg max-h-64 overflow-y-auto overscroll-contain shadow-lg absolute left-0 top-full mt-2 w-full min-w-56 z-20"
           >
             {searchable && (
-              <li className="sticky top-0 bg-white p-2 dark:bg-zinc-800">
+              <li className="sticky top-0 bg-white p-2 dark:bg-[#27272a]">
                 <input
                   autoFocus
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search…"
                   aria-label="Search the list"
-                  className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 ring-primary/40 dark:border-white/20 dark:bg-zinc-900 dark:text-white"
+                  className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 ring-primary/40 dark:border-white/20 dark:bg-[#18181b] dark:text-white"
                 />
               </li>
             )}
@@ -154,7 +154,7 @@ export function CustomSelect({
               duration: 0.25,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="bg-white dark:bg-zinc-800 border border-hint/30 rounded-lg shadow-lg absolute left-0 top-full mt-2 w-72 z-20 p-3"
+            className="bg-white dark:bg-[#27272a] border border-hint/30 rounded-lg shadow-lg absolute left-0 top-full mt-2 w-72 z-20 p-3"
           >
             <div className="flex items-center justify-between mb-2 px-1">
               <button
@@ -191,7 +191,7 @@ export function CustomSelect({
               {WEEKDAYS.map((wd) => (
                 <span
                   key={wd}
-                  className="text-xs text-zinc-500 dark:text-zinc-500 py-1"
+                  className="text-xs text-zinc-500 dark:text-[#71717b] py-1"
                 >
                   {wd}
                 </span>
@@ -212,7 +212,7 @@ export function CustomSelect({
                       setOpen(false);
                     }}
                     className={`text-sm rounded-md py-1.5 transition-colors
-                      ${inMonth ? "text-zinc-800 dark:text-white" : "text-zinc-500 dark:text-zinc-600"}
+                      ${inMonth ? "text-zinc-800 dark:text-white" : "text-zinc-500 dark:text-[#52525c]"}
                       ${isSelected ? "bg-primary text-white" : "hover:bg-zinc-50 dark:hover:bg-muted/80"}
                       ${isToday && !isSelected ? "ring-1 ring-primary/40" : ""}`}
                   >
