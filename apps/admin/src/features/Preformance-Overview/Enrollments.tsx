@@ -1,10 +1,19 @@
 "use client";
 
 import {useState} from "react";
+import {Icon} from "@mcc/ui";
+import {downloadBlob} from "@/src/features/Exam-program/helper/export";
+import EnrollmentCharts from "./EnrollmentCharts";
+import {enrollmentCsv, enrollmentCsvName} from "./enrollmentCsv";
 import {useEnrollmentReport} from "./hooks/useAnalytics";
 import {change, matching} from "./enrollmentView";
 
-const PERIODS = [7, 30, 90];
+const PERIODS = [
+  {days: 7, label: "7 days"},
+  {days: 30, label: "30 days"},
+  {days: 90, label: "90 days"},
+  {days: 365, label: "12 months"},
+];
 
 const KINDS = [
   {key: "courses", label: "Courses", noun: "course"},
@@ -56,9 +65,14 @@ export default function Enrollments() {
   const {data, isLoading, isError} = useEnrollmentReport(days);
 
   const noun = KINDS.find((k) => k.key === kind)!.noun;
+  const periodLabel = PERIODS.find((p) => p.days === days)!.label;
   const group = data?.[kind];
   const rows = matching(group?.items ?? [], query);
   const show = (value?: number) => (isLoading ? "…" : (value ?? 0));
+  const exportCsv = () => {
+    if (!data) return;
+    downloadBlob(new Blob([enrollmentCsv(data)], {type: "text/csv;charset=utf-8"}), enrollmentCsvName(data.days));
+  };
   const newNow = (data?.courses.new_in_period ?? 0) + (data?.exam_programs.new_in_period ?? 0);
   const newBefore = (data?.courses.new_in_previous_period ?? 0) + (data?.exam_programs.new_in_previous_period ?? 0);
 
@@ -71,12 +85,23 @@ export default function Enrollments() {
             Active enrolments of real learners. Pending and failed payments and QA testers are not counted.
           </p>
         </div>
-        <div className="flex gap-2" role="group" aria-label="Period for new enrolments">
-          {PERIODS.map((p) => (
-            <Choice key={p} selected={days === p} onClick={() => setDays(p)}>
-              {p} days
-            </Choice>
-          ))}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Period for new enrolments">
+            {PERIODS.map((p) => (
+              <Choice key={p.days} selected={days === p.days} onClick={() => setDays(p.days)}>
+                {p.label}
+              </Choice>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={exportCsv}
+            disabled={!data}
+            className="flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Icon icon="lucide:download" size={14} />
+            Export CSV
+          </button>
         </div>
       </div>
 
@@ -99,15 +124,17 @@ export default function Enrollments() {
           note={`${data?.exam_programs.paid ?? 0} paid · ${data?.exam_programs.free ?? 0} free · ${data?.exam_programs.learners ?? 0} learners`}
         />
         <Tile
-          label={`New in the last ${days} days`}
+          label={`New in the last ${periodLabel}`}
           value={show(newNow)}
           note={
             <>
-              <ChangeText current={newNow} previous={newBefore} /> on the {days} days before
+              <ChangeText current={newNow} previous={newBefore} /> on the {periodLabel} before
             </>
           }
         />
       </div>
+
+      {data?.trend && <EnrollmentCharts trend={data.trend} />}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex gap-2" role="group" aria-label="Which enrolments to list">
@@ -135,7 +162,7 @@ export default function Enrollments() {
               <th className="px-4 py-3 text-right font-semibold">Learners</th>
               <th className="px-4 py-3 text-right font-semibold">Paid</th>
               <th className="px-4 py-3 text-right font-semibold">Free</th>
-              <th className="px-6 py-3 text-right font-semibold">New ({days} days)</th>
+              <th className="px-6 py-3 text-right font-semibold">New ({periodLabel})</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">

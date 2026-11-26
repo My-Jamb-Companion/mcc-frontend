@@ -6,6 +6,10 @@ import {change, matching} from "./enrollmentView";
 import type {ApiEnrollmentReport} from "./services/analytics.service";
 
 const useEnrollmentReport = vi.fn();
+const downloadBlob = vi.fn();
+vi.mock("@/src/features/Exam-program/helper/export", () => ({
+  downloadBlob: (blob: Blob, name: string) => downloadBlob(blob, name),
+}));
 vi.mock("./hooks/useAnalytics", () => ({useEnrollmentReport: (days: number) => useEnrollmentReport(days)}));
 
 const item = (id: string, title: string, total: number, extra = {}) => ({
@@ -24,8 +28,21 @@ const report: ApiEnrollmentReport = {
     learners: 3, total: 3, paid: 3, free: 0, new_in_period: 1, new_in_previous_period: 2,
     items: [item("p1", "JAMB Physics", 3)],
   },
+  trend: {
+    bucket: "week",
+    points: [
+      {start: "2026-11-13", courses: 1, exam_programs: 0, paid: 1, total: 12},
+      {start: "2026-11-20", courses: 3, exam_programs: 2, paid: 2, total: 17},
+    ],
+  },
 };
 
+// The test environment has no ResizeObserver; the charts' responsive container needs one.
+vi.stubGlobal("ResizeObserver", class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+});
 beforeEach(() => useEnrollmentReport.mockReturnValue({data: report, isLoading: false, isError: false}));
 afterEach(() => {
   cleanup();
@@ -67,6 +84,41 @@ describe("Enrolments", () => {
     useEnrollmentReport.mockReturnValue({data: undefined, isLoading: false, isError: true});
     render(<Enrollments />);
     expect(screen.getByRole("alert")).toHaveTextContent("Couldn't load the enrolment figures");
+  });
+});
+
+describe("Enrolments charts and export", () => {
+  it("charts new enrolments and the total, with the numbers readable without the picture", () => {
+    render(<Enrollments />);
+    expect(screen.getByText("New enrolments per week")).toBeInTheDocument();
+    expect(screen.getByText("Enrolments to date")).toBeInTheDocument();
+    const table = screen.getByRole("table", {name: "Enrolments per week"});
+    expect(within(table).getAllByRole("row")[2].textContent).toBe("20 Nov32217");
+  });
+
+  it("copes with a server that does not send a trend yet", () => {
+    useEnrollmentReport.mockReturnValue({data: {...report, trend: undefined}, isLoading: false, isError: false});
+    render(<Enrollments />);
+    expect(screen.queryByText("Enrolments to date")).toBeNull();
+    expect(screen.getByText("Algebra")).toBeInTheDocument();
+  });
+
+  it("offers a year, and downloads every course and program as CSV", async () => {
+    render(<Enrollments />);
+    fireEvent.click(screen.getByRole("button", {name: "12 months"}));
+    expect(useEnrollmentReport).toHaveBeenLastCalledWith(365);
+
+    fireEvent.click(screen.getByRole("button", {name: "Export CSV"}));
+    expect(downloadBlob).toHaveBeenCalledTimes(1);
+    const [blob, name] = downloadBlob.mock.calls[0];
+    expect(name).toMatch(/^enrolments-.*-last-30-days.csv$/);
+    const text = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.readAsText(blob);
+    });
+    expect(text).toContain("Course,Biology,archived");
+    expect(text).toContain("Exam program,JAMB Physics");
   });
 });
 
