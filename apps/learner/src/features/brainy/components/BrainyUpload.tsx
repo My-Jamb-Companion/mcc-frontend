@@ -57,7 +57,7 @@ export default function UploadZone({
           "flex min-h-[88px] w-[95%] mx-auto mt-15 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-t-2xl border border-dashed border-b-0 px-6 py-6 text-center transition-colors",
           isDragging
             ? "border-purple-400 bg-purple-50/60"
-            : "border-muted/20 bg-gray-50/50 hover:bg-muted/10",
+            : "border-muted/20 bg-gray-50/50 dark:bg-white/5 hover:bg-muted/10",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400",
         ].join(" ")}
       >

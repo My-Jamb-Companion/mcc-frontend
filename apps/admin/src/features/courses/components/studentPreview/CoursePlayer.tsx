@@ -248,10 +248,11 @@ export default function CoursePlayer({
             onMouseUp={() => setSeeking(false)}
           >
             <div
+              data-keep-white
               className="h-full rounded-full bg-white relative"
               style={{width: `${progress}%`}}
             >
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 size-3 rounded-full bg-white shadow opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div data-keep-white className="absolute right-0 top-1/2 -translate-y-1/2 size-3 rounded-full bg-white shadow opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
 

@@ -34,10 +34,239 @@
   --color-primary-gradient: var(--primary-gradient);
 }
 
+/*
+ * Dark mode.
+ *
+ * The screens are written with light-mode colour classes (bg-white, text-gray-900, bg-red-50 ...). Rather than give
+ * every one of them a dark: twin, dark mode re-points those colours here, in one place:
+ *   - the grey scales run the other way round (a "900" text is near white, a "100" background is near black);
+ *   - pale tints (50-200) become deep tints of the same hue, and the dark text shades on them become light;
+ *   - white surfaces become the dark surface colour.
+ * Solid brand buttons (bg-violet-600 with text-white and the like) are left as they are, and anything with its own
+ * dark: colour keeps it. Because the grey scale is re-pointed, a dark: class must not name a grey shade
+ * (write dark:bg-[#27272a], not dark:bg-zinc-800).
+ */
 .dark {
+  color-scheme: dark;
   --background: #0a0a0a;
   --foreground: #ededed;
+  --subtle: #b6b6c0;
+  --muted: #9a9aa6;
+  --hint: rgba(228, 228, 231, 0.35);
+  --surface: #141417;
+  --color-gray-50: #1b1b1f; --color-gray-100: #222227; --color-gray-200: #2e2e34; --color-gray-300: #45454d; --color-gray-400: #71717a; --color-gray-500: #9d9da7; --color-gray-600: #b8b8c1; --color-gray-700: #d2d2d9; --color-gray-800: #e4e4e9; --color-gray-900: #f2f2f5; --color-gray-950: #fafafa;
+  --color-neutral-50: #1b1b1f; --color-neutral-100: #222227; --color-neutral-200: #2e2e34; --color-neutral-300: #45454d; --color-neutral-400: #71717a; --color-neutral-500: #9d9da7; --color-neutral-600: #b8b8c1; --color-neutral-700: #d2d2d9; --color-neutral-800: #e4e4e9; --color-neutral-900: #f2f2f5; --color-neutral-950: #fafafa;
+  --color-slate-50: #1b1b1f; --color-slate-100: #222227; --color-slate-200: #2e2e34; --color-slate-300: #45454d; --color-slate-400: #71717a; --color-slate-500: #9d9da7; --color-slate-600: #b8b8c1; --color-slate-700: #d2d2d9; --color-slate-800: #e4e4e9; --color-slate-900: #f2f2f5; --color-slate-950: #fafafa;
+  --color-zinc-50: #1b1b1f; --color-zinc-100: #222227; --color-zinc-200: #2e2e34; --color-zinc-300: #45454d; --color-zinc-400: #71717a; --color-zinc-500: #9d9da7; --color-zinc-600: #b8b8c1; --color-zinc-700: #d2d2d9; --color-zinc-800: #e4e4e9; --color-zinc-900: #f2f2f5; --color-zinc-950: #fafafa;
+  --color-stone-50: #1b1b1f; --color-stone-100: #222227; --color-stone-200: #2e2e34; --color-stone-300: #45454d; --color-stone-400: #71717a; --color-stone-500: #9d9da7; --color-stone-600: #b8b8c1; --color-stone-700: #d2d2d9; --color-stone-800: #e4e4e9; --color-stone-900: #f2f2f5; --color-stone-950: #fafafa;
+  --color-violet-50: color-mix(in oklab, #8b5cf6 12%, var(--surface));
+  --color-violet-100: color-mix(in oklab, #8b5cf6 20%, var(--surface));
+  --color-violet-200: color-mix(in oklab, #8b5cf6 34%, var(--surface));
+  --color-purple-50: color-mix(in oklab, #a855f7 12%, var(--surface));
+  --color-purple-100: color-mix(in oklab, #a855f7 20%, var(--surface));
+  --color-indigo-50: color-mix(in oklab, #6366f1 12%, var(--surface));
+  --color-indigo-200: color-mix(in oklab, #6366f1 34%, var(--surface));
+  --color-blue-50: color-mix(in oklab, #3b82f6 12%, var(--surface));
+  --color-blue-100: color-mix(in oklab, #3b82f6 20%, var(--surface));
+  --color-blue-200: color-mix(in oklab, #3b82f6 34%, var(--surface));
+  --color-sky-50: color-mix(in oklab, #0ea5e9 12%, var(--surface));
+  --color-sky-100: color-mix(in oklab, #0ea5e9 20%, var(--surface));
+  --color-sky-200: color-mix(in oklab, #0ea5e9 34%, var(--surface));
+  --color-teal-50: color-mix(in oklab, #14b8a6 12%, var(--surface));
+  --color-teal-100: color-mix(in oklab, #14b8a6 20%, var(--surface));
+  --color-teal-200: color-mix(in oklab, #14b8a6 34%, var(--surface));
+  --color-emerald-50: color-mix(in oklab, #10b981 12%, var(--surface));
+  --color-emerald-100: color-mix(in oklab, #10b981 20%, var(--surface));
+  --color-emerald-200: color-mix(in oklab, #10b981 34%, var(--surface));
+  --color-green-50: color-mix(in oklab, #22c55e 12%, var(--surface));
+  --color-green-100: color-mix(in oklab, #22c55e 20%, var(--surface));
+  --color-green-200: color-mix(in oklab, #22c55e 34%, var(--surface));
+  --color-yellow-50: color-mix(in oklab, #eab308 12%, var(--surface));
+  --color-yellow-100: color-mix(in oklab, #eab308 20%, var(--surface));
+  --color-yellow-200: color-mix(in oklab, #eab308 34%, var(--surface));
+  --color-amber-50: color-mix(in oklab, #f59e0b 12%, var(--surface));
+  --color-amber-100: color-mix(in oklab, #f59e0b 20%, var(--surface));
+  --color-amber-200: color-mix(in oklab, #f59e0b 34%, var(--surface));
+  --color-orange-50: color-mix(in oklab, #f97316 12%, var(--surface));
+  --color-orange-100: color-mix(in oklab, #f97316 20%, var(--surface));
+  --color-orange-200: color-mix(in oklab, #f97316 34%, var(--surface));
+  --color-red-50: color-mix(in oklab, #ef4444 12%, var(--surface));
+  --color-red-100: color-mix(in oklab, #ef4444 20%, var(--surface));
+  --color-red-200: color-mix(in oklab, #ef4444 34%, var(--surface));
+  --color-rose-50: color-mix(in oklab, #f43f5e 12%, var(--surface));
+  --color-rose-100: color-mix(in oklab, #f43f5e 20%, var(--surface));
+  --color-rose-200: color-mix(in oklab, #f43f5e 34%, var(--surface));
 }
+
+/* In the utilities layer, with :where() so hover and other variants still win over these. */
+@layer utilities {
+  :where(.dark) .bg-white:not(:where([class*="dark:bg-"])),
+  :where(.dark) .focus\:bg-white:focus { background-color: var(--surface); }
+  :where(.dark) .bg-white\/60:not(:where([class*="dark:bg-"])) { background-color: color-mix(in oklab, var(--surface) 60%, transparent); }
+  :where(.dark) .bg-white\/70:not(:where([class*="dark:bg-"])) { background-color: color-mix(in oklab, var(--surface) 70%, transparent); }
+  :where(.dark) .bg-white\/80:not(:where([class*="dark:bg-"])) { background-color: color-mix(in oklab, var(--surface) 80%, transparent); }
+  :where(.dark) .bg-white\/90:not(:where([class*="dark:bg-"])) { background-color: color-mix(in oklab, var(--surface) 90%, transparent); }
+  :where(.dark) .hover\:bg-white:hover { background-color: #26262b; }
+  :where(.dark) .bg-\[\#F7F7FB\] { background-color: var(--background); }
+  :where(.dark) .bg-\[\#fdf2f2\] { background-color: var(--color-red-50); }
+  :where(.dark) .bg-\[\#ebf7ed\] { background-color: var(--color-green-50); }
+  :where(.dark) .text-black:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-black:hover { color: var(--foreground); }
+
+  /* Near-black buttons carry white text, so they stay dark grey rather than flipping to white. */
+  :where(.dark) .bg-neutral-900,
+  :where(.dark) .bg-gray-900,
+  :where(.dark) .bg-zinc-900,
+  :where(.dark) .bg-neutral-800,
+  :where(.dark) .bg-gray-700 { background-color: #3f3f46; }
+  :where(.dark) .bg-gray-900\/80 { background-color: color-mix(in oklab, #3f3f46 80%, transparent); }
+  :where(.dark) .hover\:bg-neutral-800:hover,
+  :where(.dark) .hover\:bg-gray-800:hover { background-color: #52525b; }
+
+  /* Things that are meant to be white on a dark background in both themes (the video progress bar). */
+  :where(.dark) [data-keep-white] { background-color: #fff; }
+  :where(.dark) .text-violet-600:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-violet-600:hover { color: #a78bfa; }
+  :where(.dark) .text-violet-700:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-violet-700:hover { color: #c4b5fd; }
+  :where(.dark) .text-violet-800:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-violet-800:hover { color: #c4b5fd; }
+  :where(.dark) .text-violet-900:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-violet-900:hover { color: #c4b5fd; }
+  :where(.dark) .text-violet-950:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-violet-950:hover { color: #c4b5fd; }
+  :where(.dark) .text-purple-600:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-purple-600:hover { color: #c084fc; }
+  :where(.dark) .text-purple-700:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-purple-700:hover { color: #d8b4fe; }
+  :where(.dark) .text-purple-800:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-purple-800:hover { color: #d8b4fe; }
+  :where(.dark) .text-purple-900:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-purple-900:hover { color: #d8b4fe; }
+  :where(.dark) .text-purple-950:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-purple-950:hover { color: #d8b4fe; }
+  :where(.dark) .text-indigo-600:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-indigo-600:hover { color: #818cf8; }
+  :where(.dark) .text-indigo-700:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-indigo-700:hover { color: #a5b4fc; }
+  :where(.dark) .text-indigo-800:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-indigo-800:hover { color: #a5b4fc; }
+  :where(.dark) .text-indigo-900:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-indigo-900:hover { color: #a5b4fc; }
+  :where(.dark) .text-indigo-950:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-indigo-950:hover { color: #a5b4fc; }
+  :where(.dark) .text-blue-600:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-blue-600:hover { color: #60a5fa; }
+  :where(.dark) .text-blue-700:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-blue-700:hover { color: #93c5fd; }
+  :where(.dark) .text-blue-800:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-blue-800:hover { color: #93c5fd; }
+  :where(.dark) .text-blue-900:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-blue-900:hover { color: #93c5fd; }
+  :where(.dark) .text-blue-950:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-blue-950:hover { color: #93c5fd; }
+  :where(.dark) .text-sky-600:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-sky-600:hover { color: #38bdf8; }
+  :where(.dark) .text-sky-700:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-sky-700:hover { color: #7dd3fc; }
+  :where(.dark) .text-sky-800:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-sky-800:hover { color: #7dd3fc; }
+  :where(.dark) .text-sky-900:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-sky-900:hover { color: #7dd3fc; }
+  :where(.dark) .text-sky-950:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-sky-950:hover { color: #7dd3fc; }
+  :where(.dark) .text-teal-600:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-teal-600:hover { color: #2dd4bf; }
+  :where(.dark) .text-teal-700:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-teal-700:hover { color: #5eead4; }
+  :where(.dark) .text-teal-800:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-teal-800:hover { color: #5eead4; }
+  :where(.dark) .text-teal-900:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-teal-900:hover { color: #5eead4; }
+  :where(.dark) .text-teal-950:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-teal-950:hover { color: #5eead4; }
+  :where(.dark) .text-emerald-600:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-emerald-600:hover { color: #34d399; }
+  :where(.dark) .text-emerald-700:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-emerald-700:hover { color: #6ee7b7; }
+  :where(.dark) .text-emerald-800:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-emerald-800:hover { color: #6ee7b7; }
+  :where(.dark) .text-emerald-900:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-emerald-900:hover { color: #6ee7b7; }
+  :where(.dark) .text-emerald-950:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-emerald-950:hover { color: #6ee7b7; }
+  :where(.dark) .text-green-600:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-green-600:hover { color: #4ade80; }
+  :where(.dark) .text-green-700:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-green-700:hover { color: #86efac; }
+  :where(.dark) .text-green-800:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-green-800:hover { color: #86efac; }
+  :where(.dark) .text-green-900:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-green-900:hover { color: #86efac; }
+  :where(.dark) .text-green-950:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-green-950:hover { color: #86efac; }
+  :where(.dark) .text-yellow-600:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-yellow-600:hover { color: #facc15; }
+  :where(.dark) .text-yellow-700:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-yellow-700:hover { color: #fde047; }
+  :where(.dark) .text-yellow-800:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-yellow-800:hover { color: #fde047; }
+  :where(.dark) .text-yellow-900:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-yellow-900:hover { color: #fde047; }
+  :where(.dark) .text-yellow-950:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-yellow-950:hover { color: #fde047; }
+  :where(.dark) .text-amber-600:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-amber-600:hover { color: #fbbf24; }
+  :where(.dark) .text-amber-700:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-amber-700:hover { color: #fcd34d; }
+  :where(.dark) .text-amber-800:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-amber-800:hover { color: #fcd34d; }
+  :where(.dark) .text-amber-900:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-amber-900:hover { color: #fcd34d; }
+  :where(.dark) .text-amber-950:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-amber-950:hover { color: #fcd34d; }
+  :where(.dark) .text-orange-600:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-orange-600:hover { color: #fb923c; }
+  :where(.dark) .text-orange-700:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-orange-700:hover { color: #fdba74; }
+  :where(.dark) .text-orange-800:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-orange-800:hover { color: #fdba74; }
+  :where(.dark) .text-orange-900:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-orange-900:hover { color: #fdba74; }
+  :where(.dark) .text-orange-950:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-orange-950:hover { color: #fdba74; }
+  :where(.dark) .text-red-600:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-red-600:hover { color: #f87171; }
+  :where(.dark) .text-red-700:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-red-700:hover { color: #fca5a5; }
+  :where(.dark) .text-red-800:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-red-800:hover { color: #fca5a5; }
+  :where(.dark) .text-red-900:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-red-900:hover { color: #fca5a5; }
+  :where(.dark) .text-red-950:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-red-950:hover { color: #fca5a5; }
+  :where(.dark) .text-rose-600:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-rose-600:hover { color: #fb7185; }
+  :where(.dark) .text-rose-700:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-rose-700:hover { color: #fda4af; }
+  :where(.dark) .text-rose-800:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-rose-800:hover { color: #fda4af; }
+  :where(.dark) .text-rose-900:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-rose-900:hover { color: #fda4af; }
+  :where(.dark) .text-rose-950:not(:where([class*="dark:text-"])),
+  :where(.dark) .hover\:text-rose-950:hover { color: #fda4af; }
+}
+
+/* The rich-text editor ships its own light stylesheet, which these have to out-rank. */
+.dark .ql-toolbar.ql-snow,
+.dark .ql-container.ql-snow { border-color: #2e2e34; }
+.dark .ql-snow .ql-stroke { stroke: #d2d2d9; }
+.dark .ql-snow .ql-fill { fill: #d2d2d9; }
+.dark .ql-snow .ql-picker { color: #d2d2d9; }
+.dark .ql-snow .ql-picker-options,
+.dark .ql-snow .ql-tooltip { background-color: #141417; border-color: #2e2e34; color: #ededed; box-shadow: none; }
+.dark .ql-snow .ql-tooltip input[type="text"] { background-color: #222227; border-color: #45454d; color: #ededed; }
+.dark .ql-editor.ql-blank::before { color: #71717a; }
 
 @layer utilities {
   .bg-primary-gradient {
