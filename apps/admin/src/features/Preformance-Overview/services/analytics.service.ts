@@ -94,3 +94,44 @@ export interface ApiStaffOverview {
 /** Endpoint: GET /admin/analytics/staff */
 export const getStaffOverview = async (days: number): Promise<ApiStaffOverview> =>
   (await apiClient.get<{ data: ApiStaffOverview }>("/admin/analytics/staff", { params: { days } })).data.data;
+
+export interface ApiEnrollmentItem {
+  id: string;
+  title: string;
+  status: string;
+  /** Learners with an active enrollment. */
+  total: number;
+  paid: number;
+  free: number;
+  new_in_period: number;
+  new_in_previous_period: number;
+}
+
+export interface ApiEnrollmentGroup {
+  /** Distinct learners across all of these. */
+  learners: number;
+  /** Enrollments: one learner in two courses counts twice. */
+  total: number;
+  paid: number;
+  free: number;
+  new_in_period: number;
+  new_in_previous_period: number;
+  items: ApiEnrollmentItem[];
+}
+
+export interface ApiEnrollmentReport {
+  days: number;
+  learners: number;
+  paying_learners: number;
+  courses: ApiEnrollmentGroup;
+  exam_programs: ApiEnrollmentGroup;
+}
+
+/** Endpoint: GET /admin/analytics/enrollments */
+export const getEnrollmentReport = async (days: number): Promise<ApiEnrollmentReport> => {
+  const res = await apiClient.get<{ data: ApiEnrollmentReport }>(
+    "/admin/analytics/enrollments",
+    { params: { days } },
+  );
+  return res.data.data;
+};
