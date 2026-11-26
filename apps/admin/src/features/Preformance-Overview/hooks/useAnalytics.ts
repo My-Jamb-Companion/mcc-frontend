@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   getActiveStudentsTotal,
   getAtRiskStudents,
+  getEnrollmentReport,
   getPlatformOverview,
   getProspectiveStudentsTotal,
   getStaffOverview,
@@ -47,4 +48,10 @@ export const useStaffOverview = (days: number) =>
   useQuery({
     queryKey: ["admin", "analytics", "staff", days],
     queryFn: () => getStaffOverview(days),
+  });
+
+export const useEnrollmentReport = (days: number) =>
+  useQuery({
+    queryKey: ["admin", "analytics", "enrollments", days],
+    queryFn: () => getEnrollmentReport(days),
   });

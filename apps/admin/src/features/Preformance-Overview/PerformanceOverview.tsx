@@ -7,24 +7,28 @@ import TeacherPerformanceDashboard from "./TeachersPerformance";
 import AtRiskStudents from "./AtRiskStudents";
 import TeacherEffectiveness from "./TeacherEffectiveness";
 import ProgressSurvey from "./survey/ProgressSurvey";
+import Enrollments from "./Enrollments";
 import TabbedButton from "@/src/components/TabbedButton";
 
 export default function PerformanceOverview() {
-  const [view, setView] = useState<"overview" | "survey">("overview");
+  const [view, setView] = useState<"overview" | "enrollments" | "survey">("overview");
 
   return (
     <section className="w-full space-y-10">
       <TabbedButton
         tabs={[
           {key: "overview", label: "Overview", icon: "ri:bar-chart-2-line"},
+          {key: "enrollments", label: "Enrolments", icon: "ri:group-line"},
           {key: "survey", label: "Progress survey", icon: "ri:survey-line"},
         ]}
         active={view}
-        onChange={(key) => setView(key as "overview" | "survey")}
+        onChange={(key) => setView(key as "overview" | "enrollments" | "survey")}
       />
 
       {view === "survey" ? (
         <ProgressSurvey />
+      ) : view === "enrollments" ? (
+        <Enrollments />
       ) : (
         <>
           <Overview />
